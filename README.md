@@ -122,6 +122,6 @@ where σ are Pauli matrices and v_F is the Fermi velocity, showing the massless 
 
 ## Author
 
-Harsh Vardhan - PhD Student, IIT BHU Physics Department
+Harsh Vardhan - IDD Student, IIT BHU Physics Department
 
 This repository demonstrates foundational understanding of graphene physics with computational examples and visualizations that highlight the unique electronic properties arising from its honeycomb lattice structure.
