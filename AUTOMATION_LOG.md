@@ -196,3 +196,82 @@ Chapter 5 draft existed yet.
 **Commits this run:** 3 (interconnect resistivity research notes,
 interconnect resistivity model code + plot, thesis_draft/ Chapter 5 +
 Chapter 1 status table update).
+
+---
+
+## 2026-08-24
+
+**Status:** Fourth automation run.
+
+**Repo state at start:** README + intrinsic-property scripts, plus
+2026-08-21/22/23 device-physics additions (contact resistance / quantum
+capacitance model, RF small-signal model, interconnect resistivity model,
+thesis_draft/ Chapters 1 and 5). The contact-resistance-vs-channel-length
+crossover plot had been flagged as planned since 2026-08-21 but not yet
+implemented; no photodetector content (research, code, or thesis_draft/
+Chapter 6) existed yet.
+
+**Work done:**
+
+1. **Code + results** (`contact_resistance_crossover.py`,
+   `contact_resistance_crossover.png`): New module closing out the
+   contact-resistance-vs-channel-length crossover analysis planned in the
+   2026-08-21 notes (Section 4). Reuses the existing quantum-capacitance-
+   limited carrier density and sheet conductivity functions from
+   `graphene_fet_model.py` unmodified, sweeping channel length L instead
+   of gate voltage. Computes total device resistance (channel + literature
+   contact resistance) vs. L on a log scale, plus the contact-resistance
+   fraction of total resistance vs. L, and reports the analytic crossover
+   length L_x (closed form since sheet conductivity is L-independent) for
+   each literature Rc value. Verified to run standalone and produce
+   physically sensible output: L_x = 115 nm for the best-case literature
+   contact (Pd, ~110 Ohm.um), 314 nm for a mid-range contact (300 Ohm.um),
+   and 524 nm for the worst-case (500 Ohm.um) -- confirming that even the
+   best literature graphene contacts are not negligible at the 200 nm
+   channel length used elsewhere in this thesis's GFET model.
+
+2. **Research notes**
+   (`notes/2026-08-24-graphene-photodetector-responsivity.md`): Literature
+   review of graphene photodetector responsivity -- the intrinsic
+   absorption bottleneck (ties directly to the ~2.3% universal absorption
+   already derived in `graphene_transport_properties.py`), the collection
+   bottleneck (short photocarrier lifetime, ~100-200 nm built-in-field
+   region), the photogating gain/response-speed tradeoff (representative
+   values from ~10^3 A/W at ~400 ns to ~10^10 A/W at second-scale response
+   times), and heterostructure strategies (graphene/Si Schottky ~510
+   mA/W, plasmonic-enhanced graphene/Si ~1.9 A/W, graphene/TMD photogating
+   up to ~4.4x10^6 A/W, a 2025 alternating-channel geometry reporting
+   1.7x10^7 mA/W with 3-4 us response, and a heterostructure-engineered
+   160 Gb/s zero-bias design). Full citations included. WebSearch was
+   available and used for this research.
+
+3. **Writing** (`thesis_draft/06-graphene-photodetectors.md`): First
+   Chapter 6 content (previously "Not started" in the Chapter 1 status
+   table, now updated to "In progress"). Drafted the absorption-limit
+   motivation (explicitly connecting back to the Chapters 2-3 optical-
+   absorption result), the two-bottleneck picture, the gain/speed
+   tradeoff, and a specific follow-on plan (a quantitative responsivity/
+   gain model reusing the existing optical-conductivity code). Also
+   updated the Chapter 1 status table (Chapters 4 and 6 rows) to reflect
+   today's work.
+
+**Not yet covered (candidates for future runs):**
+- Quantitative responsivity/gain model for graphene photodetectors
+  (Chapter 6, Section 6.4 -- reusing `calculate_optical_conductivity`
+  with a parametrized gain factor)
+- Metal contact work-function-dependent doping profile (still only a
+  lumped series resistance, not a spatially resolved p-n junction model)
+- Graphene-all-around-metal (liner/cap) interconnect model, distinct from
+  the existing pure-GNR-wire model (Chapter 5, Section 5.4)
+- Copper comparison model does not yet include the liner/barrier-
+  thickness effect (Chapter 5, Section 5.2)
+- A more careful f_max model with realistic pad/interconnect parasitics
+  (still open from 2026-08-22, to resolve the f_max > f_T artifact
+  flagged in that day's code caveat)
+- Further thesis_draft/ chapters: 2-3 could be drafted from the existing
+  band-structure/transport code and results; Chapter 7 (discussion/
+  outlook) awaits enough device-application chapters to synthesize
+
+**Commits this run:** 3 (contact-resistance-vs-channel-length crossover
+code + plot, photodetector responsivity research notes, thesis_draft/
+Chapter 6 + Chapter 1 status table update).
