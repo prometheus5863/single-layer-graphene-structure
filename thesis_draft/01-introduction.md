@@ -104,9 +104,9 @@ examples, developed in detail in this thesis:
 |---|---|---|
 | 2 | Electronic band structure of single-layer graphene (tight-binding model, Dirac dispersion, density of states) | Computational results complete (`graphene_band_structure.py`) |
 | 3 | Transport and optical properties (quantum Hall effect, universal optical absorption) | Computational results complete (`graphene_transport_properties.py`, optical absorption scripts) |
-| 4 | Device physics: contact resistance, quantum capacitance, GFET transfer characteristics, RF figures of merit | In progress — DC model and RF small-signal model implemented; literature review of contact resistance, quantum capacitance, and f_T/f_max complete; still to add: contact-resistance-vs-channel-length crossover analysis |
+| 4 | Device physics: contact resistance, quantum capacitance, GFET transfer characteristics, RF figures of merit | In progress — DC model, RF small-signal model, and contact-resistance-vs-channel-length crossover analysis implemented (`graphene_fet_model.py`, `rf_small_signal_model.py`, `contact_resistance_crossover.py`); literature review of contact resistance, quantum capacitance, and f_T/f_max complete |
 | 5 | Graphene interconnects: resistivity vs. linewidth, comparison to scaled copper | In progress -- literature review and resistivity-vs-linewidth model complete (`notes/2026-08-23-interconnect-resistivity-vs-linewidth.md`, `graphene_interconnect_model.py`); draft written (`thesis_draft/05-graphene-interconnects.md`); still to add: graphene-all-around-metal liner/cap model |
-| 6 | Graphene photodetectors: responsivity, gate-tunable absorption | Not started |
+| 6 | Graphene photodetectors: responsivity, gate-tunable absorption | In progress -- literature review complete (`notes/2026-08-24-graphene-photodetector-responsivity.md`); draft written (`thesis_draft/06-graphene-photodetectors.md`); still to add: quantitative responsivity/gain model |
 | 7 | Discussion and outlook: graphene's realistic near-term application space in the semiconductor industry | Not started |
 
 This draft will be expanded chapter-by-chapter as the corresponding
