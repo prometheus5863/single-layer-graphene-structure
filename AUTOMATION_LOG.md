@@ -352,3 +352,98 @@ search was needed.
 **Commits this run:** 2 (photodetector responsivity/gain-bandwidth model
 code + plot, thesis_draft/ Chapter 6 Section 6.4 + Chapter 1 status
 table update).
+
+---
+
+## 2026-08-26
+
+**Status:** Sixth automation run.
+
+**Repo state at start:** README + intrinsic-property scripts, plus
+2026-08-21 through 2026-08-25 device-physics additions (contact resistance
+/ quantum capacitance model, RF small-signal model, interconnect
+resistivity model, contact-resistance-vs-channel-length crossover
+analysis, quantitative photodetector responsivity/gain-bandwidth model,
+thesis_draft/ Chapters 1, 5, and 6). "Metal contact work-function-dependent
+doping profile (currently only a lumped series resistance, not a
+spatially resolved p-n junction model)" had been flagged as not yet
+covered in every run's log since 2026-08-21; this was the clearest
+remaining gap in the Chapter 4 device-physics material, and Chapter 4
+itself had no `thesis_draft/` file yet (only referenced from the Chapter 1
+status table).
+
+**Work done:**
+
+1. **Research notes**
+   (`notes/2026-08-26-contact-induced-doping-profile.md`): Literature
+   review of metal-work-function-dependent doping of graphene at contacts
+   -- the charge-transfer mechanism and its dependence on the metal/
+   graphene work-function difference (Giovannetti et al., *Phys. Rev.
+   Lett.* 101, 026803 (2008)), and the spatial extent and screening
+   behavior of the induced doping (Khomyakov et al., *Phys. Rev. B* 82,
+   115437 (2010), arXiv:0911.2027: x^-1 potential decay for doped
+   graphene, doping extending hundreds of nm from the contact edge, n/p
+   crossover work function ≈5.4 eV vs. graphene's own ~4.5 eV). Full
+   citations included. WebSearch was available and used for this
+   research.
+
+2. **Code + results** (`graphene_contact_doping_model.py`,
+   `contact_doping_profile.png`): New module computing a self-consistent
+   contact-edge carrier density (reusing `quantum_capacitance()` from
+   `graphene_fet_model.py` with an effective interface capacitance in
+   place of the back-gate oxide capacitance) for six representative
+   contact metals (Ti, Cr, Cu, Pd, Au, Pt), a saturating spatial decay
+   profile matching the literature x^-1 asymptotic, and the resulting
+   extra junction sheet resistance (width-normalized, comparable to the
+   lumped Rc literature range) integrated across the junction region.
+   Verified to run standalone; caught and fixed a divide-by-zero at the
+   charge-neutrality crossing by applying the same disorder-puddle
+   regularization already used in `graphene_fet_model.carrier_density()`.
+   Results show Ti (weakest doping) contributes the smallest extra
+   resistance (~55 Ω·µm); Cu/Au/Pd (p-n junctions against an n-type bulk
+   channel) contribute several hundred Ω·µm; Pt's very strong p-type
+   doping produces a net *negative* extra-resistance figure in this
+   model, which is flagged explicitly at runtime as a real feature of the
+   classical drift-conductance picture (an overdoped access region
+   conducts well) rather than a claim that strongly-doping contacts are
+   easier to make low-resistance in reality -- the model does not capture
+   depletion/injection physics at the crossing itself.
+
+3. **Writing** (`thesis_draft/04-graphene-fet-device-physics.md`,
+   `thesis_draft/01-introduction.md`): First Chapter 4 content (the
+   chapter previously existed only as a status-table row referencing the
+   codebase, with no drafted text). Synthesizes the existing quantum-
+   capacitance, GFET transfer-characteristic, contact-resistance, and
+   contact-resistance-vs-channel-length-crossover material into a single
+   narrative, then adds a new Section 4.5 covering today's contact-doping
+   model and Section 4.6 covering the RF figures of merit (including the
+   still-open f_max artifact from 2026-08-22). Updated the Chapter 1
+   status table's Chapter 4 row (now "draft written") and Chapter 6 row
+   (noting the new contact-doping model as an available, not-yet-
+   integrated building block for the photodetector chapter's flagged
+   "spatially resolved collection model" prerequisite).
+
+**Not yet covered (candidates for future runs):**
+- Using the new contact-doping model to *recalibrate* per-metal Rc values
+  (currently diagnostic only; Section 4.7 open-items table)
+- Plasmonic-absorption-enhancement factor for the photodetector model
+  (Chapter 6, Section 6.5)
+- Integrating the contact-doping spatial-profile machinery into the
+  photodetector collection-efficiency model (Chapter 6, Section 6.5's
+  other flagged prerequisite -- now more directly reachable given
+  today's Section 4.5 work)
+- Graphene-all-around-metal (liner/cap) interconnect model, distinct from
+  the existing pure-GNR-wire model (Chapter 5, Section 5.4)
+- Copper comparison model does not yet include the liner/barrier-
+  thickness effect (Chapter 5, Section 5.2)
+- A more careful f_max model with realistic pad/interconnect parasitics
+  (still open from 2026-08-22, to resolve the f_max > f_T artifact
+  flagged in that day's code caveat, and now also referenced from
+  Chapter 4 Section 4.6)
+- Further thesis_draft/ chapters: 2-3 could be drafted from the existing
+  band-structure/transport code and results; Chapter 7 (discussion/
+  outlook) awaits enough device-application chapters to synthesize
+
+**Commits this run:** 4 (contact-doping research notes, contact-doping
+model code + plot, thesis_draft/ Chapter 4 + Chapter 1 status table
+update, this log entry).
