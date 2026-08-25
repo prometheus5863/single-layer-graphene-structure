@@ -275,3 +275,80 @@ Chapter 6) existed yet.
 **Commits this run:** 3 (contact-resistance-vs-channel-length crossover
 code + plot, photodetector responsivity research notes, thesis_draft/
 Chapter 6 + Chapter 1 status table update).
+
+---
+
+## 2026-08-25
+
+**Status:** Fifth automation run.
+
+**Repo state at start:** README + intrinsic-property scripts, plus
+2026-08-21 through 2026-08-24 device-physics additions (contact
+resistance / quantum capacitance model, RF small-signal model,
+interconnect resistivity model, contact-resistance-vs-channel-length
+crossover analysis, thesis_draft/ Chapters 1, 5, and 6). Chapter 6's
+"Planned follow-on work" (Section 6.4, as of 2026-08-24) explicitly
+called for a quantitative responsivity/gain model; this was the clearest
+next candidate since it closes a specific, already-scoped gap rather
+than opening a new topic.
+
+**Work done:**
+
+1. **Code + results** (`graphene_photodetector_model.py`,
+   `photodetector_responsivity_gain_tradeoff.png`): New module
+   implementing the responsivity-vs-response-time / photoconductive-gain
+   tradeoff described qualitatively in Chapter 6, Section 6.3. Combines
+   the literature bare-device EQE (~0.15%) with a classic photoconductor
+   gain G = tau_trap/tau_transit, where tau_transit is derived from the
+   existing Chapter 4 GFET channel parameters (L=200nm, mu=0.4 m^2/Vs,
+   Vds=0.1V, giving tau_transit=1.0 ps) rather than a new free parameter.
+   Verified to run standalone; checked against the three literature
+   anchor points from the 2026-08-24 notes (interfacial photogating @
+   400ns/1e3 A/W, 2025 alternating-channel @ 3.5us/1.7e4 A/W, extended
+   photogating @ 1s/1e10 A/W): the model reproduces the correct tradeoff
+   slope across six decades of tau_trap, underpredicting absolute
+   responsivity by a roughly constant 3.8x-15.0x factor attributed to
+   device-specific trap/geometry effects outside the model's single
+   lumped transit time. Also derives a model gain-bandwidth invariant
+   (~159 GHz) and shows all three literature devices exceed it, with the
+   2025 geometry-engineered device behaving like the trap-based points
+   rather than showing a qualitatively different signature -- consistent
+   with it decoupling gain from speed rather than using a different gain
+   mechanism.
+
+2. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`): Added Section 6.4 (model
+   description, results table, gain-bandwidth-invariant discussion, and
+   an explicit caveat on the model's known absolute-magnitude offset),
+   renumbered the former follow-on-work list to Section 6.5 with
+   narrower remaining items, fixed a broken cross-reference to the
+   2026-08-24 research notes filename, and updated the Chapter 1 status
+   table's Chapter 6 row.
+
+**Not yet covered (candidates for future runs):**
+- Plasmonic-absorption-enhancement factor for the photodetector model
+  (Chapter 6, Section 6.5), to close part of the 3.8x-15.0x
+  literature-offset identified today
+- Metal contact work-function-dependent doping profile (still only a
+  lumped series resistance, not a spatially resolved p-n junction model)
+  -- also flagged today as a prerequisite for a spatially resolved
+  photodetector collection-efficiency model
+- Graphene-all-around-metal (liner/cap) interconnect model, distinct from
+  the existing pure-GNR-wire model (Chapter 5, Section 5.4)
+- Copper comparison model does not yet include the liner/barrier-
+  thickness effect (Chapter 5, Section 5.2)
+- A more careful f_max model with realistic pad/interconnect parasitics
+  (still open from 2026-08-22, to resolve the f_max > f_T artifact
+  flagged in that day's code caveat)
+- Further thesis_draft/ chapters: 2-3 could be drafted from the existing
+  band-structure/transport code and results; Chapter 7 (discussion/
+  outlook) awaits enough device-application chapters to synthesize
+
+**Note:** WebSearch was not used this run -- today's work extended an
+existing literature-anchored model with new derived quantities and
+cross-checks rather than requiring new literature search, so no live
+search was needed.
+
+**Commits this run:** 2 (photodetector responsivity/gain-bandwidth model
+code + plot, thesis_draft/ Chapter 6 Section 6.4 + Chapter 1 status
+table update).
