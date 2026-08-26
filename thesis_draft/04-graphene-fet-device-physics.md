@@ -170,18 +170,39 @@ g_ds from numerical derivatives of `transfer_characteristic()`, gate-source
 capacitance C_gs reusing the same quantum-capacitance-limited gate
 capacitance from Section 4.2, C_gd as a fraction of C_gs, and a distributed
 gate resistance estimate. It computes current-gain cutoff frequency
-f_T = g_m/(2π C_gs) and a simplified maximum oscillation frequency f_max
+f_T = g_m/(2π C_gs) and maximum oscillation frequency
+f_max = f_T / (2√(g_ds(R_g+R_s) + 2π f_T C_gd R_g))
 (`rf_figures_of_merit.png`). Peak f_T ≈20 GHz for the 200 nm long-channel
 device used throughout this thesis is consistent with the literature range
 for non-exotic gate lengths (see
 `notes/2026-08-22-rf-figures-of-merit-fT-fmax.md` for benchmarks up to
-hundreds of GHz for aggressively scaled record devices). The physical
-reason f_max lags f_T by roughly an order of magnitude for graphene —
-absence of current saturation, unlike a conventional MOSFET — is discussed
-in the Chapter 1 motivation (Section 1.2) and in the RF notes; the current
-simplified f_max model has a known artifact (f_max exceeding f_T at some
-bias points, attributed to the model's idealized low parasitic gate
-resistance) flagged explicitly in the code and not yet resolved.
+hundreds of GHz for aggressively scaled record devices).
+
+The earlier version of this model (through 2026-08-22) omitted the
+source/drain access resistance R_s from the f_max denominator and had no
+way to separate an intrinsic (de-embedded-equivalent) estimate from an
+extrinsic (as-measured, pad-parasitic-included) one — and, on that basis,
+flagged f_max occasionally exceeding f_T as an unphysical artifact.
+Revisiting this on 2026-08-26 against more specific literature (Feijoo
+et al., *Sci. Rep.* 6, 35717 (2016)) showed that framing was wrong:
+de-embedded graphene FETs with deliberately low, engineered gate
+resistance routinely show f_max > f_T (that paper reports f_max/f_T
+ratios of 1.3-1.4 at every gate length measured), because f_max ∝ 1/√R_g
+while f_T is independent of R_g — the ratio is a design outcome, not an
+intrinsic ceiling. The model was corrected accordingly rather than forced
+to reproduce a rule that turned out not to hold in general: R_s
+(= R_c,total/2, reusing the Section 4.3 contact-resistance calibration)
+was added to the f_max denominator, and an explicit extrinsic estimate
+(+15 fF GSG pad capacitance per pad, evaluated at a literature-scale
+40 µm/8-finger device rather than this repo's normalized 1 µm width,
+which would otherwise overstate the pad-capacitance effect by two orders
+of magnitude) is now reported alongside the intrinsic one. At the
+literature-scale device size, the extrinsic estimate degrades both f_T
+and f_max to roughly 15-20% of their intrinsic values — the same
+direction, if not the same magnitude, as the raw-vs-de-embedded gap
+Feijoo et al. report (~60-70%). See
+`notes/2026-08-26-fmax-parasitics-and-fT-fmax-ratio.md` for the full
+derivation and literature citations.
 
 ## 4.7 Summary and open items
 
@@ -192,7 +213,7 @@ resistance) flagged explicitly in the code and not yet resolved.
 | Contact resistance (lumped, literature-calibrated) | Complete (`graphene_fet_model.py`) |
 | Contact-resistance-vs-channel-length crossover | Complete (`contact_resistance_crossover.py`) |
 | Spatially-resolved, work-function-dependent contact doping | Complete, diagnostic model (`graphene_contact_doping_model.py`) — see Section 4.5 for known limitations |
-| RF figures of merit (f_T, f_max) | In progress — f_max model has a known parasitic-resistance artifact |
+| RF figures of merit (f_T, f_max) | Complete, incl. access resistance + extrinsic pad-capacitance estimate (`rf_small_signal_model.py`, Section 4.6) |
 | Using the doping-profile model to *recalibrate* Rc per metal (vs. using it only diagnostically) | Not started |
 
 Cross-references: Chapter 5 (interconnects) and Chapter 6 (photodetectors)

@@ -90,13 +90,19 @@ examples, developed in detail in this thesis:
   qualitative difference from silicon is why RF figures of merit for
   graphene show a characteristic pattern not seen in III-V or Si RF
   transistors: cutoff frequency f_T can be very high (hundreds of GHz in
-  record devices), but maximum oscillation frequency f_max lags far
-  behind — often by an order of magnitude — because f_max is controlled by
-  output conductance and gate resistance, both of which are made worse by
-  the lack of saturation (Chapter 4; see
-  `notes/2026-08-22-rf-figures-of-merit-fT-fmax.md` for the literature
-  benchmarks and `rf_small_signal_model.py` for the corresponding
-  computational estimate).
+  record devices), while maximum oscillation frequency f_max is set by
+  output conductance and parasitic gate/access resistance, both made
+  worse by the lack of saturation. Whether f_max lags f_T or exceeds it
+  turns out to be a design outcome rather than an intrinsic rule — early
+  device generations with large, single-finger gate resistance showed
+  f_max well below f_T, while later devices with engineered low gate
+  resistance (multi-finger, T-shaped gates) report f_max/f_T ratios above
+  1 (Chapter 4, Section 4.6; see
+  `notes/2026-08-22-rf-figures-of-merit-fT-fmax.md` and
+  `notes/2026-08-26-fmax-parasitics-and-fT-fmax-ratio.md` for the
+  literature benchmarks and `rf_small_signal_model.py` for the
+  corresponding computational estimate, which models both the intrinsic
+  and extrinsic/pad-capacitance-limited cases).
 
 ## 1.3 Thesis structure (current status)
 
@@ -104,7 +110,7 @@ examples, developed in detail in this thesis:
 |---|---|---|
 | 2 | Electronic band structure of single-layer graphene (tight-binding model, Dirac dispersion, density of states) | Computational results complete (`graphene_band_structure.py`) |
 | 3 | Transport and optical properties (quantum Hall effect, universal optical absorption) | Computational results complete (`graphene_transport_properties.py`, optical absorption scripts) |
-| 4 | Device physics: contact resistance, quantum capacitance, GFET transfer characteristics, RF figures of merit | In progress -- DC model, RF small-signal model, contact-resistance-vs-channel-length crossover analysis, and spatially-resolved work-function-dependent contact doping model implemented (`graphene_fet_model.py`, `rf_small_signal_model.py`, `contact_resistance_crossover.py`, `graphene_contact_doping_model.py`); literature review of contact resistance, quantum capacitance, f_T/f_max, and contact doping complete; draft written (`thesis_draft/04-graphene-fet-device-physics.md`); still to add: f_max parasitic-resistance artifact fix, use doping model to recalibrate per-metal Rc |
+| 4 | Device physics: contact resistance, quantum capacitance, GFET transfer characteristics, RF figures of merit | In progress -- DC model, RF small-signal model (incl. access resistance + extrinsic pad-capacitance estimate), contact-resistance-vs-channel-length crossover analysis, and spatially-resolved work-function-dependent contact doping model implemented (`graphene_fet_model.py`, `rf_small_signal_model.py`, `contact_resistance_crossover.py`, `graphene_contact_doping_model.py`); literature review of contact resistance, quantum capacitance, f_T/f_max (incl. the 2026-08-26 access-resistance/pad-capacitance revision), and contact doping complete; draft written (`thesis_draft/04-graphene-fet-device-physics.md`); still to add: use doping model to recalibrate per-metal Rc |
 | 5 | Graphene interconnects: resistivity vs. linewidth, comparison to scaled copper | In progress -- literature review and resistivity-vs-linewidth model complete (`notes/2026-08-23-interconnect-resistivity-vs-linewidth.md`, `graphene_interconnect_model.py`); draft written (`thesis_draft/05-graphene-interconnects.md`); still to add: graphene-all-around-metal liner/cap model |
 | 6 | Graphene photodetectors: responsivity, gate-tunable absorption | In progress -- literature review complete (`notes/2026-08-24-photodetector-responsivity.md`); quantitative responsivity/gain-bandwidth model implemented (`graphene_photodetector_model.py`, `photodetector_responsivity_gain_tradeoff.png`); draft written (`thesis_draft/06-graphene-photodetectors.md`); still to add: plasmonic-enhancement factor, spatially resolved collection model (building block now available in Chapter 4, Section 4.5 -- `graphene_contact_doping_model.py` -- not yet integrated into the photodetector model itself) |
 | 7 | Discussion and outlook: graphene's realistic near-term application space in the semiconductor industry | Not started |
