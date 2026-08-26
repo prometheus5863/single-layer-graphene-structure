@@ -447,3 +447,102 @@ status table).
 **Commits this run:** 4 (contact-doping research notes, contact-doping
 model code + plot, thesis_draft/ Chapter 4 + Chapter 1 status table
 update, this log entry).
+
+---
+
+## 2026-08-26 (second session)
+
+**Status:** Seventh automation run. Note on dating: the previous "## 2026-08-26"
+entry above was actually written at 2026-08-25 23:18 UTC / 2026-08-26 04:48
+IST (the automation host's local clock is IST, which is ahead of UTC and
+crossed midnight first) — this session started at 2026-08-26 17:38 UTC,
+genuinely the next scheduled run, ~14 hours later. Disambiguated with
+"(second session)" in the header rather than reusing an identical date
+heading.
+
+**Repo state at start:** Phase-equivalent state per the previous entry:
+Chapters 1, 4, 5, 6 of `thesis_draft/` exist; `rf_small_signal_model.py`
+(added 2026-08-22) had a long-standing flagged caveat that its simplified
+f_max estimate sometimes exceeds f_T, treated in the code and in
+Chapter 4 as an unresolved artifact requiring a fix. This was the clearest
+concrete open item carried across multiple prior "not yet covered" lists
+(2026-08-24, 2026-08-25, 2026-08-26 first session all listed it), and,
+unlike some of the other open items (plasmonic enhancement, liner/cap
+interconnect model), it corresponds to an actual modeling gap rather than
+a new feature — so it was prioritized this session.
+
+**Work done:**
+
+1. **Research notes**
+   (`notes/2026-08-26-fmax-parasitics-and-fT-fmax-ratio.md`): WebSearch
+   and WebFetch were both available and used this session. Re-examined
+   the 2026-08-22 note's claim that f_max is "typically about an order of
+   magnitude lower than f_T" for graphene FETs against more specific
+   literature: Feijoo et al., *Sci. Rep.* 6, 35717 (2016) — already cited
+   in the 2026-08-22 notes but not read closely enough at the time —
+   reports f_max/f_T ratios of 1.3-1.4 (f_max *exceeding* f_T) at every
+   gate length measured, for a device with a deliberately engineered low
+   gate resistance (~15 Ω). Also pulled the standard source/drain access-
+   resistance term (missing from this repo's f_max formula since it was
+   first written) from Wang/Hsu/Wu, arXiv:1112.4831, along with that
+   paper's note that GSG pad capacitance is a materially larger effect on
+   conductive-substrate (i.e. back-gated, like this repo's device)
+   devices than on insulating-substrate ones. Two fetch attempts failed
+   (IEEE Xplore PDF: HTTP 418; a ResearchGate page: rate-limited) and are
+   recorded as such rather than silently skipped.
+
+2. **Code fix** (`rf_small_signal_model.py`, `rf_figures_of_merit.png`):
+   Added the missing source/drain access resistance term
+   (R_s = Rc_total/2, reusing the existing literature-calibrated contact
+   resistance) to the f_max denominator: `gds*(Rg+Rs) + ...` instead of
+   `gds*Rg + ...`. Added an explicit intrinsic-vs-extrinsic (GSG pad
+   capacitance) comparison mode. Discovered while implementing this that
+   a naive pad-capacitance comparison at the repo's normalized 1 µm
+   device width overstates the pad effect by >100x relative to the
+   literature raw/de-embedded ratio (~0.6-0.7x), because a real
+   RF-probed device is never 1 µm wide — fixed by adding an optional
+   width/finger-count override (`compute_fT_fmax(W=..., N_fingers=...)`)
+   that temporarily rescales `graphene_fet_model`'s module-level `W` and
+   `Rc_total` (following the same save/restore idiom the 2026-08-22 code
+   already used for its Rc sweep), plus the standard N²-reduction
+   multi-finger gate-resistance formula, and evaluates the extrinsic
+   comparison at a literature-representative 40 µm/8-finger device
+   instead. At that scale, extrinsic degrades f_T and f_max to ~15-20% of
+   their intrinsic values — same direction, larger magnitude than
+   Feijoo et al.'s measured ratio, and reported as such rather than
+   tuned to match. Also replaced the old blanket "f_max > f_T is
+   unphysical" caveat text in `summary_numbers()` with the corrected
+   framing from the research notes. Verified to run standalone; the
+   updated plot now has three panels (intrinsic f_T/f_max, the existing
+   Rc-vs-fT sweep, and the new intrinsic-vs-extrinsic comparison).
+
+3. **Writing** (`thesis_draft/04-graphene-fet-device-physics.md`,
+   `thesis_draft/01-introduction.md`): Rewrote Section 4.6 to describe
+   the corrected model and the literature re-examination, updated the
+   Section 4.7 status table row (RF figures of merit: "In progress" with
+   a known artifact -> "Complete"), corrected the Chapter 1 Section 1.2
+   motivation paragraph's blanket "f_max lags f_T by an order of
+   magnitude" claim to the more accurate "design/parasitics-dependent"
+   framing, and updated the Chapter 1 status table's Chapter 4 row.
+
+**Not yet covered (candidates for future runs):**
+- Using the contact-doping model (Section 4.5) to recalibrate per-metal
+  Rc values (still open, Section 4.7)
+- Plasmonic-absorption-enhancement factor for the photodetector model
+  (Chapter 6, Section 6.5)
+- Integrating the contact-doping spatial-profile machinery into the
+  photodetector collection-efficiency model (Chapter 6, Section 6.5)
+- Graphene-all-around-metal (liner/cap) interconnect model (Chapter 5)
+- Copper comparison model liner/barrier-thickness effect (Chapter 5,
+  Section 5.2)
+- Confirming the "High fMAX/fT ratio in multi-finger embedded T-shaped
+  gate graphene transistors" source referenced by title only this
+  session (fetch was rate-limited) — would strengthen the multi-finger
+  R_g discussion with a second, independent data point
+- Further thesis_draft/ chapters: 2-3 could be drafted from the existing
+  band-structure/transport code and results; Chapter 7 (discussion/
+  outlook) awaits enough device-application chapters to synthesize
+
+**Commits this run:** 3 (fmax-parasitics research notes, code fix +
+regenerated plot, thesis_draft/ Chapter 4 Section 4.6 + Chapter 1
+updates; this log entry commit makes 4).
