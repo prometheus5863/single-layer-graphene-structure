@@ -46,11 +46,31 @@ sharply as W is scaled down due to edge scattering, and only becomes
 competitive with (eventually, in the idealized single-layer limit,
 better than) Cu at aggressively scaled linewidths.
 
+2026-08-28 update: the Cu comparison baseline below originally modeled
+surface/grain-boundary scattering only, and explicitly noted that this
+made it a conservative (upper-bound) estimate of scaled-Cu performance
+because it omitted the diffusion-barrier/adhesion-liner layer that a
+real damascene Cu interconnect requires -- a layer whose thickness does
+not scale down with linewidth and so consumes a growing cross-section
+fraction as W shrinks. `cu_resistivity_with_liner()` adds that effect as
+a separate, explicit correction (see
+notes/2026-08-28-copper-liner-barrier-thickness-effect.md for the
+literature basis and derivation), so both the original surface-
+scattering-only curve and the new liner-aware curve are available for
+comparison.
+
 References: see notes/2026-08-23-interconnect-resistivity-vs-linewidth.md
   - Murali et al., "Resistivity of Graphene Nanoribbon Interconnects,"
     arXiv:0906.0924
   - Naeemi & Meindl, "Conductance modeling for graphene nanoribbon (GNR)
     interconnects," IEEE EDL 28, 428 (2007)
+
+References for the 2026-08-28 liner/barrier addition: see
+notes/2026-08-28-copper-liner-barrier-thickness-effect.md
+  - Domenichini et al., "Selecting alternative metals for advanced
+    interconnects," arXiv:2406.09106
+  - "Mechanisms of Scaling Effect for Emerging Nanoscale Interconnect
+    Materials," Nanomaterials 12(10), 1760 (2022)
 """
 
 import numpy as np
@@ -165,19 +185,88 @@ def cu_resistivity_vs_width(W_nm):
     return rho_cu_bulk_uohm_cm * F
 
 
+# ---------------------------------------------------------------------------
+# Cu liner/barrier-thickness effect (added 2026-08-28; see
+# notes/2026-08-28-copper-liner-barrier-thickness-effect.md for the
+# literature basis and full derivation). The Cu model above is
+# surface-scattering-only and was explicitly flagged in the Chapter 5
+# draft and this file's original docstring as omitting the diffusion-
+# barrier/adhesion-liner layer that a real damascene Cu interconnect
+# requires -- a layer whose thickness does not scale down with linewidth
+# and therefore consumes a growing fraction of the wire's cross-section
+# as W shrinks. This section adds that effect as a separate, explicit
+# correction rather than folding it into cu_resistivity_vs_width(), so
+# the "surface-scattering-only" and "surface-scattering + liner" curves
+# can still be compared directly.
+# ---------------------------------------------------------------------------
+
+# Combined barrier (TaN) + adhesion-liner (Co) thickness for a
+# conventional Cu damascene stack, per sidewall/dimension. Literature
+# value from the Nanomaterials 12(10), 1760 (2022) resistance
+# calculations (3 nm for a Cu/TaN-Co stack), consistent with the ~2-3 nm
+# functional floor reported by Domenichini et al., arXiv:2406.09106.
+t_liner_nm_default = 3.0
+
+
+def cu_resistivity_with_liner(W_nm, t_liner_nm=t_liner_nm_default):
+    """
+    Effective Cu resistivity (uOhm.cm) *including* the non-conducting
+    barrier/liner's consumption of the drawn cross-section, evaluated
+    across a drawn linewidth W_nm (nm) that includes the liner on both
+    sides -- i.e. W_nm is the "linewidth (w + 2t)" quantity used in the
+    Nanomaterials review this is calibrated against, not the bare Cu
+    core width.
+
+    Model (see notes/2026-08-28-*.md, Section 4, for the full
+    derivation): treating the liner/barrier as non-conducting and
+    assuming the wire's two in-plane dimensions scale together, the
+    remaining Cu core has effective width/height W_eff = W - 2*t_liner.
+    The reported resistivity combines two compounding effects:
+
+      1. The remaining Cu core is itself narrower, so it is *more*
+         surface-scattering-limited than a same-drawn-width, no-liner
+         wire would be -- captured by evaluating the existing
+         Fuchs-Sondheimer-style cu_resistivity_vs_width() at W_eff
+         rather than at W.
+      2. That core-limited resistivity is measured across the full
+         drawn cross-section (the quantity a process/design actually
+         allocates), which dilutes the effective conductance by the
+         ratio of drawn area to conducting area, (W / W_eff)^2, for a
+         cross-section scaling isotropically in both in-plane
+         dimensions.
+
+    Below W = 2*t_liner_nm, the liner/barrier consumes the entire drawn
+    cross-section and there is no remaining Cu core -- this is flagged
+    explicitly by returning NaN (not a large-but-finite number), since a
+    real process simply cannot form a conducting Cu wire in that regime.
+    """
+    W_arr = np.atleast_1d(np.asarray(W_nm, dtype=float))
+    W_eff = W_arr - 2.0 * t_liner_nm
+
+    with np.errstate(divide='ignore', invalid='ignore'):
+        rho_core = cu_resistivity_vs_width(np.where(W_eff > 0, W_eff, np.nan))
+        area_dilution = (W_arr / np.where(W_eff > 0, W_eff, np.nan)) ** 2
+        rho_eff = rho_core * area_dilution
+
+    rho_eff = np.where(W_eff > 0, rho_eff, np.nan)
+
+    if np.isscalar(W_nm) or (hasattr(W_nm, 'ndim') and W_nm.ndim == 0):
+        return float(rho_eff[0])
+    return rho_eff
+
+
 def plot_resistivity_vs_linewidth():
-    """Plot graphene (several specularity values) and Cu resistivity vs.
-    linewidth, reproducing the qualitative crossover behavior discussed
-    in the notes: graphene is less conductive than Cu at the
-    lithographically-relevant widths measured to date (tens of nm), and
-    the model's idealized specular-edge (p -> 1) case is required to
-    approach Cu-competitive resistivity, consistent with the Naeemi &
-    Meindl theoretical crossover being pushed to very narrow widths in
-    the idealized single-layer limit. Note this compact model's p=0.9
-    (near-specular) curve is already below the Cu model across the whole
-    plotted range -- see summary_numbers() / AUTOMATION_LOG.md for the
-    realistic (p=0.15, diffuse-edge) crossover width, which is the more
-    process-relevant number."""
+    """Plot graphene (several specularity values) against *two* Cu
+    resistivity models vs. linewidth: the original surface-scattering-
+    only baseline, and the surface-scattering + liner/barrier model added
+    2026-08-28 (see notes/2026-08-28-copper-liner-barrier-thickness-
+    effect.md). Against the surface-scattering-only Cu baseline, realistic
+    (p=0.15, diffuse-edge) graphene only wins at wide W (see
+    summary_numbers() for the crossover width); against the liner-aware
+    Cu model, realistic-edge graphene wins across the entire valid W
+    range plotted here -- see summary_numbers() / AUTOMATION_LOG.md for
+    both crossover results side by side, which is the more complete,
+    process-relevant comparison than either Cu curve alone."""
     W_nm = np.linspace(5, 300, 600)
 
     fig, ax = plt.subplots(figsize=(9, 6.5))
@@ -187,7 +276,12 @@ def plot_resistivity_vs_linewidth():
         ax.plot(W_nm, rho, style, linewidth=2, label=f'Graphene GNR, p = {p}')
 
     rho_cu = cu_resistivity_vs_width(W_nm)
-    ax.plot(W_nm, rho_cu, color='black', linewidth=2.5, label='Cu (Fuchs-Sondheimer-style projection)')
+    ax.plot(W_nm, rho_cu, color='black', linewidth=2.5, linestyle='--',
+            label='Cu, surface scattering only (no liner effect)')
+
+    rho_cu_liner = cu_resistivity_with_liner(W_nm)
+    ax.plot(W_nm, rho_cu_liner, color='black', linewidth=2.5,
+            label=f'Cu, surface scattering + {t_liner_nm_default:.0f} nm liner/barrier (this session)')
 
     # Overlay the literature measured cluster (Murali et al.) as a shaded band
     ax.axvspan(18, 52, color='gray', alpha=0.12, label='Murali et al. measured range (18-52 nm)')
@@ -217,28 +311,48 @@ def summary_numbers():
 
     rho_cu_22 = cu_resistivity_vs_width(22.0)
     rho_cu_8 = cu_resistivity_vs_width(8.0)
-    print(f"Cu model: rho(W=22nm) = {rho_cu_22:.2f} uOhm.cm, "
+    print(f"Cu model (surface scattering only): rho(W=22nm) = {rho_cu_22:.2f} uOhm.cm, "
           f"rho(W=8nm) = {rho_cu_8:.2f} uOhm.cm")
 
+    rho_cu_liner_22 = cu_resistivity_with_liner(22.0)
+    rho_cu_liner_12 = cu_resistivity_with_liner(12.0)
+    print(f"Cu model (surface scattering + {t_liner_nm_default:.0f}nm liner/barrier, "
+          f"added 2026-08-28): rho(W=22nm) = {rho_cu_liner_22:.2f} uOhm.cm, "
+          f"rho(W=12nm) = {rho_cu_liner_12:.2f} uOhm.cm (W=8nm is below the "
+          f"W = 2*t_liner = {2*t_liner_nm_default:.0f}nm floor -- no Cu core remains, "
+          f"model returns NaN as flagged in cu_resistivity_with_liner()'s docstring)")
+
     # Find the actual crossover width (if any, within a wide scan range)
-    # where each graphene curve drops below the Cu model, via a genuine
-    # sign change of (rho_graphene - rho_cu) rather than a naive
+    # where each graphene curve drops below a given Cu model, via a
+    # genuine sign change of (rho_graphene - rho_cu) rather than a naive
     # closest-point search (which can misleadingly report a "crossover"
     # at the edge of the scan range even when the curves never cross).
-    W_scan = np.linspace(2, 500, 20000)
-    for p, label in [(p_default, "realistic, diffuse edges"), (0.9, "idealized, near-specular edges")]:
-        rho_g = resistivity_vs_width(W_scan, p=p)
-        rho_cu = cu_resistivity_vs_width(W_scan)
-        diff = rho_g - rho_cu
-        sign_changes = np.where(np.diff(np.sign(diff)) != 0)[0]
-        if len(sign_changes) == 0:
-            state = "below" if diff[0] < 0 else "above"
-            print(f"p = {p:.2f} ({label}): graphene stays {state} the Cu "
-                  f"model across the full W = 2-500 nm scan range (no crossover).")
-        else:
-            W_cross = W_scan[sign_changes[0]]
-            print(f"p = {p:.2f} ({label}): graphene crosses below Cu at "
-                  f"approx. W = {W_cross:.0f} nm.")
+    # Repeated for both the original surface-scattering-only Cu model and
+    # the 2026-08-28 liner-aware Cu model, so the shift in crossover width
+    # caused specifically by the liner effect is visible directly.
+    def _report_crossovers(cu_model_fn, cu_model_label):
+        W_scan = np.linspace(2, 500, 20000)
+        rho_cu_scan = cu_model_fn(W_scan)
+        valid = ~np.isnan(rho_cu_scan)
+        for p, label in [(p_default, "realistic, diffuse edges"), (0.9, "idealized, near-specular edges")]:
+            rho_g = resistivity_vs_width(W_scan, p=p)
+            diff = np.where(valid, rho_g - rho_cu_scan, np.nan)
+            finite = np.isfinite(diff)
+            sign_changes = np.where(np.diff(np.sign(diff[finite])) != 0)[0]
+            W_valid = W_scan[finite]
+            if len(sign_changes) == 0:
+                state = "below" if diff[finite][0] < 0 else "above"
+                print(f"  p = {p:.2f} ({label}): graphene stays {state} {cu_model_label} "
+                      f"across the full valid scan range (no crossover).")
+            else:
+                W_cross = W_valid[sign_changes[0]]
+                print(f"  p = {p:.2f} ({label}): graphene crosses below {cu_model_label} at "
+                      f"approx. W = {W_cross:.0f} nm.")
+
+    print("Crossover vs. Cu, surface scattering only:")
+    _report_crossovers(cu_resistivity_vs_width, "the surface-scattering-only Cu model")
+    print("Crossover vs. Cu, surface scattering + liner/barrier (2026-08-28):")
+    _report_crossovers(cu_resistivity_with_liner, "the liner-aware Cu model")
 
 
 if __name__ == '__main__':
