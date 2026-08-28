@@ -546,3 +546,109 @@ a new feature — so it was prioritized this session.
 **Commits this run:** 3 (fmax-parasitics research notes, code fix +
 regenerated plot, thesis_draft/ Chapter 4 Section 4.6 + Chapter 1
 updates; this log entry commit makes 4).
+
+---
+
+## 2026-08-28
+
+**Status:** Eighth automation run. No run is recorded for 2026-08-27 in
+this log or in `git log` — the previous entry (2026-08-26, second
+session) is the most recent prior activity, so this run picked up
+directly from its "not yet covered" list rather than assuming an
+intervening day's work exists.
+
+**Repo state at start:** Chapters 1, 4, 5, 6 of `thesis_draft/` exist.
+Chapter 5 (`thesis_draft/05-graphene-interconnects.md`) had, since
+2026-08-23, explicitly flagged its copper comparison baseline as
+surface-scattering-only and therefore "conservative in graphene's
+favor," omitting the diffusion-barrier/adhesion-liner-thickness effect
+— listed as a Section 5.4 follow-on item and repeated in every
+subsequent "not yet covered" list through 2026-08-26. Unlike some other
+open items (the graphene-all-around-metal hybrid architecture, the
+plasmonic-enhancement factor), this one is a direct correction to an
+already-implemented, already-drafted model rather than a new feature, so
+it was prioritized this session.
+
+**Work done:**
+
+1. **Research notes**
+   (`notes/2026-08-28-copper-liner-barrier-thickness-effect.md`):
+   WebSearch and WebFetch were both available and used. Found
+   Domenichini et al., "Selecting alternative metals for advanced
+   interconnects," arXiv:2406.09106 (2024), which states the combined
+   Cu barrier+liner thickness cannot scale below ~2-3 nm without losing
+   function, describes in words exactly the effect Chapter 5 had
+   flagged as missing (liner/barrier occupying an increasing volume
+   fraction of shrinking cross-section), and gives an IRDS-based
+   linewidth roadmap (23 nm in 2024/25 down to 12 nm by 2035). Also
+   found "Mechanisms of Scaling Effect for Emerging Nanoscale
+   Interconnect Materials," *Nanomaterials* 12(10), 1760 (2022), which
+   gives concrete per-conductor liner thicknesses (Cu/TaN-Co: 3 nm; Ru:
+   0.3 nm; Co: 1 nm; W: linerless) and states that below ~20 nm, Cu's
+   resistance advantage over alternative conductors is significantly
+   weakened by this effect. Neither source publishes a closed-form
+   effective-resistivity formula (both use full resistance/Monte Carlo
+   simulation instead), so the note derives an original simplified
+   area-dilution model from their reported physical picture and
+   thickness figures, stated as such rather than presented as a
+   literature-derived equation.
+
+2. **Code** (`graphene_interconnect_model.py`,
+   `interconnect_resistivity_vs_linewidth.png`): Added
+   `cu_resistivity_with_liner()`, treating the barrier/liner as
+   non-conducting and consuming 3 nm from both in-plane dimensions of
+   the drawn wire (literature value from the Nanomaterials review),
+   giving an effective Cu core of `W_eff = W - 2*t_liner` whose
+   resistivity is both computed via the existing surface-scattering
+   model at the narrower width *and* diluted by the drawn/conducting
+   area ratio squared. Below `W = 6 nm` (the liner-consumption floor)
+   the function correctly returns NaN rather than a finite value, since
+   no Cu core can physically exist there. Kept as an explicit second
+   curve alongside (not replacing) the original surface-scattering-only
+   Cu model, and extended `summary_numbers()` to report crossover widths
+   against both. Verified to run standalone; regenerated the plot with
+   both Cu curves overlaid. Result: at realistic diffuse-edge quality
+   (p = 0.15), graphene now stays *below* the liner-aware Cu model
+   across the entire valid modeled range (no crossover) — a materially
+   different conclusion from the original ~130 nm crossover found
+   against the surface-scattering-only baseline, though both remain
+   simplified analytic models rather than full transport simulations.
+
+3. **Writing** (`thesis_draft/05-graphene-interconnects.md`,
+   `thesis_draft/01-introduction.md`): Rewrote Section 5.2 to describe
+   both copper baselines and Section 5.3 to report the new crossover
+   result with representative resistivity values at roadmap-relevant
+   linewidths (12-23 nm), explicitly framing this as a qualitatively
+   different conclusion from the earlier draft rather than a minor
+   refinement, while being careful not to overclaim beyond what a
+   simplified analytic model on both the graphene and copper sides can
+   support. Marked the Section 5.4 liner-effect follow-on item done and
+   added two narrower open items it surfaces (parallel liner conduction;
+   a thinner Ru/Co-liner Cu scenario). Updated the Chapter 1 status
+   table's Chapter 5 row.
+
+**Not yet covered (candidates for future runs):**
+- Parallel-conduction refinement to the liner/barrier model (currently
+  treats the liner as strictly non-conducting; Section 5.4)
+- Thinner-liner (Ru- or Co-liner-enabled Cu, ~1 nm or less) scenario,
+  directly explorable via the new `t_liner_nm` parameter but not yet
+  run/discussed (Section 5.4)
+- Graphene-all-around-metal (liner/cap on a conventional Co/Cu core)
+  interconnect model, distinct from the pure-GNR-wire model and from
+  today's Cu-liner-effect correction (Chapter 5, Section 5.4)
+- Using the contact-doping model (Chapter 4, Section 4.5) to recalibrate
+  per-metal Rc values (still open, Section 4.7)
+- Plasmonic-absorption-enhancement factor for the photodetector model
+  (Chapter 6, Section 6.5)
+- Integrating the contact-doping spatial-profile machinery into the
+  photodetector collection-efficiency model (Chapter 6, Section 6.5)
+- Confirming the "High fMAX/fT ratio in multi-finger embedded T-shaped
+  gate graphene transistors" source referenced by title only in the
+  2026-08-26 session (fetch was rate-limited at the time)
+- Further thesis_draft/ chapters: 2-3 could be drafted from the existing
+  band-structure/transport code and results; Chapter 7 (discussion/
+  outlook) awaits enough device-application chapters to synthesize
+
+**Commits this run:** 3 (liner-thickness research notes, code +
+regenerated plot, thesis_draft/ Chapter 5 + Chapter 1 updates; this log
+entry commit makes 4).
