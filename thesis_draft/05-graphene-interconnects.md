@@ -92,44 +92,84 @@ than an intrinsic material ceiling.
 
 A simplified Fuchs-Sondheimer-style model for scaled copper (bulk
 resistivity 1.68 μΩ·cm, mean free path 40 nm, specularity 0.6) is used as
-the comparison baseline. This copper model is deliberately conservative
-in graphene's favor: it omits the liner/barrier-thickness effect
-described in Section 5.1, which pushes real scaled-copper resistivity
-higher than a pure surface-scattering model predicts. The comparison in
-this chapter should therefore be read as an upper bound on copper's
-narrow-linewidth performance, making any graphene crossover point
-reported below a conservative (if anything, optimistic-for-copper)
-estimate.
+one comparison baseline. As originally noted here, this surface-
+scattering-only model is conservative in graphene's favor: it omits the
+liner/barrier-thickness effect described in Section 5.1. That gap is now
+closed. `graphene_interconnect_model.py`'s `cu_resistivity_with_liner()`
+(added 2026-08-28; see
+`notes/2026-08-28-copper-liner-barrier-thickness-effect.md`) adds a
+second copper baseline that treats the diffusion-barrier/adhesion-liner
+as non-conducting and consuming a fixed thickness (3 nm per side,
+calibrated to a conventional Ta/TaN-barrier, Co-liner Cu stack — see the
+Nanomaterials 12(10), 1760 (2022) resistance calculations, consistent
+with the ~2-3 nm functional floor reported by Domenichini et al.,
+arXiv:2406.09106) from *both* in-plane dimensions of the drawn wire. The
+remaining Cu core of width `W_eff = W − 2·t_liner` is both narrower (and
+so more surface-scattering-limited itself) and dilutes the effective
+resistivity measured across the full drawn cross-section by a further
+factor of `(W / W_eff)²`. Below `W = 2·t_liner = 6 nm` the liner consumes
+the entire drawn cross-section and no Cu core can exist at all; the
+model flags this explicitly rather than reporting a finite number there.
+This construction is an original simplified analytic model built from
+the two sources' reported physical picture and thickness figures, not a
+formula copied from either — neither publishes a closed-form
+liner-thickness correction, both instead using full resistance/Monte
+Carlo simulation. Both copper baselines — surface-scattering-only and
+surface-scattering-plus-liner — are now carried through this chapter side
+by side, rather than replacing one with the other, since they represent
+genuinely different (bare-wire vs. process-realistic) questions.
 
 ## 5.3 Results
 
 Running the model (`graphene_interconnect_model.py`, reproducible via
 `python graphene_interconnect_model.py`) gives two qualitatively
-different outcomes depending on assumed edge quality:
+different outcomes depending on assumed edge quality, and — as of the
+2026-08-28 update — a materially different picture once the copper
+baseline itself is made more realistic:
 
-- **Realistic, diffuse edges (p = 0.15):** graphene resistivity crosses
-  below the copper model at approximately **W ≈ 130 nm** — i.e. for
-  lithographically-patterned edges of the roughness typical of current
-  processing, graphene only becomes the lower-resistivity conductor at
-  linewidths wide enough that they are not representative of the
-  aggressively-scaled local-interconnect tiers where a resistivity
-  advantage would matter most.
-- **Idealized, near-specular edges (p = 0.9):** graphene resistivity
-  stays below the copper model across the entire modeled range (W = 2-500
-  nm) — no crossover is needed because graphene already wins at every
-  width, consistent with the more optimistic literature projections
-  (e.g. Naeemi & Meindl's idealized single-layer-GNR crossover at very
-  narrow, near-atomic linewidths) that assume near-ideal edge
-  termination.
+- **Against the surface-scattering-only Cu baseline:** at realistic,
+  diffuse edges (p = 0.15), graphene resistivity crosses below copper at
+  approximately **W ≈ 130 nm** — i.e. graphene only wins at linewidths
+  wide enough that they are not representative of aggressively-scaled
+  local-interconnect tiers. At idealized, near-specular edges (p = 0.9),
+  graphene stays below copper across the entire modeled range (W = 2-500
+  nm), consistent with the more optimistic literature projections (e.g.
+  Naeemi & Meindl's idealized single-layer-GNR crossover at very narrow,
+  near-atomic linewidths).
+- **Against the liner-aware Cu baseline (new):** at realistic, diffuse
+  edges (p = 0.15), graphene now stays *below* the liner-aware copper
+  model across the entire valid comparison range — no crossover at all.
+  Representative points from the model: at W = 20 nm, graphene (p = 0.15)
+  is 3.82 μΩ·cm versus liner-aware copper at 4.90 μΩ·cm; at W = 14 nm,
+  4.87 μΩ·cm versus 9.00 μΩ·cm; at W = 12 nm, 5.45 μΩ·cm versus
+  13.44 μΩ·cm. The gap widens sharply as W approaches the liner's
+  6 nm cross-section-consumption floor, where the liner-aware Cu model
+  diverges while graphene's edge-scattering model degrades only linearly.
+  At idealized edges (p = 0.9), graphene stays below the liner-aware
+  model as well, by an even wider margin.
 
-The practical conclusion — consistent with the contact-resistance finding
-in Chapter 4 — is that **graphene's interconnect advantage over copper is
-conditional on edge/process quality, not automatic.** The two curves
-bracket a wide range of possible real-world outcomes, and the dominant
-open engineering question for graphene interconnects is not "can graphene
-in principle beat copper" (yes, in the idealized limit) but "can edge
-roughness be controlled well enough, at the linewidths that matter, to
-realize that advantage in a manufacturable process."
+This is a genuinely different qualitative conclusion from the 2026-08-23
+draft's headline number (a 130 nm realistic-edge crossover), not merely a
+refinement of it, and it is worth being precise about why: the original
+130 nm figure was explicitly flagged at the time as resting on a
+conservative (bare-wire, no-liner) copper baseline. Once the same
+literature-reported liner/barrier consumption that Cu interconnects
+actually require in a real damascene process is included, the realistic-
+edge-quality graphene curve is lower than copper's at *every* linewidth
+in the modeled range where a Cu wire could physically be built at all
+(W ≳ 6 nm given a 3 nm liner). The practical conclusion is not that
+graphene's interconnect advantage is now unconditional — this remains a
+simplified analytic model on both sides (a phenomenological specularity
+parameter for graphene; a non-conducting-liner, isotropic-cross-section
+approximation for copper, both described in Section 5.2), not a full
+transport or Monte Carlo simulation — but it does mean the dominant
+open engineering question is narrower than "can graphene in principle
+beat copper at process-realistic linewidths": with a realistic Cu
+baseline, the model says it already does, and the remaining question is
+whether lithographic edge quality can be kept near p ≈ 0.15 (not
+degraded further) as linewidths shrink toward the liner-consumption
+floor, and whether the non-conducting-liner approximation itself
+(Section 5.2, Section 5.4) holds up against a more detailed treatment.
 
 ## 5.4 Planned follow-on work
 
@@ -139,11 +179,22 @@ realize that advantage in a manufacturable process."
   interconnect (27% resistance reduction vs. bare cobalt) suggests this
   hybrid integration path may be nearer-term-relevant than a pure-GNR
   wire, and is worth treating as a separate case rather than conflating
-  with the results above.
-- Extend the copper comparison model to include the liner/barrier-
-  thickness effect explicitly (currently omitted, and noted above as
-  making the current copper baseline conservative), which would tighten
-  the graphene-favorable crossover width estimate.
+  with the results above. Still open — distinct from the liner-effect
+  item below, which corrects the *pure-Cu* baseline rather than modeling
+  graphene as a liner/cap itself.
+- ~~Extend the copper comparison model to include the liner/barrier-
+  thickness effect explicitly~~ — **done 2026-08-28**
+  (`cu_resistivity_with_liner()`; see Section 5.2/5.3 above and
+  `notes/2026-08-28-copper-liner-barrier-thickness-effect.md`). Two
+  refinements remain open from that addition: (1) the liner/barrier is
+  currently treated as strictly non-conducting, whereas thin Co/Ru liners
+  in particular carry some real current — a parallel-conduction
+  (liner + core) treatment would be more complete; (2) only the
+  literature-representative 3 nm (Ta/TaN + Co) liner thickness has been
+  modeled — a thinner-liner scenario (Ru- or Co-liner-enabled Cu,
+  ~1 nm or less, per the same Nanomaterials review) is directly
+  explorable via the new `t_liner_nm` parameter but not yet run/discussed
+  here.
 - Connect this chapter's edge-scattering specularity framework explicitly
   back to the contact-resistance specularity/mode-counting discussion in
   Chapter 4 as a unifying methodological point for the thesis discussion
@@ -154,4 +205,6 @@ realize that advantage in a manufacturable process."
   unrelated, chapter-specific effects.
 
 See `notes/2026-08-23-interconnect-resistivity-vs-linewidth.md` for full
-citations and additional literature discussion underlying this chapter.
+citations and additional literature discussion underlying this chapter,
+and `notes/2026-08-28-copper-liner-barrier-thickness-effect.md` for the
+liner/barrier-effect addition discussed in Sections 5.2-5.4 above.
