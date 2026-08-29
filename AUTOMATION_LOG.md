@@ -652,3 +652,104 @@ it was prioritized this session.
 **Commits this run:** 3 (liner-thickness research notes, code +
 regenerated plot, thesis_draft/ Chapter 5 + Chapter 1 updates; this log
 entry commit makes 4).
+
+---
+
+## 2026-08-29
+
+**Status:** Ninth automation run.
+
+**Repo state at start:** Chapters 1, 4, 5, 6 of `thesis_draft/` exist.
+`notes/2026-08-28-copper-liner-barrier-thickness-effect.md` (Section 6)
+had flagged two specific, narrowly-scoped open items from that session's
+liner/barrier work: (1) the liner was modeled as strictly non-conducting,
+a simplification both source papers use but do not claim is exact; (2) a
+thinner-liner (Ru- or Co-liner-enabled Cu) scenario was directly
+explorable via the existing `t_liner_nm` parameter but not yet run or
+discussed. Both were prioritized this session since they are direct,
+already-scoped corrections/extensions to an existing model rather than
+new topics, consistent with this repo's established practice of closing
+flagged gaps before opening new ones.
+
+**Work done:**
+
+1. **Code + results** (`graphene_interconnect_model.py`,
+   `interconnect_resistivity_vs_linewidth.png`): Added
+   `cu_resistivity_with_liner_parallel()`, an explicit core-plus-liner
+   parallel-conduction model that generalizes the 2026-08-28
+   non-conducting-liner formula. Verified against two limiting-case
+   self-checks run automatically at script start (not just asserted in a
+   docstring): rho_liner -> infinity reproduces the non-conducting model
+   to 12 significant figures; rho_liner == rho_core collapses to the
+   plain core resistivity independent of liner thickness. Used the new
+   model to evaluate the previously-flagged thinner-liner scenario for
+   two materials -- Ru (0.3 nm) and Co (1.0 nm), thicknesses from the
+   same Nanomaterials 12(10), 1760 (2022) review already cited on
+   2026-08-28 -- with representative liner resistivities (TaN 400, Ru 30,
+   Co 20 uOhm.cm). WebSearch/WebFetch were both available and used to try
+   to source specific thin-film liner resistivity values; multiple
+   promising sources (a PMC article, several ScienceDirect abstracts, a
+   re-fetch of the already-cited Domenichini et al. arXiv HTML) failed
+   (reCAPTCHA redirect, robots.txt blocks, or missing the specific
+   numeric section) and are recorded as such in today's notes rather than
+   silently worked around -- search did reliably confirm the qualitative
+   TaN >> Ru, Co resistivity ordering across independent sources (imec's
+   public Ru/Co liner materials, the Domenichini framing text that did
+   load), so the values used are flagged explicitly as order-of-magnitude
+   placeholders pending a future session's sourcing, not as literature
+   figures. Regenerated the plot with all three new curves (TaN parallel,
+   Ru parallel, Co parallel) alongside the existing four. Results: the
+   TaN parallel-conduction correction is nearly negligible (TaN is still
+   ~100x more resistive than the Cu core at relevant widths, so the
+   2026-08-28 "no crossover" conclusion is unchanged); the thin-Ru case
+   tracks close to the original liner-free baseline (crossover ~123 nm,
+   vs. 130 nm liner-free); the thin-Co case is qualitatively different --
+   because current can still flow through the conductive liner as the Cu
+   core vanishes near the W = 2*t_liner floor, resistance stays low there
+   instead of diverging, pushing the realistic-edge graphene crossover
+   down to ~3 nm. This last result directly reproduces, from the model
+   itself, the qualitative industry rationale (found in this session's
+   search) for pursuing thin, low-resistance Ru/Co liners in the first
+   place.
+
+2. **Research notes**
+   (`notes/2026-08-29-liner-parallel-conduction-and-thin-liner-scenarios.md`):
+   Documents the parallel-conduction derivation, the search-access
+   failures and what was/wasn't established from them, the representative
+   liner-resistivity table and its caveats, and the full results
+   discussion summarized above.
+
+3. **Writing** (`thesis_draft/05-graphene-interconnects.md`,
+   `thesis_draft/01-introduction.md`): Added a new discussion paragraph to
+   Section 5.3 covering the parallel-conduction and thin-liner results,
+   marked both Section 5.4 follow-on items done, and added two narrower
+   open items they surface (sourcing the specific liner-resistivity
+   values; spatial non-uniformity within the liner frame). Updated the
+   Chapter 1 status table's Chapter 5 row to reflect that the
+   realistic-edge crossover conclusion is now liner-choice-dependent
+   (ranging from "no crossover" to "~3 nm") rather than a single number.
+
+**Not yet covered (candidates for future runs):**
+- Sourcing the specific liner-material resistivity values (TaN, Ru, Co)
+  used today against a quantitative reference, rather than the
+  order-of-magnitude placeholders used (Chapter 5, Section 5.4)
+- Graphene-all-around-metal (liner/cap on a conventional Co/Cu core)
+  interconnect model, distinct from the pure-GNR-wire model and from all
+  of this session's and 2026-08-28's Cu-liner corrections (Chapter 5,
+  Section 5.4)
+- Using the contact-doping model (Chapter 4, Section 4.5) to recalibrate
+  per-metal Rc values (still open, Section 4.7)
+- Plasmonic-absorption-enhancement factor for the photodetector model
+  (Chapter 6, Section 6.5)
+- Integrating the contact-doping spatial-profile machinery into the
+  photodetector collection-efficiency model (Chapter 6, Section 6.5)
+- Confirming the "High fMAX/fT ratio in multi-finger embedded T-shaped
+  gate graphene transistors" source referenced by title only in the
+  2026-08-26 session (fetch was rate-limited at the time)
+- Further thesis_draft/ chapters: 2-3 could be drafted from the existing
+  band-structure/transport code and results; Chapter 7 (discussion/
+  outlook) awaits enough device-application chapters to synthesize
+
+**Commits this run:** 2 (parallel-conduction model code + notes +
+regenerated plot, thesis_draft/ Chapter 5 + Chapter 1 updates; this log
+entry commit makes 3).
