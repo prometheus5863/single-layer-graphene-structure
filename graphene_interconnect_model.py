@@ -71,6 +71,15 @@ notes/2026-08-28-copper-liner-barrier-thickness-effect.md
     interconnects," arXiv:2406.09106
   - "Mechanisms of Scaling Effect for Emerging Nanoscale Interconnect
     Materials," Nanomaterials 12(10), 1760 (2022)
+
+2026-08-29 update: `cu_resistivity_with_liner()` treated the barrier/liner
+as strictly non-conducting -- flagged as a simplification in its own
+docstring and in notes/2026-08-28-*.md, Section 6.
+`cu_resistivity_with_liner_parallel()` replaces that assumption with an
+explicit core+liner parallel-conduction model, and is used to evaluate
+thinner Ru- and Co-liner Cu scenarios (also left open in the 2026-08-28
+notes) alongside the original 3 nm TaN/Co case. See
+notes/2026-08-29-liner-parallel-conduction-and-thin-liner-scenarios.md.
 """
 
 import numpy as np
@@ -255,6 +264,108 @@ def cu_resistivity_with_liner(W_nm, t_liner_nm=t_liner_nm_default):
     return rho_eff
 
 
+# ---------------------------------------------------------------------------
+# Parallel-conduction refinement + thinner-liner scenarios (added 2026-08-29;
+# see notes/2026-08-29-liner-parallel-conduction-and-thin-liner-scenarios.md
+# for the literature basis and derivation). `cu_resistivity_with_liner()`
+# above (2026-08-28) treats the barrier/liner as strictly non-conducting --
+# explicitly flagged in that function's own docstring and in the 2026-08-28
+# notes (Section 6, first open item) as a simplification, since TaN and
+# especially thin Co/Ru liners carry some non-zero current in reality. This
+# section replaces that assumption with an explicit parallel-conduction
+# (core + liner) model, and uses it to evaluate two liner material/thickness
+# scenarios left unexplored on 2026-08-28: thinner Ru- or Co-liner-enabled Cu
+# stacks (using the same `t_liner_nm` override mechanism, but now paired
+# with each liner's own, much lower resistivity than TaN's -- a materially
+# different scenario from just shrinking t_liner_nm while keeping TaN's
+# resistivity, since the whole point of switching liner material is that Ru/
+# Co liners are far more conductive than TaN).
+# ---------------------------------------------------------------------------
+
+# Representative *effective* (thin-film, few-nm-scale) resistivities of
+# barrier/liner materials, in uOhm.cm. These are order-of-magnitude
+# literature-representative values, not read off a single traceable
+# thickness-resolved data table: WebSearch/WebFetch were used this session
+# to look for a quantitative Ru/Co/TaN thin-film resistivity-vs-thickness
+# source, and found strong *qualitative* confirmation of the ordering used
+# here (TaN's barrier resistivity is far higher than Ru's or Co's -- this is
+# the standard reason Ru/Co are being pursued as thinner-liner-compatible
+# alternatives; see e.g. imec's public Ru/Co interconnect liner work and
+# Domenichini et al., arXiv:2406.09106 / pubs.aip.org/aip/jap/article/136/17/171101,
+# already cited in notes/2026-08-28-*.md) but no single open-access
+# quantitative table for the specific few-nm-thickness values (several
+# candidate sources were paywalled or blocked by robots.txt during this
+# session's fetch attempts, recorded in today's notes rather than silently
+# skipped). The values below are therefore representative figures assembled
+# from general semiconductor-interconnect knowledge, exposed as adjustable
+# function parameters rather than hard-coded, so a future session can
+# tighten them against a specific source without changing the model
+# structure.
+rho_liner_tan_uohm_cm_default = 400.0   # TaN barrier, ~1-3 nm: strongly
+                                         # size-effect-elevated above its
+                                         # already-high bulk value (bulk TaN
+                                         # is itself only a modest conductor,
+                                         # ~125-250 uOhm.cm depending on phase)
+rho_liner_ru_uohm_cm_default = 30.0     # Ru liner, ~1-3 nm (bulk Ru ~7.1 uOhm.cm)
+rho_liner_co_uohm_cm_default = 20.0     # Co liner, ~1-3 nm (bulk Co ~6.2 uOhm.cm)
+
+# Per-liner default thicknesses, from the Nanomaterials 12(10), 1760 (2022)
+# figures already cited in notes/2026-08-28-*.md: Cu/TaN-Co conventional
+# stack 3 nm combined, Ru 0.3 nm, Co(-only, thin-liner scheme) 1 nm.
+t_liner_nm_ru_default = 0.3
+t_liner_nm_co_default = 1.0
+
+
+def cu_resistivity_with_liner_parallel(W_nm, t_liner_nm=t_liner_nm_default,
+                                        rho_liner_uohm_cm=rho_liner_tan_uohm_cm_default):
+    """
+    Effective Cu resistivity (uOhm.cm) including the liner/barrier's
+    cross-section consumption *and* its own (finite, non-zero) parallel
+    conduction path -- the refinement flagged as an open item in
+    notes/2026-08-28-*.md, Section 6. Same drawn-linewidth convention and
+    isotropic-scaling assumption as cu_resistivity_with_liner() (W_nm
+    includes the liner on both sides; W_eff = W - 2*t_liner is the
+    remaining Cu core).
+
+    Model: treat the drawn cross-section as two conductors in parallel --
+    the Cu core (area ~ W_eff^2, resistivity from the existing
+    surface-scattering model evaluated at W_eff) and the liner "frame"
+    (area ~ W^2 - W_eff^2, resistivity rho_liner_uohm_cm, assumed uniform
+    across the whole frame rather than spatially resolved). For a fixed
+    length L, conductances add:
+
+        G_total = A_core/(rho_core * L) + A_liner/(rho_liner * L)
+        rho_eff = A_drawn / (G_total * L)
+                = W^2 / (W_eff^2/rho_core + (W^2 - W_eff^2)/rho_liner)
+
+    This strictly generalizes cu_resistivity_with_liner(): taking the
+    rho_liner -> infinity limit recovers exactly the non-conducting-liner
+    formula, rho_core * (W/W_eff)^2 (verified numerically in
+    notes/2026-08-29-*.md and in this module's __main__ self-check below).
+    Below W = 2*t_liner_nm there is still no remaining Cu core, so the
+    function returns NaN there for consistency with
+    cu_resistivity_with_liner() -- even a perfectly conducting liner alone,
+    with no Cu core, is a materially different (and not modeled here)
+    all-liner-conductor regime, not a continuation of this Cu-core-centric
+    model.
+    """
+    W_arr = np.atleast_1d(np.asarray(W_nm, dtype=float))
+    W_eff = W_arr - 2.0 * t_liner_nm
+
+    with np.errstate(divide='ignore', invalid='ignore'):
+        rho_core = cu_resistivity_vs_width(np.where(W_eff > 0, W_eff, np.nan))
+        A_core = np.where(W_eff > 0, W_eff, np.nan) ** 2
+        A_liner = W_arr ** 2 - np.where(W_eff > 0, W_eff, 0.0) ** 2
+        G_total = A_core / rho_core + A_liner / rho_liner_uohm_cm
+        rho_eff = (W_arr ** 2) / G_total
+
+    rho_eff = np.where(W_eff > 0, rho_eff, np.nan)
+
+    if np.isscalar(W_nm) or (hasattr(W_nm, 'ndim') and W_nm.ndim == 0):
+        return float(rho_eff[0])
+    return rho_eff
+
+
 def plot_resistivity_vs_linewidth():
     """Plot graphene (several specularity values) against *two* Cu
     resistivity models vs. linewidth: the original surface-scattering-
@@ -281,7 +392,21 @@ def plot_resistivity_vs_linewidth():
 
     rho_cu_liner = cu_resistivity_with_liner(W_nm)
     ax.plot(W_nm, rho_cu_liner, color='black', linewidth=2.5,
-            label=f'Cu, surface scattering + {t_liner_nm_default:.0f} nm liner/barrier (this session)')
+            label=f'Cu, {t_liner_nm_default:.0f}nm TaN/Co liner (non-conducting approx., 2026-08-28)')
+
+    rho_cu_liner_parallel = cu_resistivity_with_liner_parallel(W_nm)
+    ax.plot(W_nm, rho_cu_liner_parallel, color='dimgray', linewidth=2.0, linestyle='-.',
+            label=f'Cu, {t_liner_nm_default:.0f}nm TaN liner (parallel conduction, 2026-08-29)')
+
+    rho_cu_liner_ru = cu_resistivity_with_liner_parallel(
+        W_nm, t_liner_nm=t_liner_nm_ru_default, rho_liner_uohm_cm=rho_liner_ru_uohm_cm_default)
+    ax.plot(W_nm, rho_cu_liner_ru, color='firebrick', linewidth=2.0, linestyle='-.',
+            label=f'Cu, {t_liner_nm_ru_default:.1f}nm Ru liner (parallel conduction, 2026-08-29)')
+
+    rho_cu_liner_co = cu_resistivity_with_liner_parallel(
+        W_nm, t_liner_nm=t_liner_nm_co_default, rho_liner_uohm_cm=rho_liner_co_uohm_cm_default)
+    ax.plot(W_nm, rho_cu_liner_co, color='darkorange', linewidth=2.0, linestyle='-.',
+            label=f'Cu, {t_liner_nm_co_default:.1f}nm Co liner (parallel conduction, 2026-08-29)')
 
     # Overlay the literature measured cluster (Murali et al.) as a shaded band
     ax.axvspan(18, 52, color='gray', alpha=0.12, label='Murali et al. measured range (18-52 nm)')
@@ -354,9 +479,64 @@ def summary_numbers():
     print("Crossover vs. Cu, surface scattering + liner/barrier (2026-08-28):")
     _report_crossovers(cu_resistivity_with_liner, "the liner-aware Cu model")
 
+    print("Crossover vs. Cu, parallel-conduction TaN liner (2026-08-29):")
+    _report_crossovers(cu_resistivity_with_liner_parallel, "the parallel-conduction TaN-liner Cu model")
+
+    def _ru_model(W):
+        return cu_resistivity_with_liner_parallel(
+            W, t_liner_nm=t_liner_nm_ru_default, rho_liner_uohm_cm=rho_liner_ru_uohm_cm_default)
+
+    def _co_model(W):
+        return cu_resistivity_with_liner_parallel(
+            W, t_liner_nm=t_liner_nm_co_default, rho_liner_uohm_cm=rho_liner_co_uohm_cm_default)
+
+    print(f"Crossover vs. Cu, {t_liner_nm_ru_default:.1f}nm Ru liner, parallel conduction (2026-08-29):")
+    _report_crossovers(_ru_model, "the Ru-liner Cu model")
+    print(f"Crossover vs. Cu, {t_liner_nm_co_default:.1f}nm Co liner, parallel conduction (2026-08-29):")
+    _report_crossovers(_co_model, "the Co-liner Cu model")
+
+
+def self_check_parallel_limit():
+    """
+    Sanity check (2026-08-29): cu_resistivity_with_liner_parallel() should
+    reduce to cu_resistivity_with_liner() in the rho_liner -> infinity
+    (non-conducting) limit. Verified numerically here (not just claimed in
+    the docstring) at a representative width, using a very large but finite
+    liner resistivity as a stand-in for infinity.
+    """
+    W_test = 20.0
+    rho_nonconducting = cu_resistivity_with_liner(W_test)
+    rho_parallel_huge_rho = cu_resistivity_with_liner_parallel(
+        W_test, rho_liner_uohm_cm=1.0e12)
+    rel_diff = abs(rho_parallel_huge_rho - rho_nonconducting) / rho_nonconducting
+    status = "OK" if rel_diff < 1e-6 else "FAILED"
+    print(f"Self-check: parallel-conduction model at rho_liner->inf matches "
+          f"non-conducting model at W={W_test:.0f}nm: "
+          f"{rho_nonconducting:.4f} vs {rho_parallel_huge_rho:.4f} uOhm.cm "
+          f"(rel. diff {rel_diff:.2e}) -- {status}")
+    if status == "FAILED":
+        raise AssertionError("Parallel-conduction limiting-case self-check failed")
+
+    # A second check in the opposite direction: with a liner resistivity
+    # *equal to* the Cu core's own resistivity at that width, the parallel
+    # model should reduce to the plain area-averaged (liner indistinguishable
+    # from core) resistivity -- i.e. rho_eff should equal rho_core exactly,
+    # independent of t_liner_nm, since both "conductors" are then identical.
+    rho_core_at_W = cu_resistivity_vs_width(W_test - 2.0 * t_liner_nm_default)
+    rho_parallel_matched = cu_resistivity_with_liner_parallel(
+        W_test, rho_liner_uohm_cm=rho_core_at_W)
+    rel_diff2 = abs(rho_parallel_matched - rho_core_at_W) / rho_core_at_W
+    status2 = "OK" if rel_diff2 < 1e-6 else "FAILED"
+    print(f"Self-check: parallel-conduction model at rho_liner == rho_core "
+          f"matches rho_core exactly: {rho_core_at_W:.4f} vs "
+          f"{rho_parallel_matched:.4f} uOhm.cm (rel. diff {rel_diff2:.2e}) -- {status2}")
+    if status2 == "FAILED":
+        raise AssertionError("Parallel-conduction matched-resistivity self-check failed")
+
 
 if __name__ == '__main__':
     print("Generating graphene interconnect resistivity-vs-linewidth model and plot...")
+    self_check_parallel_limit()
     plot_resistivity_vs_linewidth()
     summary_numbers()
     print("Done. Saved: interconnect_resistivity_vs_linewidth.png")
