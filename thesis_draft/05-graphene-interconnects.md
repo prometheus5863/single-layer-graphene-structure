@@ -148,6 +148,48 @@ baseline itself is made more realistic:
   At idealized edges (p = 0.9), graphene stays below the liner-aware
   model as well, by an even wider margin.
 
+**2026-08-29 update — parallel-conduction refinement and thinner (Ru/Co)
+liner scenarios.** Section 5.2's liner-aware copper model treated the
+liner as strictly non-conducting, a simplification flagged explicitly at
+the time. `cu_resistivity_with_liner_parallel()` (added 2026-08-29; see
+`notes/2026-08-29-liner-parallel-conduction-and-thin-liner-scenarios.md`)
+replaces that assumption with an explicit core-plus-liner parallel-
+conduction model, verified to reduce exactly to the non-conducting model
+in the rho_liner → ∞ limit. Applied to the original 3 nm TaN/Co case, the
+correction is nearly negligible — TaN's assumed effective resistivity is
+still roughly two orders of magnitude above the Cu core's own resistivity
+at relevant widths, so allowing it to conduct barely changes the result,
+and the "graphene wins at every buildable linewidth" conclusion above is
+unaffected. Applied to thinner, more conductive liner scenarios (Ru at
+0.3 nm, Co at 1.0 nm — thicknesses from the same Nanomaterials review
+cited in Section 5.2, with representative, order-of-magnitude liner
+resistivities since this session's literature search located strong
+qualitative but no quantitative source for the specific thin-film
+values), the picture changes materially for the Co case specifically: a
+thin, well-conducting liner keeps Cu resistivity comparatively low even
+very close to the W = 2·t_liner cross-section-consumption floor, because
+current can still flow through the liner as the Cu core area vanishes —
+something the non-conducting model cannot represent at all, since it
+forces resistance to diverge there regardless of what the liner is made
+of. This pushes the realistic-edge (p = 0.15) graphene crossover down
+from "no crossover" (bare 3 nm TaN/Co case) to approximately **W ≈ 3 nm**
+against the thin-Co-liner Cu model — deep enough into the sub-nanometer
+regime that it is no longer a practically relevant advantage at any
+achievable edge quality. The thin-Ru-liner case, by contrast, tracks close
+to the original liner-*free* baseline (crossover ≈ 123 nm, essentially
+unchanged from the 130 nm liner-free figure), since a 0.3 nm liner
+consumes too little cross-section to matter much either way. The
+practical reading: whether graphene's process-realistic interconnect
+advantage (main result above) survives once a specific liner material and
+thickness are chosen is *not* a settled question — it depends materially
+on which liner integration path the copper baseline assumes, with the
+Co-liner scenario in particular substantially narrowing graphene's
+advantage window. This is exactly the qualitative reason the
+interconnect-materials literature gives for pursuing thin, low-resistance
+liner materials in the first place (Section 1 of the 2026-08-29 notes),
+now reproduced from this chapter's own model rather than only cited from
+elsewhere.
+
 This is a genuinely different qualitative conclusion from the 2026-08-23
 draft's headline number (a 130 nm realistic-edge crossover), not merely a
 refinement of it, and it is worth being precise about why: the original
@@ -185,16 +227,21 @@ floor, and whether the non-conducting-liner approximation itself
 - ~~Extend the copper comparison model to include the liner/barrier-
   thickness effect explicitly~~ — **done 2026-08-28**
   (`cu_resistivity_with_liner()`; see Section 5.2/5.3 above and
-  `notes/2026-08-28-copper-liner-barrier-thickness-effect.md`). Two
-  refinements remain open from that addition: (1) the liner/barrier is
-  currently treated as strictly non-conducting, whereas thin Co/Ru liners
-  in particular carry some real current — a parallel-conduction
-  (liner + core) treatment would be more complete; (2) only the
-  literature-representative 3 nm (Ta/TaN + Co) liner thickness has been
-  modeled — a thinner-liner scenario (Ru- or Co-liner-enabled Cu,
-  ~1 nm or less, per the same Nanomaterials review) is directly
-  explorable via the new `t_liner_nm` parameter but not yet run/discussed
-  here.
+  `notes/2026-08-28-copper-liner-barrier-thickness-effect.md`).
+- ~~Parallel-conduction (liner + core) refinement, and a thinner-liner
+  (Ru/Co) scenario~~ — **done 2026-08-29**
+  (`cu_resistivity_with_liner_parallel()`; see Section 5.3 above and
+  `notes/2026-08-29-liner-parallel-conduction-and-thin-liner-scenarios.md`).
+  Surfaced two narrower open items: (1) the specific liner-material
+  resistivity values used (TaN 400, Ru 30, Co 20 μΩ·cm) are order-of-
+  magnitude placeholders — literature search this session confirmed the
+  qualitative resistivity ordering but could not access a quantitative
+  thickness-resolved source (several candidates were paywalled or
+  blocked by robots.txt); tightening these against a specific source is
+  a direct follow-on. (2) The liner's current distribution is treated as
+  spatially uniform across the whole liner "frame," not locally resolved
+  near corners — a second-order refinement relative to item (1)'s
+  uncertainty.
 - Connect this chapter's edge-scattering specularity framework explicitly
   back to the contact-resistance specularity/mode-counting discussion in
   Chapter 4 as a unifying methodological point for the thesis discussion
@@ -206,5 +253,8 @@ floor, and whether the non-conducting-liner approximation itself
 
 See `notes/2026-08-23-interconnect-resistivity-vs-linewidth.md` for full
 citations and additional literature discussion underlying this chapter,
-and `notes/2026-08-28-copper-liner-barrier-thickness-effect.md` for the
-liner/barrier-effect addition discussed in Sections 5.2-5.4 above.
+`notes/2026-08-28-copper-liner-barrier-thickness-effect.md` for the
+liner/barrier-effect addition discussed in Sections 5.2-5.4 above, and
+`notes/2026-08-29-liner-parallel-conduction-and-thin-liner-scenarios.md`
+for the parallel-conduction refinement and thin-Ru/Co-liner scenarios
+discussed in Section 5.3.
