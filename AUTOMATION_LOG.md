@@ -753,3 +753,108 @@ flagged gaps before opening new ones.
 **Commits this run:** 2 (parallel-conduction model code + notes +
 regenerated plot, thesis_draft/ Chapter 5 + Chapter 1 updates; this log
 entry commit makes 3).
+
+## 2026-08-31
+
+**Status:** Tenth automation run (first run after a two-day gap; no
+2026-08-30 session occurred).
+
+**Repo state at start:** Chapters 1, 4, 5, 6 of `thesis_draft/` exist.
+Chapter 1's status table (Chapter 4 row) and `graphene_contact_doping_
+model.py`'s module docstring both flagged the same standing open item
+since 2026-08-21: "use the doping model to recalibrate per-metal Rc."
+This was the only concretely-scoped, not-yet-started item in the
+Chapter 1 status table's "still to add" lists (the interconnect and
+photodetector rows' open items are all either done or require new
+model architecture, not a recalibration of an existing one), so it was
+prioritized this session per the repo's established practice of closing
+already-flagged gaps before opening new topics.
+
+**Work done:**
+
+1. **Research notes**
+   (`notes/2026-08-31-per-metal-contact-resistance-literature-and-
+   recalibration.md`): WebSearch/WebFetch were available and used.
+   Sourced four individually-cited, per-metal, room-temperature,
+   top-contact, on-state measured Rc values: Cu 184 Ω·µm and Pd 584
+   Ω·µm (Smith et al., ACS Nano 7(4), 3661 (2013)), Ni 470 Ω·µm
+   (Khosravi Rad et al., Sci. Rep. 14, 9190 (2024) -- this is the same
+   470 Ω·µm figure already cited generically in the 2026-08-21 notes,
+   now confirmed as specifically a Ni value), and Au 519 Ω·µm (Passi et
+   al., arXiv:1807.04772). Two fetch attempts failed and are recorded
+   as such rather than silently worked around: pmc.ncbi.nlm.nih.gov
+   returned a reCAPTCHA interstitial (blocked a PMC review article);
+   researchgate.net returned HTTP 429 (rate-limited) on both a
+   Ti-specific paper and an Au temperature-dependence paper -- as a
+   result, Ti and Cr were NOT recalibrated this session (no clean
+   individually-sourced figure obtained). Also documents a same-paper,
+   same-metal, geometry-only Au top-vs-edge-contact comparison from
+   Passi et al. (519 vs. 45 Ω·µm, an ~11x reduction) as a secondary
+   finding.
+
+2. **Code + results**
+   (`graphene_contact_doping_model.py`, `rc_recalibration.png`): Added
+   `METAL_LITERATURE_RC` (the four sourced values + citations/
+   conditions), added a Ni work function (5.04 eV) to
+   `METAL_WORK_FUNCTIONS`, and added `recalibrate_metal_rc()` /
+   `print_rc_recalibration()` / `plot_rc_recalibration()`. The
+   originally planned additive decomposition (Rc,measured = R_extra,
+   computed doping-junction term + R_transmission, an unmodeled
+   interface term) **does not hold**: for 3 of 4 metals (Cu, Ni, Au)
+   the computed R_extra alone exceeds the entire measured literature
+   Rc, forcing an unphysical negative "naive R_transmission." Only Pd
+   gives a plausible small positive residual (~9% of its measured
+   total). This is reported and plotted as a genuine negative/
+   inconclusive result (grouped-bar comparison, not a stacked
+   decomposition that would visually overstate validity) rather than
+   adjusted (e.g. by retuning `lambda_decay`) to force agreement with
+   only four data points -- candidate explanations (TLM
+   double-counting of the same near-contact region; `lambda_decay`
+   mismatch with the literature devices' real geometry) are recorded
+   as open items, not resolved.
+
+3. **Writing** (`thesis_draft/04-graphene-fet-device-physics.md`,
+   `thesis_draft/01-introduction.md`): Added new Section 4.7
+   ("Per-metal Rc recalibration: a genuine negative-residual result"),
+   renumbered the prior 4.7 summary table to 4.8 and updated its
+   recalibration row to reflect the attempted-but-inconclusive outcome
+   rather than marking it simply "done." Also added the Au edge-vs-top
+   contact secondary finding. Updated the Chapter 1 status table's
+   Chapter 4 row accordingly.
+
+**Not yet covered (candidates for future runs):**
+- Isolating the root cause of the Section 4.7 negative-residual result
+  (TLM double-counting vs. `lambda_decay` mismatch) -- needs either the
+  literature devices' extracted transfer length L_T or a direct
+  simulation of the TLM extraction procedure on top of the doping
+  profile
+- Ti and Cr per-metal Rc recalibration (blocked this session by
+  ResearchGate rate-limiting; retry a future session, possibly via a
+  different source than the two ResearchGate mirrors that failed)
+- Contact-geometry dependence (top vs. edge contact) is not represented
+  at all in `graphene_contact_doping_model.py`, despite Section 4.7's
+  own finding that it is a larger lever (~11x) than metal choice
+  (~3x) at fixed geometry
+- Plasmonic-absorption-enhancement factor for the photodetector model
+  (Chapter 6, Section 6.5)
+- Integrating the contact-doping spatial-profile machinery into the
+  photodetector collection-efficiency model (Chapter 6, Section 6.5)
+- Confirming the "High fMAX/fT ratio in multi-finger embedded T-shaped
+  gate graphene transistors" source referenced by title only in the
+  2026-08-26 session (fetch was rate-limited at the time)
+- Graphene-all-around-metal (liner/cap on a conventional Co/Cu core)
+  interconnect model (Chapter 5, Section 5.4); sourcing specific
+  liner-material resistivity values (Chapter 5, Section 5.4)
+- Further thesis_draft/ chapters: 2-3 could be drafted from the
+  existing band-structure/transport code and results; Chapter 7
+  (discussion/outlook) awaits enough device-application chapters to
+  synthesize
+
+**Web search availability:** WebSearch/WebFetch were both available and
+used this session (see Section 3 of today's notes for specific access
+failures encountered and worked around by omission, not substitution).
+
+**Commits this run:** 3 (per-metal literature Rc research notes,
+recalibration code + plot + genuine negative-residual finding,
+thesis_draft Chapter 4 Section 4.7 + Chapter 1 status table update;
+this AUTOMATION_LOG.md entry commit makes 4).
