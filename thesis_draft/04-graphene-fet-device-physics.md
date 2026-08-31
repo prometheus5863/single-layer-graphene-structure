@@ -204,7 +204,79 @@ Feijoo et al. report (~60-70%). See
 `notes/2026-08-26-fmax-parasitics-and-fT-fmax-ratio.md` for the full
 derivation and literature citations.
 
-## 4.7 Summary and open items
+## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
+
+Section 4.5's contact-doping model computes a work-function-dependent
+"extra" resistance, R_extra, contributed by the extended in-plane doping
+junction beyond a contact's edge. Section 4.5 used R_extra only
+*diagnostically* (comparing metals to each other and to the model's own
+qualitative predictions). This section attempts to go one step further —
+recalibrate the model against real, individually-cited, per-metal
+measured Rc values from the literature — and reports a genuine negative
+result rather than a forced fit.
+
+Four literature Rc values were sourced this session (see
+`notes/2026-08-31-per-metal-contact-resistance-literature-and-
+recalibration.md` for full citations and search-access notes; Ti and Cr
+could not be recalibrated because no single clean per-metal figure was
+obtained this session — two ResearchGate fetches were rate-limited),
+all for top (surface) contacts at room temperature, gate-biased
+(on-state): Cu 184 Ω·µm, Ni 470 Ω·µm, Au 519 Ω·µm, Pd 584 Ω·µm.
+
+The natural hypothesis going in was an additive decomposition,
+Rc,measured = R_extra (Section 4.5's doping-junction term) +
+R_transmission (an unmodeled interface-tunneling/mode-limited-injection
+term, concentrated at the contact itself). Computing R_extra at the same
+on-state bulk channel density used throughout this chapter
+(`n_bulk = 2.0e16 m^-2`) and subtracting it from each metal's measured
+Rc (`graphene_contact_doping_model.recalibrate_metal_rc()`,
+`rc_recalibration.png`):
+
+| Metal | Rc, measured (Ω·µm) | R_extra, computed (Ω·µm) | Naive R_transmission (Ω·µm) |
+|---|---|---|---|
+| Cu | 184.0 | 971.5 | **−787.5** |
+| Ni | 470.0 | 830.5 | **−360.5** |
+| Au | 519.0 | 609.2 | **−90.2** |
+| Pd | 584.0 | 533.1 | +51.0 (~9% of total) |
+
+For three of the four metals, the computed doping-junction contribution
+**alone exceeds the entire measured lumped contact resistance**, which
+would require a negative "transmission resistance" to balance the
+books — unphysical, since a resistance cannot be negative. Only Pd gives
+a small, plausible positive residual. Rather than adjusting
+`lambda_decay` or the bulk-density reference ad hoc until the four data
+points come out positive — which would just be curve-fitting a
+parameter to this session's four measurements — this is reported as-is:
+**the simple additive decomposition does not hold**, most plausibly
+because the transfer length method (TLM) used to extract all four
+literature Rc values fits total device resistance vs. contact spacing
+back to zero spacing, and its "contact resistance" term can already
+partially absorb the same near-contact doping-gradient region this
+model integrates separately — i.e. R_extra and Rc,measured likely
+double-count part of the same physical region rather than summing as
+independent series terms. A second, non-exclusive possibility is that
+`lambda_decay` = 250 nm (Section 4.5, from Khomyakov et al. 2010's
+doped-graphene asymptotic regime) over-integrates the extra-resistance
+contribution for these specific literature devices' actual channel
+geometry. Distinguishing between these needs either the source papers'
+extracted transfer length L_T (not available from the excerpts obtained
+this session) or an explicit simulation of the TLM extraction procedure
+on top of the doping profile — both left as open items rather than
+resolved here.
+
+A secondary, more solid finding from the same literature search: within
+a single paper and a single metal (Au, Passi et al., arXiv:1807.04772),
+switching from a top contact to an edge (hole-patterned) contact reduces
+Rc from 519 to 45 Ω·µm at the same gate bias — an ~11x reduction from
+geometry alone, a substantially larger lever than the ~3x metal-to-metal
+spread observed at fixed (top-contact) geometry in the table above. This
+is not modeled quantitatively here (the current model has no notion of
+contact geometry), but is worth flagging as context for why real
+fabrication increasingly favors edge or quasi-edge contacts over simple
+top contacts (see also the patterned-vs-normal Cu/Pd comparison already
+in the Section 4.5 literature review).
+
+## 4.8 Summary and open items
 
 | Sub-topic | Status |
 |---|---|
@@ -214,7 +286,7 @@ derivation and literature citations.
 | Contact-resistance-vs-channel-length crossover | Complete (`contact_resistance_crossover.py`) |
 | Spatially-resolved, work-function-dependent contact doping | Complete, diagnostic model (`graphene_contact_doping_model.py`) — see Section 4.5 for known limitations |
 | RF figures of merit (f_T, f_max) | Complete, incl. access resistance + extrinsic pad-capacitance estimate (`rf_small_signal_model.py`, Section 4.6) |
-| Using the doping-profile model to *recalibrate* Rc per metal (vs. using it only diagnostically) | Not started |
+| Using the doping-profile model to *recalibrate* Rc per metal (vs. using it only diagnostically) | Attempted (Section 4.7) — additive decomposition found NOT to hold for 3 of 4 metals (Cu, Ni, Au); only Pd gives a physically plausible residual. Root cause (TLM double-counting vs. `lambda_decay` mismatch) not yet isolated; Ti and Cr not recalibrated (no literature Rc sourced this session) |
 
 Cross-references: Chapter 5 (interconnects) and Chapter 6 (photodetectors)
 both trace performance-limiting effects to the same underlying physical
