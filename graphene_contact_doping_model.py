@@ -58,6 +58,10 @@ METAL_WORK_FUNCTIONS = {
     "Ti": 4.33,   # low-WF, n-type dopant, common adhesion-layer/contact metal
     "Cr": 4.50,   # ~graphene's own WF; weak/near-neutral doping
     "Cu": 4.65,   # common interconnect/contact metal; n-type dopant
+    "Ni": 5.04,   # polycrystalline Ni work function (Michaelson 1977 tables,
+                  # commonly cited 4.9-5.35 eV depending on facet/surface
+                  # prep; 5.04 eV used here, added 2026-08-31 to support the
+                  # per-metal Rc recalibration below)
     "Pd": 5.12,   # widely used for its low contact resistance (2026-08-21 notes)
     "Au": 5.10,   # near the reported n/p crossover; can go either way depending
                   # on interface bonding, commonly reported p-type in practice
@@ -162,6 +166,198 @@ def junction_extra_resistance(work_function_metal, n_bulk, L_junction=1e-6, n_po
     return R_extra_ohm_um, x, n_x, n_contact
 
 
+# ---------------------------------------------------------------------------
+# Per-metal Rc recalibration (2026-08-31) -- closes the Section 4.7 /
+# AUTOMATION_LOG.md follow-on item flagged since 2026-08-21: "use the
+# doping model to recalibrate per-metal Rc."
+#
+# graphene_fet_model.py's Rc_total is a single generic value (300 Ohm.um)
+# drawn from a literature *range* (~110-500 Ohm.um), not tied to any
+# specific metal. This section instead takes real, individually-cited,
+# metal-specific measured Rc values from the literature and decomposes
+# each one, using the doping-junction model above, into:
+#
+#   Rc_measured(metal) = R_extra_junction(metal) + R_transmission(metal)
+#
+# where R_extra_junction is *this file's* computed contribution from the
+# extended (few-hundred-nm) contact-doping region beyond the metal edge,
+# and R_transmission is the remainder -- physically, the resistance
+# intrinsic to carrier injection across the metal-graphene interface
+# itself (interface tunneling barrier + finite number of conduction
+# modes, concentrated right at/under the contact, per the "Key physical
+# contributors" list in notes/2026-08-21-*.md, Section 2.1). This
+# decomposition is new; the literature Rc numbers below report only the
+# lumped total, not this split.
+#
+# Search-access notes: WebSearch/WebFetch were both available this
+# session. Values below are individually sourced and cited. A few
+# fetch attempts failed and are noted rather than silently worked
+# around, consistent with established practice in this repo
+# (e.g. notes/2026-08-29-*.md): pmc.ncbi.nlm.nih.gov returned a
+# reCAPTCHA interstitial (blocked the "Electrical properties of
+# graphene-metal contacts" PMC review); researchgate.net returned
+# HTTP 429 (rate-limited) on two follow-up fetches (a Ti-specific
+# process-variability paper, and an Au temperature-dependence paper).
+# As a result, Ti and Cr are NOT included in the quantitative
+# recalibration below -- no single clean, individually-sourced Ohm.um
+# figure was obtained for either this session (see
+# notes/2026-08-31-*.md for the full search trail); they remain in
+# METAL_WORK_FUNCTIONS / the doping-profile-only analysis above, which
+# does not require a literature Rc_measured value.
+METAL_LITERATURE_RC = {
+    "Cu": {
+        "Rc_measured_ohm_um": 184.0,
+        "condition": "top (surface) contact, two-terminal device, post-350C "
+                     "anneal, room temperature, back-gate biased (on-state)",
+        "source": "Smith, Franklin, Farmer & Dimitrakopoulos, "
+                   "\"Reducing Contact Resistance in Graphene Devices "
+                   "through Contact Area Patterning,\" ACS Nano 7(4), "
+                   "3661-3667 (2013)",
+    },
+    "Pd": {
+        "Rc_measured_ohm_um": 584.0,
+        "condition": "top (surface) contact, top-gated FET, unpatterned "
+                     "(\"normal\") contact, room temperature, gate-biased "
+                     "(on-state)",
+        "source": "Smith, Franklin, Farmer & Dimitrakopoulos, ACS Nano "
+                   "7(4), 3661-3667 (2013)",
+    },
+    "Ni": {
+        "Rc_measured_ohm_um": 470.0,
+        "condition": "top (surface) contact, \"two-in-one\" fabrication "
+                     "process (metal deposited before photolithographic "
+                     "patterning, minimizing resist-residue contamination), "
+                     "room temperature, gate-biased (on-state)",
+        "source": "Khosravi Rad, Mehrfar, Sadeghi Neisiani, Khaje & Eslami "
+                   "Majd, \"Effect of fabrication process on contact "
+                   "resistance and channel in graphene field effect "
+                   "transistors,\" Scientific Reports 14, 9190 (2024)",
+    },
+    "Au": {
+        "Rc_measured_ohm_um": 519.0,
+        "condition": "top (surface) contact, unpatterned, room "
+                     "temperature, back-gate biased away from the Dirac "
+                     "point (on-state) -- the same paper's Dirac-point "
+                     "value (1372 Ohm.um) is not used here since this "
+                     "model's n_bulk reference is an on-state (gated) "
+                     "condition, not the neutrality point",
+        "source": "Passi, Gahoi, Marin, Cusati, Fortunelli, Iannaccone, "
+                   "Fiori & Lemme, \"Ultra Low Specific Contact "
+                   "Resistivity in Metal-Graphene Junctions via Atomic "
+                   "Orbital Engineering,\" arXiv:1807.04772",
+    },
+}
+
+
+def recalibrate_metal_rc(n_bulk=2.0e16):
+    """
+    For each metal with both a work function (METAL_WORK_FUNCTIONS) and a
+    literature-measured Rc (METAL_LITERATURE_RC), decompose the measured
+    lumped contact resistance into this model's computed doping-junction
+    contribution and an implied residual "interface transmission"
+    resistance. n_bulk defaults to the same on-state bulk channel density
+    used in plot_doping_profiles_and_resistance()/summary_numbers(),
+    matching the "back-gate biased (on-state)" condition under which all
+    four literature Rc values above were reported.
+
+    Returns a dict: metal -> (wf, Rc_measured, R_extra_junction, R_transmission_implied)
+    """
+    results = {}
+    for metal, lit in METAL_LITERATURE_RC.items():
+        if metal not in METAL_WORK_FUNCTIONS:
+            continue
+        wf = METAL_WORK_FUNCTIONS[metal]
+        Rc_measured = lit["Rc_measured_ohm_um"]
+        R_extra, _, _, _ = junction_extra_resistance(wf, n_bulk)
+        R_transmission_implied = Rc_measured - R_extra
+        results[metal] = (wf, Rc_measured, R_extra, R_transmission_implied)
+    return results
+
+
+def plot_rc_recalibration():
+    """Grouped-bar figure comparing, for each literature-calibrated metal,
+    the measured total lumped Rc against this model's computed
+    doping-junction-only contribution R_extra. Deliberately NOT a stacked
+    decomposition (see print_rc_recalibration/notes/2026-08-31-*.md for
+    why: R_extra exceeds Rc_measured for most metals here, so a naive
+    Rc_measured = R_extra + R_transmission split gives negative
+    "transmission resistance" for 3 of 4 metals -- a genuine finding
+    about the limits of this comparison, not a modeling bug to paper
+    over with a stacked bar that would visually imply a valid split)."""
+    results = recalibrate_metal_rc()
+    metals_sorted = sorted(results.keys(), key=lambda m: results[m][0])  # by WF
+
+    wfs = [results[m][0] for m in metals_sorted]
+    R_extra_vals = [results[m][2] for m in metals_sorted]
+    Rc_measured_vals = [results[m][1] for m in metals_sorted]
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    x = np.arange(len(metals_sorted))
+    width = 0.35
+    ax.bar(x - width / 2, Rc_measured_vals, width,
+           label='$R_c$, measured (literature, lumped total)', color='steelblue')
+    ax.bar(x + width / 2, R_extra_vals, width,
+           label='$R_{extra}$, computed (doping-junction only, this model)',
+           color='darkorange')
+    ax.axhline(0, color='black', linewidth=0.8)
+    ax.set_xticks(x)
+    ax.set_xticklabels([f'{m}\n(W={wfs[i]:.2f} eV)' for i, m in enumerate(metals_sorted)])
+    ax.set_ylabel(r'Contact resistance ($\Omega\cdot\mu$m)')
+    ax.set_title('Per-metal $R_c$ recalibration: literature-measured total vs.\n'
+                  'computed contact-doping-junction contribution')
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3, axis='y')
+    plt.tight_layout()
+    plt.savefig('rc_recalibration.png', dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    return results
+
+
+def print_rc_recalibration():
+    results = recalibrate_metal_rc()
+    print("\nPer-metal Rc recalibration (measured total vs. computed "
+          "doping-junction contribution)")
+    print("=" * 78)
+    print(f"{'Metal':6s} {'W (eV)':8s} {'Rc_measured':14s} {'R_extra (junction)':20s} "
+          f"{'Naive R_transmission':22s}")
+    for metal, (wf, Rc_measured, R_extra, R_trans) in sorted(
+            results.items(), key=lambda kv: kv[1][0]):
+        print(f"{metal:6s} {wf:<8.2f} {Rc_measured:<14.1f} {R_extra:<20.2f} {R_trans:<22.2f}")
+    print(f"\nAll values Ohm.um. 'Naive R_transmission' = Rc_measured - "
+          f"R_extra, i.e. what would be left over if the measured Rc and "
+          f"this model's junction integral were simply additive. See "
+          f"METAL_LITERATURE_RC for individual citations/conditions.\n\n"
+          f"Result (genuine finding, not the outcome originally expected "
+          f"going into this recalibration): for 3 of 4 metals (Cu, Ni, "
+          f"Au) the computed R_extra alone EXCEEDS the entire measured "
+          f"literature Rc, giving a negative naive R_transmission -- i.e. "
+          f"an unphysical answer for a resistance that must be >= 0. Only "
+          f"Pd gives a plausible small positive residual (51 Ohm.um, "
+          f"~9% of the measured total). This means the additive "
+          f"decomposition Rc_measured = R_extra + R_transmission, as "
+          f"posed, is NOT valid as implemented, most plausibly because "
+          f"the two quantities are not independent: TLM (transfer length "
+          f"method), the standard technique behind all four literature "
+          f"Rc_measured values here, extracts a lumped Rc by fitting "
+          f"total resistance vs. contact-to-contact spacing back to zero "
+          f"spacing, and its fitted 'contact resistance' can already "
+          f"partially absorb any near-contact channel-doping gradient "
+          f"rather than cleanly separating it out -- so R_extra and "
+          f"Rc_measured likely double-count part of the same physical "
+          f"region rather than being additive components of one series "
+          f"resistance. A second, non-exclusive possibility is that "
+          f"lambda_decay=250 nm (Khomyakov et al. 2010, doped-graphene "
+          f"asymptotic regime) is itself too long for these specific "
+          f"literature devices' actual contact/channel geometry, "
+          f"over-integrating the extra-resistance contribution. "
+          f"Distinguishing between these (or other) explanations needs "
+          f"either the original devices' extracted transfer length "
+          f"L_T (not reported in the sources fetched this session) or a "
+          f"direct simulation of the TLM extraction procedure itself on "
+          f"top of this doping profile -- both flagged as open items in "
+          f"notes/2026-08-31-*.md rather than resolved here.")
+
+
 def plot_doping_profiles_and_resistance():
     """Two-panel figure: (1) spatial doping profile n(x) for several
     contact metals against a representative n-type gated bulk channel, and
@@ -255,4 +451,6 @@ if __name__ == '__main__':
     print("Generating contact-induced doping profile model...")
     summary_numbers()
     plot_doping_profiles_and_resistance()
-    print("\nDone. Saved: contact_doping_profile.png")
+    print_rc_recalibration()
+    plot_rc_recalibration()
+    print("\nDone. Saved: contact_doping_profile.png, rc_recalibration.png")
