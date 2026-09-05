@@ -270,13 +270,79 @@ switching from a top contact to an edge (hole-patterned) contact reduces
 Rc from 519 to 45 Ω·µm at the same gate bias — an ~11x reduction from
 geometry alone, a substantially larger lever than the ~3x metal-to-metal
 spread observed at fixed (top-contact) geometry in the table above. This
-is not modeled quantitatively here (the current model has no notion of
-contact geometry), but is worth flagging as context for why real
-fabrication increasingly favors edge or quasi-edge contacts over simple
-top contacts (see also the patterned-vs-normal Cu/Pd comparison already
-in the Section 4.5 literature review).
+was not modeled quantitatively in this section (the recalibration above
+has no notion of contact geometry) — it is picked up in Section 4.8 below,
+which finds that only part of this ~11x is attributable to the isolated
+doping-density effect (see also the patterned-vs-normal Cu/Pd comparison
+already in the Section 4.5 literature review).
 
-## 4.8 Summary and open items
+## 4.8 Contact geometry: edge vs. top contacts, quantitatively
+
+Section 4.7 flagged, but did not model, that switching from a top to an
+edge (hole-patterned) contact reduces Au's measured Rc by ~11x (519 to
+45 Ω·µm, Passi et al., arXiv:1807.04772) — a bigger lever than the ~3x
+metal-to-metal spread found at fixed top-contact geometry. This section
+closes that gap with `graphene_edge_contact_model.py` (full literature
+review in `notes/2026-09-05-edge-vs-top-contact-geometry.md`).
+
+**Why edges inject better.** Graphene is sp2-bonded with no out-of-plane
+dangling bonds, so a top contact can only couple via a weak van-der-Waals
+overlap (Wang et al., *Science* 342, 614 (2013), whose fully edge-contacted
+devices — graphene contacted only at its 1D edge inside an hBN
+encapsulation stack — reached ~100 Ω·µm, "smaller than what can be
+achieved for contacts at the graphene top surface"). At an exposed edge,
+carbon atoms can instead form direct sigma bonds with the metal. Passi et
+al.'s own DFT calculations quantify this for Au: the metal-induced
+Fermi-level shift is **0.35 eV at an edge vs. 0.14 eV at the flat
+surface** — a ~2.5x stronger doping-induced shift right at the edge.
+
+**Reusing Section 4.5's machinery.** Rather than inventing a new
+edge-specific interface capacitance (nothing in the literature constrains
+one), this session converts the two DFT Fermi shifts directly into contact
+carrier densities via graphene's linear dispersion,
+n(E_F) = E_F²/(π(ħv_F)²), then feeds them into the *same* doping-profile
+integration Section 4.5 already uses (factored out this session as
+`junction_extra_resistance_from_ncontact()` so both routes — work-function-
+derived for top contacts, Fermi-shift-derived for edge contacts — share one
+implementation). Result: R_extra = 982 Ω·µm pure top-mode vs. 379 Ω·µm pure
+edge-mode for Au — edge-mode is lower, as expected, but by only ~2.6x, not
+the full ~11x Passi et al. measured on their actual patterned device. That
+gap is expected and explicitly not claimed to be closed here: the
+measured 11x bundles in the *specific patterned geometry* (Section 4.8.1
+below) on top of the pure doping-density effect isolated here, and R_extra
+is already known (Section 4.7) to run higher than measured Rc in this
+model's on-state convention, for the same TLM-double-counting reasons
+discussed there.
+
+### 4.8.1 Patterned (hole-array) contacts: geometry model
+
+Passi et al.'s actual device etches an array of round holes through the
+graphene under the contact metal before deposition, mixing edge-mode and
+top-mode injection across the pad area. This session adds a purely
+geometric model: for holes of diameter D at areal fill fraction f on a
+square lattice, the ligament width between adjacent holes is
+D·(√(π/4f) − 1); once that ligament shrinks below 2·λ_decay (the same
+250 nm contact-doping decay length used throughout Section 4.5), doping
+fronts from neighboring holes overlap and the local graphene is treated as
+fully edge-dominated. The edge- and top-mode resistances are then mixed by
+this area fraction (conductance-weighted) and a 1/(1−f) current-
+constriction penalty is applied for the etched-away area.
+
+Passi et al. do not report the actual fill fraction f used for their five
+tested hole diameters (50–1000 nm), so this cannot be fit point-by-point;
+it is instead swept at a few illustrative, explicitly-assumed f values and
+compared qualitatively (`edge_vs_top_contact.png`). The model reproduces
+the *shape* of the large-diameter branch of their data — resistance rising
+again as holes grow past a few hundred nm and area loss starts to dominate
+over the added edge length — but does **not** reproduce their measured
+upturn at small diameters (50–100 nm), where the model instead predicts a
+flat, saturated best case. That small-D upturn more plausibly reflects a
+fabrication effect (lithographic proximity degradation, or edge-disorder-
+limited mobility in very narrow graphene ligaments between closely packed
+small holes) outside this compact model's scope, and is reported as an
+open item rather than fitted away.
+
+## 4.9 Summary and open items
 
 | Sub-topic | Status |
 |---|---|
@@ -287,6 +353,7 @@ in the Section 4.5 literature review).
 | Spatially-resolved, work-function-dependent contact doping | Complete, diagnostic model (`graphene_contact_doping_model.py`) — see Section 4.5 for known limitations |
 | RF figures of merit (f_T, f_max) | Complete, incl. access resistance + extrinsic pad-capacitance estimate (`rf_small_signal_model.py`, Section 4.6) |
 | Using the doping-profile model to *recalibrate* Rc per metal (vs. using it only diagnostically) | Attempted (Section 4.7) — additive decomposition found NOT to hold for 3 of 4 metals (Cu, Ni, Au); only Pd gives a physically plausible residual. Root cause (TLM double-counting vs. `lambda_decay` mismatch) not yet isolated; Ti and Cr not recalibrated (no literature Rc sourced this session) |
+| Contact-geometry dependence (edge vs. top, patterned contacts) | Complete, DFT-Fermi-shift-derived model (Section 4.8, `graphene_edge_contact_model.py`) — reproduces the qualitative direction (edge lower than top) and the large-hole-diameter branch of Passi et al.'s patterned-contact data; does not reproduce their small-diameter upturn or the full ~11x measured device-level reduction (only ~2.6x from the isolated doping-density effect) |
 
 Cross-references: Chapter 5 (interconnects) and Chapter 6 (photodetectors)
 both trace performance-limiting effects to the same underlying physical
