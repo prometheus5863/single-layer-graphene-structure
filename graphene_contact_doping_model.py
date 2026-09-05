@@ -138,11 +138,18 @@ def _sheet_conductivity_puddle_regularized(n):
     return sheet_conductivity(n_regularized)
 
 
-def junction_extra_resistance(work_function_metal, n_bulk, L_junction=1e-6, n_points=400):
+def junction_extra_resistance_from_ncontact(n_contact, n_bulk, L_junction=1e-6, n_points=400):
     """
-    Extra (above-bulk) sheet-resistance contribution of the contact-doping
-    junction region, isolated from the lumped Rc_total already used in
-    graphene_fet_model.py.
+    Same integral as junction_extra_resistance() below, factored out to take
+    a contact-edge carrier density n_contact directly rather than deriving
+    it from a metal work function via the interface-capacitance
+    self-consistency loop. Added 2026-09-05 so graphene_edge_contact_model.py
+    can reuse this exact integration machinery with an n_contact computed a
+    different way (from a DFT-reported Fermi-level shift, for edge contacts,
+    rather than from contact_edge_carrier_density()'s work-function/
+    interface-capacitance route) -- see that module's docstring for why the
+    two contact geometries need different n_contact estimators but should
+    share one doping-profile-integration implementation.
 
     Integrates 1/sigma_sheet(n(x)) - 1/sigma_sheet(n_bulk) over
     x in [0, L_junction], width-normalized (Ohm.um), so it can be compared
@@ -150,7 +157,6 @@ def junction_extra_resistance(work_function_metal, n_bulk, L_junction=1e-6, n_po
     elsewhere in this thesis. Both terms use the puddle-regularized sheet
     conductivity so the integral stays finite across p-n crossings.
     """
-    n_contact = contact_edge_carrier_density(work_function_metal)
     x = np.linspace(0, L_junction, n_points)
     n_x = doping_profile(x, n_contact, n_bulk)
 
@@ -163,6 +169,20 @@ def junction_extra_resistance(work_function_metal, n_bulk, L_junction=1e-6, n_po
     dR_extra_per_width = (1.0 / sigma_x) - (1.0 / sigma_bulk)
     R_extra_ohm_um = np.trapezoid(dR_extra_per_width, x) * 1e6  # Ohm (per um width)
 
+    return R_extra_ohm_um, x, n_x
+
+
+def junction_extra_resistance(work_function_metal, n_bulk, L_junction=1e-6, n_points=400):
+    """
+    Extra (above-bulk) sheet-resistance contribution of the contact-doping
+    junction region, isolated from the lumped Rc_total already used in
+    graphene_fet_model.py. Derives n_contact from the metal work function
+    (top/surface-contact route), then delegates the integral to
+    junction_extra_resistance_from_ncontact().
+    """
+    n_contact = contact_edge_carrier_density(work_function_metal)
+    R_extra_ohm_um, x, n_x = junction_extra_resistance_from_ncontact(
+        n_contact, n_bulk, L_junction=L_junction, n_points=n_points)
     return R_extra_ohm_um, x, n_x, n_contact
 
 
