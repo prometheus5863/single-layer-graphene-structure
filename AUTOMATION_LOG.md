@@ -858,3 +858,112 @@ failures encountered and worked around by omission, not substitution).
 recalibration code + plot + genuine negative-residual finding,
 thesis_draft Chapter 4 Section 4.7 + Chapter 1 status table update;
 this AUTOMATION_LOG.md entry commit makes 4).
+
+---
+
+## 2026-09-05
+
+**Status:** Eleventh automation run (first run after a five-day gap; no
+sessions occurred 2026-09-01 through 2026-09-04).
+
+**Repo state at start:** Chapters 1, 4, 5, 6 of `thesis_draft/` exist.
+Every "not yet covered" list since the 2026-08-31 run flagged the same
+concrete gap: "Contact-geometry dependence (top vs. edge contact) is not
+represented at all in `graphene_contact_doping_model.py`, despite Section
+4.7's own finding that it is a larger lever (~11x) than metal choice (~3x)
+at fixed geometry." This was prioritized this session since it is a
+direct, already-scoped closure of a standing gap (consistent with this
+repo's established practice) rather than a new topic, and the ~11x figure
+already lived in this repo's own Section 4.7 text without a model behind
+it.
+
+**Work done:**
+
+1. **Research notes**
+   (`notes/2026-09-05-edge-vs-top-contact-geometry.md`): WebSearch and
+   WebFetch were both available and used. Reviewed Wang et al., *Science*
+   342, 614 (2013) (foundational true-1D edge-contact result, ~100 Ohm.um,
+   direct fetch 403'd, corroborated via a secondary source rather than
+   invented) and re-examined Passi et al., arXiv:1807.04772 (already
+   partially cited in this repo for its Au top-contact value) for its
+   edge/hole-pattern TLM table (5 hole diameters, 50-1000 nm, at both the
+   Dirac point and on-state) and its DFT-computed Fermi-level shift
+   comparison (0.35 eV at a graphene edge vs. 0.14 eV at the flat surface,
+   for Au) -- the one quantitative, metal-specific, first-principles
+   number found that converts directly into a carrier-density input for
+   this repo's existing contact-doping machinery. A Wiley fetch of a
+   second independent edge-contact paper (Lee et al. 2022) failed (403)
+   and is recorded as not pursued further this session, not silently
+   substituted.
+
+2. **Code + results**
+   (`graphene_contact_doping_model.py`, `graphene_edge_contact_model.py`,
+   `edge_vs_top_contact.png`): Factored `junction_extra_resistance()`'s
+   doping-profile integration out into a new
+   `junction_extra_resistance_from_ncontact()` (no behavior change --
+   verified by re-running the existing module standalone and confirming
+   identical output to before the refactor) so a new module could reuse it
+   with an n_contact computed a different way. `graphene_edge_contact_model.py`
+   converts the two DFT Fermi shifts into carrier densities via graphene's
+   linear dispersion (n ~ E_F^2), computes pure edge-mode vs. pure top-mode
+   extra junction resistance for Au (379 vs. 982 Ohm.um -- edge lower, as
+   expected, but only ~2.6x, not the full ~11x measured on Passi et al.'s
+   actual patterned device), and adds a geometric hole-array model relating
+   hole diameter/areal fill fraction to an "edge-influenced area fraction"
+   via the existing `lambda_decay` (250 nm) parameter -- reusing an
+   already-established length scale rather than introducing a new free
+   parameter. Verified to run standalone. The patterned-contact sweep
+   reproduces the large-hole-diameter (area-loss-dominated) branch of
+   Passi et al.'s real non-monotonic data, but explicitly does NOT
+   reproduce their small-diameter (50-100 nm) upturn -- flagged in both the
+   code's `summary_numbers()` output and the notes as an open modeling
+   gap (most plausibly a fabrication/lithography effect outside this
+   compact model's scope) rather than hidden or fitted away. Passi et
+   al.'s actual hole areal fill fraction is not reported in the fetched
+   material, so the comparison is explicitly qualitative (swept over a
+   few assumed fill fractions), not a point-by-point fit.
+
+3. **Writing** (`thesis_draft/04-graphene-fet-device-physics.md`,
+   `thesis_draft/01-introduction.md`): Added new Section 4.8 ("Contact
+   geometry: edge vs. top contacts, quantitatively") plus a
+   Section 4.8.1 on the patterned-contact geometry model, renumbered the
+   prior 4.8 ("Summary and open items") to 4.9 and updated its status
+   table with a new row for this session's work, corrected a
+   now-outdated sentence in Section 4.7 that said contact geometry "is
+   not modeled quantitatively here" to point forward to the new Section
+   4.8, and updated the Chapter 1 status table's Chapter 4 row.
+
+**Not yet covered (candidates for future runs):**
+- Sourcing a second independent edge-contact dataset (Lee et al. 2022,
+  Wiley 403'd this session) to cross-check the Au DFT-Fermi-shift-derived
+  edge/top ratio against a source other than Passi et al.
+- Extending the edge-mode carrier-density estimate to metals other than
+  Au (no DFT edge-vs-surface Fermi-shift data found for other metals this
+  session; would require either new literature or an untested assumption
+  that Au's ~2.5x shift ratio generalizes)
+- Isolating the small-hole-diameter (50-100 nm) upturn in Passi et al.'s
+  data that this session's geometric model does not reproduce
+- Isolating the root cause of the Section 4.7 negative-residual result
+  (TLM double-counting vs. `lambda_decay` mismatch) -- still open from
+  2026-08-31
+- Ti and Cr per-metal Rc recalibration (still blocked by prior sessions'
+  ResearchGate rate-limiting; not reattempted this session)
+- Plasmonic-absorption-enhancement factor for the photodetector model
+  (Chapter 6, Section 6.5)
+- Integrating the contact-doping spatial-profile machinery into the
+  photodetector collection-efficiency model (Chapter 6, Section 6.5)
+- Graphene-all-around-metal (liner/cap on a conventional Co/Cu core)
+  interconnect model (Chapter 5, Section 5.4); sourcing specific
+  liner-material resistivity values (Chapter 5, Section 5.4)
+- Further thesis_draft/ chapters: 2-3 could be drafted from the existing
+  band-structure/transport code and results; Chapter 7 (discussion/
+  outlook) awaits enough device-application chapters to synthesize
+
+**Web search availability:** WebSearch/WebFetch were both available and
+used this session (see notes file Section 5 for the two access failures
+encountered: science.org 403, Wiley 403, and a Semantic Scholar fetch that
+returned an empty page body).
+
+**Commits this run:** 3 (edge-vs-top contact geometry research notes,
+model code + plot, thesis_draft Chapter 4 Section 4.8 + Chapter 1 status
+table update; this AUTOMATION_LOG.md entry commit makes 4).
