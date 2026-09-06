@@ -967,3 +967,98 @@ returned an empty page body).
 **Commits this run:** 3 (edge-vs-top contact geometry research notes,
 model code + plot, thesis_draft Chapter 4 Section 4.8 + Chapter 1 status
 table update; this AUTOMATION_LOG.md entry commit makes 4).
+
+## 2026-09-06
+
+**Status:** Thirteenth automation run.
+
+**Repo state at start:** Chapters 1, 4, 5, 6 of `thesis_draft/` exist.
+Every "not yet covered" list since the photodetector model was first
+implemented (2026-08-24/2026-08-25) flagged the same standing item:
+"Plasmonic-absorption-enhancement factor for the photodetector model
+(Chapter 6, Section 6.5)," and `graphene_photodetector_model.py`'s own
+module docstring names it as the natural next step for closing the
+absolute-magnitude offset between its simple transit-time gain-bandwidth
+model and the three literature anchor points. This session closed that
+item.
+
+**Work done:**
+
+1. **Research notes**
+   (`notes/2026-09-06-plasmonic-enhancement-graphene-photodetectors.md`):
+   WebSearch and WebFetch were both available and used; all fetches
+   succeeded (no access failures to record this session). Reviewed
+   Echtermeyer et al., Nature Communications 2, 458 (2011) (Ti/Au
+   finger-grating plasmonic enhancement of graphene photovoltage, ~5x
+   near-field amplitude / ~25x intensity enhancement, resonances at 514
+   and 633 nm), Fang et al., Applied Physics Letters 105, 241114 (2014)
+   (Au nano-antenna, 580 nm LSPR), and an arrayed bowtie-on-waveguide
+   telecom-band graphene photodetector (arXiv:1808.10823, 8.5x simulated
+   single-element absorption enhancement, 100 Gbit/s PAM-2/PAM-4
+   reception). Explicitly distinguished which numbers are directly usable
+   as a near-field/absorption enhancement factor (Echtermeyer's near-field
+   simulation, the bowtie array's same-device absorption comparison) from
+   one that is not (Fang et al.'s "four orders of magnitude" figure, a
+   device-to-device responsivity comparison bundling in unrelated contact/
+   bias/collection differences) -- following this repo's established
+   practice of not force-fitting a not-apples-to-apples literature number
+   into a compact model.
+
+2. **Code + results**
+   (`graphene_plasmonic_photodetector_model.py`,
+   `plasmonic_photodetector_enhancement.png`): New module reusing
+   `graphene_photodetector_model.py`'s `EQE_BARE`, `TAU_TRANSIT`,
+   `responsivity_bare()`, and `photoconductive_gain()` unmodified. Models
+   plasmonic enhancement as a Lorentzian intensity-enhancement factor
+   applied to EQE as a function of wavelength, calibrated against the two
+   directly-usable literature designs (F_max=25x at 514/633 nm;
+   F_max=8.5x at 1550 nm). Resonance quality factor Q is an explicitly
+   assumed (not measured or fitted) representative value for lossy Au/Ti
+   nanostructures, since neither source paper reported FWHM in the
+   material reviewed -- stated in the code's docstring and printed
+   alongside the resulting FWHM in `summary_numbers()`'s output rather
+   than hidden inside the Lorentzian shape. Verified to run standalone:
+   on-resonance responsivity rises from 0.62-1.88 mA/W (bare) to
+   15.6-19.2 mA/W (plasmonic) across the three resonances plotted.
+
+3. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`): Added new Section 6.5 ("Plasmonic
+   near-field absorption enhancement"), folding in and completing the
+   former Section 6.5 ("Further follow-on work"), renumbered to 6.6, with
+   its first bullet (the plasmonics item) removed since it is now done
+   and three new bullets added (spatial integration with the contact-
+   doping machinery, a photo-bolometric mechanism model, and sourcing a
+   measured Q). Updated the References section and the Chapter 1 status
+   table's Chapter 6 row accordingly.
+
+**Not yet covered (candidates for future runs):**
+- No measured plasmon resonance FWHM/Q was found for either fitted
+  design this session; the assumed Q=6-8 values remain open to
+  replacement with literature-anchored ones if a future session finds
+  supplementary simulation data reporting linewidth
+- Integrating Section 6.5's spatially-uniform EQE-multiplier picture with
+  the spatially-resolved contact-doping machinery
+  (`graphene_contact_doping_model.py`, `graphene_edge_contact_model.py`)
+  -- still open, now stated in both Chapter 4 and Chapter 6
+- The photo-bolometric mechanism (dominant in the telecom bowtie/
+  waveguide device) is not modeled anywhere in this repo -- a legitimate
+  separate follow-on from the photogating-only picture currently modeled
+- Isolating the root cause of the Section 4.7 negative-residual result
+  (TLM double-counting vs. `lambda_decay` mismatch) -- still open from
+  2026-08-31
+- Ti and Cr per-metal Rc recalibration (still blocked by prior sessions'
+  ResearchGate rate-limiting)
+- Sourcing a second independent edge-contact dataset (Lee et al. 2022,
+  Wiley 403'd 2026-09-05) -- still open
+- Graphene-all-around-metal (liner/cap) interconnect model (Chapter 5,
+  Section 5.4); sourcing specific liner-material resistivity values
+- Further thesis_draft/ chapters: 2-3 could be drafted from the existing
+  band-structure/transport code and results; Chapter 7 (discussion/
+  outlook) awaits enough device-application chapters to synthesize
+
+**Web search availability:** WebSearch/WebFetch were both available and
+used this session; all fetches succeeded.
+
+**Commits this run:** 3 (plasmonic-enhancement research notes, model code
++ plot, thesis_draft Chapter 6 Section 6.5 + Chapter 1 status table
+update; this AUTOMATION_LOG.md entry commit makes 4).
