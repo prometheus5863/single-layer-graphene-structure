@@ -168,12 +168,72 @@ single lumped tau_transit cannot capture device-specific trap physics,
 and closing that gap (rather than just the tradeoff slope) is exactly
 the kind of refinement Section 6.5 below scopes out.
 
-## 6.5 Further follow-on work
+## 6.5 Plasmonic near-field absorption enhancement
 
-- Extend `graphene_photodetector_model.py` with an optional plasmonic-
-  absorption-enhancement factor, analogous to how contact resistance was
-  added as a literature-calibrated correction term to the Chapter 4 DC
-  model, to close part of the offset identified in Section 6.4.
+Section 6.4 flagged its own model's under-prediction of absolute
+responsivity as a limitation to be closed by "an optional plasmonic-
+absorption-enhancement factor" (former Section 6.5, now folded into this
+one -- see `notes/2026-09-06-plasmonic-enhancement-graphene-
+photodetectors.md` for the full literature review). A resonant metal
+nanostructure on or near graphene locally concentrates the incident
+optical near-field; since a 2D sheet's absorbed power density scales
+with local field *intensity* (|E_local|^2), this multiplies graphene's
+effective absorption -- and, assuming unchanged downstream collection
+efficiency, its EQE and responsivity -- in a narrow band around the
+structure's plasmon resonance.
+
+`graphene_plasmonic_photodetector_model.py` models this as a Lorentzian
+intensity-enhancement factor F(lambda) applied multiplicatively to
+`EQE_bare`, reusing `responsivity_bare()` from Section 6.4's model
+unmodified with this wavelength-dependent EQE. Two designs are
+calibrated against literature near-field/absorption enhancement numbers
+(not device-to-device responsivity comparisons, which would bundle in
+unrelated contact/bias/collection differences -- see the notes file's
+discussion of why a third candidate design, Fang et al.'s bowtie
+nano-antenna, is deliberately excluded from the fit for exactly this
+reason):
+
+- **Echtermeyer et al. (Nat. Commun. 2011)** Ti/Au finger-grating
+  designs at a graphene p-n junction: on-resonance intensity enhancement
+  F_max = 25x (from the paper's reported ~5x near-field *amplitude*
+  enhancement, squared, since absorption is an intensity effect), at two
+  measured resonances -- 514 nm (110 nm finger) and 633 nm (130 nm
+  finger). Applied to this thesis's own EQE_bare = 0.15%, this raises
+  on-resonance responsivity from 0.62-0.77 mA/W to 15.6-19.2 mA/W at the
+  two resonances (`plasmonic_photodetector_enhancement.png`, left panel).
+- **Bowtie-antenna array on a Si waveguide, telecom C-band
+  (arXiv:1808.10823):** a directly-simulated single-element absorption
+  enhancement of 8.5x at ~1550 nm, raising responsivity from 1.88 mA/W
+  to 15.9 mA/W on resonance (same figure, right panel).
+
+Both designs' resonance linewidth (quality factor Q) is an **assumed**
+value (Q = 8 visible, Q = 6 telecom), not measured or fitted, since
+neither source paper reports FWHM in the material reviewed this
+session -- stated explicitly rather than absorbed silently into the
+Lorentzian shape, consistent with this thesis's practice elsewhere (e.g.
+the Chapter 4 Section 4.8.1 hole-array fill-fraction assumptions) of
+flagging assumed vs. measured/fitted parameters.
+
+`graphene_plasmonic_photodetector_model.py::summary_numbers()` also
+shows an illustrative combination of the plasmonic EQE enhancement with
+Section 6.4's photoconductive gain at tau_trap = 1 s -- explicitly
+labeled as a demonstration that the two mechanisms multiply in this
+compact picture, not a claim about any real device, since the telecom
+bowtie/waveguide device's actual reported mechanism is photo-bolometric
+(resistance change from absorbed-light heating under bias), not
+photogating, and this thesis does not yet model the bolometric
+mechanism at all (Section 6.6).
+
+This closes part, not all, of Section 6.4's offset: the plasmonic factor
+explains how a *spectrally narrow* enhancement can bridge much of the
+gap between the bare-transit-time model and literature devices at their
+specific operating wavelength, but the three literature anchor points in
+Section 6.4's table were not reported as plasmonically-enhanced devices,
+so this section's designs are a parallel demonstration of an available
+lever, not a re-fit of that table.
+
+## 6.6 Further follow-on work
+
 - Connect the collection-bottleneck picture (Section 6.2) to the
   quantum-capacitance-limited channel electrostatics already modeled in
   Chapter 4, since both ultimately trace back to the same finite-DOS,
@@ -183,8 +243,24 @@ the kind of refinement Section 6.5 below scopes out.
   spatially-resolved contact-doping-profile follow-on (still open as of
   2026-08-24) is implemented, since both rely on the same underlying
   built-in-field-region geometry near a metal contact.
+- Integrate Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery
+  (`graphene_contact_doping_model.py`, `graphene_edge_contact_model.py`)
+  -- a real device's plasmonic hot-spot and contact depletion region sit
+  at related but distinct locations, which Section 6.5's spatially-
+  uniform EQE multiplier does not capture.
+- Model the photo-bolometric mechanism (dominant in the telecom bowtie/
+  waveguide device reviewed in Section 6.5) as its own responsivity
+  model -- dR/dT of graphene's resistance vs. absorbed power under bias
+  -- rather than treating photogating as the only gain mechanism this
+  thesis represents.
+- Find or derive a measured (rather than assumed) plasmon resonance
+  quality factor/FWHM for either Section 6.5 design, to replace the
+  assumed Q = 6-8 values with literature-anchored ones.
 
 ## References
 
 See `notes/2026-08-24-photodetector-responsivity.md` for the
-full literature review and citation list supporting this chapter.
+full literature review and citation list supporting Sections 6.1-6.4, and
+`notes/2026-09-06-plasmonic-enhancement-graphene-photodetectors.md` for
+Section 6.5's plasmonic-enhancement literature review and citations.
