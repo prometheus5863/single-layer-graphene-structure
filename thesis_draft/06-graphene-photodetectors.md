@@ -232,23 +232,100 @@ Section 6.4's table were not reported as plasmonically-enhanced devices,
 so this section's designs are a parallel demonstration of an available
 lever, not a re-fit of that table.
 
-## 6.6 Further follow-on work
+## 6.6 Spatially resolved, metal-dependent photocarrier collection
 
-- Connect the collection-bottleneck picture (Section 6.2) to the
-  quantum-capacitance-limited channel electrostatics already modeled in
-  Chapter 4, since both ultimately trace back to the same finite-DOS,
-  short-carrier-lifetime physics of graphene near the Dirac point.
-- Replace the lumped EQE_bare = 0.15% parameter with a spatially
-  resolved diffusion-length collection model once the Chapter 4
-  spatially-resolved contact-doping-profile follow-on (still open as of
-  2026-08-24) is implemented, since both rely on the same underlying
-  built-in-field-region geometry near a metal contact.
+Section 6.4's model applies a single literature midpoint, EQE_bare =
+0.15%, regardless of contact metal. But the "collection bottleneck"
+described in Section 6.2 -- only photocarriers generated within a
+built-in-field region near a contact survive graphene's ~1 ps carrier
+lifetime to be collected -- is exactly the same contact-induced-doping
+physics already modeled quantitatively for Chapter 4's contact
+resistance work (`graphene_contact_doping_model.py`, Section 4.5). This
+section closes the gap flagged since this chapter was first drafted
+(2026-08-24): integrating that spatial doping-profile machinery into the
+photodetector side (full literature review and design derivation in
+`notes/2026-09-07-spatial-photocarrier-collection-model.md`).
+
+**Model.** `graphene_photodetector_collection_model.py` superposes the
+contact-doping-induced field (differentiating the same saturating
+profile used for `graphene_contact_doping_model.py`'s density profile)
+on the bare-device model's uniform bias field E_bias = V_bias/L_channel
+= 5.0e5 V/m, then integrates the resulting position-dependent drift
+velocity to get each photocarrier's transit time to the contact, and
+from that an exponential-lifetime survival (collection) probability
+p(x) = exp(-t(x)/tau_carrier). Averaging p(x) over the channel and
+normalizing against a bias-field-only baseline (physically, a
+work-function-matched contact -- already present in this thesis's metal
+table as Cr, W = 4.50 eV vs. graphene's 4.5 eV) gives a metal-dependent
+**collection enhancement factor**, plotted alongside the resulting
+metal-resolved modeled EQE in
+`photodetector_collection_efficiency_by_metal.png`.
+
+**Mechanism support from the literature.** Xia et al. (*Nature
+Nanotechnology* 4, 839 (2009)) demonstrated zero-external-bias graphene
+photodetection using two *different*-work-function metal contacts (Ti,
+Pd), which is only possible if contact-metal work function sets a real,
+usable built-in field in the channel -- direct experimental support for
+this section's core mechanism. Weiss & Duan (*NPG Asia Materials* 5, e74
+(2013)) state the mechanism explicitly ("contacting graphene with metals
+of variable work function... creates a potential offset... that
+facilitate[s] the separation and transport of photocarriers") and make
+an important scope-limiting point this model respects: identical
+contacts produce "equal and opposing" built-in potentials that partially
+cancel in the net terminal photocurrent. Mueller, Xia & Avouris (*Nature
+Photonics* 4, 297 (2010)) independently estimate the built-in-field
+collection region at ~100-200 nm, consistent in order of magnitude with
+(though not identical to) the lambda_decay = 250 nm decay length reused
+here from `graphene_contact_doping_model.py` (itself sourced from
+Khomyakov et al. 2010's DFT-derived doping-decay length) -- a useful
+independent cross-check, not a perfect match, and reported as such.
+
+**Results.** Sweeping the seven contact metals already in this thesis's
+`METAL_WORK_FUNCTIONS` table, the modeled collection-efficiency
+enhancement ranges from 1.00x (Cr, the baseline) to 1.47x (Pt, the
+largest work-function mismatch, |dV| = 1.15 V), i.e. a modest,
+physically plausible boost -- not a multiple-order-of-magnitude effect,
+since the doping field only dominates within roughly one lambda_decay of
+the contact and the 200 nm channel modeled here is comparable in length
+to that decay length. Commonly used real contact metals fall in between:
+Ti and Cu (both common adhesion/contact metals) give ~1.21-1.23x; Ni,
+Au, and Pd (higher work function, used specifically for their
+historically low contact resistance -- Section 4.5/4.7) give ~1.39-1.41x.
+This offers an additional physical rationale, alongside the
+injection-resistance/quantum-capacitance reasoning of Chapter 4, for why
+the high-work-function metals already favored for low contact resistance
+are also a reasonable choice for photodetector contacts specifically.
+
+**Scope limitation (stated explicitly).** This model represents only the
+single contact whose doping field reinforces the bias-driven carrier
+sweep direction; the real device's second contact, where the doping
+field would partially oppose that sweep (per Weiss & Duan's "equal and
+opposing" result, generalized to the biased case), is not modeled. A
+fully self-consistent two-contact treatment is left as an open item
+below rather than approximated away silently.
+
+**What this result can and cannot claim.** The relative, metal-to-metal
+ordering (larger work-function mismatch -> shorter transit time -> higher
+survival probability -> higher effective EQE) follows directly from the
+mechanism above and is this section's main result. The *absolute*
+EQE_bare = 0.15% literature midpoint this factor scales is not
+attributed to any specific contact metal in the material reviewed for
+Section 6.2, so the resulting absolute EQE_model(metal) numbers should
+be read as relative-to-that-midpoint predictions, not validated absolute
+values for each named metal.
+
+## 6.7 Further follow-on work
+
+- Model both contacts self-consistently (Section 6.6's reinforcing
+  contact plus the opposing contact's partially-cancelling contribution)
+  to get a real net terminal-photocurrent prediction rather than a
+  single-contact enhancement factor.
 - Integrate Section 6.5's plasmonic near-field picture with the
-  spatially-resolved contact-doping machinery
-  (`graphene_contact_doping_model.py`, `graphene_edge_contact_model.py`)
-  -- a real device's plasmonic hot-spot and contact depletion region sit
-  at related but distinct locations, which Section 6.5's spatially-
-  uniform EQE multiplier does not capture.
+  spatially-resolved contact-doping machinery now used in both Section
+  6.6 and Chapter 4 (`graphene_contact_doping_model.py`,
+  `graphene_edge_contact_model.py`) -- a real device's plasmonic hot-spot
+  and contact depletion region sit at related but distinct locations,
+  which Section 6.5's spatially-uniform EQE multiplier does not capture.
 - Model the photo-bolometric mechanism (dominant in the telecom bowtie/
   waveguide device reviewed in Section 6.5) as its own responsivity
   model -- dR/dT of graphene's resistance vs. absorbed power under bias
@@ -257,10 +334,18 @@ lever, not a re-fit of that table.
 - Find or derive a measured (rather than assumed) plasmon resonance
   quality factor/FWHM for either Section 6.5 design, to replace the
   assumed Q = 6-8 values with literature-anchored ones.
+- Revisit Park, Ahn et al.'s scanning-photocurrent-microscopy sign-map
+  result (PubMed 19326919), which WebFetch could not retrieve this
+  session (HTTP 429), as a more direct cross-check of Section 6.6's
+  two-contact sign-reversal reasoning than the two sources it currently
+  relies on (Xia et al. 2009, Weiss & Duan 2013).
 
 ## References
 
 See `notes/2026-08-24-photodetector-responsivity.md` for the
-full literature review and citation list supporting Sections 6.1-6.4, and
+full literature review and citation list supporting Sections 6.1-6.4,
 `notes/2026-09-06-plasmonic-enhancement-graphene-photodetectors.md` for
-Section 6.5's plasmonic-enhancement literature review and citations.
+Section 6.5's plasmonic-enhancement literature review and citations, and
+`notes/2026-09-07-spatial-photocarrier-collection-model.md` for Section
+6.6's spatially resolved collection-model literature review and design
+derivation.
