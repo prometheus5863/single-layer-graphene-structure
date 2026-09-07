@@ -1062,3 +1062,119 @@ used this session; all fetches succeeded.
 **Commits this run:** 3 (plasmonic-enhancement research notes, model code
 + plot, thesis_draft Chapter 6 Section 6.5 + Chapter 1 status table
 update; this AUTOMATION_LOG.md entry commit makes 4).
+
+## 2026-09-07
+
+**Status:** Fourteenth automation run.
+
+**Repo state at start:** Chapters 1, 4, 5, 6 of `thesis_draft/` exist.
+Chapter 6's Section 6.6 (follow-on work) had listed, since the chapter
+was first drafted on 2026-08-24, the same standing item repeated through
+the 2026-09-06 plasmonic-enhancement session: "Replace the lumped
+EQE_bare = 0.15% parameter with a spatially resolved diffusion-length
+collection model once the Chapter 4 spatially-resolved contact-doping-
+profile follow-on... is implemented" -- that Chapter 4 follow-on
+(`graphene_contact_doping_model.py`) has existed since 2026-08-26 but had
+never been integrated into the photodetector side. This session closed
+that item.
+
+**Work done:**
+
+1. **Research notes**
+   (`notes/2026-09-07-spatial-photocarrier-collection-model.md`):
+   WebSearch and WebFetch were both available and used. Two of four
+   fetch attempts succeeded: Xia, Mueller, Lin, Valdes-Garcia & Avouris,
+   "Ultrafast graphene photodetector," *Nature Nanotechnology* 4, 839
+   (2009) (zero-bias photodetection via asymmetric-work-function Ti/Pd
+   contacts -- direct experimental evidence that contact metal sets a
+   usable built-in field), and Weiss & Duan, "Building potential for
+   graphene photodetectors," *NPG Asia Materials* 5, e74 (2013) (states
+   the work-function-mismatch/potential-offset/photocarrier-separation
+   mechanism explicitly, and the important caveat that identical
+   contacts give "equal and opposing" potentials that partially cancel
+   at zero bias). Two fetch attempts failed and are documented rather
+   than silently worked around: a PMC review article returned a Google
+   reCAPTCHA interstitial (consistent with this repo's prior PMC access
+   failures, e.g. 2026-08-31), and a PubMed abstract (19326919, the
+   scanning-photocurrent-microscopy sign-map paper) returned HTTP 429
+   rate-limiting and was not retried. Also cross-checks the existing
+   `lambda_decay = 250 nm` (Khomyakov et al. 2010, already used in
+   `graphene_contact_doping_model.py`) against an independently-sourced
+   ~100-200 nm built-in-field collection-region estimate already cited
+   in this repo's own `notes/2026-08-24-photodetector-responsivity.md`
+   (Mueller, Xia & Avouris 2010) -- same order of magnitude, different
+   source, reported as a useful but imperfect cross-check rather than a
+   match.
+
+2. **Code + results**
+   (`graphene_photodetector_collection_model.py`,
+   `photodetector_collection_efficiency_by_metal.png`): New module
+   superposing the contact-doping-induced field (reusing
+   `graphene_contact_doping_model.py`'s `lambda_decay` and
+   `METAL_WORK_FUNCTIONS`, and `graphene_fet_model.py`'s mobility) on the
+   existing bare-device model's uniform bias field
+   (`graphene_photodetector_model.py`'s `V_bias`/`L_channel`), integrating
+   the resulting position-dependent drift velocity to get each
+   photocarrier's transit time to the contact, then an exponential-
+   lifetime collection (survival) probability against graphene's ~1 ps
+   photocarrier lifetime (Mueller, Xia & Avouris 2010). Verified to run
+   standalone. Result: collection-efficiency enhancement (relative to a
+   work-function-matched, ~zero-doping baseline -- physically Cr, already
+   present in `METAL_WORK_FUNCTIONS`) ranges from 1.00x (Cr) to 1.47x
+   (Pt, largest work-function mismatch); common real contact metals Ti
+   and Cu give ~1.21-1.23x, and the higher-work-function metals already
+   favored in Chapter 4 for low contact resistance (Ni, Au, Pd) give
+   ~1.39-1.41x. As a sanity check, the model's bias-field-only baseline
+   transit time coincides almost exactly (1.0 ps) with the independently
+   assumed carrier lifetime, giving a physically sensible order-unity
+   baseline collection efficiency (1 - 1/e ~= 0.632) before any
+   doping-field enhancement is added. Explicitly scoped as a
+   single-contact (reinforcing-field-only) model -- the real two-terminal
+   device's second, partially-cancelling contact (per Weiss & Duan's
+   "equal and opposing" result) is not modeled, and this is stated as an
+   open item rather than approximated away silently.
+
+3. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`): Added new Section 6.6 (model,
+   literature mechanism support, results, explicit scope limitation),
+   renumbered the prior Section 6.6 ("Further follow-on work") to 6.7
+   with its first bullet resolved and a new bullet added (self-consistent
+   two-contact modeling), added a bullet noting the unretrieved PubMed
+   19326919 abstract as a future cross-check candidate, updated the
+   References section, and updated the Chapter 1 status table's Chapter
+   6 row.
+
+**Not yet covered (candidates for future runs):**
+- Self-consistent two-contact collection model (Section 6.6's single
+  reinforcing-contact scope limitation -- the natural next step for this
+  session's new model)
+- Revisit Park, Ahn et al.'s scanning-photocurrent-microscopy sign-map
+  paper (PubMed 19326919, WebFetch 429'd this session) for a more direct
+  literature cross-check of the two-contact sign-reversal reasoning
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery now used in both Section
+  6.6 and Chapter 4 -- still open
+- The photo-bolometric mechanism (dominant in the telecom bowtie/
+  waveguide device, Section 6.5) is not modeled anywhere in this repo
+- Isolating the root cause of the Section 4.7 negative-residual result
+  (TLM double-counting vs. `lambda_decay` mismatch) -- still open from
+  2026-08-31
+- Ti and Cr per-metal Rc recalibration (still blocked by prior sessions'
+  ResearchGate rate-limiting; not reattempted this session)
+- Sourcing a second independent edge-contact dataset (Lee et al. 2022,
+  Wiley 403'd 2026-09-05) -- still open
+- Isolating the small-hole-diameter (50-100 nm) upturn in Passi et al.'s
+  patterned-contact data (Section 4.8.1) -- still open
+- Graphene-all-around-metal (liner/cap) interconnect model (Chapter 5,
+  Section 5.4); sourcing specific liner-material resistivity values
+- Further thesis_draft/ chapters: 2-3 could be drafted from the existing
+  band-structure/transport code and results; Chapter 7 (discussion/
+  outlook) awaits enough device-application chapters to synthesize
+
+**Web search availability:** WebSearch/WebFetch were both available this
+session; 2 of 4 fetch attempts succeeded (see Section 2 of today's notes
+file for the two failures: a PMC reCAPTCHA block, a PubMed 429).
+
+**Commits this run:** 3 (spatial-collection-model research notes, model
+code + plot, thesis_draft Chapter 6 Section 6.6 + Chapter 1 status table
+update; this AUTOMATION_LOG.md entry commit makes 4).
