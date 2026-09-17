@@ -1178,3 +1178,182 @@ file for the two failures: a PMC reCAPTCHA block, a PubMed 429).
 **Commits this run:** 3 (spatial-collection-model research notes, model
 code + plot, thesis_draft Chapter 6 Section 6.6 + Chapter 1 status table
 update; this AUTOMATION_LOG.md entry commit makes 4).
+
+---
+
+## 2026-09-17 — Self-consistent two-contact collection: the result that reverses 2026-09-07
+
+**Repo-history note:** the previous commit here is dated 2026-09-07, so
+2026-09-08..09-16 has no sessions recorded. That was broken automation,
+not a pause — see "Automation health" at the end of this entry.
+
+**Work picked from the standing "not yet covered" list:** its first
+entry, flagged on 2026-09-07 as "the natural next step" — the
+self-consistent two-contact collection model.
+
+**Work done:**
+
+1. **Research** (`notes/2026-09-17-two-contact-self-consistent-
+   collection.md`): literature basis for the two-contact problem. Weiss
+   & Duan (*NPG Asia Materials* 5, e74 (2013)) re-fetched for the exact
+   wording — "symmetric metal-graphene-metal devices generate an equal
+   positive and negative flow with a net zero photocurrent", escaped by
+   "using metals with asymmetric band structures". Suzuki et al.
+   (*Carbon Trends* 5, 100115 (2021)) is the experimental counterpart
+   and the more useful source, because its entire device strategy exists
+   to defeat the cancellation: a 50 nm Ni shadow mask over one of two
+   graphene/Ti interfaces, or unequal contact areas via a comb-shaped
+   electrode; ~1.7e5 cm.Hz^(1/2)/W detectivity at 690 nm, zero bias.
+   The notes state explicitly that **neither source gives a measured
+   net-response-vs-work-function curve**, so this model is
+   mechanism-anchored but *not* calibrated against experiment — recorded
+   so a later session does not mistake the numbers below for validated
+   predictions.
+
+2. **Code** (`graphene_photodetector_two_contact_model.py`): signed
+   total field F(x) = E_bias + g_A(x) - g_B(x), with g_A the existing
+   single-contact doping-field profile (same `lambda_decay` = 250 nm,
+   same `METAL_WORK_FUNCTIONS`) and g_B its mirror about mid-channel.
+   The minus sign on g_B is the whole physical content that was
+   missing. No assumed destination: a carrier drifts along F and is
+   collected at A (+1) or B (-1) only if F keeps its sign along the
+   whole path, and otherwise reaches a **stagnation point** and is
+   counted uncollected. Note the geometry that makes this first-order
+   rather than a correction: L = 200 nm against lambda_decay = 250 nm,
+   so neither contact's field has decayed by mid-channel.
+
+   **Validated against the model it supersedes, as required, rather
+   than asserted:** switching off contact B's doping field must
+   collapse this model onto 2026-09-07's `mean_collection_efficiency()`.
+   It does, for all seven metals, worst relative deviation **7.8e-08**.
+   Second validation, against physics rather than against the old code:
+   at zero bias two identical contacts must give exactly zero net
+   response by antisymmetry — measured worst |N| = **6.6e-17**. The
+   antisymmetry of the pair matrix under contact swap is a third check.
+   All three are computed and printed by `__main__`.
+
+3. **Results** (`photodetector_two_contact_net_response.png`): three
+   panels — the two opposing fields with the Pt/Pt stagnation point
+   visible at x = 100 nm, the single-contact vs symmetric two-contact
+   bar comparison, and zero-bias net response against W_A - W_B.
+
+   **This contradicts the 2026-09-07 conclusion, and is reported as a
+   contradiction rather than a refinement.** The single-contact model
+   ranked metals Pt > Pd > Au > Ni > Ti > Cu > Cr, with Pt best at
+   1.47x enhancement. For a *symmetric* two-terminal device at the same
+   bias the ranking is essentially reversed — Cu ~ Ti > Cr > Ni > Au >
+   Pd > Pt — with Pt now **worst** and overstated **5.5x** by the old
+   model (0.929 -> 0.169). Mechanism: a strongly doping contact sweeps
+   carriers toward itself, so two facing each other create a
+   mid-channel stagnation point the 0.5 MV/m bias cannot overcome
+   against Pt's ~4.5 MV/m near-contact field. Strong contact doping
+   helps an isolated junction and hurts a symmetric device. Cr alone is
+   unaffected (ratio exactly 1.00), its work function matching
+   graphene's to 0.01 eV.
+
+   Zero-bias asymmetric pairs give the Weiss & Duan mechanism in
+   isolation (diagonal exactly zero): largest |N| is Cr/Pt at 0.917 —
+   notably *not* Ti/Pt at 0.903, despite Ti/Pt's larger work-function
+   difference, because Ti's own 0.17 eV mismatch sweeps carriers back
+   toward Ti and partially opposes Pt's. Under this model the best
+   zero-bias pairing is a strongly doping contact against a
+   work-function-*matched* one.
+
+4. **A bug the validation caught, worth recording** (notes Section 2.1):
+   the first implementation obtained the toward-B transit time by
+   subtracting one forward cumulative integral. Since 1/|v| diverges at
+   a stagnation point, that gives inf-inf beyond any null and silently
+   marked every carrier past a null uncollectable. Validation 1 passed
+   anyway (with g_B = 0 there is no null). Validation 2 returned
+   N = +0.46 for Pt/Pt at zero bias instead of 0 — plausible enough to
+   rationalise as grid noise by anyone who wanted the model to work. It
+   was the *exactly*-known zero demanded by antisymmetry that made the
+   failure unambiguous. General lesson: a validation against an exactly
+   known value beats one against a plausible range.
+
+5. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`): new Section 6.7 (model, both
+   validations, both results, the simplification that could overturn
+   Result 2), with the prior Section 6.7 renumbered to 6.8. Section 6.6
+   was **not** quietly rewritten: its scope-limitation paragraph now
+   carries an explicit callout that the limitation is resolved and the
+   resolution overturns its ranking, and that its enhancement factors
+   hold only for a single junction in isolation; its "what this can and
+   cannot claim" paragraph gains a matching correction. The old numbers
+   are retained because the single-junction calculation is the correct
+   building block and the limiting case that validates the new model.
+   Chapter 1's status table updated, including the Chapter 7 row, which
+   now has a concrete synthesis task (see below).
+
+**A real tension this created, for Chapter 7:** Chapter 4 favours
+high-work-function metals (Ni, Au, Pd) for low contact resistance;
+Section 6.7 finds those same metals are the worst for symmetric
+two-terminal photoresponse. The two chapters now point in opposite
+directions for the same design choice. That is genuine device physics,
+not a modelling artefact, and Chapter 7 should resolve it explicitly
+rather than let a reader notice it.
+
+**Not yet covered (candidates for future runs):**
+- **Signed, carrier-resolved two-contact treatment** — replace Section
+  6.7's |W_metal - W_graphene| magnitude convention with one that
+  distinguishes n-type (Ti, Cu) from p-type (Pt, Pd, Au) contacts and
+  tracks electrons and holes separately. Now the most consequential
+  open item in Chapter 6: it could invert Result 2's ordering by letting
+  an n/p pair such as Ti/Pt add rather than partially cancel. Result 1's
+  reversal does not depend on it (identical contacts, where the two
+  conventions agree)
+- Non-uniform illumination, a generation weight g(x) — Suzuki et al.'s
+  shadow-mask device masks one of the two interfaces and is precisely
+  a non-uniform-generation experiment, so it is the natural validation
+  target
+- **Chapter 7 (discussion/outlook)** is now genuinely actionable rather
+  than waiting on more device chapters: it has a concrete Chapter 4 vs
+  Section 6.7 contact-metal contradiction to synthesize
+- Chapters 2-3 remain undrafted despite their band-structure/transport/
+  optical computational results being complete — the largest remaining
+  block of pure writing in the repo
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery — still open
+- The photo-bolometric mechanism is still not modeled anywhere
+- Isolating the root cause of the Section 4.7 negative-residual result
+  (TLM double-counting vs. `lambda_decay` mismatch) — open since
+  2026-08-31
+- Ti and Cr per-metal Rc recalibration (blocked by ResearchGate
+  rate-limiting; not reattempted)
+- Second independent edge-contact dataset (Lee et al. 2022, Wiley 403'd
+  2026-09-05) — still open
+- Small-hole-diameter (50-100 nm) upturn in Passi et al.'s
+  patterned-contact data (Section 4.8.1) — still open
+- Graphene-all-around-metal (liner/cap) interconnect model (Chapter 5,
+  Section 5.4) and specific liner-material resistivity values
+- Park, Ahn et al.'s scanning-photocurrent-microscopy sign map
+  (PubMed 19326919) — see the access note below before retrying
+
+**Web search availability:** WebSearch available and used; 3 of 4
+fetches succeeded. The failure: PubMed 34942635 (NEGF-DFT study of
+asymmetric metal contacts on bilayer-graphene quantum dots) returned a
+Google reCAPTCHA page. That is the **third** PubMed/PMC reCAPTCHA block
+(also 2026-09-05, 2026-09-07), so it should now be treated as a standing
+limitation of this environment rather than retried hopefully each
+session — which also applies to the PubMed 19326919 item above. It
+remains the best candidate for an independent first-principles
+cross-check of asymmetric-contact photoresponse if another route to it
+can be found.
+
+**Automation health (needs Harsh's attention, reported separately):**
+This session ran interactively, and diagnosed the 09-08..09-16 gap. The
+scheduled task's device shell has no GitHub push credentials (`git push`
+fails with `could not read Username for 'https://github.com'`; no
+credential helper, no `gh`, and SSH cannot resolve github.com through
+the HTTPS-only proxy), and the session VM is rebuilt per run so nothing
+persists. Separately, `git` cannot run inside the connected folder at
+all, because it must unlink its own `.git/*.lock` files and deletion in
+connected folders is denied. Today's commits were made in the session's
+own scratch clone and delivered as git bundles for Harsh to push
+manually. Until credentials are resolved, unattended runs cannot push.
+Also note `scipy` was absent from the device VM and had to be pip
+installed for `graphene_contact_doping_model.py` to import.
+
+**Commits this run:** 3 (two-contact literature/bug notes; the model +
+figure; thesis_draft Chapter 6 Section 6.7 + Chapter 1 status table).
+This AUTOMATION_LOG.md entry commit makes 4.
