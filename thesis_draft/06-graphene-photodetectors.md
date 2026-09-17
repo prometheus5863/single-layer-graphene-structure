@@ -304,6 +304,19 @@ opposing" result, generalized to the biased case), is not modeled. A
 fully self-consistent two-contact treatment is left as an open item
 below rather than approximated away silently.
 
+> **Resolved, and it overturns this section's ranking (2026-09-17).**
+> Section 6.7 now models both contacts self-consistently. The result is
+> not a small correction to the numbers below: for a *symmetric*
+> two-terminal device the metal ranking is essentially reversed, and Pt
+> -- this section's best metal at 1.47x -- becomes the worst, overstated
+> here by a factor of 5.5. **The enhancement factors reported in this
+> section remain valid only for a single junction in isolation, which is
+> not the device geometry this chapter is otherwise about.** They are
+> retained rather than deleted because the single-junction calculation
+> is the correct building block and the limiting case that validates the
+> two-contact model, but any device-level conclusion should be taken
+> from Section 6.7.
+
 **What this result can and cannot claim.** The relative, metal-to-metal
 ordering (larger work-function mismatch -> shorter transit time -> higher
 survival probability -> higher effective EQE) follows directly from the
@@ -314,12 +327,167 @@ Section 6.2, so the resulting absolute EQE_model(metal) numbers should
 be read as relative-to-that-midpoint predictions, not validated absolute
 values for each named metal.
 
-## 6.7 Further follow-on work
+A further correction, added 2026-09-17: the relative metal-to-metal
+ordering described in the paragraph above -- the part called "this
+section's main result" -- is precisely the part Section 6.7 overturns for
+a two-terminal device. The chain "larger work-function mismatch ->
+shorter transit time -> higher survival probability" is sound for one
+junction, but in a symmetric device the same larger mismatch also
+produces a stronger *opposing* field at the other contact, and the
+second effect wins.
 
-- Model both contacts self-consistently (Section 6.6's reinforcing
-  contact plus the opposing contact's partially-cancelling contribution)
-  to get a real net terminal-photocurrent prediction rather than a
-  single-contact enhancement factor.
+## 6.7 Self-consistent two-contact collection, and the reversal of Section 6.6's metal ranking
+
+Section 6.6 closed one gap and opened another, which it named: it models
+a single contact and assumes every photocarrier is collected there. The
+geometry makes that assumption untenable rather than merely approximate.
+The modeled channel is L = 200 nm while the contact-doping decay length
+reused from Chapter 4 is lambda_decay = 250 nm, so neither contact's
+field has decayed appreciably by mid-channel -- the second contact is not
+a perturbation on the first, it is comparable to it everywhere.
+
+**Model.** `graphene_photodetector_two_contact_model.py` places contact
+A (metal A) at x = 0 and contact B (metal B) at x = L, and defines a
+signed total field, positive meaning "sweeps carriers toward contact A":
+
+    F(x) = E_bias + g_A(x) - g_B(x)
+
+where g_A is byte-for-byte the doping-field profile of Section 6.6 and
+g_B is its mirror image about mid-channel. The minus sign on g_B is the
+entire physical content that Section 6.6 was missing. Because F can
+change sign inside the channel, the model assumes no destination: a
+carrier drifts along F and is collected at A (signed +1) only if F > 0
+along its whole path to x = 0, or at B (signed -1) only if F < 0 along
+its whole path to x = L. A carrier whose path crosses a sign change
+drifts into a **stagnation point** (F = 0) rather than a contact and is
+counted as uncollected -- a real feature of the two-contact geometry,
+since with two opposing doping fields and a modest bias there is
+generically an interior null. Survival to the contact uses the same
+tau = 1 ps photocarrier lifetime as Section 6.6. The figure of merit is
+the signed, channel-averaged net response N(A,B), directly comparable to
+Section 6.6's collection efficiency.
+
+**Two validations.** Both are computed and printed, not asserted. First,
+switching off contact B's doping field (by giving it graphene's own work
+function) must collapse the model onto Section 6.6's result, since then
+F > 0 everywhere and every carrier reaches A: it does, for all seven
+metals, to a worst relative deviation of 7.8e-08. Second, at zero bias
+two *identical* contacts must give exactly zero net response, because
+F(x) = g(x) - g(L-x) is antisymmetric about mid-channel -- this is Weiss
+& Duan's "equal positive and negative flow with a net zero
+photocurrent", and Suzuki et al.'s observation that in symmetric devices
+"the polarities of the photovoltages at each graphene/electrode
+interface ... are canceled out under macroscopic light irradiation". The
+model reproduces it to |N| <= 6.6e-17, i.e. machine precision, as an
+emergent consequence rather than an input. The antisymmetry of the
+metal-pair matrix under contact swap is a third consistency check.
+
+**Result 1: the reversal.** At the working bias V_bias = 0.1 V
+(E_bias = 0.5 MV/m), comparing Section 6.6's single-contact collection
+efficiency against the symmetric two-contact device's actual net
+response:
+
+| metal (both contacts) | W (eV) | single-contact (6.6) | symmetric two-contact (6.7) | ratio |
+|---|---|---|---|---|
+| Ti | 4.33 | 0.776 | 0.672 | 0.87 |
+| Cr | 4.50 | 0.632 | 0.632 | 1.00 |
+| Cu | 4.65 | 0.766 | 0.673 | 0.88 |
+| Ni | 5.04 | 0.877 | 0.321 | 0.37 |
+| Au | 5.10 | 0.885 | 0.295 | 0.33 |
+| Pd | 5.12 | 0.888 | 0.287 | 0.32 |
+| Pt | 5.65 | 0.929 | 0.169 | 0.18 |
+
+Section 6.6 ranked the metals Pt > Pd > Au > Ni > Ti > Cu > Cr. For a
+symmetric device the ranking is essentially reversed: Cu ~ Ti > Cr > Ni >
+Au > Pd > Pt. The mechanism is clear once the sign is right: a strongly
+doping contact sweeps carriers toward *itself*, so two of them facing
+each other produce a large opposing-field region and a mid-channel
+stagnation point that the 0.5 MV/m bias cannot overcome against Pt's
+~4.5 MV/m near-contact field. **Strong contact doping helps an isolated
+junction and hurts a symmetric two-terminal device.** Cr is the one
+metal unaffected (ratio exactly 1.00), because its work function matches
+graphene's to within 0.01 eV and so contributes essentially no field to
+cancel, leaving the bias to sweep the channel unopposed.
+
+This puts two of this thesis's own device-design arguments in tension,
+which is worth stating plainly rather than smoothing over. Chapter 4
+favours high-work-function metals (Ni, Au, Pd) for low contact
+resistance, and Section 6.6 appeared to agree for photocarrier
+collection. Section 6.7 shows the opposite for the photodetector: the
+metals that are best for contact resistance are the worst for symmetric
+two-terminal photoresponse. That is a real trade-off in device design,
+not a modelling artefact, and a device-oriented treatment should make
+the choice explicit rather than inherit it from the contact-resistance
+chapter.
+
+**Result 2: asymmetric contacts, at zero bias.** Because the symmetric
+diagonal is exactly zero at zero bias, every nonzero entry isolates the
+work-function-asymmetry mechanism:
+
+| A \ B | Ti | Cr | Cu | Ni | Au | Pd | Pt |
+|---|---|---|---|---|---|---|---|
+| Ti | 0.000 | 0.596 | 0.067 | -0.753 | -0.794 | -0.802 | -0.903 |
+| Cr | -0.596 | 0.000 | -0.563 | -0.835 | -0.849 | -0.853 | -0.917 |
+| Cu | -0.067 | 0.563 | 0.000 | -0.778 | -0.805 | -0.812 | -0.905 |
+| Ni | 0.753 | 0.835 | 0.778 | 0.000 | -0.078 | -0.103 | -0.581 |
+| Au | 0.794 | 0.849 | 0.805 | 0.078 | 0.000 | -0.025 | -0.504 |
+| Pd | 0.802 | 0.853 | 0.812 | 0.103 | 0.025 | -0.000 | -0.480 |
+| Pt | 0.903 | 0.917 | 0.905 | 0.581 | 0.504 | 0.480 | 0.000 |
+
+This is the quantitative version of the Xia et al. (2009) Ti/Pd
+zero-bias device that Section 6.6 already cites as experimental support
+for the mechanism: a work-function-asymmetric contact pair produces a
+net zero-bias photoresponse where a symmetric pair produces none.
+
+One non-obvious feature, worth flagging because it distinguishes a
+mechanism model from a monotonic fit in |W_A - W_B|: the largest
+response is Cr/Pt (0.917), not Ti/Pt (0.903), despite Ti/Pt having the
+larger work-function difference (1.32 eV vs 1.15 eV). Ti carries its own
+doping field (0.17 eV of mismatch) that sweeps carriers back toward Ti
+and partially opposes Pt's, whereas Cr contributes no opposing field at
+all. Under this model, the best zero-bias pairing is one strongly doping
+contact against a *work-function-matched* one.
+
+**The simplification that could overturn Result 2.** Both doping fields
+are taken as sweeping carriers toward their own contact, through
+|W_metal - W_graphene| -- the same magnitude convention Section 6.6 uses,
+and the convention that makes identical contacts cancel exactly. But it
+erases the n/p distinction: Ti and Cu (W < W_graphene) dope graphene
+n-type while Pt, Pd and Au (W > W_graphene) dope it p-type, and a signed
+treatment tracking electrons and holes separately would let an n/p pair
+such as Ti/Pt *add* rather than partially cancel for one carrier
+species. That would plausibly make Ti/Pt the strongest pairing and
+invert the Cr/Pt-vs-Ti/Pt conclusion above. Result 2's ordering should
+therefore be read as provisional; Result 1's reversal does not depend on
+it, since it concerns identical contacts, where the two conventions
+agree. Full discussion in
+`notes/2026-09-17-two-contact-self-consistent-collection.md`, Section 4.
+
+Figure: `photodetector_two_contact_net_response.png` -- (a) the two
+opposing fields and the Pt/Pt stagnation point at x = 100 nm, (b) the
+single-contact vs symmetric two-contact comparison showing the reversal,
+(c) zero-bias net response against W_A - W_B.
+
+## 6.8 Further follow-on work
+
+- ~~Model both contacts self-consistently~~ -- **done 2026-09-17,
+  Section 6.7**, and it reversed Section 6.6's metal ranking for a
+  symmetric device.
+- Replace Section 6.7's |W_metal - W_graphene| magnitude convention with
+  a signed, carrier-resolved treatment that distinguishes n-type
+  (Ti, Cu) from p-type (Pt, Pd, Au) contacts and tracks electrons and
+  holes separately. This is now the single most consequential open item
+  in this chapter: it could invert Section 6.7's Result 2 ordering by
+  making an n/p pair such as Ti/Pt add rather than partially cancel.
+- Model non-uniform illumination (a generation weight g(x)) rather than
+  Section 6.7's uniform assumption -- Suzuki et al.'s shadow-mask device,
+  which masks one of the two graphene/electrode interfaces, is precisely
+  a non-uniform-generation experiment and is the natural validation
+  target for it.
+- Reconcile Chapter 4's contact-metal recommendation with Section 6.7's:
+  the two chapters now point in opposite directions for the same metals,
+  and Chapter 7 (discussion/outlook) should resolve this explicitly
+  rather than leaving the reader to notice it.
 - Integrate Section 6.5's plasmonic near-field picture with the
   spatially-resolved contact-doping machinery now used in both Section
   6.6 and Chapter 4 (`graphene_contact_doping_model.py`,
@@ -348,4 +516,8 @@ full literature review and citation list supporting Sections 6.1-6.4,
 Section 6.5's plasmonic-enhancement literature review and citations, and
 `notes/2026-09-07-spatial-photocarrier-collection-model.md` for Section
 6.6's spatially resolved collection-model literature review and design
-derivation.
+derivation, and
+`notes/2026-09-17-two-contact-self-consistent-collection.md` for Section
+6.7's two-contact literature basis (Weiss & Duan 2013; Suzuki et al.,
+*Carbon Trends* 5, 100115 (2021)), its two validations, and the
+simplification that could overturn its Result 2.
