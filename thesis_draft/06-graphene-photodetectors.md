@@ -338,6 +338,10 @@ second effect wins.
 
 ## 6.7 Self-consistent two-contact collection, and the reversal of Section 6.6's metal ranking
 
+*(Heading retained for the record. The "reversal" it names was
+downgraded to crossover-dependent by Section 6.8 on 2026-09-18; this
+section's Result 2, by contrast, was confirmed and strengthened there.)*
+
 Section 6.6 closed one gap and opened another, which it named: it models
 a single contact and assumes every photocarrier is collected there. The
 geometry makes that assumption untenable rather than merely approximate.
@@ -397,6 +401,22 @@ response:
 | Pd | 5.12 | 0.888 | 0.287 | 0.32 |
 | Pt | 5.65 | 0.929 | 0.169 | 0.18 |
 
+> **Downgraded by Section 6.8 (2026-09-18).** The reversal below is
+> **crossover-dependent and is no longer claimed as a result.** Section
+> 6.8's signed, carrier-resolved model reproduces this section exactly
+> under its own restrictions (holes only, |ΔW|, crossover at 4.5 eV --
+> agreement to 0.000e+00 over 98 comparisons), so the arithmetic here is
+> right. But placing the n/p crossover at its physical value of 5.4 eV
+> instead of graphene's 4.5 eV puts Pt **back at the top** (0.556, best)
+> rather than the bottom. Three sections have now given three different
+> answers to this one question, and the honest reading is that the
+> symmetric metal ranking is not an established result of this thesis.
+> The numbers below are retained because the calculation is correct for
+> the convention it states; the *ranking* is not. What survives is
+> Section 6.8.5's structural statement: in a symmetric device contact
+> doping is purely parasitic, so the best metal is the one that dopes
+> graphene least.
+
 Section 6.6 ranked the metals Pt > Pd > Au > Ni > Ti > Cu > Cr. For a
 symmetric device the ranking is essentially reversed: Cu ~ Ti > Cr > Ni >
 Au > Pd > Pt. The mechanism is clear once the sign is right: a strongly
@@ -408,6 +428,16 @@ junction and hurts a symmetric two-terminal device.** Cr is the one
 metal unaffected (ratio exactly 1.00), because its work function matches
 graphene's to within 0.01 eV and so contributes essentially no field to
 cancel, leaving the bias to sweep the channel unopposed.
+
+> **Restated by Section 6.8.6 (2026-09-18).** The tension as framed
+> below -- that the low-contact-resistance metals are the worst for
+> photoresponse -- does not survive the signed model: at the physical
+> crossover Pd sits near the top of the symmetric ranking, not the
+> bottom. The durable tension is narrower and different in kind:
+> Chapter 4 optimises a *single* junction, whereas the two-terminal
+> photoresponse depends on the *difference between two* junctions and is
+> to first order blind to either one's own quality. Chapter 7 should
+> synthesise that version.
 
 This puts two of this thesis's own device-design arguments in tension,
 which is worth stating plainly rather than smoothing over. Chapter 4
@@ -457,7 +487,12 @@ n-type while Pt, Pd and Au (W > W_graphene) dope it p-type, and a signed
 treatment tracking electrons and holes separately would let an n/p pair
 such as Ti/Pt *add* rather than partially cancel for one carrier
 species. That would plausibly make Ti/Pt the strongest pairing and
-invert the Cr/Pt-vs-Ti/Pt conclusion above. Result 2's ordering should
+invert the Cr/Pt-vs-Ti/Pt conclusion above. **Confirmed in Section 6.8.4
+(2026-09-18): Ti/Pt is the strongest pair, |N| = 1.832, roughly double
+the 0.917 quoted here, and the result is insensitive to where the
+crossover is placed. The "Result 1 does not depend on it" clause that
+follows, however, turned out to be wrong -- see the callout at the head
+of Result 1 above.** Result 2's ordering should
 therefore be read as provisional; Result 1's reversal does not depend on
 it, since it concerns identical contacts, where the two conventions
 agree. Full discussion in
@@ -468,7 +503,226 @@ opposing fields and the Pt/Pt stagnation point at x = 100 nm, (b) the
 single-contact vs symmetric two-contact comparison showing the reversal,
 (c) zero-bias net response against W_A - W_B.
 
-## 6.8 Further follow-on work
+## 6.8 Signed, carrier-resolved contacts: the n/p crossover, and what survives of Section 6.7
+
+Section 6.7 named its own principal simplification and predicted what
+relaxing it would do. This section relaxes it. The prediction about
+Result 2 is confirmed and strengthened; the prediction that Result 1
+would be unaffected is **wrong**, and Section 6.7's Result 1 has to be
+downgraded as a consequence.
+
+### 6.8.1 Two things were wrong with `|W_metal − W_graphene|`, not one
+
+The magnitude convention hid a sign, as Section 6.7 said. It also hid a
+**crossover**, which Section 6.7 did not anticipate.
+
+The sign of the contact doping is not `sign(W_metal − W_graphene)`.
+Graphene's work function is 4.5 eV, but the n/p crossover for a metal
+*on* graphene sits near **5.4 eV**, because the short-range
+metal–graphene chemical interaction adds a ~0.9 eV interface dipole on
+top of vacuum-level alignment [Giovannetti *et al.*, *Phys. Rev. Lett.*
+**101**, 026803 (2008)]. Chapter 4's `METAL_WORK_FUNCTIONS` table
+already carried this knowledge in its annotations — it calls Cu an
+"n-type dopant" despite 4.65 > 4.5, and Pt "clearly above the ~5.4 eV
+crossover" — but `|W − 4.5|` cannot express it.
+
+Under the physical crossover, **six of the seven metals in this thesis's
+table n-dope graphene; only Pt p-dopes it**:
+
+| metal | W (eV) | ΔW vs 4.5 eV | type | ΔW vs 5.4 eV | type |
+|-------|--------|--------------|------|--------------|------|
+| Ti | 4.33 | −0.17 | n | −1.07 | n |
+| Cr | 4.50 | +0.00 | n | −0.90 | n |
+| Cu | 4.65 | +0.15 | **p** | −0.75 | n |
+| Ni | 5.04 | +0.54 | **p** | −0.36 | n |
+| Au | 5.10 | +0.60 | **p** | −0.30 | n |
+| Pd | 5.12 | +0.62 | **p** | −0.28 | n |
+| Pt | 5.65 | +1.15 | p | +0.25 | p |
+
+Because the crossover changes which metals are which *type*, it is
+carried as an explicit parameter of the model rather than chosen once,
+and every result below is quoted under both values.
+
+### 6.8.2 The model
+
+With ΔW = W_metal − w_cross signed, the Dirac point in the channel is
+rigidly shifted near each contact using the same saturating profile and
+the same λ = 250 nm as Sections 6.6–6.7:
+
+```
+E_D(x) = ΔW_A/(1 + x/λ) + ΔW_B/(1 + (L − x)/λ)
+```
+
+A rigid band shift is an electron potential energy, so the field is
+E(x) = (1/e) dE_D/dx, and **both carriers drift in that single field, in
+opposite directions**: v_h = +μE, v_e = −μE. Each species is transported
+by the same stagnation-aware logic as Section 6.7. The figure of merit
+is the net charge delivered to contact A per absorbed photon,
+
+```
+N = (1/L) ∫ [ (+1)·s_h(x)·p_h(x) + (−1)·s_e(x)·p_e(x) ] dx
+```
+
+with s = +1 for collection at A, −1 at B, 0 for a carrier stranded at an
+interior field null. **N now ranges over [−2, +2] rather than [−1, +1]**,
+because both carriers can be collected — a possibility the single-species
+magnitude convention could not represent at all.
+
+### 6.8.3 Validation against three exactly known values
+
+Section 6.7 recorded the lesson that an exactly-known validation beats a
+plausible-range one, after an exact zero exposed an `inf − inf` bug that
+a range check had passed. All three checks here are exact.
+
+| # | Check | Worst deviation |
+|---|-------|-----------------|
+| 1 | Holes only, \|ΔW\|, w_cross = 4.5 eV must reproduce Section 6.7 across all 49 ordered pairs at both biases (98 comparisons) | **0.000×10⁰** (bitwise) |
+| 2 | Identical contacts at zero bias ⇒ N = 0 exactly | 6.6×10⁻¹⁷ |
+| 3 | Charge conjugation: N(−ΔW) = −N(ΔW) at zero bias | **0.000×10⁰** |
+
+Check 1 is a genuine *reduction*, not an approximate agreement: under
+those three restrictions the two models are algebraically the same
+expression, E(x) = −F(x) of Section 6.7, so "a hole moves toward A" is
+exactly "F > 0". Check 3 becomes statable only once the model is signed,
+and would catch a carrier-mixing error that check 2 passes.
+
+### 6.8.4 Result 2 confirmed, and roughly doubled
+
+Section 6.7 predicted that a signed treatment "would plausibly make
+Ti/Pt the strongest pairing and invert the Cr/Pt-vs-Ti/Pt conclusion".
+It does:
+
+| | best zero-bias pair | \|N\| |
+|---|---|---|
+| Section 6.7, magnitude convention | Cr/Pt | 0.917 |
+| this section, w_cross = 5.4 eV | **Ti/Pt** | **1.832** |
+| this section, w_cross = 4.5 eV | **Ti/Pt** | **1.830** |
+
+The ordering inverts and the magnitude roughly doubles. The result is
+**insensitive to the crossover** (1.832 vs 1.830) because Ti and Pt lie
+on opposite sides of *both* candidate crossovers, which makes it the
+most secure quantitative statement in this chapter.
+
+The mechanism is visible in a stagnation audit at zero bias:
+
+| pair | N | field nulls | holes stranded | electrons stranded | h→A | h→B | e→A | e→B |
+|------|------|---|------|------|------|------|------|------|
+| Pt/Pt (p/p) | +0.000 | 2 | 0.00 | **1.00** | 0.357 | 0.357 | 0 | 0 |
+| Pd/Pd (n/n) | +0.000 | 2 | **1.00** | 0.00 | 0 | 0 | 0.368 | 0.368 |
+| Ti/Pd (n/n) | −1.599 | **0** | 0.00 | 0.00 | 0 | 0.720 | 0.879 | 0 |
+| Ti/Pt (n/p) | −1.832 | **0** | 0.00 | 0.00 | 0 | 0.907 | 0.925 | 0 |
+| Cr/Pt (n/p) | −1.810 | **0** | 0.00 | 0.00 | 0 | 0.896 | 0.914 | 0 |
+
+For an unequal pair the interior null **disappears entirely** and both
+species are collected, at opposite ends. In a same-type symmetric pair,
+one whole carrier species is stranded at the null while the other splits
+evenly and cancels — so N = 0 there for two independent reasons at once,
+which is a stronger statement of Weiss & Duan's symmetric-cancellation
+result than Section 6.7 could make.
+
+Ti/Pd reaches 1.599 with *both* metals n-type under the physical
+crossover. What matters is therefore |ΔW_A − ΔW_B|, not the sign pair —
+the practically important form of the statement, since Pt is the only
+p-type metal available. This is also the design that Mueller, Xia &
+Avouris (*Nature Photonics* **4**, 297 (2010)) actually built:
+interdigitated fingers of Pd/Au against Ti/Au, chosen because identical
+electrodes give a symmetric built-in field and zero total photocurrent,
+yielding 6.1 mA W⁻¹ at 1.55 μm — a 15-fold improvement. The second-best
+pair in the table is the pair the experiment used.
+
+### 6.8.5 Result 1 contradicted: the symmetric ranking is not established
+
+Section 6.7 asserted that its Result 1 "does not depend on" the signed
+treatment, since identical contacts are where the two conventions agree.
+That reasoning was incomplete: the conventions agree on the *sign
+structure* for identical contacts, but the signed model also collects
+the second carrier species, and under the physical crossover it places
+the metals differently. The symmetric-device response at V_bias = 0.1 V:
+
+| metal | Section 6.7 (magnitude) | signed, w_cross = 5.4 eV | signed, w_cross = 4.5 eV |
+|-------|-------------------------|---------------------------|---------------------------|
+| Ti | 0.672 | 0.180 | 0.987 |
+| Cr | 0.632 | 0.210 | **1.264** |
+| Cu | 0.673 | 0.245 | 1.101 |
+| Ni | 0.321 | 0.436 | 0.321 |
+| Au | 0.295 | 0.495 | 0.295 |
+| Pd | 0.287 | 0.518 | 0.287 |
+| Pt | **0.169 (worst)** | **0.556 (best)** | **0.169 (worst)** |
+
+The same question has now received three answers in this thesis:
+Section 6.6 (single contact) made Pt **best**; Section 6.7 (two contact,
+magnitude) made Pt **worst**; this section makes Pt **best again** under
+the physical crossover and **worst** under the vacuum one.
+
+The correct conclusion is not that Pt wins. It is that **the symmetric
+two-terminal metal ranking is not an established result of this thesis**:
+it flips with a modelling choice — where the n/p crossover sits — that
+Sections 6.6 and 6.7 never had to make explicit, because a magnitude
+convention conceals it. Section 6.7's Result 1 should be read as
+crossover-dependent, not as a settled reversal of Section 6.6. Its
+numbers are retained in place, annotated, because the calculation is
+correct for the convention it states.
+
+What *does* survive, and is worth more than the ranking: under the
+physical crossover the symmetric response is **monotone in |ΔW|**, from
+Ti (|ΔW| = 1.07 eV, worst) to Pt (|ΔW| = 0.25 eV, best). The reason is
+structural. In a symmetric device the contact doping field is *identical
+at both ends*, so it contributes nothing to the net current and does
+nothing but create a null that strands carriers. **For a symmetric
+two-terminal device, contact doping is purely parasitic, and the best
+metal is whichever one perturbs graphene least.** That statement is
+crossover-independent in form — it is also exactly why Cr, with ΔW = 0,
+wins the 4.5 eV column — and it is the form in which this result should
+be carried into Chapter 7.
+
+### 6.8.6 Design rules, and their effect on the Chapter 4 tension
+
+Two rules, pointing opposite ways:
+
+* **Symmetric device:** choose the metal that dopes graphene least
+  (closest to the crossover).
+* **Asymmetric device:** maximise |ΔW_A − ΔW_B|.
+
+The asymmetric device wins outright — |N| ≈ 1.83 against at best 0.56 —
+so for a photodetector the first rule is largely a statement about what
+to avoid.
+
+This **softens, and partly dissolves, the Chapter 4 vs Section 6.7
+tension** that Section 6.7 flagged and that Chapter 1 lists as Chapter
+7's synthesis task. Section 6.7 claimed the low-contact-resistance
+metals (Ni, Au, Pd) are the *worst* for photoresponse. Under the signed
+model that claim is crossover-dependent and, at the physical crossover,
+reversed — Pd sits near the top, not the bottom. The durable tension is
+narrower and different in kind: Chapter 4 optimises a *single* junction,
+while the photodetector's figure of merit is a *difference between two*
+junctions, so a contact metal chosen for its own low resistance is being
+chosen on a criterion that the two-terminal photoresponse is, to first
+order, blind to. Chapter 7 should synthesise *that*, not the metal-list
+contradiction as Section 6.7 stated it.
+
+### 6.8.7 What this section does not claim
+
+The ΔW → doping-profile relation is taken as linear with a single λ for
+every metal. Giovannetti *et al.* find it only roughly linear, and not
+linear at all for the chemisorbed metals (Ti, Ni, Pd). Only the sign
+structure and the crossover were changed here; the profile magnitude
+convention is inherited unchanged from Chapter 4 Section 4.5.
+Illumination is uniform, transport is drift-only with μ_e = μ_h, and
+there is no photogain, photo-thermoelectric or bolometric contribution.
+A genuine unreconciled discrepancy: the measured potential step at a
+graphene/electrode interface is ≈ 0.12 eV with doping extending
+0.2–0.3 μm into the channel [Mueller *et al.*, arXiv:0902.1479], well
+below the 0.25–1.07 eV offsets this table assumes, because the
+measurement is of the residual step in a gated device rather than the
+flat-band charge transfer. Reconciling the two is left open.
+
+Figure: `photodetector_signed_carrier_response.png` — (a) the field
+profiles, showing that an n/p pair has no interior null where a
+same-type pair has two; (b) zero-bias response against a Pt
+counter-electrode under both conventions; (c) N against ΔW_A·ΔW_B,
+separating reinforcing from cancelling pairs.
+
+## 6.9 Further follow-on work
 
 - ~~Model both contacts self-consistently~~ -- **done 2026-09-17,
   Section 6.7**, and it reversed Section 6.6's metal ranking for a
@@ -517,6 +771,10 @@ Section 6.5's plasmonic-enhancement literature review and citations, and
 `notes/2026-09-07-spatial-photocarrier-collection-model.md` for Section
 6.6's spatially resolved collection-model literature review and design
 derivation, and
+`notes/2026-09-18-signed-carrier-resolved-contact-fields.md` for Section
+6.8's signed carrier-resolved treatment, the 5.4 eV n/p crossover
+[Giovannetti et al., PRL 101, 026803 (2008)] and the Mueller/Xia/Avouris
+Pd-Ti asymmetric-finger experiment, and
 `notes/2026-09-17-two-contact-self-consistent-collection.md` for Section
 6.7's two-contact literature basis (Weiss & Duan 2013; Suzuki et al.,
 *Carbon Trends* 5, 100115 (2021)), its two validations, and the
