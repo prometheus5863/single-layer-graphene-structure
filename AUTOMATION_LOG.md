@@ -1357,3 +1357,199 @@ installed for `graphene_contact_doping_model.py` to import.
 **Commits this run:** 3 (two-contact literature/bug notes; the model +
 figure; thesis_draft Chapter 6 Section 6.7 + Chapter 1 status table).
 This AUTOMATION_LOG.md entry commit makes 4.
+
+---
+
+## 2026-09-18 — Signed, carrier-resolved contacts: one result confirmed and doubled, one retracted
+
+**Status:** Full session. Closes the item that has sat at the top of
+"not yet covered" since 2026-09-17 — the signed, carrier-resolved
+two-contact treatment, described there as "the most consequential open
+item in Chapter 6".
+
+**Work done:**
+
+1. **Research notes**
+   (`notes/2026-09-18-signed-carrier-resolved-contact-fields.md`):
+   literature basis for the signed treatment. The headline find is one
+   the 2026-09-17 entry did **not** anticipate: the magnitude convention
+   `|W_metal - W_graphene|` was hiding a *crossover* as well as a sign.
+   The n/p crossover for a metal **on** graphene sits near **5.4 eV**,
+   not at graphene's own 4.5 eV, because the short-range chemical
+   interaction adds a ~0.9 eV interface dipole on top of vacuum-level
+   alignment — Giovannetti, Khomyakov, Brocks, Karpan, van den Brink &
+   Kelly, *Phys. Rev. Lett.* **101**, 026803 (2008),
+   <https://arxiv.org/abs/0802.2267>. Under the physical crossover
+   **six of the seven metals in `METAL_WORK_FUNCTIONS` n-dope graphene
+   and only Pt p-dopes it**. The table's own inline comments already
+   said so (Cu annotated "n-type dopant" despite 4.65 > 4.5; Pt
+   "clearly above the ~5.4 eV crossover"); `|W - 4.5|` simply could not
+   express it. Experimental anchor: Mueller, Xia & Avouris,
+   *Nature Photonics* **4**, 297 (2010) — already cited in this repo for
+   tau = 1 ps — built the Pd/Au vs Ti/Au interdigitated device precisely
+   because identical electrodes give zero total photocurrent, reaching
+   6.1 mA/W at 1.55 um, 15x. Supporting band-bending picture: Mueller
+   *et al.*, arXiv:0902.1479 (0.12 eV potential step, doping extending
+   0.2–0.3 um, p–n junction forming near the interface).
+
+2. **Model** (`graphene_photodetector_signed_carrier_model.py`,
+   `photodetector_signed_carrier_response.png`): signed offset
+   dW = W_metal − w_cross drives a rigid Dirac-point shift near each
+   contact; E(x) = (1/e) dE_D/dx; holes and electrons drift in that one
+   field in opposite directions and are transported independently by the
+   2026-09-17 stagnation-aware logic. N = net charge to contact A per
+   photon, now over **[−2, +2]** because both carriers can be collected.
+   The crossover is an explicit parameter and every result is quoted
+   under both 4.5 eV and 5.4 eV rather than one being chosen silently.
+
+3. **Three validations, all against exactly known values** (continuing
+   the 2026-09-17 lesson that an exact check beats a plausible range):
+   - reduction to the 2026-09-17 model (holes only, |dW|, crossover
+     4.5 eV) across all 49 ordered pairs at both biases, 98
+     comparisons — **0.000e+00, bitwise**. This is a true reduction, not
+     an approximate agreement: under those restrictions the two modules
+     are algebraically the same expression, E = −F_old.
+   - symmetric pair at zero bias → |N| ≤ **6.6e−17**.
+   - charge conjugation N(−dW) = −N(dW) at zero bias — **0.000e+00**.
+     This one is only *statable* once the model is signed; it catches
+     carrier-mixing errors that the symmetric check would pass.
+
+4. **RESULT 2 — confirmed and roughly doubled.** The 2026-09-17 entry
+   predicted this signed treatment "could invert Result 2's ordering by
+   letting an n/p pair such as Ti/Pt add rather than partially cancel".
+   It does. Best zero-bias pair goes from **Cr/Pt, |N| = 0.917** to
+   **Ti/Pt, |N| = 1.832**. It is **insensitive to the crossover** —
+   1.832 at 5.4 eV vs 1.830 at 4.5 eV — because Ti and Pt straddle both
+   candidates, which makes it the most secure number in Chapter 6.
+   Mechanism, from the stagnation audit: an unequal pair has **no
+   interior field null at all** and both species are collected at
+   opposite ends, while a same-type symmetric pair strands one entire
+   species at the null and splits the other evenly. Ti/Pd reaches 1.599
+   with both metals n-type, so the operative quantity is
+   |dW_A − dW_B|, not the sign pair — which is the practically useful
+   form, Pt being the only p-type metal in the table. Ti/Pd is also the
+   pair Mueller *et al.* actually built.
+
+5. **RESULT 1 — CONTRADICTS 2026-09-17, and retracts it.** The
+   2026-09-17 entry asserted "Result 1's reversal does not depend on it
+   (identical contacts, where the two conventions agree)". **That was
+   wrong.** The conventions agree on the sign structure for identical
+   contacts, but the signed model also collects the second carrier
+   species, and the crossover choice reorders the metals. Symmetric
+   device at V_bias = 0.1 V: Pt is **best (0.556)** under the 5.4 eV
+   crossover and **worst (0.169)** under 4.5 eV. Three sections have now
+   given three answers — 2026-09-07 Pt best, 2026-09-17 Pt worst,
+   2026-09-18 either. The conclusion recorded is **not** "Pt is best
+   after all" but that **the symmetric two-terminal metal ranking is not
+   an established result of this repo**, because it flips with a
+   modelling choice the earlier models never had to make explicit.
+   Section 6.7's numbers are retained and annotated in place, since the
+   arithmetic is correct for the convention it states.
+
+   What survives, and is worth more than the ranking: under the physical
+   crossover the symmetric response is **monotone in |dW|**. In a
+   symmetric device the contact doping field is identical at both ends,
+   contributes nothing to the net current, and does nothing but create a
+   null that strands carriers. **For a symmetric two-terminal device
+   contact doping is purely parasitic; the best metal is the one that
+   perturbs graphene least.** Crossover-independent in form, and also why
+   Cr (dW = 0 there) wins the 4.5 eV column.
+
+6. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`): new Section 6.8 with the full
+   treatment (old 6.8 renumbered to 6.9). Section 6.7 annotated in
+   place, not rewritten: a callout at Result 1 downgrading its reversal,
+   a confirmation at Result 2, a note under the section heading, and no
+   numbers deleted.
+
+**Effect on Chapter 7's synthesis task (restated, not deleted).** The
+2026-09-17 contradiction handed to Chapter 7 — Chapter 4's
+low-contact-resistance metals (Ni, Au, Pd) being the worst for
+photoresponse — **does not survive**: at the physical crossover Pd sits
+near the top, and the symmetric ranking is no longer claimed at all. The
+durable tension is narrower and more interesting: **Chapter 4 optimises
+a single junction, while the two-terminal photoresponse depends on the
+difference between two junctions and is to first order blind to either
+one's own quality** (|N| = 1.832 for Ti/Pt vs at best 0.556 for any
+symmetric pair). A second thread for the same chapter: the symmetric
+design rule (dope graphene least) and the asymmetric one (maximise
+|dW_A − dW_B|) point in opposite directions, and Chapter 5's
+interconnect argument shares Chapter 4's single-junction framing.
+
+**Methodological note worth carrying forward.** Two consecutive sessions
+have now had a headline "reversal" overturned by the next session's
+model. Both times the culprit was a convention that was stated as a
+simplification but whose *consequences* were not enumerated — the
+magnitude convention concealed a crossover nobody was looking for. The
+practice that worked both times was the same: keep the superseded
+numbers, state the contradiction in the commit message, the log and the
+text, and prefer a structural statement (here: "doping is parasitic in a
+symmetric device") over a ranking, because rankings are what flip.
+
+**Not yet covered (candidates for future runs):**
+- **Non-uniform illumination, a generation weight g(x)** — now the top
+  open item in Chapter 6. Suzuki *et al.*'s shadow-mask device masks one
+  of the two interfaces and is precisely a non-uniform-generation
+  experiment, so it is the natural validation target. It is also the
+  one remaining way a *symmetric* device can give nonzero response,
+  which matters now that the symmetric metal ranking has been retracted
+- **A non-linear dW → doping-profile relation.** Both the 2026-09-17 and
+  2026-09-18 models take the profile magnitude as linear in dW with a
+  single lambda for every metal. Giovannetti *et al.* find it only
+  roughly linear and **not linear at all for the chemisorbed metals
+  (Ti, Ni, Pd)** — which are exactly the metals carrying the largest
+  |dW| under the physical crossover, so this is where the error is
+  concentrated. Would test whether Ti/Pt's 1.832 is robust
+- **Reconciling the 0.12 eV measured potential step** (Mueller *et al.*,
+  arXiv:0902.1479) with the 0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS`
+  assumes. The measurement is of the residual step in a gated device
+  rather than the flat-band charge transfer, but the factor of 2–9 is
+  unexplained in the repo
+- **Chapter 7 (discussion/outlook)** — still actionable, with the
+  restated single-junction-vs-two-junction synthesis above
+- Chapters 2–3 remain undrafted despite their band-structure/transport/
+  optical computational results being complete — still the largest
+  remaining block of pure writing in the repo
+- Whether Chapter 4's contact-resistance results should also be re-run
+  at the 5.4 eV crossover. Section 4.5's doping profile uses the same
+  `|W - W_graphene|` magnitude convention, and Chapter 4 has never been
+  audited for it. **This is a new open item created by today's run and
+  may affect published Chapter 4 numbers**
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery — still open
+- The photo-bolometric mechanism is still not modeled anywhere
+- Isolating the root cause of the Section 4.7 negative-residual result
+  (TLM double-counting vs. `lambda_decay` mismatch) — open since
+  2026-08-31
+- Ti and Cr per-metal Rc recalibration (blocked by ResearchGate
+  rate-limiting; not reattempted)
+- Second independent edge-contact dataset (Lee *et al.* 2022, Wiley
+  403'd 2026-09-05) — still open
+- Small-hole-diameter (50–100 nm) upturn in Passi *et al.*'s
+  patterned-contact data (Section 4.8.1) — still open
+- Graphene-all-around-metal (liner/cap) interconnect model (Chapter 5,
+  Section 5.4) and specific liner-material resistivity values
+- Park, Ahn *et al.*'s scanning-photocurrent-microscopy sign map
+  (PubMed 19326919) — PubMed remains reCAPTCHA-blocked, see below
+
+**Web search availability:** WebSearch available and used. 3 of 3
+fetches succeeded. One honest caveat: the `arxiv.org/abs/0802.2267`
+fetch summary returned the n/p labels **inverted** (it claimed metals
+above 5.4 eV n-dope graphene). The correct physics is the opposite — a
+high-work-function metal withdraws electrons and p-dopes graphene — and
+it was corrected against first principles before use. Had it been taken
+at face value it would have flipped every sign in the new module. The
+crossover *value* (5.4 eV) was the number actually used and is
+independently confirmed by the repo's own table annotations. PubMed/PMC
+was **not attempted**: three consecutive reCAPTCHA blocks (2026-09-05,
+09-07, 09-17) established it as a standing environment limitation.
+
+**Automation health:** Device reachable, `scipy` again absent from the
+device VM and pip-installed (this is now the second occurrence; it is a
+per-run cost, since the VM is rebuilt each session). Work done in the
+session's own scratch clone outside the connected folder, per the
+2026-09-17 finding that git cannot run inside it.
+
+**Commits this run:** 3 (signed-carrier notes; the model + figure;
+Chapter 6 Section 6.8 + 6.7 annotations + Chapter 1 status table). This
+AUTOMATION_LOG.md entry makes 4.
