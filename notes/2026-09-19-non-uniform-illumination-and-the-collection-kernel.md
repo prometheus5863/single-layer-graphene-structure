@@ -217,3 +217,65 @@ consecutive reCAPTCHA blocks (2026-09-05, 09-07, 09-17, noted 09-18) make it a
 standing environment limitation, so the Park/Ahn SPCM sign map remains
 unreachable — but the sign-map physics is covered here by Mueller *et al.* 2009
 instead, which is open-access on arXiv.
+
+---
+
+## 6. Corrigendum, added the same day after running the model
+
+Section 4 above offered a falsifiable prediction and it was **falsified**, so
+it is corrected here rather than quietly edited:
+
+> "An **n/p pair** (Ti/Pt) should gain little or nothing from masking: its
+> kernel does not change sign, so masking half the channel only discards
+> photons. If the model says masking helps Ti/Pt, the model is wrong."
+
+The model says masking helps Ti/Pt, by +0.03%, and helps Ti/Pd by +0.7%. The
+model is not wrong; the prediction's reasoning was wrong twice over.
+
+1. **Sign was the wrong criterion; variation is the right one.** A single-signed
+   kernel is still not flat, so moving photons toward larger |k| gains
+   something. And at equal *absorbed* photon number a mask does not "discard"
+   photons at all — it redistributes them. The word "discards" smuggled in the
+   other accounting.
+2. **The right statement is a bound, not a sign argument.** The largest gain any
+   illumination pattern can achieve over uniform light is exactly
+
+       max_x |k(x)| / |N_uniform|
+
+   which is Validation 5's ceiling divided by the uniform response: **1.0025 for
+   Ti/Pt, 1.0159 for Ti/Pd, under 1.02 for every asymmetric pair in the table.**
+   The conclusion the prediction was reaching for survives — illumination
+   engineering buys nothing on an n/p pair — but it now rests on a computed
+   bound instead of a bad argument.
+
+## 7. The accounting error that nearly became the headline
+
+The first draft of this session's result read "a perfect mask on the best
+symmetric device reaches **45.9%** of Ti/Pt under uniform light". That compared
+a masked device **per absorbed photon** with an unmasked device **per absorbed
+photon**, which is the correct comparison of *collection mechanisms* and the
+wrong comparison of *detectors*. Responsivity is amps per incident watt, and a
+mask that shades half the device puts half the incident light into 50 nm of
+nickel, where the detector never sees it.
+
+Per incident photon the two accountings differ by exactly (1 + T)/2:
+
+    per absorbed photon : N(T)/N(0) = (1 − T)/(1 + T)
+    per incident photon : N(T)/N(0) = (1 − T)
+
+so a perfect mask gives exactly **half** as much per incident photon as the
+per-absorbed-photon figure suggests. The corrected numbers:
+
+| comparison, per incident photon | vs. Ti/Pt uniform |
+|---|---|
+| perfect mask (T = 0) on symmetric Ti/Ti | **22.9%** |
+| Shimomura *et al.*'s measured mask (T = 0.5) | **11.5%** |
+
+**Asymmetric metallisation beats illumination engineering by roughly 4×, and by
+about 8× against a mask anyone has actually built.** That is the opposite
+emphasis from the draft number and it is the one that should be quoted. It also
+sharpens why Shimomura *et al.* reached for geometry at all: their asymmetry is
+cheap to fabricate on silicon in a CMOS-compatible flow, not because it is the
+better physics — and their own comb-electrode design, which enlarges one
+interface rather than shading the other, avoids the incident-photon penalty
+entirely and is the more promising of their two ideas on this accounting.
