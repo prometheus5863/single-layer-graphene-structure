@@ -722,7 +722,194 @@ same-type pair has two; (b) zero-bias response against a Pt
 counter-electrode under both conventions; (c) N against ΔW_A·ΔW_B,
 separating reinforcing from cancelling pairs.
 
-## 6.9 Further follow-on work
+## 6.9 Non-uniform illumination: the collection kernel, and a ceiling on illumination engineering
+
+Every two-contact model in Sections 6.6–6.8 declares uniform illumination
+as an explicit simplification, and each one names the same experiment as
+the reason it matters. This section removes the simplification, and the
+removal turns out to cost almost nothing, because illumination never
+enters the transport problem at all.
+
+### 6.9.1 Illumination is a weight on a kernel the model already computes
+
+Section 6.8's response is an integral over the channel:
+
+    N = (1/L) ∫₀ᴸ [ q_h s_h(x) p_h(x) + q_e s_e(x) p_e(x) ] dx
+      ≡ (1/L) ∫₀ᴸ k(x) dx
+
+The bracket — the **collection kernel** k(x) — is the net charge delivered
+to contact A per photon *absorbed at x*. It depends only on the two contact
+metals, the bias, the crossover and τ. A generation weight g(x) therefore
+requires no new transport physics whatever:
+
+    N[g] = (1/L) ∫₀ᴸ g(x) k(x) dx ,    with (1/L) ∫₀ᴸ g(x) dx = 1
+
+The normalisation fixes the total number of absorbed photons, which is the
+only basis on which two illumination patterns can be honestly compared.
+
+Three consequences follow at once, and all three are exactly checkable.
+
+1. **g ≡ 1 must return Section 6.8's number bitwise.** Not to within a
+   tolerance: under g ≡ 1 the expression is literally the same one.
+2. **k(x) *is* the delta-spot photocurrent scan**, since N[δ(x−x₀)] = k(x₀).
+   The kernel is not an intermediate quantity to be integrated away; it is
+   the predicted position scan of a scanning-photocurrent measurement.
+3. **max|k| is a hard ceiling.** For any normalised g, |N[g]| ≤ maxₓ|k(x)|,
+   with equality only when the light is concentrated where |k| peaks. No
+   mask, spot, grating or plasmonic pattern can beat it at fixed photon
+   number. This is the first quantity in this thesis that bounds an entire
+   design space rather than ranking points inside it.
+
+For a **symmetric** pair at zero bias k is antisymmetric about mid-channel,
+which gives the leaky shadow mask in closed form. With transmission T over
+the left half, 1 over the right, and A ≡ (1/L)∫_{L/2}^{L} k dx,
+
+    N(T) = 2A (1 − T)/(1 + T)   ⇒   **N(T)/N(0) = (1 − T)/(1 + T)**
+
+### 6.9.2 Validation against five exactly known values
+
+Continuing the practice established in Section 6.7 — an exact check beats a
+plausible range — `graphene_photodetector_nonuniform_illumination_model.py`
+is tested against five quantities known in advance:
+
+| # | check | result |
+|---|---|---|
+| 1 | g ≡ 1 reproduces §6.8 over 196 (pair, crossover, bias) cases | **196/196 bitwise**, deviation 0.000e+00 |
+| 2 | mirror-symmetric g on a symmetric pair at zero bias → 0 | \|N\| ≤ 1.3e−16 |
+| 3 | mask left = −(mask right) | \|dev\| ≤ 2.2e−16 |
+| 4 | leaky-mask closed form (1−T)/(1+T) | \|dev\| ≤ 2.2e−16 |
+| 5 | \|N[g]\| ≤ max\|k\| over 343 (pair, pattern) cases | 0 violations |
+
+Check 4 is the one that tests the physics rather than the plumbing: had the
+equal-photon normalisation been dropped, the ratio would have come out as
+(1 − T) instead, a 50% error at the experimentally relevant T = 0.5, and
+none of checks 1–3 would have caught it.
+
+### 6.9.3 The experiment, and a citation this thesis had wrong
+
+The shadow-mask device is
+
+> K. Shimomura, K. Imai, K. Nakagawa, A. Kawai, K. Hashimoto, T. Ideguchi
+> and H. Maki, "Graphene photodetectors with asymmetric device structures
+> on silicon chips", *Carbon Trends* **5**, 100100 (2021).
+
+Sections 6.6–6.8 and the reference list previously attributed this to
+"Suzuki *et al.*, *Carbon Trends* 5, 100115 (2021)" — wrong on both the
+first author and the article number, introduced 2026-09-17 and copied
+forward twice. Corrected here against the publisher record and the
+Ideguchi group's publication list. Nothing in the physics changes; the
+episode is recorded because a citation that is never re-fetched propagates.
+
+Their device deposits 50 nm of nickel over one of the two
+graphene/electrode interfaces, and their statement of the cancellation
+modelled since Section 6.6 is explicit: "since the polarities of the
+photovoltages at each graphene/electrode interface … are opposite, they
+are canceled out under macroscopic light irradiation."
+
+The number this thesis had not used is that **the mask leaks**: they report
+the photovoltage under the mask as "about half of the opposite side", so
+T ≈ 0.5. By the closed form that leaves **exactly one third** of a perfect
+mask, not one half. The derivative of (1−T)/(1+T) at T = 0 is −2, so the
+first few percent of leakage cost twice their face value.
+
+### 6.9.4 Result: a mask rescues a symmetric device — and it is still the wrong strategy
+
+Under uniform light a symmetric device gives identically zero at zero bias.
+A mask over one interface is the only mechanism by which it can respond at
+all — which matters more since Section 6.8 retracted the symmetric *metal
+ranking*. Per absorbed photon, symmetric Ti/Ti with a perfect mask reaches
+N = 0.841, against 1.832 for the best asymmetric pair (Ti/Pt) under uniform
+light: 45.9%.
+
+**That comparison is wrong, and the correct one reverses its emphasis.**
+Responsivity is amps per incident watt. A mask that shades half the device
+puts half the incident light into 50 nm of nickel, where the detector never
+sees it. Per absorbed photon a mask only *redistributes*; per incident
+photon it *discards*. The two accountings differ by exactly (1+T)/2:
+
+    per absorbed photon : N(T)/N(0) = (1 − T)/(1 + T)
+    per incident photon : N(T)/N(0) = (1 − T)
+
+so a perfect mask gives exactly half as much per incident photon as the
+per-absorbed-photon figure suggests. Corrected:
+
+| device, per incident photon | vs. Ti/Pt under uniform light |
+|---|---|
+| symmetric Ti/Ti, perfect mask (T = 0) | **22.9%** |
+| symmetric Ti/Ti, the mask actually built (T = 0.5) | **11.5%** |
+
+**Asymmetric metallisation beats illumination engineering by roughly 4×,
+and by about 8× against a mask anyone has fabricated.** Shimomura *et al.*'s
+second design — a comb-shaped counter-electrode that *enlarges* one
+interface rather than shading the other — avoids the incident-photon
+penalty entirely and is, on this accounting, the more promising of their
+two ideas.
+
+### 6.9.5 Result: what illumination engineering can buy on an asymmetric pair, bounded
+
+The obvious expectation is that masking cannot help a device that is
+already asymmetric, because its kernel does not change sign. **That
+expectation is false**, and it was written down before the model was run so
+that it could be falsified: masking Ti/Pd's A side gains +0.7% and Ti/Pt's
+B side +0.03% per absorbed photon. Sign is the wrong criterion — a
+single-signed kernel is still not flat, and concentrating photons where
+|k| is larger gains something.
+
+The right statement is the bound, and it is exactly computable:
+
+    (best achievable) / (uniform)  =  maxₓ|k(x)| / |N_uniform|
+
+which is 1.0025 for Ti/Pt, 1.0159 for Ti/Pd, and under 1.02 for every
+asymmetric pair in the table. The conclusion survives with a number
+attached instead of a bad argument: **illumination engineering is worth
+under 2% on an n/p pair, and negative per incident photon. Masks are for
+symmetric devices only.**
+
+### 6.9.6 Result: the kernel as a predicted photocurrent scan
+
+k(x) reproduces the qualitative signature the scanning-photocurrent
+literature reports. For a symmetric pair the kernel runs from k(0) = +1.000
+through exactly zero at mid-channel to k(L) = −1.000 — **opposite polarity
+at the two interfaces**, which is Shimomura *et al.*'s "polarities … are
+opposite" and the p–n–p structure Mueller *et al.* map with doping
+extending 0.2–0.3 μm into the channel [arXiv:0902.1479]. For Ti/Pt the
+kernel never changes sign, running between −1.837 and −1.830: a *flat*
+scan, which is the experimental signature distinguishing an n/p pair from
+a symmetric one.
+
+### 6.9.7 What this section does not claim
+
+**It is not a prediction of a measured SPCM trace.** Kasırga's review
+[arXiv:2509.09390, 2025] stresses that measured scanning-photocurrent
+signals are frequently photo-thermal rather than photovoltaic, and this
+thesis models drift collection only — no photo-thermoelectric and no
+bolometric term, a simplification standing since Section 6.4. The curves
+here are the *photovoltaic contribution* to such a trace.
+
+**Optical localisation is impossible at this device's geometry.** The
+channel is L = 200 nm; Shimomura *et al.*'s focused spot is ~2 μm, ten
+times the whole channel. A diffraction-limited spot illuminates both
+contacts at once. The spot-size study is therefore a statement about
+required channel length, not a proposal for this device: reaching 90% of
+the delta-spot limit needs σ ≲ 0.05 L, so a ~1 μm spot would require a
+channel of order 20 μm. The only non-uniform illumination realisable at
+200 nm is a *lithographic* mask on the device — which is exactly what
+Shimomura *et al.* built, and why they built it that way.
+
+All of Section 6.8's simplifications are inherited unchanged: a linear
+ΔW → doping-profile relation with a single λ, drift-only transport with
+μ_e = μ_h, and no photogain. Two new ones are added: g(x) weights
+absorption linearly (safe at graphene's 2.3%, not for a thick absorber),
+and the mask is a pure transmission factor — no near-field scattering,
+reflection off the nickel, or plasmonic response at the mask edge.
+
+Figure: `photodetector_nonuniform_illumination.png` — (a) the collection
+kernel as a delta-spot scan, showing the symmetric sign reversal and the
+flat asymmetric kernel; (b) symmetric devices under uniform light, a
+perfect mask and the measured mask; (c) the two accountings of mask
+leakage, (1−T)/(1+T) per absorbed photon against (1−T) per incident photon.
+
+## 6.10 Further follow-on work
 
 - ~~Model both contacts self-consistently~~ -- **done 2026-09-17,
   Section 6.7**, and it reversed Section 6.6's metal ranking for a
@@ -733,11 +920,11 @@ separating reinforcing from cancelling pairs.
   holes separately. This is now the single most consequential open item
   in this chapter: it could invert Section 6.7's Result 2 ordering by
   making an n/p pair such as Ti/Pt add rather than partially cancel.
-- Model non-uniform illumination (a generation weight g(x)) rather than
-  Section 6.7's uniform assumption -- Shimomura et al.'s shadow-mask device,
-  which masks one of the two graphene/electrode interfaces, is precisely
-  a non-uniform-generation experiment and is the natural validation
-  target for it.
+- ~~Model non-uniform illumination (a generation weight g(x))~~ --
+  **done 2026-09-19, Section 6.9**, against Shimomura et al.'s shadow-mask
+  device. It required no new transport physics (illumination is a weight on
+  a fixed kernel) and it produced the chapter's first *bound*, max|k|,
+  rather than another ranking.
 - Reconcile Chapter 4's contact-metal recommendation with Section 6.7's:
   the two chapters now point in opposite directions for the same metals,
   and Chapter 7 (discussion/outlook) should resolve this explicitly
@@ -778,4 +965,10 @@ Pd-Ti asymmetric-finger experiment, and
 `notes/2026-09-17-two-contact-self-consistent-collection.md` for Section
 6.7's two-contact literature basis (Weiss & Duan 2013; Shimomura et al.,
 *Carbon Trends* 5, 100100 (2021)), its two validations, and the
-simplification that could overturn its Result 2.
+simplification that could overturn its Result 2, and
+`notes/2026-09-19-non-uniform-illumination-and-the-collection-kernel.md`
+for Section 6.9's generation-weight treatment, the Shimomura *et al.*
+citation correction and the mask-leakage number, the SPCM references
+[Kasırga, arXiv:2509.09390 (2025); Mueller *et al.*, *Phys. Rev. B* **79**,
+245430 (2009), arXiv:0902.1479], and a corrigendum recording two claims
+that session made and then falsified against its own model.
