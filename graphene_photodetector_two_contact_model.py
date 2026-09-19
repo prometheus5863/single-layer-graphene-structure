@@ -31,7 +31,8 @@ as a correction:
   metals with asymmetric band structures breaks this equilibrium."
   https://www.nature.com/articles/am201364
 
-  Suzuki et al., Carbon Trends 5, 100115 (2021) -- in symmetric
+  Shimomura, Imai, Nakagawa, Kawai, Hashimoto, Ideguchi & Maki,
+  Carbon Trends 5, 100100 (2021) -- in symmetric
   two-electrode graphene photodetectors "the polarities of the
   photovoltages at each graphene/electrode interface ... are canceled
   out under macroscopic light irradiation"; the paper's whole device
@@ -97,7 +98,8 @@ STATED SIMPLIFICATIONS (not hidden)
    p-n pair (e.g. Ti/Pt) would then ADD rather than partially cancel for
    one carrier species. That is a genuine extension, not a refinement,
    and is listed as the next open item rather than approximated here.
-2. Uniform illumination (every x generates equally). The Suzuki et al.
+2. Uniform illumination (every x generates equally). CLOSED 2026-09-19 by
+   graphene_photodetector_nonuniform_illumination_model.py. The Shimomura et al.
    shadow-mask device is precisely a non-uniform-generation experiment,
    so a g(x) weight is the natural way to model it; not done here.
 3. Drift only, no diffusion; single effective mobility; no photogain,
@@ -254,7 +256,7 @@ def validate_symmetric_cancellation(verbose=True):
     if verbose:
         print("\nValidation: symmetric contacts at zero bias -> net response ~ 0")
         print("(Weiss & Duan 2013: 'equal positive and negative flow with a")
-        print(" net zero photocurrent'; Suzuki et al. 2021: polarities 'canceled out')")
+        print(" net zero photocurrent'; Shimomura et al. 2021: polarities 'canceled out')")
         for metal, W, N0 in rows:
             print(f"  {metal:<4} (W={W:.2f} eV) both contacts: N = {N0:+.3e}")
         print(f"worst |N| over symmetric pairs: {worst:.2e}")

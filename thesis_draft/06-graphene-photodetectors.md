@@ -379,7 +379,7 @@ metals, to a worst relative deviation of 7.8e-08. Second, at zero bias
 two *identical* contacts must give exactly zero net response, because
 F(x) = g(x) - g(L-x) is antisymmetric about mid-channel -- this is Weiss
 & Duan's "equal positive and negative flow with a net zero
-photocurrent", and Suzuki et al.'s observation that in symmetric devices
+photocurrent", and Shimomura et al.'s observation that in symmetric devices
 "the polarities of the photovoltages at each graphene/electrode
 interface ... are canceled out under macroscopic light irradiation". The
 model reproduces it to |N| <= 6.6e-17, i.e. machine precision, as an
@@ -734,7 +734,7 @@ separating reinforcing from cancelling pairs.
   in this chapter: it could invert Section 6.7's Result 2 ordering by
   making an n/p pair such as Ti/Pt add rather than partially cancel.
 - Model non-uniform illumination (a generation weight g(x)) rather than
-  Section 6.7's uniform assumption -- Suzuki et al.'s shadow-mask device,
+  Section 6.7's uniform assumption -- Shimomura et al.'s shadow-mask device,
   which masks one of the two graphene/electrode interfaces, is precisely
   a non-uniform-generation experiment and is the natural validation
   target for it.
@@ -776,6 +776,6 @@ derivation, and
 [Giovannetti et al., PRL 101, 026803 (2008)] and the Mueller/Xia/Avouris
 Pd-Ti asymmetric-finger experiment, and
 `notes/2026-09-17-two-contact-self-consistent-collection.md` for Section
-6.7's two-contact literature basis (Weiss & Duan 2013; Suzuki et al.,
-*Carbon Trends* 5, 100115 (2021)), its two validations, and the
+6.7's two-contact literature basis (Weiss & Duan 2013; Shimomura et al.,
+*Carbon Trends* 5, 100100 (2021)), its two validations, and the
 simplification that could overturn its Result 2.

@@ -39,8 +39,13 @@ structures breaks this equilibrium." The article gives no numerical
 built-in-potential or photovoltage values, so it anchors the model's
 structure and sign convention but cannot calibrate its magnitude.
 
-**Source 2 -- Suzuki et al., "Graphene photodetectors with asymmetric
-device structures on silicon chips", Carbon Trends 5, 100115 (2021).**
+**Source 2 -- Shimomura, Imai, Nakagawa, Kawai, Hashimoto, Ideguchi &
+Maki, "Graphene photodetectors with asymmetric device structures on
+silicon chips", Carbon Trends 5, 100100 (2021).**
+*(This note originally attributed the paper to "Suzuki et al., Carbon
+Trends 5, 100115"; both the first author and the article number were
+wrong. Corrected 2026-09-19 against the publisher page and the Ideguchi
+group publication list. The physics quoted below is unchanged.)*
 https://www.sciencedirect.com/science/article/pii/S2667056921000778
 The experimental counterpart, and the more useful one, because its
 entire device strategy exists to defeat the cancellation. In symmetric
@@ -120,7 +125,7 @@ than asserted in a comment.
 bias, two identical contacts make F(x) = g(x) - g(L-x) antisymmetric
 about x = L/2, so the net response must be exactly zero. Measured:
 worst |N| over all seven symmetric pairs = **6.6e-17**, i.e. machine
-precision. This is the Weiss & Duan / Suzuki cancellation, emerging from
+precision. This is the Weiss & Duan / Shimomura cancellation, emerging from
 the model rather than being put in by hand.
 
 ### 2.1 Validation 2 caught a real bug
@@ -246,7 +251,7 @@ extension, not a numerical refinement, and Section 3.2's ordering should
 be treated as provisional until it is done. Listed as the top open item.
 
 Other stated simplifications, unchanged from the single-contact module:
-uniform illumination (the Suzuki shadow-mask device is precisely a
+uniform illumination (the Shimomura shadow-mask device is precisely a
 non-uniform-generation experiment, and a g(x) generation weight is the
 natural way to model it); drift only, no diffusion; one effective
 mobility; no photogain, photo-thermoelectric or bolometric contribution.

@@ -140,7 +140,12 @@ STATED SIMPLIFICATIONS (unchanged from 2026-09-17 unless noted)
    linear and is not linear at all for the strongly bonded metals
    (Ti, Ni, Pd chemisorb). This model does not attempt that; it changes
    only the sign structure and the crossover, and says so.
-2. Uniform illumination. (Still open: the Suzuki et al. shadow mask.)
+2. Uniform illumination. CLOSED 2026-09-19 by
+   graphene_photodetector_nonuniform_illumination_model.py, which shows
+   illumination enters only as a weight g(x) on the kernel this module
+   already computes. (The shadow-mask experiment is Shimomura et al.,
+   Carbon Trends 5, 100100 (2021) -- NOT 'Suzuki et al., 100115' as this
+   repo said from 2026-09-17 to 2026-09-19.)
 3. Drift only, no diffusion, single mobility for both carriers. Taking
    mu_e = mu_h is standard for graphene's symmetric bands but means the
    electron and hole terms differ only through the field geometry.
