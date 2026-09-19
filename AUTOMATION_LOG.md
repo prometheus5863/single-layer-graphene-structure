@@ -1553,3 +1553,205 @@ session's own scratch clone outside the connected folder, per the
 **Commits this run:** 3 (signed-carrier notes; the model + figure;
 Chapter 6 Section 6.8 + 6.7 annotations + Chapter 1 status table). This
 AUTOMATION_LOG.md entry makes 4.
+
+---
+
+## 2026-09-19 — Non-uniform illumination: a bound instead of a ranking, and two of this session's own claims falsified
+
+**Status:** Full session. Closes the item that has sat at the top of
+"not yet covered" since 2026-09-18 — the generation weight g(x) — which
+has also been Simplification 2 of every two-contact module since
+2026-09-07.
+
+**Work done:**
+
+1. **Research notes**
+   (`notes/2026-09-19-non-uniform-illumination-and-the-collection-kernel.md`):
+   literature basis, plus a **citation correction**. This repo had cited
+   the shadow-mask experiment in six places as *"Suzuki et al., Carbon
+   Trends 5, 100115 (2021)"*. **Both the first author and the article
+   number were wrong.** The paper is Shimomura, Imai, Nakagawa, Kawai,
+   Hashimoto, Ideguchi & Maki, *Carbon Trends* **5**, 100100 (2021),
+   <https://www.sciencedirect.com/science/article/pii/S2667056921000778>,
+   confirmed independently against the publisher page and the Ideguchi
+   group's own publication list. The error entered on 2026-09-17 and was
+   copied forward twice without being rechecked. The physics attributed
+   to it is correct and nothing downstream changes. All six occurrences
+   are fixed; the historical entries in *this file* are deliberately
+   left alone, since they are a dated record.
+
+   The substantive new number from the paper: **the mask leaks.** They
+   report the photovoltage under the 50 nm Ni mask as "about half of the
+   opposite side", i.e. T ≈ 0.5. This repo had used the paper for three
+   sessions without ever using that number.
+
+2. **Model** (`graphene_photodetector_nonuniform_illumination_model.py`,
+   `photodetector_nonuniform_illumination.png`). The structural finding
+   is that **illumination never enters transport at all**. Section 6.8's
+   response is already an integral of a *collection kernel*
+   k(x) = charge to contact A per photon absorbed at x, so
+
+       N[g] = (1/L) ∫ g(x) k(x) dx ,   (1/L) ∫ g dx = 1
+
+   with the normalisation fixing total absorbed photons. Three
+   consequences, all exact: g ≡ 1 must return the 2026-09-18 number
+   *bitwise*; **k(x) IS the delta-spot photocurrent scan**; and
+   **|N[g]| ≤ max|k| for every pattern whatsoever** — the first quantity
+   in this repo that bounds an entire design space instead of ranking
+   points inside it.
+
+   For a symmetric pair at zero bias, antisymmetry of k gives the leaky
+   mask in closed form, **N(T)/N(0) = (1 − T)/(1 + T)**, so the measured
+   T ≈ 0.5 leaves **one third**, not one half.
+
+3. **Five validations, all against exactly known values:**
+   - uniform g ≡ 1 reduces to the 2026-09-18 signed model over 196
+     (pair, crossover, bias) combinations — **196/196 bitwise**,
+     deviation 0.000e+00
+   - mirror-symmetric g (uniform, centred spot, both-edges) on a
+     symmetric pair at zero bias → |N| ≤ **1.3e−16**
+   - mask-left = −(mask-right) → |dev| ≤ **2.2e−16**
+   - the (1 − T)/(1 + T) closed form → |dev| ≤ **2.2e−16**. This is the
+     one that tests physics rather than plumbing: dropping the
+     equal-photon normalisation would give (1 − T), a 50% error at the
+     experimentally relevant T = 0.5, and none of the other checks would
+     have caught it
+   - |N[g]| ≤ max|k| over 343 (pair, pattern) cases → **0 violations**
+
+4. **RESULT — a mask rescues a symmetric device, and it is still the
+   wrong strategy.** Per absorbed photon, symmetric Ti/Ti with a perfect
+   mask reaches 0.841 against 1.832 for Ti/Pt under uniform light: 45.9%.
+   **That comparison was this session's first headline and it was
+   wrong.** It compares a masked device and an unmasked device *per
+   absorbed photon*, which is the right comparison of collection
+   mechanisms and the wrong comparison of detectors: responsivity is amps
+   per incident watt, and a mask puts half the incident light into 50 nm
+   of nickel. The two accountings differ by exactly (1 + T)/2 —
+   (1 − T)/(1 + T) per absorbed photon versus **(1 − T) per incident
+   photon** — so a perfect mask gives exactly half as much as the first
+   figure suggests. Corrected: **22.9%** for a perfect mask and
+   **11.5%** for the mask actually built. **Asymmetric metallisation
+   beats illumination engineering by roughly 4×, and ~8× against a real
+   mask.** Opposite emphasis from the draft number, and the one to quote.
+   Corollary worth carrying: Shimomura *et al.*'s *other* design — a
+   comb-shaped counter-electrode that enlarges one interface rather than
+   shading the other — has no incident-photon penalty and is the more
+   promising of their two ideas on this accounting.
+
+5. **RESULT — a pre-registered prediction of this session's own note,
+   falsified.** The note predicted, before the model was run, that
+   masking "should gain little or nothing" on an already-asymmetric pair
+   because its kernel does not change sign. It gains **+0.7% for Ti/Pd**
+   and +0.03% for Ti/Pt. Sign was the wrong criterion: a single-signed
+   kernel is still not flat, and at equal absorbed photons a mask
+   *redistributes* rather than discards. The replacement is the computed
+   bound **max|k| / |N_uniform| = 1.0025 (Ti/Pt), 1.0159 (Ti/Pd), < 1.02
+   for every asymmetric pair**. The intended conclusion survives with a
+   number attached instead of a bad argument: masks are for symmetric
+   devices only.
+
+6. **RESULT — the kernel reproduces the reported scan shape.** Symmetric
+   pair: k runs +1.000 → 0 → −1.000, i.e. **opposite polarity at the two
+   interfaces**, which is Shimomura *et al.*'s "polarities … are
+   opposite" and Mueller *et al.*'s p–n–p. Ti/Pt: flat, between −1.837
+   and −1.830, never changing sign — the signature distinguishing an n/p
+   pair from a symmetric one. Note this covers the long-open
+   "Park/Ahn SPCM sign map" item's *physics* from an open-access source,
+   even though PubMed itself remains unreachable.
+
+7. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`): new Section 6.9 with the full
+   treatment (old 6.9 → 6.10), stating both corrected claims against
+   itself rather than presenting only the surviving version. Chapter 1's
+   status table updated, and Chapter 7 handed a third thread.
+
+**Honest caveats recorded, not worked around.**
+(a) This is the **photovoltaic contribution** to a scanning-photocurrent
+trace, not a prediction of a measured one: Kasırga's 2025 review
+(arXiv:2509.09390) stresses that measured SPCM signals are frequently
+photo-thermal, and this repo has no PTE or bolometric machinery.
+(b) **Optical localisation is impossible at this geometry.** L = 200 nm;
+Shimomura *et al.*'s spot is ~2 µm — ten times the whole channel. The
+spot-size study is therefore a statement about required channel length
+(90% of the delta limit needs σ ≲ 0.05 L, so a ~1 µm spot wants a ~20 µm
+channel), not a proposal for this device. The only realisable non-uniform
+illumination at 200 nm is a lithographic mask, which is what Shimomura
+*et al.* built.
+
+**Methodological note.** Three consecutive sessions have now had a
+headline overturned — twice by the *next* session, and today for the
+first time **within the same session**, by writing the prediction down
+before running the model and by checking the accounting convention
+against what responsivity actually means. Writing the falsifiable
+version into the note first is cheap and worked; it is worth keeping.
+The second failure (per-absorbed vs per-incident photon) was not a
+physics error at all but a **units-of-comparison** error, and it would
+have survived every one of the five exact validations, because all five
+test the model against itself. Exact validations do not protect against
+comparing the wrong two quantities.
+
+**Not yet covered (candidates for future runs):**
+- **A non-linear dW → doping-profile relation** — now the top open item
+  in Chapter 6. Both the 2026-09-17 and 2026-09-18 models, and today's
+  by inheritance, take the profile magnitude linear in dW with one λ for
+  every metal. Giovannetti *et al.* find it not linear at all for the
+  chemisorbed metals (Ti, Ni, Pd) — exactly the metals carrying the
+  largest |dW| under the physical crossover. Would test whether Ti/Pt's
+  1.832, and today's max|k| ceiling with it, are robust
+- **Whether Chapter 4's contact-resistance results should be re-run at
+  the 5.4 eV crossover.** Section 4.5's doping profile still uses the
+  `|W − W_graphene|` magnitude convention and has never been audited for
+  it. Open since 2026-09-18 and **may affect published Chapter 4 numbers**
+- **Chapter 7 (discussion/outlook)** — now with three threads, the
+  newest and sharpest being: Chapter 6 has a ceiling (max|k|), Chapters 4
+  and 5 argue from unbounded single-junction optimisation; does an
+  analogous ceiling exist for contact resistance and for interconnect
+  resistivity?
+- **Chapters 2–3 remain undrafted** despite their computational results
+  being complete — still the largest remaining block of pure writing
+- Reconciling the 0.12 eV measured potential step (Mueller *et al.*,
+  arXiv:0902.1479) with the 0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS`
+  assumes — open since 2026-09-18
+- **A photo-thermoelectric term**, newly motivated: the Kasırga review
+  makes the absence of one the main obstacle to comparing any of this
+  chapter's position-resolved predictions with a measurement
+- **Shimomura et al.'s comb-electrode design** (unequal contact
+  *perimeter* rather than unequal metal or unequal illumination) — a new
+  open item created today, and on the incident-photon accounting the
+  more promising of their two geometries
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery. Today's max|k| ceiling
+  now makes this *quantitative*: plasmonic patterning is an illumination
+  pattern, so it is bounded by max|k| too
+- Isolating the root cause of the Section 4.7 negative-residual result
+  (TLM double-counting vs. `lambda_decay` mismatch) — open since
+  2026-08-31
+- Ti and Cr per-metal Rc recalibration (blocked by ResearchGate
+  rate-limiting; not reattempted)
+- Second independent edge-contact dataset (Lee *et al.* 2022, Wiley
+  403'd 2026-09-05) — still open
+- Small-hole-diameter (50–100 nm) upturn in Passi *et al.*'s
+  patterned-contact data (Section 4.8.1) — still open
+- Graphene-all-around-metal (liner/cap) interconnect model (Chapter 5,
+  Section 5.4) and specific liner-material resistivity values
+
+**Web search availability:** WebSearch available and used — 4 queries,
+4 fetches. 3 of 4 fetches returned usable content; `arxiv.org/pdf/2509.09390`
+returned no machine-readable text (its abstract page did), so the Kasırga
+review is cited from its abstract only and no number is attributed to its
+body. PubMed/PMC **not attempted**: four consecutive reCAPTCHA blocks
+(2026-09-05, 09-07, 09-17, 09-18) make it a standing environment
+limitation. The Park/Ahn SPCM sign map remains unreachable there, but its
+physics is now covered from Mueller *et al.* 2009 on arXiv instead.
+
+**Automation health:** Device reachable, folder connected. `scipy` again
+absent from the device VM and pip-installed — **third consecutive
+occurrence**, and it is a per-run cost because the VM is rebuilt each
+session; `requirements.txt` already lists it, so this is an environment
+fact rather than a repo defect. Work done in the session's own scratch
+clone outside the connected folder, per the 2026-09-17 finding that git
+cannot run inside it.
+
+**Commits this run:** 4 (notes + citation correction; the model + figure;
+the repo-wide citation fix; Chapter 6 Section 6.9; Chapter 1 status
+table). This AUTOMATION_LOG.md entry makes 6.
