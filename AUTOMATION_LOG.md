@@ -1755,3 +1755,168 @@ cannot run inside it.
 **Commits this run:** 4 (notes + citation correction; the model + figure;
 the repo-wide citation fix; Chapter 6 Section 6.9; Chapter 1 status
 table). This AUTOMATION_LOG.md entry makes 6.
+
+---
+
+## 2026-09-20 — The linear dW → doping assumption removed, and it took two 2026-09-19 claims with it
+
+**Open item closed:** "A non-linear dW → doping-profile relation", the item
+flagged top of the Chapter 6 list on 2026-09-19.
+
+1. **Research** (`notes/2026-09-20-nonlinear-work-function-to-doping-relation.md`).
+   Khomyakov, Giovannetti, Rusu, Brocks, van den Brink & Kelly, *Phys. Rev.
+   B* **79**, 195425 (2009), [arXiv:0902.1203](https://arxiv.org/abs/0902.1203)
+   — the companion paper to the PRL this repo has been citing for the 5.4 eV
+   crossover. Its Eq. 7 gives the Fermi-level shift as
+   `dE_F = sgn(dW')(sqrt(1 + 2*alpha*|dW'|) − 1)/alpha`, **linear only as
+   dW' → 0**: charge enters graphene's linear DOS, so `n ~ E_F^2` and the
+   interface potential step is quadratic in the shift. The paper also shows
+   the 5.4 eV crossover this repo hard-codes is `W_0(d) = W_G + D_c(d)`
+   *evaluated at the physisorbed separation*, not a constant of nature.
+
+2. **Code** (`graphene_contact_doping_nonlinear_model.py`, 5 exact
+   validations, all passing). `alpha = 2*e^3*(d−d0)/(eps0*pi*hbar^2*v_F^2)
+   = 2.393 eV^-1` is **derived, not fitted** — deliberately, because the
+   Table I extraction failed (below). Validations: `fermi_shift(0)` bitwise
+   zero; bitwise odd symmetry; Eq. 1 ∘ Eq. 3 = identity to 8.9e-16;
+   **alpha = 0 reproducing `signed_carrier_model.total_field()` BITWISE** on
+   the asymmetric Ti/Pt pair with the residual confirmed cubic; and the
+   symmetric-pair zero preserved at 1.3e-16.
+
+3. **RESULT — Section 6.8's headline survives.** Ti/Pt goes **1.832 →
+   1.742, a 4.9% compression**, and the alpha-sweep holds the ratio between
+   0.92 and 1.00 over alpha = 0–5 eV^-1. Cr/Pt and Cu/Pt likewise ~5%. This
+   was the point of the exercise and it is the reassuring half.
+
+4. **RESULT — the session's own pre-registered prediction, half falsified.**
+   The note predicted "compression, not reversal" everywhere, from
+   monotonicity. Correct for pairs *straddling* the crossover; wrong for
+   *same-sign* pairs, where **Ti/Pd loses 56%** (1.599 → 0.697) and Ti/Au
+   57%. Monotonicity governs *signs*; a same-sign pair is a
+   near-cancellation whose surviving magnitude is set by the *ratio* of the
+   two offsets, and a concave map compresses ratios. **Compressing a ratio
+   amplifies a cancellation's fragility** — the distinction the prediction
+   missed.
+
+5. **RESULT — RETRACTION of a 2026-09-19 bound, under that session's own
+   linear model.** Ti/Pd's ceiling `max|k|/|N_uniform|` moving 1.016 → 1.434
+   was implausible enough to prompt enumerating all 21 asymmetric pairs.
+   2026-09-19 claimed "**< 1.02 for every asymmetric pair**"; **14 of 21
+   violate it, worst Au/Pd at 22.4x**, with the linear model. Every
+   straddling pair does satisfy it and every violator is same-sign, because
+   the ratio diverges as `N_uniform → 0`. The *inequality* `|N[g]| ≤ max|k|`
+   that session validated is a normalisation identity and remains true
+   (0 violations, 343 cases); what was over-generalised, from a sample of
+   two, is its **tightness**.
+
+6. **RESULT — and therefore the 2026-09-19 conclusion is false too.**
+   "Masks are for symmetric devices only": a perfect shadow mask gains
+   **8.42x on Au/Pd**, 3.40x on Ti/Cr, and >2x on five pairs, scored per
+   *incident* photon (2026-09-19's own accounting). The practical
+   recommendation survives on **different grounds**, now stated explicitly:
+   best masked device 0.377 per incident photon vs unmasked Ti/Pt's 1.832,
+   so **a large relative gain on a small number is still a small number**.
+   2026-09-19 conflated relative gain with absolute performance — the same
+   class of error as its own per-absorbed vs per-incident correction, one
+   level up.
+
+7. **RESULT — four of seven metals are outside the model's regime, and the
+   worst-placed one is Ti.** Khomyakov *et al.* put the chemisorbed metals
+   at `d_eq` ≈ 2.05–2.3 Å, **below** `d0` = 2.4 Å, so Eq. 7's
+   gap-capacitance term does not apply to **Ti, Ni or Pd**; **Cr** has no
+   tabulated separation and was not guessed. `alpha_for_metal()` returns
+   `None` with a reason rather than extrapolating. This matters because
+   **Ti carries the largest |dW| in the table (−1.07 eV) and is contact A of
+   both Chapter 6 headline pairs** — the chapter's central numbers rest on
+   the one assumption the literature most explicitly disowns.
+
+8. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`). New Section 6.11 (three subsections,
+   both result tables, and a five-item "what this does not claim").
+   Section 6.9.5's numbers are **left in place** with a retraction block
+   above them, per the repo's annotate-don't-delete rule. Chapter 1's status
+   table updated and Chapter 7 handed a fourth thread.
+
+**Honest reporting of a data-extraction failure.** Two WebFetch passes over
+the *same* PRB PDF returned **mutually contradictory Table I contents** —
+different signs, different metal-to-value assignment, different work
+functions. At least one is a PDF-to-text artefact. **No per-metal `dE_F`
+from that table is used anywhere.** Only quantities that agreed across both
+passes are used (`d0` = 2.4 Å, `D_c(3.3 Å)` ≈ 0.9 eV, `W_0` = 5.4 eV, the
+physisorbed/chemisorbed separations), and `alpha` is derived from first
+principles instead — which is precisely why the derivation was worth doing
+rather than a convenience. Cross-check against the paper's Pt figure:
+**1.4x, i.e. right size and sign, not quantitative**, so every conclusion is
+also reported as an alpha-sweep.
+
+**Methodological note.** All five exact validations passed while the
+retracted claim stood, because every one of them tests the model against
+itself. **Exact validation protects against implementation error; it does
+not protect against a claim quantified on an unrepresentative sample.** That
+is now the second failure of this kind in four days (2026-09-19's was
+comparing the wrong two quantities). The practice that caught today's was
+neither a validation nor a pre-registered prediction but **enumerating the
+whole space instead of tabulating two representative cases** — cheap here
+(21 pairs), and worth making the default whenever a claim says "every".
+
+**Not yet covered (candidates for future runs):**
+- **A per-metal crossover `w_cross = W_G + D_c(d)`** — created today and now
+  the **top** open item. `W_CROSS_CHEM = 5.4 eV` is held for all seven
+  metals, but Khomyakov *et al.* give it as a function of separation. Unlike
+  today's magnitude nonlinearity, this would **move every `dW` in the
+  table** rather than compressing them, on the same evidence
+- **A description of Ti, Ni and Pd that does not go through work function**
+  — created today. Four of seven metals are outside Eq. 7's regime and Ti is
+  contact A of both headline pairs, so this is now Chapter 6's central
+  structural weakness rather than a refinement
+- **Re-check whether other "for every ..." claims in the repo rest on small
+  samples** — created today, directly from the retraction. Chapter 4's
+  per-metal Rc recalibration and Chapter 5's liner scenarios both state
+  general rules from tabulated subsets and have never been enumerated
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover.** Section 4.5's doping profile still uses the
+  `|W − W_graphene|` magnitude convention and has never been audited for it.
+  Open since 2026-09-18 and **may affect published Chapter 4 numbers**
+- **Chapter 7 (discussion/outlook)** — now with four threads, the newest
+  being methodological: Chapter 6's claims have repeatedly failed on widened
+  samples rather than on physics, and Chapters 4 and 5 have never been
+  widened
+- **Chapters 2–3 remain undrafted** despite their computational results
+  being complete — still the largest remaining block of pure writing
+- Reconciling the 0.12 eV measured potential step (Mueller *et al.*,
+  arXiv:0902.1479) with the 0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS`
+  assumes — open since 2026-09-18, and today's Δ_c finding is relevant to it
+- **A photo-thermoelectric term** — the Kasırga review makes its absence the
+  main obstacle to comparing any position-resolved prediction with a
+  measurement
+- **Shimomura et al.'s comb-electrode design** (unequal contact *perimeter*)
+  — open since 2026-09-19, and today's retraction makes it more interesting,
+  not less: it is another way to make `N_uniform` non-zero
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery
+- Isolating the root cause of the Section 4.7 negative-residual result —
+  open since 2026-08-31
+- Ti and Cr per-metal Rc recalibration (blocked by ResearchGate rate-limiting)
+- Second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+- Small-hole-diameter (50–100 nm) upturn in Passi *et al.*'s data (§4.8.1)
+- Graphene-all-around-metal (liner/cap) interconnect model (Chapter 5, §5.4)
+
+**Web search availability:** WebSearch available and used — 2 queries,
+3 fetches. 2 of 3 fetches returned usable content; `arxiv.org/abs/0902.1590`
+was fetched on a mis-guessed identifier and returned an unrelated paper
+(recorded rather than silently discarded), and the IFW Dresden PRB mirror
+returned usable equations but **contradicted itself between two passes on
+Table I**. PubMed/PMC **not attempted**: five consecutive reCAPTCHA blocks
+(2026-09-05, 09-07, 09-17, 09-18) make it a standing environment limitation,
+and both papers are open access on arXiv anyway.
+
+**Automation health:** Device reachable, folder connected. `scipy` again
+absent from the device VM and pip-installed — **fourth consecutive
+occurrence**; `requirements.txt` already lists it, so this is an environment
+fact (the VM is rebuilt each session), not a repo defect. Work done in the
+session's own scratch clone outside the connected folder, per the 2026-09-17
+finding that git cannot run inside it.
+
+**Commits this run:** 5 (the note; the model + figure; Chapter 6 Section
+6.11 with the 6.9.5 retraction in place; Chapter 1 + Chapter 7; the note's
+outcome section). This AUTOMATION_LOG.md entry makes 6.
