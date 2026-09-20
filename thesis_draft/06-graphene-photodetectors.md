@@ -865,6 +865,19 @@ attached instead of a bad argument: **illumination engineering is worth
 under 2% on an n/p pair, and negative per incident photon. Masks are for
 symmetric devices only.**
 
+> **RETRACTED 2026-09-20 — see Section 6.11.2.** The two numbers above are
+> correct. The generalisation from them is not. Enumerating all 21
+> asymmetric pairs under this same model gives **14 violations of the
+> "under 1.02" claim, the worst being Au/Pd at 22.4**. The sample of two
+> was drawn entirely from pairs that *straddle* the 5.4 eV crossover, and
+> every straddling pair does satisfy the bound; same-sign pairs need not,
+> because max|k|/|N_uniform| diverges as N_uniform → 0. The final sentence
+> — "masks are for symmetric devices only" — is therefore **false**: a
+> perfect mask gains 8.4× on Au/Pd and more than 2× on five pairs, per
+> incident photon. What survives is the *practical* recommendation, on
+> different grounds, in Section 6.11.2. The original numbers are left in
+> place above rather than rewritten.
+
 ### 6.9.6 Result: the kernel as a predicted photocurrent scan
 
 k(x) reproduces the qualitative signature the scanning-photocurrent
@@ -909,6 +922,149 @@ flat asymmetric kernel; (b) symmetric devices under uniform light, a
 perfect mask and the measured mask; (c) the two accountings of mask
 leakage, (1−T)/(1+T) per absorbed photon against (1−T) per incident photon.
 
+## 6.11 The work-function → doping relation is a square root, and two things follow
+
+Sections 6.6 through 6.9 all take the contact-induced doping profile to be
+**linear in the work-function offset** dW = W_metal − 5.4 eV, with one decay
+length λ = 250 nm for every metal. `total_field()` builds the field as
+dW/λ/(1+x/λ)², so every result in this chapter is a statement about dW
+rather than about the physical Fermi-level shift, *provided the two are
+proportional*. This section removes that assumption. Literature and
+derivation: `notes/2026-09-20-nonlinear-work-function-to-doping-relation.md`;
+model: `graphene_contact_doping_nonlinear_model.py`.
+
+### 6.11.1 The relation, and where it may be used
+
+Charge leaving the metal enters graphene's *linear* density of states, so
+n ∝ E_F², and the electrostatic step across the interface gap is therefore
+quadratic in the Fermi-level shift. Equilibrium requires
+
+    ΔW′ = φ + (α/2) φ²  ,        φ ≡ ΔE_F in eV,
+
+which inverts to Khomyakov *et al.*'s Eq. 7 [PRB **79**, 195425 (2009)]:
+
+    ΔE_F(ΔW′) = sgn(ΔW′) · ( √(1 + 2α|ΔW′|) − 1 ) / α ,
+
+with ΔW′ = W_metal − W_graphene − Δ_c the offset *after* the short-range
+chemical term. This is linear only as ΔW′ → 0 and asymptotically √ΔW′
+beyond: **graphene resists being doped, increasingly, the harder one pushes.**
+It also explains a constant this thesis has been hard-coding since
+Section 6.8. The p/n crossover is not a property of graphene; it is
+W₀(d) = W_graphene + Δ_c(d), which happens to be 4.5 + 0.9 = 5.4 eV *at the
+physisorbed separation*.
+
+The constant is derived rather than fitted,
+
+    α = 2e³(d − d₀) / (ε₀ π ℏ² v_F²) = 2.39 eV⁻¹   for d − d₀ = 0.9 Å,
+
+and is good to about 1.4× against the paper's Pt figure — the right size and
+sign, not a quantitative calibration — so every result below is also reported
+as a sweep over α from 0 to 5 eV⁻¹.
+
+Five validations against exactly known values pass: ΔE_F(0) is bitwise zero;
+the relation is bitwise odd; Eq. 7 inverts its own forward equation to
+8.9 × 10⁻¹⁶ eV; **at α = 0 the new field function reproduces Section 6.8's
+`total_field()` bitwise** on the asymmetric Ti/Pt pair, with the leading
+residual confirmed cubic as the O(αΔW²) expansion requires; and the
+symmetric-pair zero of Section 6.8.3 survives (1.3 × 10⁻¹⁶).
+
+**Where it may not be used.** Khomyakov *et al.* find the chemisorbed metals
+sitting at d_eq ≈ 2.05–2.3 Å, *below* d₀ = 2.4 Å, so Eq. 7's gap-capacitance
+term is outside its own regime for them; this is Giovannetti *et al.*'s
+stated conclusion that chemisorbed metals are not characterised by work
+function alone. Of this thesis's seven metals, **Ti, Ni and Pd are
+chemisorbed and Cr has no tabulated separation — four of seven are
+excluded**, and the model refuses to extrapolate rather than producing a
+number. This is not a technicality: Ti carries the largest |dW| in the table
+(−1.07 eV) and is contact A of *both* of this chapter's headline pairs. The
+Ti figures below are therefore reported as an indication of direction and
+magnitude, not as corrected values.
+
+### 6.11.2 Result: Ti/Pt survives; the Section 6.9 ceiling does not
+
+A prediction was written into the note before the model was run —
+"compression, not reversal", on the grounds that a monotone, sign-preserving
+map cannot flip a p/n assignment. **It is half right, and the half that is
+wrong is the informative half.**
+
+| pair | straddles 5.4 eV? | N linear | N nonlinear | ratio | ceiling lin. | ceiling nonlin. |
+|---|---|---|---|---|---|---|
+| Ti/Pt | yes | −1.8323 | −1.7418 | 0.951 | 1.0025 | 1.0064 |
+| Cr/Pt | yes | −1.8104 | −1.7207 | 0.950 | 1.0033 | 1.0077 |
+| Cu/Pt | yes | −1.7855 | −1.6972 | 0.951 | 1.0043 | 1.0092 |
+| Ti/Pd | no | −1.5988 | −0.6972 | **0.436** | 1.0159 | **1.4343** |
+| Ti/Au | no | −1.5499 | −0.6628 | **0.428** | 1.0203 | **1.5088** |
+| Ti/Ni | no | −0.8075 | −0.5705 | 0.707 | 1.2383 | 1.7527 |
+
+For pairs straddling the crossover the prediction holds exactly as written:
+**Ti/Pt compresses by 4.9%, from 1.832 to 1.742**, and the α-sweep keeps it
+between 0.92 and 1.00 of the linear value across the whole range 0–5 eV⁻¹.
+Section 6.8's headline is robust to this correction.
+
+For same-sign pairs it fails badly — Ti/Pd loses 56% — for a reason the
+prediction did not anticipate. A monotone map cannot reverse a *sign*, but
+it can compress the *ratio* of two offsets, and when the two contacts dope
+graphene the same way the response is a near-cancellation whose size is set
+by exactly that ratio. Compression of a ratio is amplification of a
+near-cancellation's fragility.
+
+That is what exposed the Section 6.9 retraction. Ti/Pd's ceiling moving from
+1.016 to 1.434 prompted enumerating all 21 asymmetric pairs **under the
+original linear model**, where 14 violate the "under 1.02" claim and Au/Pd
+reaches 22.4. The inequality |N[g]| ≤ max|k| that Section 6.9.2 validated is
+a normalisation identity and remains true (0 violations in 343 cases); what
+was over-generalised is its *tightness*, from a sample of two.
+
+**And therefore so is the conclusion.** Scoring a perfect shadow mask per
+*incident* photon — the accounting Section 6.9 itself insisted on:
+
+| pair | N uniform | best masked (per incident) | gain | vs. unmasked Ti/Pt |
+|---|---|---|---|---|
+| Au/Pd | −0.0447 | 0.3765 | **8.42×** | 0.21× |
+| Ti/Cr | −0.1370 | 0.4652 | 3.40× | 0.25× |
+| Ni/Au | −0.1218 | 0.4089 | 3.36× | 0.22× |
+| Cr/Cu | −0.1417 | 0.4595 | 3.24× | 0.25× |
+| Ni/Pd | −0.1665 | 0.4140 | 2.49× | 0.23× |
+| Ti/Pt | −1.8323 | 0.9165 | 0.50× | 0.50× |
+
+Five pairs gain more than 2×, so **"masks are for symmetric devices only" is
+false**. The correct statement is that masks help whenever |N_uniform| is
+small, which covers symmetric pairs (where it is zero) *and*
+weakly-asymmetric same-sign pairs.
+
+The *design* recommendation nevertheless survives, on different grounds than
+those given on 2026-09-19. The best masked device in the table reaches 0.377
+per incident photon; unmasked Ti/Pt reaches 1.832, a factor of 4.9 better. **A
+large relative gain on a small number is still a small number**, and Section
+6.9 conflated relative gain with absolute performance. Choose the metals
+first; illuminate uniformly.
+
+### 6.11.3 What this section does not claim
+
+1. It does **not** supply corrected values for any Ti-, Ni-, Pd- or
+   Cr-containing pair. Four of the seven metals fall outside Eq. 7's regime
+   (Section 6.11.1), and the table above is run through the excluded metals
+   only to show the *direction and size* of the correction.
+2. α is derived, not calibrated: 1.4× against the one cross-check available.
+   The α-sweep exists precisely so that no conclusion rests on its value,
+   and none of the conclusions above changes over 0–5 eV⁻¹.
+3. Δ_c is treated as a constant 0.9 eV, i.e. the crossover is still held at
+   5.4 eV for all metals. Khomyakov *et al.* give Δ_c(d), so a metal at a
+   different separation has a different crossover — a **per-metal w_cross**,
+   which this chapter does not yet implement and which would move every
+   dW in the table.
+4. λ = 250 nm is still one value for all metals. The nonlinearity treated
+   here is in the profile's *magnitude*; its spatial *extent* is untouched,
+   and Khomyakov *et al.* 2010's screening nonlinearity is a separate
+   question this chapter has not opened.
+5. No per-metal ΔE_F from the PRB's Table I is used anywhere, because two
+   extraction passes over that PDF disagreed with each other; see Section 3
+   of the 2026-09-20 note.
+
+Figure: `contact_doping_nonlinear_relation.png` — (a) ΔE_F(ΔW′) against the
+linear model, with Ti, Pd and Pt marked; (b) the Ti/Pt collection kernel
+under both models; (c) the α-sweep, showing compression without reversal.
+
 ## 6.10 Further follow-on work
 
 - ~~Model both contacts self-consistently~~ -- **done 2026-09-17,
@@ -925,6 +1081,19 @@ leakage, (1−T)/(1+T) per absorbed photon against (1−T) per incident photon.
   device. It required no new transport physics (illumination is a weight on
   a fixed kernel) and it produced the chapter's first *bound*, max|k|,
   rather than another ranking.
+- ~~Replace the linear dW -> doping profile relation~~ -- **done
+  2026-09-20, Section 6.11**, and it both confirmed Section 6.8's Ti/Pt
+  headline (4.9% compression) and retracted Section 6.9's ceiling claim and
+  its "masks are for symmetric devices only" conclusion.
+- **Implement a per-metal crossover w_cross = W_graphene + Delta_c(d)**, now
+  the top open item in this chapter. Section 6.11.3 item 3: holding the
+  crossover at 5.4 eV for all seven metals is the last unexamined constant
+  in the chain, and unlike the magnitude nonlinearity it would move every
+  dW in the table, not just compress them.
+- **Find a description of Ti, Ni and Pd that does not go through their work
+  function.** Section 6.11.1 excludes four of seven metals from Eq. 7, and
+  Ti is contact A of both headline pairs -- so the chapter's central numbers
+  now rest on the one assumption the literature most explicitly disowns.
 - Reconcile Chapter 4's contact-metal recommendation with Section 6.7's:
   the two chapters now point in opposite directions for the same metals,
   and Chapter 7 (discussion/outlook) should resolve this explicitly
