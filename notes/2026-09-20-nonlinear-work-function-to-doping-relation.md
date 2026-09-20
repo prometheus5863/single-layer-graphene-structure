@@ -210,3 +210,59 @@ equations and separations, but **contradicted itself between two passes on
 Table I** (Section 3). PubMed carried the PRL record but was not fetched:
 five consecutive reCAPTCHA blocks (2026-09-05, 09-07, 09-17, 09-18) make it a
 standing environment limitation, and the arXiv copy is open access anyway.
+
+---
+
+## 7. Outcome (written after the model ran)
+
+**Section 5's pre-registered prediction was half wrong, and the wrong half
+is the informative one.**
+
+Right: for pairs that **straddle** the 5.4 eV crossover, the effect is pure
+compression. Ti/Pt goes 1.832 -> 1.742 (4.9%), Cr/Pt and Cu/Pt likewise
+~5%, and the alpha-sweep keeps the ratio between 0.92 and 1.00 across
+alpha = 0-5 eV^-1. No p/n assignment moved and the symmetric-pair zero is
+untouched, both as argued from monotonicity.
+
+Wrong: for **same-sign** pairs the change is large. Ti/Pd loses 56%
+(1.599 -> 0.697) and Ti/Au 57%. The prediction's reasoning -- "monotone, so
+nothing can flip" -- is about *signs*. But a same-sign pair's response is a
+near-cancellation, and the size of what survives is set by the *ratio* of
+the two offsets, which a concave map compresses. **Compressing a ratio
+amplifies the fragility of a cancellation.** That distinction was not in the
+prediction and is the session's main lesson.
+
+**It then exposed an error that had nothing to do with this session's
+physics.** Ti/Pd's `max|k|/|N_uniform|` moving from 1.016 to 1.434 was
+implausible enough to prompt enumerating all 21 asymmetric pairs -- and
+**under the 2026-09-19 LINEAR model, 14 of them violate that session's
+"< 1.02 for every asymmetric pair", the worst being Au/Pd at 22.4.** The
+inequality `|N[g]| <= max|k|` that session validated is a normalisation
+identity and remains true (0 violations, 343 cases); what was
+over-generalised from a sample of two is its tightness.
+
+And therefore the 2026-09-19 *conclusion* -- "masks are for symmetric
+devices only" -- is false: a perfect mask gains 8.42x on Au/Pd, 3.40x on
+Ti/Cr, and more than 2x on five pairs, all per incident photon. The
+practical recommendation survives on different grounds, which the retraction
+must state rather than quietly keep: the best masked device reaches 0.377
+per incident photon against unmasked Ti/Pt's 1.832. **A large relative gain
+on a small number is still a small number.** 2026-09-19 conflated relative
+gain with absolute performance, which is the same class of error as its own
+per-absorbed vs per-incident correction, one level up.
+
+**Methodological note, three sessions running.** 2026-09-17 was caught by an
+exactly-known value. 2026-09-19 was caught by writing the prediction down
+first. Today's was caught by **enumerating the whole space instead of
+tabulating two representative cases** -- and note that all five of today's
+exact validations passed while the retracted claim sat there, because every
+one of them tests the model against itself. Exact validation protects
+against implementation error. It does not protect against a claim quantified
+on an unrepresentative sample, which is now the second failure mode of this
+kind in four days.
+
+**New open item created today, and it is the sharp one.** `w_cross` is held
+at 5.4 eV for all seven metals, but Khomyakov *et al.* give it as
+`W_0(d) = W_G + D_c(d)`. A per-metal crossover would move every `dW` in the
+table rather than merely compressing them -- a larger effect than the one
+treated here, on the same evidence.
