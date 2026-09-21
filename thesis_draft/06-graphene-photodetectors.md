@@ -722,6 +722,15 @@ same-type pair has two; (b) zero-bias response against a Pt
 counter-electrode under both conventions; (c) N against ΔW_A·ΔW_B,
 separating reinforcing from cancelling pairs.
 
+> **Annotation added 2026-09-21 (Section 6.12).** The single
+> `W_CROSS_CHEM = 5.4 eV` used throughout this section and Sections
+> 6.9–6.11 is now known to be the crossover *at the physisorbed separation*
+> rather than a constant shared by all metals. Nothing in this section is
+> retracted and no number below is changed, but every ΔW here carries an
+> uncertainty of up to **17%** (and every same-sign pair up to **78%**) from
+> that assumption alone — quantified, for the three metals it can be
+> quantified for, in Section 6.12.3 and 6.12.5.
+
 ## 6.9 Non-uniform illumination: the collection kernel, and a ceiling on illumination engineering
 
 Every two-contact model in Sections 6.6–6.8 declares uniform illumination
@@ -1064,6 +1073,180 @@ first; illuminate uniformly.
 Figure: `contact_doping_nonlinear_relation.png` — (a) ΔE_F(ΔW′) against the
 linear model, with Ti, Pd and Pt marked; (b) the Ti/Pt collection kernel
 under both models; (c) the α-sweep, showing compression without reversal.
+
+## 6.12 The 5.4 eV crossover is a separation, not a constant: a per-metal p/n crossover
+
+Sections 6.8–6.11 all place the p/n crossover at a single
+`W_CROSS_CHEM = 5.4 eV` shared by every metal. That number is well sourced
+[Giovannetti *et al.*, PRL **101**, 026803 (2008)] but it is a *derived*
+quantity, and Khomyakov *et al.* [PRB **79**, 195425 (2009)] say what it is
+derived from: the interface potential step carries a short-range **chemical**
+term Δ_c(d) alongside the charge-transfer term, and charge neutrality puts
+the crossover at
+
+  w_cross(d) = W_G + Δ_c(d)     (6.12.1)
+
+evaluated at the metal's own equilibrium separation. 5.4 eV is (6.12.1) at
+the *physisorbed* separation d ≈ 3.3 Å, where Δ_c ≈ 0.9 eV. A metal that sits
+elsewhere has a different crossover and therefore a different ΔW.
+
+This is a different kind of correction from Section 6.11's. The square-root
+relation **compressed** the existing offsets about a fixed zero. A per-metal
+crossover **moves the zero**, separately for each metal, and a fixed shift in
+the zero is felt *most* by the metals with the smallest |ΔW| — the opposite
+of the usual intuition that small offsets are the safe ones.
+
+### 6.12.1 The model, and why it has exactly one free parameter
+
+Khomyakov *et al.*'s Eq. 4 parametrises Δ_c(d) = e^(−γd)(a₀ + a₁d + a₂d²).
+Two extraction attempts on the ar5iv rendering returned the equation in
+symbolic form with the four fitted constants absent — the second extraction
+failure this thesis has recorded on this same paper. Rather than guess them,
+Δ_c is written as a one-parameter family pinned to the one value every
+extraction pass agrees on, Δ_c(3.3 Å) ≈ 0.9 eV:
+
+  Δ_c(d ; ℓ) = 0.9 eV · exp(−(d − 3.3 Å)/ℓ)     (6.12.2)
+
+with ℓ the short-range decay length, swept over 0.3–1.5 Å. Two exactness
+properties make this defensible rather than merely convenient: Δ_c(3.3 Å) =
+0.9 eV bitwise for every ℓ, and ℓ → ∞ returns 0.9 eV at every d, so the whole
+per-metal apparatus collapses **bitwise** onto the 5.4 eV convention of
+Sections 6.8–6.11. Equation (6.12.2) is a *simplification* of Eq. 4 — it drops
+the polynomial prefactor — and Section 6.12.4 is where that bill comes due.
+
+### 6.12.2 Validation against four exactly known values
+
+Because `net_response()` takes one crossover for both contacts and forms ΔW
+internally, it cannot express a per-metal crossover; a new entry point one
+level lower was unavoidable. The first check is what licenses it.
+
+1. **The ΔW-level entry point equals the Section 6.8 model** on **49/49
+   ordered pairs, bitwise**, worst difference 0.000e+00. It is the same
+   arithmetic with the subtraction moved outward, not a re-implementation.
+2. **ℓ → ∞ reproduces the flat model bitwise**: Δ_c(d, ∞) = 0.9 eV bitwise at
+   every tabulated separation, w_cross = W_G + 0.9 bitwise for every metal,
+   and 49/49 pair responses bitwise identical. (4.5 + 0.9 also turns out to be
+   the same double as the literal 5.4 — checked, not assumed.)
+3. **The anchor survives the parametrisation**: Δ_c(3.3 Å, ℓ) = 0.9 eV
+   bitwise for 61/61 swept values of ℓ.
+4. **The exact symmetries of Section 6.8 survive**: a symmetric pair still
+   gives N = 0 (worst 6.6 × 10⁻¹⁷ over 9 cases), and charge conjugation
+   N(−ΔW) = −N(ΔW) holds to **exactly** 0.000e+00 over 27 cases. Stated at
+   the ΔW level this is sharper than Section 6.8.3's version, which had to
+   reflect W through a crossover and so could only test one crossover.
+
+### 6.12.3 Result: three of seven metals, and a 17% shift on Cu
+
+The model admits only the physisorbed metals — Cu, Au and Pt. Ti, Ni and Pd
+are chemisorbed (Section 6.12.4); Cr has no tabulated separation and was not
+guessed, the same stance Section 6.11 took.
+
+| metal | W (eV) | d_eq (Å) | ΔW flat | ΔW range over ℓ | max shift |
+|---|---|---|---|---|---|
+| Cu | 4.65 | 3.26 | −0.7500 | −0.8784 … −0.7743 | **17.12 %** |
+| Au | 5.10 | 3.31 | −0.3000 | −0.2940 … −0.2705 | 9.84 % |
+| Pt | 5.65 | 3.30 | +0.2500 | +0.2500 … +0.2500 | 0.00 % |
+
+No metal changes doping type anywhere in the range: Cu and Au stay n-doping,
+Pt stays p-doping. The crossover moves, but never past a metal.
+
+The size of the Cu shift is the result. **17% is more than three times the
+4.9% compression Section 6.11 produced on the Ti/Pt headline**, and Section
+6.11 treated ~5% as the reassuring outcome. The session pre-registered a
+prediction of ≤ 10% — calibrated on exactly that precedent — and it was
+**falsified**. Bisection puts the boundary at ℓ = 0.50 Å: the prediction holds
+for every ℓ ≥ 0.50 Å and fails below, so it is wrong over roughly the
+shortest sixth of the declared range. Declaring that range generously is what
+made the failure visible; a narrower sweep would have returned agreement and
+been worth less.
+
+**Pt's exact 0.00% is an artefact and must not be read as robustness.**
+d_eq(Pt) = 3.30 Å coincides with the anchor, so Pt is pinned by construction
+for every ℓ. Every per-metal number in this section is a shift *relative to
+Pt*, not an absolute one — a real limitation of a one-anchor parametrisation.
+
+### 6.12.4 Result: the anchored exponential fails on the chemisorbed metals, for a reason unrelated to Section 6.11's
+
+Extrapolating (6.12.2) inward to the chemisorbed separations gives crossover
+work functions of **6.25 – 62.6 eV** (Ni 2.05 Å, Ti 2.10 Å, Pd 2.30 Å), every
+one of them above 5.9 eV, the highest elemental work function there is. The
+implied |ΔW| runs 1.13 – 57.5 eV against a largest *observed* Fermi-level
+shift of 0.5 eV. The extrapolation therefore predicts that every chemisorbed
+metal is maximally n-doping irrespective of its own work function, which is
+false, and it does so across the **entire** admissible range of ℓ rather than
+only at its short end.
+
+This is a failure of (6.12.2), not of Khomyakov *et al.* Their polynomial
+prefactor is precisely what allows Δ_c to turn over instead of running away at
+short d, and Section 6.12.1 could not recover it. What makes the failure worth
+reporting is that it reaches Section 6.11's conclusion **by an independent
+route**: the gap-capacitance term fails on Ti, Ni and Pd because d_eq < d₀,
+and the chemical term fails on the same three because Δ_c diverges there. Two
+distinct parts of one framework failing on the same three metals for unrelated
+reasons is a structural statement about which contacts graphene's physics can
+be described by a work function at all — and Ti is in the failing set while
+being contact A of both of this chapter's headline pairs.
+
+### 6.12.5 Result: a 65-fold difference between same-sign and straddling pairs
+
+All six ordered asymmetric pairs the model admits, enumerated:
+
+| pair | kind | N flat | N range over ℓ | pair change | ΔW change | amplification |
+|---|---|---|---|---|---|---|
+| Cu/Au | same-sign | −0.6549 | −1.1653 … −0.6922 | **77.94 %** | 17.12 % | **4.55** |
+| Au/Cu | same-sign | +0.6549 | +0.6922 … +1.1653 | **77.94 %** | 17.12 % | **4.55** |
+| Cu/Pt | straddling | −1.7855 | −1.8072 … −1.7900 | 1.21 % | 17.12 % | 0.07 |
+| Pt/Cu | straddling | +1.7855 | +1.7900 … +1.8072 | 1.21 % | 17.12 % | 0.07 |
+| Au/Pt | straddling | −1.6402 | −1.6368 … −1.6228 | 1.06 % | 9.84 % | 0.11 |
+| Pt/Au | straddling | +1.6402 | +1.6228 … +1.6368 | 1.06 % | 9.84 % | 0.11 |
+
+A 17% shift in one contact's ΔW becomes a **78%** shift in the same-sign
+pair's response and a **1.2%** shift in the straddling pair's — a factor of
+**65 between the two kinds of pair, from identical inputs**. Section 6.11
+inferred this ratio-amplification mechanism from a single same-sign pair under
+a perturbation that *compressed* the offsets; finding it again, with the same
+sign and comparable magnitude, under a perturbation that *moves their zero*,
+is independent evidence that it is a property of near-cancelling pairs rather
+than of either model.
+
+The straddling pairs are correspondingly more robust than the per-metal number
+suggests: Cu/Pt moves 1.2% while its own Cu contact moves 17%. A
+near-cancellation amplifies; a reinforcing pair averages.
+
+### 6.12.6 What this section does and does not change
+
+* **It does not reach the Ti/Pt headline**, because Ti cannot be evaluated.
+  Section 6.8.4's central number is now *untested* by two successive
+  refinements rather than confirmed by them — a weaker position than Section
+  6.11 left it in, not a stronger one.
+* **The best evaluable asymmetric pair, Cu/Pt (−1.786), is robust to 1.2%.**
+  The chapter's qualitative design rule — a straddling n/p pair is what works
+  — survives cleanly.
+* **Cu/Au should not be quoted to better than a factor of two** under any
+  crossover convention.
+* **W_CROSS_CHEM = 5.4 eV remains the right default for physisorbed metals**,
+  now with a quantified error bar instead of an implicit claim of exactness:
+  ±17% on ΔW for a metal 0.04 Å off the anchor, ±78% on a same-sign pair built
+  from such metals. Sections 6.8–6.11 are **not retracted**; their numbers
+  stand as committed, and this is the uncertainty to read them with.
+
+### 6.12.7 What this section does not claim
+
+Δ_c is (6.12.2), not Khomyakov *et al.*'s Eq. 4; its fitted constants could
+not be obtained and are not guessed. ℓ is unmeasured and everything is
+reported as a sweep. The anchor is a single datum at a single separation, so
+all shifts are relative to whichever metal sits at it (here Pt, by
+coincidence). Nothing here touches the chemisorbed metals, the 0.12 eV
+measured-step discrepancy of Section 6.8.7, or the absence of a
+photo-thermoelectric term. The per-metal crossover has **not** been propagated
+back through Sections 6.9–6.11; those sections' numbers remain at the flat
+5.4 eV convention and are to be read with the error bar above.
+
+Figure: `per_metal_crossover.png` — (a) w_cross(d) for three decay lengths on
+a log axis, with the seven metals placed and the chemisorbed region shaded as
+out-of-regime; (b) the change in zero-bias net response against ℓ for all six
+admitted pairs, separating the two same-sign curves from the four straddling
+ones.
 
 ## 6.10 Further follow-on work
 
