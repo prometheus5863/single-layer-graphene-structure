@@ -148,3 +148,184 @@ framework failing on the same three metals, for different reasons, would be a
 structural statement about Chapter 6 rather than a numerical one.
 
 Sections 1–4 end here. Everything below was written after the model ran.
+
+---
+
+## 5. Outcome — three of four predictions held, and the one that failed is the result
+
+Everything in this section was written after `graphene_per_metal_crossover_model.py`
+ran. Full console output is reproducible with `python3 graphene_per_metal_crossover_model.py`.
+
+### 5.0 Validations first
+
+Four exact checks, no plausible-range checks anywhere:
+
+| check | result |
+|---|---|
+| V1 — the dW-level entry point equals the 2026-09-18 signed model | **49/49 ordered pairs bitwise**, worst difference 0.000e+00 |
+| V2 — `ℓ → ∞` collapses onto the flat 5.4 eV convention | `Δ_c(d, ∞) == 0.9` bitwise for every tabulated `d`; `w_cross == W_G + 0.9` bitwise for every metal; **49/49 pair responses bitwise**; and `4.5 + 0.9` turns out to be the *same double* as the literal `5.4` (gap 0.000e+00), which was not assumed |
+| V3 — the anchor survives the parametrisation | `Δ_c(3.3 Å, ℓ) == 0.9` bitwise for **61/61** values of `ℓ` |
+| V4 — exact symmetries survive a per-metal crossover | symmetric pair `N = 0` to 6.6e-17 over 9 (metal, ℓ) cases; charge conjugation **exactly 0.000e+00** over 27 (pair, ℓ) cases |
+
+V1 is the one that licenses the rest. `net_response()` takes a single
+`w_cross` and forms `dW` internally, so it structurally *cannot* express a
+per-metal crossover; a new entry point one level lower was unavoidable. Being
+bitwise-identical on all 49 pairs means it is not "a similar model", it is the
+same arithmetic with the subtraction moved outward.
+
+### 5.1 Only three of seven metals can be evaluated at all
+
+| metal | `W` (eV) | `d_eq` (Å) | status |
+|---|---|---|---|
+| Ti | 4.33 | 2.10 | extrapolated — chemisorbed |
+| Cr | 4.50 | — | **no tabulated separation**, not guessed |
+| Cu | 4.65 | 3.26 | ok |
+| Ni | 5.04 | 2.05 | extrapolated — chemisorbed |
+| Au | 5.10 | 3.31 | ok |
+| Pd | 5.12 | 2.30 | extrapolated — chemisorbed |
+| Pt | 5.65 | 3.30 | ok |
+
+This is the same 3-of-7 that 2026-09-20 was left with, and it is worth being
+precise about *why the two restrictions coincide*, because they are not the
+same restriction. 2026-09-20 refused Ti/Ni/Pd because `d_eq < d_0` puts them
+outside the **gap-capacitance** term of Eq. 7. Today refuses them because
+`Δ_c` extrapolated inward diverges (§5.3). Cr is refused by both, for the
+third and most boring reason: nobody tabulated its separation.
+
+### 5.2 P1 held, P2 **FAILED**
+
+**P1 (no doping-sign changes): PASS.** Cu and Au stay n-doping and Pt stays
+p-doping for every `ℓ` in [0.3, 1.5] Å. The crossover moves, but never past a
+metal.
+
+**P2 (|dW| shifts ≤ 10%): FAIL — worst case 17.12%, on Cu.**
+
+| metal | `dW` flat | `dW` range over `ℓ` | max shift |
+|---|---|---|---|
+| Cu | −0.7500 | −0.8784 … −0.7743 | **17.12 %** |
+| Au | −0.3000 | −0.2940 … −0.2705 | 9.84 % |
+| Pt | +0.2500 | +0.2500 … +0.2500 | 0.00 % |
+
+Three things about this failure, in descending order of how much they matter.
+
+**(a) The size is the point.** 17% is **more than three times** the ~4.9%
+compression that 2026-09-20's nonlinear `dW → dE_F` relation produced on the
+Ti/Pt headline — and that session treated ~5% as the reassuring outcome. The
+prediction of "≤ 10%" was calibrated on that precedent and it was the wrong
+precedent: moving the zero of `dW` is a larger perturbation than compressing
+`dW` about a fixed zero, because the shift does not scale with `|dW|`. A metal
+close to the crossover has a small `|dW|` and therefore feels a fixed shift
+*most*, which is the opposite of the intuition that "small offsets are robust".
+
+**(b) The failure is driven by the short end of the swept range, and the
+threshold is sharp.** Bisection (`p2_threshold()`, exact to machine precision
+because the shift is monotone in `ℓ`) puts the boundary at **ℓ = 0.50 Å**:
+P2 holds for every `ℓ ≥ 0.50 Å` and fails below. The midpoint ℓ = 0.6 Å gives
+8.3% on Cu, inside the prediction. So P2 is not comprehensively wrong; it is
+wrong over roughly the shortest sixth of the range that was declared
+admissible — and declaring that range generously, in Section 3, is what made
+the failure visible instead of invisible. A narrower, more "reasonable" sweep
+would have returned PASS and been worth less.
+
+**(c) Pt's exactly-0.00% is an artefact and is not evidence of anything.**
+`d_eq(Pt) = 3.30 Å` coincides with the anchor `D_ANCHOR = 3.3 Å`, so
+`Δ_c(d_eq(Pt)) = 0.9 eV` bitwise for every `ℓ` by construction. Pt is pinned,
+not robust. Had the anchor been placed at Au's 3.31 Å instead, Au would be
+the pinned one and Pt would move. **Every per-metal number in this section is
+therefore a shift *relative to Pt*, not an absolute one.** That is a real
+limitation of a one-anchor parametrisation and it is stated here rather than
+left for a reader to notice.
+
+### 5.3 P4 held, and it is a reductio that earns its keep
+
+Extrapolating (N1) inward to the chemisorbed separations gives crossover work
+functions of **6.25 – 62.6 eV**:
+
+| metal | `d_eq` (Å) | ℓ = 0.3 Å | ℓ = 0.6 Å | ℓ = 1.0 Å | ℓ = 1.5 Å |
+|---|---|---|---|---|---|
+| Ni | 2.05 | 62.55 | 11.73 | 7.64 | 6.57 |
+| Ti | 2.10 | 53.64 | 11.15 | 7.49 | 6.50 |
+| Pd | 2.30 | 29.73 | 9.27 | 6.95 | 6.25 |
+
+Every one of these is above **5.9 eV**, the highest elemental work function
+there is. The implied `|dW|` runs 1.13 – 57.5 eV against a largest *observed*
+Fermi-level shift of **0.5 eV**. So the extrapolation does not merely lose
+accuracy — it predicts that every chemisorbed metal is maximally n-doping
+regardless of its own work function, which is false, and it does so
+**across the entire admissible range of ℓ**, not just at its short end.
+
+The honest reading: this is a failure of **(N1)**, not of Khomyakov *et al.*
+Their Eq. 4 carries a polynomial prefactor `(a_0 + a_1 d + a_2 d²)`
+multiplying the exponential, and a polynomial is exactly what lets `Δ_c` turn
+over instead of running away at short `d`. §2 could not recover its
+coefficients, so §3 dropped it, and **RESULT 2 is the bill for that
+simplification, arriving exactly where it was predicted to**. What makes it
+worth committing rather than merely conceding is that it independently
+reaches 2026-09-20's conclusion by a different route: two distinct pieces of
+this framework — the gap-capacitance term and the chemical term — fail on the
+*same three metals* for *unrelated reasons*. That is a structural statement
+about which metals graphene's contact physics can be described by work
+function at all, and Ti is in the failing set while being contact A of both
+Chapter 6 headline pairs.
+
+### 5.4 P3 held, with an amplification factor of 4.6
+
+| pair | kind | `N` flat | `N` range over `ℓ` | pair change | `dW` change | amplification |
+|---|---|---|---|---|---|---|
+| Cu/Au | same-sign | −0.6549 | −1.1653 … −0.6922 | **77.94 %** | 17.12 % | **4.55** |
+| Au/Cu | same-sign | +0.6549 | +0.6922 … +1.1653 | **77.94 %** | 17.12 % | **4.55** |
+| Cu/Pt | straddling | −1.7855 | −1.8072 … −1.7900 | 1.21 % | 17.12 % | 0.07 |
+| Pt/Cu | straddling | +1.7855 | +1.7900 … +1.8072 | 1.21 % | 17.12 % | 0.07 |
+| Au/Pt | straddling | −1.6402 | −1.6368 … −1.6228 | 1.06 % | 9.84 % | 0.11 |
+| Pt/Au | straddling | +1.6402 | +1.6228 … +1.6368 | 1.06 % | 9.84 % | 0.11 |
+
+All six ordered asymmetric pairs the model admits, enumerated, per P0 — which
+here is cheap to the point of triviality, since three usable metals leave only
+six.
+
+The separation is stark and is the cleanest confirmation the
+ratio-amplification mechanism has had: **a 17% shift in one contact's `dW`
+becomes a 78% shift in the same-sign pair's response (×4.6), and a 1.2% shift
+in the straddling pair's (×0.07)** — a factor of **65 between the two kinds
+of pair**, from identical inputs. 2026-09-20 inferred this mechanism from a
+single same-sign pair (Ti/Pd losing 56%) under a *different* perturbation;
+finding it again, with the same sign and a comparable magnitude, under a
+perturbation that moves the zero rather than compressing the scale, is
+independent evidence that it is a property of near-cancelling pairs and not of
+either particular model.
+
+The straddling pairs are correspondingly *more* robust than P2's per-metal
+number suggested: Cu/Pt moves 1.2% while its own Cu contact moves 17%. A
+near-cancellation amplifies; a reinforcing pair averages.
+
+### 5.5 What this does and does not change for Chapter 6
+
+* **It does not touch the Ti/Pt headline**, because Ti cannot be evaluated.
+  The chapter's central number is now untested by *two* successive
+  refinements rather than confirmed by them, which is a weaker position than
+  2026-09-20 left it in, not a stronger one.
+* **The best evaluable asymmetric pair, Cu/Pt (−1.786), is robust to 1.2%**
+  across the whole `ℓ` range. Chapter 6's qualitative claim — a straddling
+  n/p pair is the design that works — survives cleanly.
+* **Cu/Au should not be quoted to better than a factor of two** under any
+  crossover convention. It is the only same-sign pair among the usable metals
+  and it moves 78%.
+* **`W_CROSS_CHEM = 5.4` remains the right default** for physisorbed metals,
+  now with a quantified error bar rather than an implicit claim of exactness:
+  ±17% on `dW` for a metal 0.04 Å off the anchor, ±78% on a same-sign pair
+  built from such metals.
+
+**Not superseded, annotated.** No previous number is deleted. Section 6.9.5's
+and 6.11's tables stand as committed; Section 6.12 states what this session
+found and which of their entries it does and does not reach.
+
+## 6. Honest record of what did not work
+
+* **Eq. 4's fitted coefficients could not be extracted** from ar5iv in two
+  attempts with differently-worded prompts. They are not used, not guessed,
+  and the cost of not having them is quantified in §5.3 rather than hidden.
+* **No live-search route to the coefficients was found** that did not go
+  through the publisher paywall or ResearchGate, which has been rate-limiting
+  this repo since 2026-08-31.
+* **PubMed/PMC were not attempted**, per the standing note that they return
+  reCAPTCHA in this environment (four occurrences logged).
