@@ -1920,3 +1920,153 @@ finding that git cannot run inside it.
 **Commits this run:** 5 (the note; the model + figure; Chapter 6 Section
 6.11 with the 6.9.5 retraction in place; Chapter 1 + Chapter 7; the note's
 outcome section). This AUTOMATION_LOG.md entry makes 6.
+
+## 2026-09-21 — The single 5.4 eV crossover removed, and a pre-registered prediction falsified at 17%
+
+**Open item closed:** "A per-metal crossover `w_cross = W_G + D_c(d)`" — the
+**top** item on 2026-09-20's list.
+
+**Procedural change made this session.** The four predictions were written
+into `notes/2026-09-21-...md` Sections 1–4 and **committed to git before the
+model existed** (commit `588bb8d`, model in `a856bee`). The history is the
+evidence that they were not written to fit the answer. 2026-09-20 observed
+that this repo's claims have twice failed on widened samples rather than on
+physics; pre-registration is the cheap half of the fix and enumeration is the
+other, and both were applied today.
+
+1. **Research** (`notes/2026-09-21-per-metal-crossover-from-the-chemical-interface-term.md`).
+   Khomyakov *et al.*, *Phys. Rev. B* **79**, 195425 (2009) write the
+   interface step as a charge-transfer term plus a **short-range chemical**
+   term `Δ_c(d) = e^(−γd)(a₀ + a₁d + a₂d²)` (their Eq. 4). Neutrality puts
+   the crossover at `w_cross(d) = W_G + Δ_c(d)`, so the **5.4 eV this repo
+   has hard-coded since 2026-09-18 is that expression evaluated at the
+   physisorbed separation** — not a constant shared by seven metals.
+
+2. **Code** (`graphene_per_metal_crossover_model.py`, 4 exact validations).
+   Eq. 4's fitted constants could **not** be extracted — two ar5iv fetches
+   with differently-worded prompts both returned the equation symbolically
+   with the numbers absent, the **second** extraction failure on this same
+   paper (2026-09-20's Table I was contradictory rather than missing). They
+   are not guessed. `Δ_c` is instead a one-parameter family pinned to the one
+   value every pass agrees on, `Δ_c(3.3 Å) = 0.9 eV`, with the decay length
+   `ℓ` swept over 0.3–1.5 Å.
+
+   Validations: the new ΔW-level entry point equals the 2026-09-18 signed
+   model on **49/49 ordered pairs bitwise**; `ℓ → ∞` collapses onto the flat
+   convention with `Δ_c(d,∞) == 0.9` and `w_cross == W_G + 0.9` bitwise for
+   every metal and **49/49 pair responses bitwise**; the anchor is bitwise
+   for **61/61** values of `ℓ`; and the symmetric-pair zero (6.6e-17) and
+   charge conjugation (**exactly** 0.000e+00, 27 cases) both survive.
+
+3. **RESULT — the pre-registered ≤10% prediction is FALSIFIED at 17.12%.**
+   Cu's `dW` goes −0.750 → −0.878 at the short end of the `ℓ` range;
+   Au 9.84%; Pt 0.00%. That is **more than three times** 2026-09-20's 4.9%
+   compression, which is the precedent the 10% was calibrated on — and it was
+   the wrong precedent. **Moving the zero of `dW` is a larger perturbation
+   than compressing `dW` about a fixed zero**, because the shift does not
+   scale with `|dW|`: a metal *near* the crossover feels a fixed shift most,
+   the opposite of the usual intuition. Bisection puts the boundary at
+   **ℓ = 0.50 Å** — the prediction holds above it and fails below, i.e. over
+   roughly the shortest sixth of the range. Declaring that range generously
+   is what made the failure visible.
+
+4. **RESULT — Pt's exact 0.00% is an artefact, reported as one.**
+   `d_eq(Pt) = 3.30 Å` coincides with the anchor, so Pt is pinned by
+   construction for every `ℓ`. **Every per-metal number this session produced
+   is a shift relative to Pt, not an absolute one.**
+
+5. **RESULT — a 65-fold difference between same-sign and straddling pairs.**
+   All six admitted ordered pairs enumerated: Cu/Au moves **77.94%** while
+   Cu/Pt moves **1.21%** and Au/Pt **1.06%**, from a 17.12% input shift —
+   amplification 4.55 vs 0.07–0.11. 2026-09-20 inferred this
+   ratio-amplification from **one** same-sign pair under a perturbation that
+   *compressed* offsets; seeing it again, same sign and comparable size,
+   under a perturbation that *moves their zero* is independent evidence that
+   it belongs to near-cancelling pairs rather than to either model. **P3
+   held; this is the session's most transferable result.**
+
+6. **RESULT — the anchored exponential diverges on the chemisorbed metals,
+   for a reason unrelated to 2026-09-20's.** Extrapolated inward, (N1) gives
+   `w_cross` of **6.25–62.6 eV** for Ni/Ti/Pd — every value above 5.9 eV, the
+   highest elemental work function anywhere — implying `|dW|` of 1.13–57.5 eV
+   against a largest *observed* `dE_F` of 0.5 eV, **across the whole `ℓ`
+   range**, not just its short end. This is a failure of the simplification
+   (Eq. 4's polynomial prefactor, dropped because its coefficients were
+   unavailable, is exactly what lets `Δ_c` turn over), and it is worth
+   committing because it reaches 2026-09-20's conclusion **by an independent
+   route**: the gap-capacitance term refuses Ti/Ni/Pd for `d_eq < d₀`, the
+   chemical term refuses the same three for divergence. **Two distinct parts
+   of one framework failing on the same three metals for unrelated reasons**
+   is a structural claim about which contacts can be described by a work
+   function at all — and Ti is contact A of both Chapter 6 headline pairs.
+
+7. **Net effect on Chapter 6.** The Cu/Pt straddling rule is robust to 1.2%
+   and the chapter's qualitative design conclusion survives cleanly. The
+   Ti/Pt headline is **untested** by two successive refinements rather than
+   confirmed by them — a weaker position than 2026-09-20 left it in.
+   Sections 6.8–6.11 are **not retracted**; they now carry an explicit
+   **±17% (per-metal) / ±78% (same-sign pair)** error bar, annotated in place
+   at 6.8.7.
+
+8. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`). New Section 6.12 (seven subsections,
+   three result tables, a does-and-does-not-change list and a
+   does-not-claim list); Section 6.8.7 annotated in place; Chapter 1 status
+   table updated; Chapter 7 handed a **fifth** thread.
+
+**Methodological note, continuing 2026-09-20's.** That session concluded that
+exact validation protects against implementation error but not against a
+claim quantified on an unrepresentative sample. Today adds the complement:
+**all four validations passed and the falsified prediction was still
+falsified**, because the prediction was about the *size* of a physical
+effect, which no self-consistency check can reach. What caught it was
+declaring a generous range and a number in advance. The Chapter 7 framing is
+now: a claim's reliability tracks **how wide a sample it was checked against
+and whether its error bar was stated in advance**, not how carefully its
+physics was derived.
+
+**Not yet covered (candidates for future runs):**
+- **Propagate the per-metal crossover back through Sections 6.9–6.11** —
+  created today and now the **top** open item. Those sections' numbers are
+  still at the flat 5.4 eV convention, and today's Cu/Au result says a
+  same-sign pair under the flat convention can be wrong by 78%. The 2026-09-20
+  retraction table (21 asymmetric pairs) is the obvious first target, since
+  its worst violators were same-sign pairs
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  now supported by **two independent failures** rather than one, and still
+  Chapter 6's central structural weakness
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — created
+  today. One anchor makes every result relative to whichever metal sits at
+  it; a second would make the shifts absolute and would also constrain `ℓ`,
+  which is currently only swept
+- **Re-check whether other "for every …" claims in the repo rest on small
+  samples** — open since 2026-09-20; Chapter 4's per-metal Rc recalibration
+  and Chapter 5's liner scenarios still state general rules from subsets
+- **Ask whether Chapter 4's `Rc` and Chapter 5's resistivity are
+  near-cancellations** — created today, and the sharpest form the synthesis
+  question has taken: today measured a 65x amplification of input uncertainty
+  for a near-cancelling quantity versus a reinforcing one, and neither of
+  those chapters has been asked which kind it is
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover** — open since 2026-09-18, and today makes it sharper
+  still: Section 4.5 uses the `|W − W_graphene|` magnitude convention, which
+  is neither the flat crossover nor a per-metal one
+- **Chapter 7 (discussion/outlook)** — now with five threads and, as of
+  today, a positive methodological claim to make rather than only a
+  self-critical one
+- **Chapters 2–3 remain undrafted** despite their computational results being
+  complete — still the largest remaining block of pure writing
+- Reconciling the 0.12 eV measured potential step (Mueller *et al.*,
+  arXiv:0902.1479) with the 0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS`
+  assumes — open since 2026-09-18
+- **A photo-thermoelectric term** — the Kasırga review makes its absence the
+  main obstacle to comparing any position-resolved prediction with a
+  measurement
+- **Shimomura et al.'s comb-electrode design** (unequal contact *perimeter*)
+  — open since 2026-09-19
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery
+- Isolating the root cause of the Section 4.7 negative-residual result —
+  open since 2026-08-31
+- Ti and Cr per-metal Rc recalibration (blocked by ResearchGate rate-limiting)
+- Second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
