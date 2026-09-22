@@ -1036,6 +1036,15 @@ was over-generalised is its *tightness*, from a sample of two.
 | Ni/Pd | −0.1665 | 0.4140 | 2.49× | 0.23× |
 | Ti/Pt | −1.8323 | 0.9165 | 0.50× | 0.50× |
 
+> **Annotation added 2026-09-22 (Section 6.13.7).** The count *five* holds
+> only at exactly `w_cross = 5.4 eV`. Re-scored across the scalar-crossover
+> band `|δ| ≤ 0.2 eV` it runs **3 → 4 → 5 → 5 → 6**: at `δ = −0.2 eV` Ni/Au
+> and Ni/Pd fall below 2×, and at `δ = +0.2 eV` Ti/Cu rises above it. The
+> numbers in this table are **not** retracted — they are correct at `δ = 0` —
+> but the *count* is, because it is a threshold evaluated at one point of a
+> parameter both source papers give as "~5.4 eV". The qualitative claim below
+> survives at every offset.
+
 Five pairs gain more than 2×, so **"masks are for symmetric devices only" is
 false**. The correct statement is that masks help whenever |N_uniform| is
 small, which covers symmetric pairs (where it is zero) *and*
@@ -1247,6 +1256,220 @@ a log axis, with the seven metals placed and the chemisorbed region shaded as
 out-of-regime; (b) the change in zero-bias net response against ℓ for all six
 admitted pairs, separating the two same-sign curves from the four straddling
 ones.
+
+## 6.13 How far can the crossover move? A sensitivity band for Sections 6.8–6.12
+
+Section 6.12 replaced the single 5.4 eV crossover with a per-metal one, and
+in doing so raised a question it could not answer: **what does the rest of
+the chapter look like if 5.4 eV is simply wrong by some amount?**
+
+That question has to be asked separately, because the per-metal machinery
+**cannot reach the pairs that matter**. It needs the metal–graphene
+separation `d_eq`, which Khomyakov *et al.* tabulate for three of this
+thesis's seven metals (Cu, Au, Pt). Ti, Ni and Pd are chemisorbed, where
+Section 6.12.4 showed the anchored exponential diverges; Cr has no tabulated
+separation at all. And every one of the five headline pairs of Section
+6.11.2's retraction table — Au/Pd, Ti/Cr, Ni/Au, Cr/Cu, Ni/Pd — contains at
+least one metal outside that set of three.
+
+### 6.13.1 The perturbation, and why a scalar one is honest
+
+Both papers the 5.4 eV comes from write it with a tilde:
+
+> "the crossover from p-type to n-type doping occurs for a metal work
+> function of **~5.4 eV**"
+> — Giovannetti *et al.*, PRL **101**, 026803 (2008); repeated verbatim in
+> Khomyakov *et al.*, PRB **79**, 195425 (2009).
+
+Sections 6.8–6.12 have read that tilde as three significant figures. This
+section puts an unknown scalar offset `δ` on the crossover, `w_cross = 5.4 +
+δ`, and sweeps it. The offset has the *wrong shape* — it is not per-metal —
+but the *right reach*: it needs no `d_eq`, so it applies to all seven metals.
+The two treatments are complementary and neither supersedes the other.
+
+It is also algebraically identical to a **common error in every entry of the
+work-function table**, since only `dW = W − w_cross` enters. That is not a
+hypothetical: Ni is entered at 5.04 eV from a range commonly quoted as
+4.9–5.35 eV, and the 0.12 eV potential step Mueller *et al.* measure has been
+an unreconciled discrepancy in this thesis since Section 6.8. A nominal band
+of `|δ| ≤ 0.2 eV` is adopted, with a ±0.5 eV outer sweep; no result below
+depends on that choice, because every result is reported as a function of δ.
+
+### 6.13.2 Validation against five exactly known values
+
+Four were planned; the fifth was found while trying to score a prediction and
+turned out to be the section's main result.
+
+| # | check | outcome |
+|---|---|---|
+| 1 | shift invariance: `N(W; 5.4+δ) == N(W−δ; 5.4)` | 215/231 bitwise, worst **1.78e-15** |
+| 2 | `δ = 0` reproduces the Section 6.8 model | **bitwise**, 21/21 pairs |
+| 3 | symmetric pair → `N == 0` at every δ | worst **1.3e-16**, 77 cases |
+| 4 | charge conjugation `N(−dW) == −N(dW)` at every δ | **exactly 0.000e+00**, 539/539 |
+| 5 | a straddling pair's `⟨\|dW\|⟩` is independent of `w_cross` | **exactly 0.000e+00**, 126 cases |
+
+Check 1 is exact in real arithmetic but not in floating point, and the note
+predicted that in advance — along with a bound of 1e-15, which the measured
+1.78e-15 **misses by a factor of 1.8**. The bound was the wrong shape: the
+right statement is a few ulp of `N` (1.78e-15 is 8 ulp of 0.593), not a fixed
+absolute number. It is recorded because a pre-registration practice is worth
+nothing if only the comfortable misses are recorded.
+
+### 6.13.3 Result: the amplification ratio of Section 6.12 is not a property of a pair
+
+Section 6.12.5's headline was a **65-fold** difference in how hard a
+same-sign pair and a straddling pair amplify an input uncertainty, measured
+on three pairs. Repeating that measurement here gives, for all six straddling
+pairs, an amplification of **infinity** — not large, exactly undefined.
+
+Check 5 is why. For a pair straddling the crossover,
+
+    ⟨|dW|⟩ = [ (w_cross − W_A) + (W_B − w_cross) ] / 2 = (W_B − W_A) / 2
+
+in which `w_cross` has cancelled identically. Moving the crossover changes
+such a pair's response (`S` below is small but nonzero) while changing the
+input measure by **exactly nothing**, so the ratio divides by zero.
+
+**The amplification ratio is a property of the (pair, perturbation) couple,
+not of the pair.** Section 6.12.5's number should not be quoted as a device
+property, and this chapter came close to doing so.
+
+### 6.13.4 Result: the dichotomy is real, at 30× rather than 65×
+
+The statistic that survives is the logarithmic sensitivity
+`S = d ln|N| / dδ`, which is well defined for every pair because it does not
+divide by the input:
+
+| group | range of `\|S\|` (eV⁻¹) | pairs |
+|---|---|---|
+| straddling | 0.0077 – 0.0218 | Ti/Pt, Cr/Pt, Cu/Pt, Ni/Pt, Au/Pt, Pd/Pt |
+| same-sign | 0.6625 – 2.5628 | the other 15 |
+
+`min(same-sign) / max(straddling) = **30.4**`, with no overlap anywhere in
+the table. So the effect Section 6.12 saw on three pairs under a *per-metal*
+perturbation reappears on all twenty-one under a *scalar* one — genuinely
+independent evidence that it belongs to the pair's sign structure — but the
+magnitude comes down from 65× to 30× when the sample is widened from three
+pairs to twenty-one. That is the third time in this chapter that widening a
+sample has shrunk a claim.
+
+The most sensitive pair is **Au/Pd** (`|S| = 2.56 eV⁻¹`), whose contacts are
+0.02 eV apart; the least is Pd/Pt (0.0077). This was predicted in advance and
+held.
+
+### 6.13.5 Result: no scalar offset can reverse a response sign
+
+Write `dW_A = m − s` and `dW_B = m + s`, with `s = (W_B − W_A)/2` and
+`m = (W_A + W_B)/2 − w_cross`. A scalar offset moves `m` and leaves `s`
+**exactly** fixed, so the contact field separates as
+
+    E(x) = m [ f(L−x) − f(x) ] + s [ f(x) + f(L−x) ],    f(x) = λ⁻¹(1+x/λ)⁻²
+
+into an antisymmetric part carrying `m`, which contributes exactly zero to
+`N` by the same argument as Validation 3, and a symmetric part carrying `s`,
+which the perturbation cannot touch. **`sign(N)` is fixed by which contact
+has the higher work function.** A scan over `|δ| ≤ 3 eV` (601 points × 21
+pairs = 12621 evaluations) finds zero sign changes; the smallest `|N|`
+anywhere is 5.1e-03, approached and never crossed. `m` only rescales `|N|`,
+vanishing as `|m| → ∞` — and that limit *is* the near-cancellation of Section
+6.11.2, now with an explicit mechanism.
+
+This is a **stronger robustness statement than any in Sections 6.8–6.12**:
+the *direction* of a two-terminal photoresponse, which is what a design rule
+actually asserts, is immune to the entire "~" on 5.4 eV, and indeed to a
+scalar error six times its size.
+
+It is also the opposite of what was predicted. The pre-registered derivation
+D5 held that a sign flip occurs whenever `w_cross` moves between a pair's two
+work functions, and tabulated 21 flip windows accordingly. The premise is
+wrong: `sign(dW_A · dW_B)` is not what sets `sign(N)`.
+
+### 6.13.6 A methodological finding: the five exact checks could not see the bug
+
+The first implementation of the sign-flip scan **reported 21 roots.** It
+bisected between `δ = 0` and the midpoint of D5's window without ever
+checking that a root was bracketed; with no sign change present, such a loop
+walks its lower bound up to its upper bound and returns the **endpoint**.
+Every printed root equalled `(W_A + W_B)/2 − 5.4`, every one was physically
+plausible, and its headline — *"nearest sign flip: Pd/Pt at −0.0150 eV"* —
+is exactly the kind of number that reaches a thesis unchallenged.
+
+All five exact validations passed while it did so, because they validate the
+*model* and the fault was in the *analysis wrapped around it*. This is a
+third distinct failure class, and the chapter should keep all three separate:
+
+| class | example | caught by |
+|---|---|---|
+| implementation error in the model | the `inf − inf` transit integral, 2026-09-17 | an exactly known zero |
+| a claim quantified on an unrepresentative sample | the `< 1.02` ceiling, Section 6.9 → 6.11 | enumerating all 21 pairs |
+| **error in the analysis layer** | this section's unbracketed bisection | **neither** — hand-checking one row |
+
+### 6.13.7 Result: Section 6.11.2's "five pairs" is retracted as a count
+
+Section 6.11.2's table is re-scored at each offset (best perfect mask, per
+*incident* photon, divided by `|N_uniform|`):
+
+| pair | δ=−0.20 | δ=−0.10 | δ=0 | δ=+0.10 | δ=+0.20 |
+|---|---|---|---|---|---|
+| Au/Pd | 2.985 | 5.741 | **8.421** | 11.055 | 13.663 |
+| Ti/Cr | 2.735 | 3.066 | 3.396 | 3.727 | 4.056 |
+| Ni/Au | 1.534 | **2.442** | 3.357 | 4.277 | 5.195 |
+| Cr/Cu | 2.496 | 2.868 | 3.242 | 3.614 | 3.989 |
+| Ni/Pd | 1.122 | 1.801 | **2.486** | 3.176 | 3.869 |
+| Ti/Cu | 1.337 | 1.513 | 1.689 | 1.865 | **2.041** |
+
+The count above 2× runs **3, 4, 5, 5, 6** across the band. The qualitative
+replacement claim — masks help whenever `|N_uniform|` is small — holds at
+every offset, and so does the design recommendation, since Au/Pd's best
+masked response is 0.377 per incident photon against unmasked Ti/Pt's 1.832.
+**What does not survive is the number five**, which is an artefact of
+evaluating a threshold at one point of a parameter the literature gives with
+a tilde. Section 6.11.2 is annotated in place rather than rewritten.
+
+The Section 6.9.2 ceiling `|N[g]| ≤ max|k|` held at every offset: 0
+violations in 210 checks.
+
+### 6.13.8 Result: Ti/Pt is now the most-tested claim in the chapter
+
+Over the whole nominal band Ti/Pt's `|N|` ranges 1.8241–1.8367 — a **0.45%**
+worst-case change, against 4.9% under Section 6.11's nonlinearity and
+1.2–1.8% under Section 6.12's per-metal crossover. Three independent
+refinements have now failed to move it. Whatever the risk to Chapter 6's
+headline is, it is not the value of `w_cross`.
+
+### 6.13.9 What this section does and does not change
+
+**Changes:** Section 6.12.5's 65× amplification is restated as 30× and
+reclassified as perturbation-dependent rather than a device property; Section
+6.11.2's "five pairs" becomes "three to six across the band"; Sections
+6.8–6.12 gain a stated scalar-crossover band, which for straddling pairs is
+**under 0.5%** and for same-sign pairs reaches **51%** at `|δ| = 0.2 eV`.
+
+**Does not change:** every doping-type assignment, every response sign, the
+Ti/Pt headline, the `max|k|` ceiling identity, and the design recommendation
+to choose metals before illumination.
+
+### 6.13.10 What this section does not claim
+
+1. It does **not** determine the crossover. It measures sensitivity to an
+   unknown offset; the offset remains unknown.
+2. A scalar offset is **not** the per-metal structure of Section 6.12, and
+   the robustness result of 6.13.5 does not transfer to it. A scalar offset
+   cannot change `s = (W_B − W_A)/2`; a *differential* one can. **A per-metal
+   crossover difference of 0.02 eV would flip Au/Pd's response sign, where a
+   3 eV scalar offset cannot.** That is now the chapter's sharpest open
+   question, and Section 6.12 can answer it for exactly three metals.
+3. `λ = 250 nm` is still one value for all metals, and the
+   photo-thermoelectric term is still absent.
+4. The band is a sensitivity band, not an error bar on a measurement: it
+   propagates one parameter's uncertainty through a model whose other
+   approximations are unchanged.
+
+Figure: `crossover_sensitivity.png` — (a) sensitivity of all 21 pairs on a
+log axis, straddling in blue and same-sign in red; (b) `N(δ)` over ±0.5 eV
+with the nominal band shaded, showing curves approaching but never crossing
+zero; (c) the Section 6.11.2 ">2×" claim crossing its own threshold twice
+inside ±0.2 eV.
 
 ## 6.10 Further follow-on work
 
