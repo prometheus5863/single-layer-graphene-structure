@@ -2272,3 +2272,189 @@ finding that git cannot run inside it.
 **Commits this run:** 6 (the pre-registered note; the audit model + machine
 output + figure; the note's outcome section; Chapter 4; Chapter 5; Chapter 1
 + Chapter 7). This AUTOMATION_LOG.md entry makes 7.
+
+## 2026-09-22 (second session of the day) — An exact identity makes yesterday's headline statistic undefined, and an unbracketed bisection prints 21 plausible fake roots
+
+**Two automated sessions fired on 2026-09-22 and both did full work.** The
+entry above (Chapters 4 and 5 conditioned, `κ = 19.7`) is the first; this is
+the second. The redundancy check that normally prevents this compares
+`AUTOMATION_LOG.md` and today's commits at the *start* of a run, and both
+runs passed it because the first had not yet pushed when the second cloned
+(clone 10:49 UTC, first run's push 10:54 UTC). **They lost a race, not the
+check.** The two sessions turned out to be complementary rather than
+duplicated — the first closed 2026-09-21's *near-cancellation* item on
+Chapters 4 and 5, this one closed its *top* item on Chapter 6, and they
+share no file except this log and the Chapter 1 status table — but that is
+luck, and the scheduling should be fixed rather than relied on.
+
+**Open item closed:** "Propagate the per-metal crossover back through Sections
+6.9–6.11" — the **top** item on 2026-09-21's list. Closed by establishing
+first that it **cannot be done as asked**, then doing the propagation that
+can.
+
+**Why it cannot be done as asked.** Section 6.12's per-metal crossover needs
+the metal–graphene separation `d_eq`, tabulated for three of this repo's
+seven metals (Cu, Au, Pt). Ti/Ni/Pd are chemisorbed, where 6.12.4 showed the
+anchored exponential diverges; Cr has no tabulated `d_eq`. **All five
+headline pairs of the 2026-09-20 retraction table — Au/Pd, Ti/Cr, Ni/Au,
+Cr/Cu, Ni/Pd — contain a metal outside that set.** The tool that prompted the
+question cannot answer it for a single one of them.
+
+1. **Research** (`notes/2026-09-22-how-far-can-the-crossover-move.md`).
+   Fetched both source papers. Giovannetti *et al.*, PRL **101**, 026803
+   (2008) and Khomyakov *et al.*, PRB **79**, 195425 (2009) *both* write
+   *"a metal work function of **~5.4 eV**"* — a tilde, no error bar. This
+   repo has read it as three significant figures since 2026-09-18. The PRB
+   abstract also gives the chemisorption shift as *"reduces considerably"*
+   with no number: the **third** distinct extraction failure on this pair of
+   papers, after 2026-09-20's contradictory Table I and 2026-09-21's
+   twice-missing Eq. 4 coefficients. Recorded, not worked around.
+
+   The perturbation adopted is a scalar offset `δ` on `w_cross` — wrong shape
+   (not per-metal), right reach (needs no `d_eq`), and algebraically
+   identical to a common error in every work-function entry, which is live
+   given Ni's own 4.9–5.35 eV comment and the unreconciled 0.12 eV Mueller
+   step. Four predictions and one derivation pre-registered and **committed
+   before the model existed** (note `235b420`, model `a939852`).
+
+2. **RESULT — P1 falsified by an exact identity, and this is the session's
+   main result.** For a pair straddling the crossover,
+   `⟨|dW|⟩ = ((w_cross − W_A) + (W_B − w_cross))/2 = (W_B − W_A)/2`, in which
+   `w_cross` cancels identically. Verified to `0.000e+00` over 126 cases and
+   promoted to **Validation 5** — it was not planned; it was found while
+   trying to score P1. So a scalar offset changes a straddling pair's
+   response while changing the input measure by **exactly nothing**, and
+   2026-09-21's amplification ratio does not merely blow up for those pairs,
+   it is **undefined**. **That ratio is a property of the (pair,
+   perturbation) couple, not of the pair**, and yesterday's log came close to
+   quoting "65×" as a device property.
+
+3. **RESULT — the dichotomy is real, at 30× not 65×.** Restated in
+   `S = d ln|N|/dδ`, which does not divide by the input: straddling pairs
+   `|S| ∈ [0.0077, 0.0218]` eV⁻¹, same-sign pairs `[0.6625, 2.5628]`, **no
+   overlap**, ratio **30.4**. Genuinely independent confirmation — three
+   pairs under a per-metal perturbation, now twenty-one under a scalar one —
+   and the third time in this chapter that widening a sample has shrunk a
+   claim. P2 (Au/Pd most sensitive) held.
+
+4. **RESULT — no scalar offset can reverse a response sign, and this is the
+   chapter's first proof-shaped robustness result.** With `dW_A = m − s`,
+   `dW_B = m + s`, a scalar offset moves `m` and leaves `s = (W_B − W_A)/2`
+   **exactly** fixed; `m` multiplies the antisymmetric part of `E(x)`, which
+   contributes exactly zero to `N`, and `s` multiplies the symmetric part,
+   which sets `sign(N)`. Scan over ±3 eV, 601 points × 21 pairs = **12621
+   evaluations, zero sign changes**; smallest `|N|` anywhere 5.1e-03,
+   approached and never crossed. The *direction* of a two-terminal
+   photoresponse — which is what a design rule asserts — is immune to the
+   whole tilde and to a scalar error six times its size.
+
+5. **RESULT — D5 falsified, and the bug that nearly hid it. A THIRD FAILURE
+   CLASS.** D5 held that a sign flip occurs when `w_cross` moves between a
+   pair's work functions. The premise is wrong. Worse, the **first
+   implementation reported 21 roots**: it bisected between `δ = 0` and the
+   midpoint of D5's window **without checking that a root was bracketed**,
+   and with no sign change such a loop walks its lower bound to its upper
+   bound and returns the **endpoint**. Every root equalled
+   `(W_A + W_B)/2 − 5.4`; every one looked physical; the headline was
+   *"nearest sign flip: Pd/Pt at −0.0150 eV"*. **All five exact validations
+   passed while it printed that**, because they validate the model and the
+   fault was in the analysis layer. Caught by hand-checking one row against
+   what the field does at `dW_A = −dW_B`. A bracket assertion is now the
+   first line of that function, and the bug is documented in its docstring
+   rather than quietly fixed.
+
+6. **RESULT — Section 6.11.2's "five pairs" retracted as a count.** Re-scored
+   across the band, the number of pairs gaining >2× from a perfect mask runs
+   **3 → 4 → 5 → 5 → 6** over `δ ∈ [−0.2, +0.2]` eV. The table's numbers are
+   correct at `δ = 0` and are **not** retracted; the *count* is, being a
+   threshold evaluated at one point of a tilde'd parameter. Annotated in
+   place at 6.11.2. The qualitative claim and the design recommendation hold
+   at every offset. Section 6.9.2's ceiling `|N[g]| ≤ max|k|`: 0 violations
+   in 210 checks.
+
+7. **RESULT — Ti/Pt moves 0.45%** over the whole nominal band, against 4.9%
+   (2026-09-20) and 1.2–1.8% (2026-09-21). Three successive refinements have
+   failed to move it; `w_cross` is not where its risk lives. P3 held.
+
+8. **A pre-registered number missed, and recorded.** Shift invariance was
+   predicted to agree to ≤1e-15; measured worst case **1.776e-15**, with
+   215/231 combinations bitwise. Wrong by 1.8×, and wrong in shape: the right
+   bound is a few ulp of `N` (1.78e-15 is 8 ulp of 0.593), not an absolute
+   constant. Logged because the practice is worth nothing if only the
+   comfortable misses are.
+
+9. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`). New Section 6.13, ten subsections,
+   four tables, a does/does-not-change list and a does-not-claim list;
+   Section 6.11.2 annotated in place; Chapter 1 status table updated; Chapter
+   7 handed a **sixth** thread.
+
+**Methodological note, continuing 2026-09-20's and 2026-09-21's.** 09-20:
+exact validation protects against implementation error, not against an
+unrepresentative sample. 09-21: pre-registration reaches what exact
+validation cannot, namely a claim about the *size* of an effect. Today
+closes the loop uncomfortably: **pre-registration does not reach an error in
+the analysis layer either.** Three failure classes are now on record with a
+distinct detector each —
+
+| class | example | caught by |
+|---|---|---|
+| implementation error in the model | `inf − inf` transit integral (09-17) | an exactly known zero |
+| claim quantified on a small sample | the `<1.02` ceiling (6.9 → 6.11) | enumerating all 21 pairs |
+| error in the analysis layer | today's unbracketed bisection | **neither** — hand-checking one row |
+
+— and the useful conclusion is that verification effort should be allocated
+**by failure class**, not uniformly. Chapters 4 and 5 have had class (i)
+attention only.
+
+**Not yet covered (candidates for future runs):**
+- **The DIFFERENTIAL part of the crossover uncertainty** — created today and
+  the new **top** item, and the sharpest form the propagation question has
+  taken. Today proves a *scalar* offset cannot change `s = (W_B − W_A)/2` and
+  therefore cannot change `sign(N)`. A *per-metal* offset can. **A crossover
+  difference of 0.02 eV would flip Au/Pd, where a 3 eV scalar offset cannot.**
+  Section 6.12 can supply that difference for exactly three metals, which is
+  enough for Cu/Au, Cu/Pt and Au/Pt — one same-sign pair and two straddling
+  ones, i.e. exactly the 2026-09-21 sample, now with a sign test attached
+- **A second anchor for `Δ_c`**, at any separation other than 3.3 Å — open
+  since 2026-09-21, and now the prerequisite for the item above
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  two independent failures on record; still Chapter 6's central structural
+  weakness, and today it blocked the propagation that was asked for
+- **Audit the repo's other analysis-layer code for the same bug class** —
+  created today. Every root-finder, optimiser and threshold-crossing search
+  in this repo should be asked whether it verifies its own bracket.
+  `alpha_from_separation`, the `ell` bisection of 2026-09-21 and
+  `contact_resistance_crossover.py` are the obvious first three, and `graphene_sensitivity_audit.py` from the first session
+  of today is now a fourth
+- **Re-check whether other "for every …" claims rest on small samples** —
+  open since 2026-09-20; Chapter 4's per-metal `Rc` recalibration and Chapter
+  5's liner scenarios still state general rules from subsets
+- ~~Ask whether Chapter 4's `Rc` and Chapter 5's resistivity are
+  near-cancellations~~ — **closed by the first session of today**, which
+  measured `κ = 19.7` on the Chapter 5 calibration solve. Noted here because
+  this session independently reached the same statistic from the other end:
+  6.13.3 shows the amplification *ratio* is undefined for straddling pairs,
+  so `S = d ln Q / d ln x` is the right quantity — and that is exactly the
+  `S_i` the conditioning audit used. The two sessions agree on the
+  diagnostic without having coordinated on it, which is worth more than
+  either result alone
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover** — open since 2026-09-18; Section 4.5 still uses the
+  `|W − W_graphene|` magnitude convention
+- **Chapter 7 (discussion/outlook)** — six threads, and as of today a
+  taxonomy rather than a list
+- **Chapters 2–3 remain undrafted** despite complete computational results —
+  still the largest remaining block of pure writing
+- Reconciling Mueller *et al.*'s 0.12 eV step (arXiv:0902.1479) with the
+  0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS` assumes — open since
+  2026-09-18, and today makes it quantitative: a common error there is
+  exactly `δ`, hence bounded by the `S` table
+- A photo-thermoelectric term (Kasırga review)
+- Shimomura *et al.*'s comb-electrode design — open since 2026-09-19
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery
+- Isolating the root cause of the Section 4.7 negative-residual result —
+  open since 2026-08-31; **one branch closed by the first session of today**
+- Ti and Cr per-metal `Rc` recalibration (ResearchGate rate-limiting)
+- Second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
