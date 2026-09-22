@@ -258,3 +258,145 @@ liner/barrier-effect addition discussed in Sections 5.2-5.4 above, and
 `notes/2026-08-29-liner-parallel-conduction-and-thin-liner-scenarios.md`
 for the parallel-conduction refinement and thin-Ru/Co-liner scenarios
 discussed in Section 5.3.
+
+
+## 5.5 Conditioning: the calibration is the worst-conditioned step in this thesis
+
+Section 4.10 introduces the condition-number diagnostic and its exact
+validation, Eq. (4.22). This section applies it to Chapter 5. It changes no
+number and recalibrates nothing; the results below are error bars that were
+previously unstated, not corrections.
+
+### 5.5.1 The formula is reinforcing; the calibration behind it is not
+
+`resistivity_vs_width()` is a Matthiessen sum of three strictly positive
+terms, and audited against its own arguments it behaves exactly as such:
+
+| W (nm) | ρ (µΩ·cm) | S(bulk) | S(edge) | S(impurity) | κ |
+|---|---|---|---|---|---|
+| 18 | 4.093 | 0.293 | 0.662 | 0.045 | 0.662 |
+| 22 | 3.600 | 0.333 | 0.616 | 0.051 | 0.616 |
+| 30 | 3.009 | 0.399 | 0.541 | 0.061 | 0.541 |
+| 40 | 2.602 | 0.461 | 0.469 | 0.070 | 0.469 |
+| 52 | 2.321 | 0.517 | 0.404 | 0.079 | 0.517 |
+
+Every `κ ≤ 0.66`: reinforcing at every width, as a sum of positive terms
+must be. Read at that level, Chapter 5 contains no near-cancellation at all.
+
+**But `λ_impurity` is not an argument of that formula — it is *solved* from a
+single calibration point, and the solve is a subtraction:**
+
+    residual = ρ_cal/ρ_bulk − 1 − [(1−p)/(1+p)]·(λ_bulk/W_cal)
+             = 3.0000 − 1.0000 − 1.8478  =  0.1522                       (5.9)
+    λ_impurity = λ_bulk / residual = 361.4 nm
+
+Three terms of order unity producing a result of order 0.15 is the textbook
+signature, and the audit measures
+
+    κ(residual) = 19.71                                                  (5.10)
+
+**larger than anything in Chapter 4 (11.46) or Chapter 6 (4.55). Equation
+(5.9) is the worst-conditioned step in this thesis.** The parameter-level
+sensitivities follow: `d ln λ_imp / d ln ρ_cal = −19.71`,
+`d ln λ_imp / d ln λ_bulk = +13.14`, `d ln λ_imp / d ln W_cal = −12.14`,
+`d ln λ_imp / d ln p = −3.73`. **A 5 % error in the single calibration datum
+(ρ = 3.6 µΩ·cm at W = 22 nm, "best GNR" from Murali et al.) moves the
+extracted impurity mean free path by 99 %.**
+
+### 5.5.2 Result: the near-cancellation propagates, damped but not removed
+
+Re-solving `λ_impurity` inside the audit — the chapter's *actual* dependency
+chain, rather than the formula read in isolation — gives:
+
+| W (nm) | S(ρ_cal) | S(ρ_bulk) | S(p) | S(W_cal) | S(λ_bulk) | κ |
+|---|---|---|---|---|---|---|
+| 18 | 0.880 | +0.120 | −0.037 | 0.542 | +0.120 | 0.880 |
+| 22 | **1.000** | **0.000** | **0.000** | 0.616 | **0.000** | 1.000 |
+| 30 | 1.197 | −0.197 | +0.060 | 0.737 | −0.197 | 1.197 |
+| 40 | 1.384 | −0.384 | +0.118 | 0.852 | −0.384 | 1.384 |
+| 52 | 1.551 | −0.551 | +0.169 | 0.956 | −0.551 | **1.551** |
+
+The `κ ≈ 20` of (5.9) is damped by the small weight the impurity term
+carries in the total ratio, but not removed: `κ(ρ)` crosses 1 at the
+calibration width and reaches **1.551** at 52 nm. A prediction registered
+before the audit — that `κ` would exceed 1 but stay below the
+near-cancelling threshold of 3 — holds.
+
+The methodological point is general and worth stating in Chapter 7's voice:
+**a quantity can be well-conditioned in its own arguments and
+ill-conditioned in the quantities those arguments were derived from.**
+Auditing the visible formula alone would have returned `κ ≤ 0.66` and a
+clean bill of health.
+
+### 5.5.3 An exact result: the calibration point pins the model, and the
+### sensitivity to ρ_bulk changes sign through it
+
+The bold row above is not rounding. At `W = W_calibration = 22 nm` the model
+reproduces `ρ_calibration = 3.6 µΩ·cm` **bitwise**, and
+
+    S(ρ_bulk) = S(p) = S(λ_bulk) = 0.0        exactly                    (5.11)
+
+— three independent exact zeros, verified as such and not merely small
+(`conv = 0.0e+00`). The reason is structural: at the calibration width the
+impurity term is defined as whatever makes the total come out to the
+calibration datum, so it absorbs any change in the other three inputs
+exactly. **At 22 nm this chapter's prediction carries no information from
+`ρ_bulk`, `p` or `λ_bulk` whatsoever.**
+
+`S(ρ_bulk)` then changes sign through that width — `+0.120` at 18 nm,
+`0.000` at 22 nm, `−0.551` at 52 nm — because on the wide side an increase in
+`ρ_bulk` raises the modelled bulk term but lowers the fitted impurity term by
+more. A one-point-calibrated model inherits a sensitivity structure that
+pivots about its calibration point, and **the further a prediction is made
+from 22 nm, the more of its content comes from the single calibration datum
+and the less from the physical inputs** — which is the opposite of how a
+calibrated model is usually read. Section 5.3's headline comparisons are
+drawn at the narrow end (18–22 nm), where this effect is weakest; the
+wide-end numbers carry it.
+
+### 5.5.4 Result: the Cu liner model contains an unremarked subtraction
+
+`W_eff = W − 2t` (Section 5.2) is a difference of comparable quantities:
+
+| W (nm) | W_eff (nm) | S(W) | S(2t) | κ(W_eff) | \|S_t(ρ_eff)\| |
+|---|---|---|---|---|---|
+| 18 | 12.0 | 1.500 | −0.500 | **1.500** | **1.167** |
+| 22 | 16.0 | 1.375 | −0.375 | 1.375 | 0.852 |
+| 30 | 24.0 | 1.250 | −0.250 | 1.250 | 0.550 |
+| 40 | 34.0 | 1.176 | −0.176 | 1.176 | 0.379 |
+| 52 | 46.0 | 1.130 | −0.130 | 1.130 | 0.276 |
+
+`κ` grows as `W → 2t` and is mildly ill-conditioned across the whole
+modelled range. At the narrow end a 1 % error in the liner thickness is a
+1.17 % error in the reported effective resistivity. Section 5.2 takes
+`t = 3.0 nm` from two sources that themselves differ — 3 nm for a Cu/TaN-Co
+stack (*Nanomaterials* **12**(10), 1760 (2022)) against a "2–3 nm functional
+floor" (Domenichini *et al.*, arXiv:2406.09106) — a spread of roughly 17 %,
+which (5.12)
+
+    δρ_eff/ρ_eff ≈ |S_t| · δt/t                                          (5.12)
+
+converts into a **~20 % bar on ρ_eff at 18 nm**, previously unstated. This
+is the one input in either chapter whose uncertainty is available from the
+literature rather than hypothesised, and it is also the width range where
+Chapter 5's graphene-vs-Cu crossover argument is made.
+
+### 5.5.5 What this section does not claim
+
+1. No number in Sections 5.2–5.4 is changed, retracted or recalibrated. The
+   calibration datum is still `3.6 µΩ·cm at 22 nm` and `λ_impurity` is still
+   361.4 nm.
+2. `κ(ρ_GNR)` grows monotonically with `W` over the audited 18–52 nm, so a
+   wider wire would be *worse* conditioned. Beyond 52 nm this is untested.
+3. The parallel-conduction refinement (Section 5.3, thin Ru/Co liners) and
+   the `cu_resistivity_vs_width()` Fuchs–Sondheimer baseline are **not**
+   audited here. The baseline in particular contains its own `p_cu = 0.6`
+   with no stated uncertainty.
+4. `κ ≈ 20` on (5.9) is not evidence that `λ_impurity = 361 nm` is wrong. It
+   is evidence that the value is determined by one datum to a precision
+   twenty times worse than that datum's own — a statement about what the
+   chapter is entitled to claim, not about what is true.
+
+Figure: `sensitivity_audit.png`, panels (b) and (c). Machine output:
+`audit_output.txt`. Pre-registration and outcome:
+`notes/2026-09-22-condition-number-audit-of-chapters-4-and-5.md`.
