@@ -2070,3 +2070,205 @@ physics was derived.
   open since 2026-08-31
 - Ti and Cr per-metal Rc recalibration (blocked by ResearchGate rate-limiting)
 - Second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+## 2026-09-22 — Chapters 4 and 5 conditioned: the worst-cancelling step in the thesis is in the least-examined chapter
+
+**Open item closed:** "Ask whether Chapter 4's `Rc` and Chapter 5's
+resistivity are near-cancellations" — created 2026-09-21 and described there
+as *the sharpest form the synthesis question has taken*. One branch of
+"Isolating the root cause of the Section 4.7 negative-residual result"
+(open since **2026-08-31**, the repo's oldest open item) is also closed.
+
+**Procedure.** Six predictions written into
+`notes/2026-09-22-condition-number-audit-of-chapters-4-and-5.md` and
+**committed before the model existed** (note `968a9c0`, model `24c5fab`),
+continuing 2026-09-21's practice. New this session: each prediction is
+labelled `[blind]` or `[hand-derivable]`, and for the hand-derivable ones the
+hand estimate is written into the note, so that a machine result disagreeing
+with it exposes a bug rather than being silently accepted. **Four predictions
+held; two failed.**
+
+1. **Diagnostic** (`graphene_sensitivity_audit.py`). For `Q = Σ_i T_i`, the
+   signed logarithmic sensitivity `S_i = T_i/Q` and the condition number
+   `κ = max|S_i|`. Classification: `κ ≤ 1` reinforcing, `1 < κ < 3` mildly
+   ill-conditioned, `κ ≥ 3` near-cancelling (Chapter 6's same-sign pairs sit
+   at 4.55).
+
+   **Four exact validations.** (V1) Euler's sum rule `Σ S_i = 1` held to
+   **1.8e-15** over **15 decompositions** across three chapters — an
+   identity a merely-approximate derivative cannot satisfy. (V2) known
+   power-law exponents recovered to **1.7e-11**, including two that are
+   **exactly** `+1` and `0.0`. (V3) degenerate limits: `Q = A − A` gives
+   `1/κ = 0.000e+00` exactly, `Q = A + A` gives `κ = 0.5` exactly; scale
+   invariance is **3/5 bitwise, not 5/5**, worst relative deviation 6.2e-16,
+   **reported as such** rather than rounded to a pass. (V4, *not designed
+   in* — it fell out of Family C) at `W = W_calibration` the model
+   reproduces the calibration datum **bitwise** and **three** sensitivities
+   are **exactly 0.0**.
+
+2. **RESULT — the worst-conditioned step in this thesis is Chapter 5's
+   calibration, not anything in Chapter 6.** `λ_impurity` is solved from
+   `3.0000 − 1.0000 − 1.8478 = 0.1522`: `κ = 19.71`, against Chapter 4's
+   11.46 and Chapter 6's 4.55. **A 5% error in the single datum
+   `ρ = 3.6 µΩ·cm at 22 nm` moves the extracted impurity mean free path by
+   99%.** It was invisible in the chapter's own formula, which is a
+   manifestly reinforcing Matthiessen sum (`κ ≤ 0.66` at every width — P2's
+   first half, confirmed) and propagates into `ρ(W)` damped but not removed
+   (`κ` 0.88 → **1.551** over 18–52 nm; P2's second half predicted "above 1,
+   below 3" and held). **A quantity can be well-conditioned in its own
+   arguments and ill-conditioned in the quantities those arguments were
+   derived from** — auditing the visible formula alone returns a clean bill
+   of health.
+
+3. **RESULT — the calibration point pins the model, and `S(ρ_bulk)` changes
+   sign through it.** At 22 nm, `S(ρ_bulk) = S(p) = S(λ_bulk) = 0.0`
+   exactly: the prediction there carries **no information** from the physical
+   inputs, only from the calibration datum. `S(ρ_bulk)` runs `+0.120` (18 nm)
+   → `0.000` (22 nm) → `−0.551` (52 nm). **The further from 22 nm a Chapter 5
+   prediction is made, the more of its content comes from one measurement** —
+   the opposite of how a calibrated model is usually read.
+
+4. **RESULT — `κ` and sign-robustness run in OPPOSITE order in Section 4.7,
+   and the negative-residual conclusion is *strengthened*.** The useful
+   question is not how an error is amplified but how wrong `R_extra` would
+   have to be to flip the residual's **sign**:
+
+   | metal | residual | `κ` | `R_extra` must move by | sign |
+   |---|---|---|---|---|
+   | Pd | **+50.9** | **11.46** | **−9.6 %** | **fragile** |
+   | Au | −90.2 | 6.76 | +14.8 % | intermediate |
+   | Ni | −360.5 | 2.30 | +43.4 % | intermediate |
+   | Cu | −787.5 | 1.23 | **+81.1 %** | **robust** |
+
+   Pd — the only positive residual, and the one Section 4.7 called "a small,
+   plausible positive residual", i.e. the single row consistent with the
+   additive decomposition surviving — is the **weakest** row in the table.
+   Cu, the largest apparent violation, is the **strongest**. So (i) the
+   additive decomposition `R_c = R_extra + R_transmission` fails **robustly**
+   rather than marginally, and (ii) **amplified input error is eliminated as
+   the cause of the negatives**: had they been an amplification artefact, the
+   largest negatives would sit at the largest `κ`; they sit at the smallest.
+   Section 4.7's own two hypotheses (TLM double-counting, `λ_decay`) stand;
+   a third that had never been named is removed. **First narrowing of that
+   item since 2026-08-31.**
+
+5. **RESULT — the Cu liner model's `W_eff = W − 2t` is an unremarked
+   subtraction**, `κ` 1.130 → **1.500** as `W` falls to 18 nm, with
+   `|S_t(ρ_eff)| = 1.167` there. Chapter 5's own two sources for `t` differ
+   by ~17% (3 nm vs a "2–3 nm floor"), which converts to a **~20% bar on
+   `ρ_eff` at 18 nm** — previously unstated, and in exactly the width range
+   where Chapter 5's graphene-vs-Cu crossover argument is made. This is the
+   one input in either chapter whose uncertainty is literature-available
+   rather than hypothesised.
+
+6. **Cross-chapter check (P5, blind, PASS).** The same general machinery
+   reproduces 2026-09-21's Chapter 6 amplifications — 4.55 for the same-sign
+   pair Cu/Au, 0.07–0.11 for the straddling pairs — to within **1.9%**, so
+   the diagnostic is measuring the quantity that session measured and not a
+   differently-normalised cousin of it.
+
+7. **The two failures, reported in full.** **P4 FAILED**: "at least three of
+   four metals near-cancelling" came in at 2/4 (Ni 2.30 and Cu 1.23 are only
+   *mildly* ill-conditioned). The hand arithmetic behind it was correct for
+   the two metals it was done for and was generalised from those two —
+   **the third consecutive session in which a claim generalised from a
+   partial enumeration failed on the full one**, and the first in which the
+   failure was in a *prediction about* the model rather than in the model.
+   The 2026-09-20 enumeration rule was applied to the model this session but
+   not to the prediction. **P6 FAILED**: no published Chapter 4 or 5 number
+   carries a >100% bar under a 5% single-input perturbation; the worst is
+   Pd's 57%. The reason is the opposite of what P6 assumed — `κ` is large
+   exactly where the *output* is small, so large `κ` here threatens **signs,
+   not orders of magnitude**, and the sign-flip margin of (4.23) is the right
+   instrument. P6 asked the wrong question and the audit had to supply the
+   right one.
+
+8. **Writing.** Chapter 4 Section 4.10 (five subsections, three tables,
+   Section 4.7 annotated in place with **no number changed**); Chapter 5
+   Section 5.5 (five subsections, four tables); Chapter 1 status table for
+   Chapters 4, 5 and 7; **Chapter 7 handed a sixth thread.**
+
+**Methodological note, continuing 2026-09-20's and 2026-09-21's.** Those two
+sessions concluded that a claim's reliability tracks how wide a sample it was
+checked against and whether its error bar was stated in advance. Today adds a
+third term and a correction. The third term: **which of a quantity's terms
+cancel**, which is a property of arithmetic that no amount of care about
+physics detects. The correction is sharper and reframes threads four and five
+of Chapter 7. The chapters that have publicly overturned their own headlines
+are Chapter 6's; the worst-conditioned arithmetic in the thesis is Chapter
+5's, `κ = 19.71` against Chapter 6's 4.55, and it had gone four weeks
+unnoticed. **The difference between the chapters is not rigour and not
+fragility — it is how much scrutiny each has received.** Chapter 7's claim
+should therefore be about unequal examination, which is a claim about method,
+rather than about Chapter 6's unreliability, which is a claim about graphene
+and is not supported.
+
+**Not yet covered (candidates for future runs):**
+- **Condition the rest of Chapter 4 and Chapter 5** — created today and the
+  **top** open item, because today's audit covered only three families.
+  Section 4.8's edge-vs-top geometry model contains a **ratio of two computed
+  resistances** that has never been conditioned; Section 4.6's `f_max` is a
+  square root of a difference; Section 5.3's parallel-conduction refinement
+  and the `p_cu = 0.6` Fuchs–Sondheimer baseline are both unaudited. On
+  today's evidence the unexamined places are where the large `κ` live
+- **A second calibration point for Chapter 5** — created today and now
+  concrete: `κ = 19.71` is a direct consequence of having exactly one, and
+  Section 5.5.3's three exact zeros show what a one-point fit costs. A second
+  datum at a different width would over-determine `λ_impurity` and turn the
+  audit's error bar into a residual
+- **Propagate the per-metal crossover back through Sections 6.9–6.11** —
+  top item on 2026-09-21's list, **not** attempted today and now understood
+  to be partly blocked: the per-metal model admits only Cu, Au and Pt, so of
+  the 21 asymmetric pairs in the 2026-09-20 retraction table only 3 can be
+  recomputed. The blocker is the same admissibility problem as the next item
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  supported by two independent failures, and today's finding makes it more
+  pressing rather than less: it is what gates the item above
+- **Apply the sign-flip margin (4.23) to Chapter 6's own results** — created
+  today. Chapter 6 has error bars in `κ` but has never asked which of its
+  conclusions survive a sign flip, and Section 4.7 showed the two orderings
+  can be exactly reversed
+- **Re-check whether other "for every …" claims in the repo rest on small
+  samples** — open since 2026-09-20 and **now with a third instance** (P4);
+  the rule keeps being applied to models and not to the claims made about them
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover** — open since 2026-09-18; Section 4.5 still uses the
+  `|W − W_graphene|` magnitude convention
+- **Chapters 2–3 remain undrafted** despite their computational results being
+  complete — still the largest remaining block of pure writing, and now the
+  only chapters with no conditioning statement at all
+- **Chapter 7** — six threads, and as of today a positive methodological
+  claim (unequal scrutiny) with quantitative support from three chapters
+- Reconciling the 0.12 eV measured potential step (Mueller *et al.*,
+  arXiv:0902.1479) with the 0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS`
+  assumes — open since 2026-09-18
+- **A photo-thermoelectric term** — the Kasırga review makes its absence the
+  main obstacle to comparing a position-resolved prediction with a measurement
+- **Shimomura et al.'s comb-electrode design** (unequal contact *perimeter*)
+  — open since 2026-09-19
+- **A second anchor for `Δ_c`** at any separation other than 3.3 Å — open
+  since 2026-09-21
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery
+- Ti and Cr per-metal Rc recalibration (blocked by ResearchGate rate-limiting)
+- Second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+- Small-hole-diameter (50–100 nm) upturn in Passi *et al.*'s data (§4.8.1)
+- Graphene-all-around-metal (liner/cap) interconnect model (Chapter 5, §5.4)
+
+**Web search availability:** WebSearch/WebFetch **not used and not needed** —
+the session's question was entirely internal to the existing model and its
+already-cited inputs. Recorded explicitly rather than left ambiguous. PubMed/
+PMC not attempted (five consecutive reCAPTCHA blocks make it a standing
+environment limitation).
+
+**Automation health:** Device reachable, folder connected, 10:30 UTC firing;
+neither repo had a 2026-09-22 entry, so a full session was run. `scipy` again
+absent from the device VM and pip-installed — **fifth consecutive
+occurrence**; `requirements.txt` already lists it, so this is an environment
+fact (the VM is rebuilt each session), not a repo defect. Work done in the
+session's own scratch clone outside the connected folder, per the 2026-09-17
+finding that git cannot run inside it.
+
+**Commits this run:** 6 (the pre-registered note; the audit model + machine
+output + figure; the note's outcome section; Chapter 4; Chapter 5; Chapter 1
++ Chapter 7). This AUTOMATION_LOG.md entry makes 7.
