@@ -203,3 +203,162 @@ kernel ceiling `|N[g]| <= max|k|` of Section 6.9.2, re-checked at every
   the log should say so.
 - Nothing here touches `lambda = 250 nm`, which is still one value for all
   metals, or the photo-thermoelectric term, which is still absent.
+
+---
+
+# OUTCOME (appended after the model was written and run)
+
+Scoring is mechanical: `check_predictions()` in
+`graphene_crossover_sensitivity_model.py` prints the verdicts below.
+
+| # | prediction | verdict |
+|---|---|---|
+| P1 | clean dichotomy in `A_pair`, ratio > 10 | **FALSIFIED as written** |
+| P1' | the same dichotomy in `S = dln\|N\|/d(delta)` | **HELD, 30.4x** |
+| P2 | Au/Pd is the most sensitive pair | **HELD** |
+| P3 | Ti/Pt moves < 5% over the nominal band | **HELD, 0.45%** |
+| P4 | the ">2x mask gain" membership changes | **HELD, twice** |
+| D5 | 21 sign flips, nearest at -0.29 eV | **FALSIFIED: there are none** |
+
+## 1. P1 falsified as written, and the reason is an exact identity
+
+`A_pair` came out **infinite for all six straddling pairs**. Not large --
+infinite, and exactly so. For a pair that straddles,
+
+    <|dW>| = ((w_cross - W_A) + (W_B - w_cross)) / 2 = (W_B - W_A) / 2
+
+which does not contain `w_cross` at all. A uniform crossover offset changes
+the pair's response (`S` is −0.008 to −0.022 eV⁻¹, small but nonzero) while
+changing the input measure by **exactly nothing**. `A_pair` divides by zero.
+Checked to `0.000e+00` over 126 (pair, `delta`) combinations and promoted to
+**Validation 5**, which was not planned; it was found while trying to score
+P1 and turned out to be exact.
+
+**This is the session's main methodological result.** The amplification ratio
+2026-09-21 reported is not a property of a pair. It is a property of the
+*(pair, perturbation)* couple, and it is undefined for half of this repo's
+pairs under a perfectly reasonable perturbation. Quoting "65x amplification
+for near-cancelling pairs" as if it were a device property, which the
+2026-09-21 log came close to doing, would have been wrong.
+
+## 2. P1's substance survives, in the right statistic
+
+`S = dln|N|/d(delta)` is well defined for every pair:
+
+| group | range of \|S\| (eV⁻¹) |
+|---|---|
+| straddling (6 pairs) | 0.0077 – 0.0218 |
+| same-sign (15 pairs) | 0.6625 – 2.5628 |
+
+`min(same-sign) / max(straddling) = 30.4`, with **no overlap**. So the
+dichotomy 2026-09-21 saw on three pairs is real and generalises to all 21
+under a *different* perturbation — which is the independent confirmation that
+was wanted — but it survives only when stated in a statistic that does not
+divide by the input. **A 65x gap measured on three pairs is a 30x gap on
+twenty-one.** The direction of that revision is the one this repo has now
+seen three times: widening the sample shrinks the claim.
+
+## 3. D5 falsified, and the bug that nearly hid it
+
+D5's premise — that `sign(N)` is set by `sign(dW_A * dW_B)` — is false. Write
+`dW_A = m - s`, `dW_B = m + s` with `s = (W_B - W_A)/2`. A uniform offset
+moves `m` and leaves `s` **exactly** fixed, so
+
+    E(x) = m [f(L-x) - f(x)]  +  s [f(x) + f(L-x)]
+
+splits into an antisymmetric part carrying `m`, which contributes zero to `N`
+by the Validation-3 argument, and a symmetric part carrying `s`, which the
+perturbation cannot touch. `sign(N)` is therefore fixed by which contact has
+the higher work function, and **no scalar offset can reverse it**. A scan of
+`delta` over ±3 eV, 601 points × 21 pairs = 12621 evaluations, finds **zero**
+sign changes; the smallest `|N|` anywhere is 5.1e-03 (Au/Pd at +3 eV),
+approached and never crossed. `m` only rescales `|N|`, vanishing as
+`|m| → ∞` — and that limit *is* Section 6.11.2's near-cancellation.
+
+**The first draft of `sign_flip_table()` reported 21 roots.** It bisected
+between `delta = 0` and the midpoint of D5's window without ever checking
+that a root was bracketed; with no sign change, the loop walks its lower
+bound up to the upper bound and returns the **endpoint**. Every printed root
+equalled `(W_A + W_B)/2 - 5.4`, every one looked physical, and the table's
+headline — "nearest sign flip: Pd/Pt at −0.0150 eV" — is the kind of number
+that goes straight into a thesis. It was caught by hand-checking one row
+against what the field actually does at `dW_A = -dW_B`, **not by any of the
+five exact validations**, all of which passed.
+
+That is a new failure mode for this repo's log. 2026-09-17 and 2026-09-19
+were caught *by* exact checks. 2026-09-21 established that exact checks
+cannot reach a claim about the *size* of an effect. Today adds: exact checks
+cannot reach a **root-finder that was never asked whether a root exists**,
+because the validations test the model and the bug was in the analysis
+wrapped around it. A bracket assertion is now the first line of that
+function.
+
+## 4. P3 held, and Ti/Pt is now the most robust thing in Chapter 6
+
+0.45% over the whole nominal band, against 4.9% (2026-09-20) and 1.2–1.8%
+(2026-09-21). Three independent refinements have now failed to move it. The
+`w_cross` uncertainty is **not** where Ti/Pt's risk lives.
+
+## 5. P4 held, twice, and it cuts both ways
+
+| pair | δ=−0.20 | δ=−0.10 | δ=0 | δ=+0.10 | δ=+0.20 |
+|---|---|---|---|---|---|
+| Au/Pd | 2.985 | 5.741 | **8.421** | 11.055 | 13.663 |
+| Ti/Cr | 2.735 | 3.066 | 3.396 | 3.727 | 4.056 |
+| Ni/Au | 1.534 | **2.442** | 3.357 | 4.277 | 5.195 |
+| Cr/Cu | 2.496 | 2.868 | 3.242 | 3.614 | 3.989 |
+| Ni/Pd | 1.122 | 1.801 | **2.486** | 3.176 | 3.869 |
+| Ti/Cu | 1.337 | 1.513 | 1.689 | 1.865 | **2.041** |
+
+The count above 2x is **3, 4, 5, 5, 6** across the band. Section 6.11.2's
+"five pairs gain more than 2x" is true only at `delta = 0`; at −0.2 eV it is
+three and at +0.2 eV it is six. The *qualitative* claim that replaced
+"masks are for symmetric devices only" — that masks help whenever
+`|N_uniform|` is small — survives at every offset, and so does the design
+recommendation, since Au/Pd's best masked response is 0.377 per incident
+photon at `delta = 0` against unmasked Ti/Pt's 1.832. **What does not survive
+is the number five.** It is an artefact of evaluating a threshold at one
+point of a parameter the literature gives with a tilde.
+
+The Section 6.9.2 ceiling `|N[g]| <= max|k|` held at every offset: 0
+violations in 210 checks.
+
+## 6. One prediction was quantitatively too tight, and it is recorded
+
+The note predicted shift invariance would agree to `<= 1e-15` absolute. The
+measured worst case is **1.776e-15** (Cu/Pd at `delta = +0.100`), with
+215/231 combinations bitwise identical. The prediction is wrong by a factor
+of 1.8. The right statement is *a few ulp of `N`*, not a fixed absolute
+bound: 1.78e-15 is 8 ulp of 0.593. Small, but it is a pre-registered number
+that missed, and the practice is worth nothing if only the comfortable
+misses get recorded.
+
+## 7. Not yet covered — updated
+
+- **A second anchor for `Delta_c`** (from 2026-09-21) is now sharper: today
+  shows the *scalar* part of the crossover uncertainty is nearly harmless for
+  straddling pairs and dominant for same-sign ones. What is untested is the
+  **differential** part, `w_cross(A) != w_cross(B)`, which is the only part
+  that can move `s` — and `s` is what sets the sign. **A per-metal crossover
+  difference of even 0.02 eV could flip Au/Pd, where a 3 eV scalar offset
+  cannot.** That is the sharpest form the propagation question has taken, and
+  it is the new top item.
+- **Sections 6.9-6.11's numbers still stand at `delta = 0`** and now carry a
+  stated band; the *five*-pair count is retracted as a count.
+- A description of Ti, Ni and Pd that does not go through work function.
+- Re-check other "for every ..." claims in the repo against widened samples;
+  Chapter 4's per-metal `Rc` recalibration and Chapter 5's liner scenarios.
+- Ask whether Chapter 4's `Rc` and Chapter 5's resistivity are
+  near-cancellations — today gives the test a well-defined statistic to use
+  (`S`, not `A`).
+- Chapter 7 now has a **sixth** thread: three distinct classes of claim
+  failure are on record (implementation error, caught by exact checks;
+  unrepresentative sample, caught by enumeration; analysis-layer error,
+  caught by neither).
+- Chapters 2-3 remain undrafted.
+- Mueller *et al.* 0.12 eV step vs the 0.25-1.07 eV `METAL_WORK_FUNCTIONS`
+  offsets — and today makes it quantitative: a common error there is the same
+  perturbation as `delta`, hence bounded by the `S` table.
+- Photo-thermoelectric term; Shimomura comb electrodes; plasmonic/contact
+  integration; Section 4.7 negative residual; Ti and Cr `Rc` recalibration;
+  second edge-contact dataset.
