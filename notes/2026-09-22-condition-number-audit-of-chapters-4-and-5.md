@@ -141,3 +141,153 @@ magnitude is not established by the model that produced it.
 * It will not treat `kappa` as an error bar on its own. `kappa` multiplies
   an input uncertainty; where no input uncertainty is available, the audit
   reports `kappa` and the *hypothetical* 5% bar, labelled as hypothetical.
+
+---
+
+# OUTCOME (written after `graphene_sensitivity_audit.py` was run)
+
+Full machine output: `audit_output.txt`. Figure: `sensitivity_audit.png`.
+
+## 5. Verdict on the six predictions
+
+| | prediction | status | measured |
+|---|---|---|---|
+| P1 | Euler sum rule `= 1` exactly | **PASS** | worst `|ΣS − 1| = 1.8e-15` over 15 decompositions |
+| P2 | `ρ_GNR` `κ > 1` when the calibration is propagated | **PASS** | `κ = 1.551` at 52 nm |
+| P2′ | …and stays below 3 | **PASS** | max 1.551 |
+| P3 | rank order Ch5-calib > Ch4-`R_trans` > Ch5-liner > Ch5-`ρ` | **PASS** | 19.71 > 11.46 > 1.50 > 0.66 |
+| P4 | ≥3 of 4 metals near-cancelling, Pd worst | **FAIL** | 2/4; Pd worst (correct) |
+| P5 | Ch.6 amplifications reproduced within 10% | **PASS** | worst 1.9% off |
+| P6 | a published number with a >100% bar at 5% input error | **FAIL** | largest bar 57% (Pd) |
+
+**Four passed, two failed, and the two failures are the informative ones.**
+
+## 6. Why P4 failed, and why the failure matters
+
+P4 was `[hand-derivable]` and the hand arithmetic was *correct on the two
+metals it was done for* — Pd 11.46 and Au 6.76, both above the
+near-cancelling threshold of 3, both above Chapter 6's 4.55. What the hand
+estimate did not do was **compute the other two**, and they come in at Ni
+2.30 and Cu 1.23: *mildly* ill-conditioned, not near-cancelling.
+
+This is the third consecutive session in which a claim generalised from a
+partial enumeration failed on the full one (2026-09-20 on widened samples,
+2026-09-21 on the pre-registered 10% bound, today on "at least three of
+four"). The enumeration rule adopted on 2026-09-20 was applied to the
+*model* this session but not to the *prediction* about it.
+
+## 7. Why P6 failed, and what replaces it
+
+No published Chapter 4 or Chapter 5 number carries a >100% bar under a 5%
+single-input perturbation. The worst is Pd's residual at 57%. So the audit
+did **not** find a printed figure whose order of magnitude is unestablished.
+
+The reason is worth stating, because it is the opposite of what the
+prediction assumed: `κ` is large exactly where the *output* is small, and a
+57% bar on a number reported as `+51.0 Ω·µm` is not the same kind of problem
+as a 57% bar on a headline. What P6 should have asked — and what Section 9
+below asks instead — is whether the **sign** of a published number is
+established, not its magnitude.
+
+## 8. RESULT — the Chapter 5 calibration is the worst-conditioned step in the thesis
+
+`κ = 19.71`, larger than anything in Chapter 4 (11.46) or Chapter 6 (4.55).
+
+    residual = target_ratio − bulk_term − edge_term
+             = 3.0000 − 1.0000 − 1.8478  =  0.1522
+    λ_impurity = λ_bulk / residual = 361.4 nm
+
+Three terms of order unity produce a result of order 0.15. The parameter-level
+sensitivities are correspondingly severe: `d ln λ_imp / d ln ρ_calibration =
+−19.71`, `d ln λ_imp / d ln λ_bulk = +13.14`, `d ln λ_imp / d ln W_calibration
+= −12.14`. **A 5% error in the single calibration datum `ρ = 3.6 µΩ·cm at
+22 nm` moves the extracted impurity mean free path by 99%.**
+
+This is a real finding about Chapter 5 and it was invisible in the chapter's
+own formula, which is a manifestly reinforcing Matthiessen sum (term-level
+`κ ≤ 0.66` at every width — P2's first half, confirmed). **The
+near-cancellation is one level down, in the calibration, and it propagates
+into `ρ` damped but not removed: `κ(ρ_GNR)` rises from 0.88 at 18 nm to 1.55
+at 52 nm.** A quantity can be well-conditioned in its own arguments and
+ill-conditioned in the things those arguments were derived from; auditing
+only the visible formula would have missed this entirely.
+
+**An exact structural result found on the way** (Validation 4, not designed
+in). At `W = W_calibration = 22 nm` the model reproduces `ρ_calibration`
+**bitwise**, and `S(ρ_bulk) = S(p) = S(λ_bulk) = 0.0` **exactly** — three
+independent exact zeros. At the calibration width the impurity term absorbs
+whatever the others do, so the prediction there carries *no information* from
+`ρ_bulk`, `p` or `λ_bulk`. `S(ρ_bulk)` then **changes sign through that
+width**: `+0.120` at 18 nm, `0.000` at 22 nm, `−0.551` at 52 nm. A
+one-calibration-point model inherits a sensitivity structure that pivots
+about its calibration point, and Chapter 5 has never said so.
+
+## 9. RESULT — Section 4.7's negative residual is *strengthened* by the audit
+
+This is the session's most consequential finding and it closes off one branch
+of an item open since 2026-08-31.
+
+`κ` says how an input error is amplified. The operationally useful inverse is:
+**how wrong would `R_extra` have to be to flip the *sign* of the residual?**
+For `Q = R_c − R_extra` that fraction is `f = −Q / R_extra`:
+
+| metal | residual (Ω·µm) | `κ` | `R_extra` must move by | sign is |
+|---|---|---|---|---|
+| Pd | **+50.9** | **11.46** | **−9.6 %** | **fragile** |
+| Au | −90.2 | 6.76 | +14.8 % | intermediate |
+| Ni | −360.5 | 2.30 | +43.4 % | intermediate |
+| Cu | −787.5 | 1.23 | **+81.1 %** | **robust** |
+
+**`κ` and sign-robustness run in exactly opposite order.** Pd — the *only*
+positive residual, and the one Section 4.7 described as "a small, plausible
+positive residual", i.e. the single data point consistent with the additive
+decomposition surviving — is the one whose sign is *least* established: a
+9.6% error in `R_extra` erases it. Cu, the largest and most apparently
+unphysical violation, would need `R_extra` to be wrong by 81%.
+
+Two consequences, both against the grain of the earlier reading:
+
+1. **The additive decomposition `R_c = R_extra + R_transmission` fails
+   robustly, not marginally.** Section 4.7 hedged that only Pd was
+   "plausible"; the audit says Pd is the *weakest* evidence in the table,
+   not the strongest.
+2. **Amplified input error is eliminated as the cause of the negative
+   residuals.** If the negatives were an artefact of a large `κ` acting on a
+   mis-specified input, the *worst* negatives would sit at the *largest* `κ`.
+   They sit at the smallest. The cause therefore lies where Section 4.7's
+   first hypothesis put it — TLM double-counting the same near-contact
+   region — or in `λ_decay`, and **not** in amplification. That is one
+   candidate removed by measurement rather than by argument.
+
+## 10. RESULT — the Cu liner model contains an unremarked subtraction
+
+`W_eff = W − 2t` is a difference, and its `κ` rises from 1.130 at 52 nm to
+**1.500 at 18 nm**, with `|S_t(ρ_eff)| = 1.167` there: at the narrow end of
+the modelled range a 1% error in the 3 nm liner thickness is a 1.17% error in
+the reported effective resistivity, and it grows without bound as `W → 2t`.
+Chapter 5 states `t = 3.0 nm` from two literature sources that themselves
+differ (3 nm vs a "2–3 nm functional floor"), i.e. a ~17% spread — which the
+audit converts into a **~20% bar on `ρ_eff` at 18 nm**, previously unstated.
+
+## 11. What the audit does not claim
+
+1. It does **not** claim any number in Chapters 4 or 5 is wrong. `κ` is a
+   property of a formula; it converts an input error into an output error and
+   is silent on whether any input error exists.
+2. The 5% input perturbation is **hypothetical** wherever the literature
+   supplies no uncertainty, which is everywhere except the liner thickness.
+   Every percentage above that derives from it is labelled accordingly.
+3. `κ(ρ_GNR)` is audited over 18–52 nm only, the range Chapter 5 plots. It
+   grows monotonically with `W` in the propagated case, so a wider wire would
+   be worse conditioned, not better — untested beyond 52 nm.
+4. Validation 3(c) (scale invariance of `κ`) is **3/5 bitwise, not 5/5**,
+   with worst relative deviation `6.2e-16`. The invariance is exact in exact
+   arithmetic; the two misses are the rounding of a division after rescaling
+   by `1e±9`, a floating-point statement and not a modelling one. Recorded
+   rather than rounded away.
+5. No literature was fetched this session and none was needed: every input
+   used was already cited in Chapters 4 and 5.
+
+**Web search availability:** WebSearch/WebFetch **not used** — the session's
+question was entirely internal to the existing model and citations. This is
+recorded rather than left ambiguous.
