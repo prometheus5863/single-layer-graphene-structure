@@ -239,6 +239,19 @@ Rc (`graphene_contact_doping_model.recalibrate_metal_rc()`,
 | Au | 519.0 | 609.2 | **−90.2** |
 | Pd | 584.0 | 533.1 | +51.0 (~9% of total) |
 
+> **Annotation added 2026-09-22 (Section 4.10).** No number in the table
+> above is changed or retracted. A condition-number audit
+> (`graphene_sensitivity_audit.py`) finds that the four rows' **sensitivity
+> to input error runs in the opposite order to their apparent
+> plausibility**: Pd's `+51.0` — the one row read below as "a small,
+> plausible positive residual", i.e. the only evidence that the additive
+> decomposition might survive — flips sign on a **9.6 %** error in
+> `R_extra`, while Cu's `−787.5` would need **81.1 %**. The negative results
+> are therefore the *robust* rows of this table and Pd is the fragile one.
+> Section 4.10 gives the full margins and their consequence: the additive
+> decomposition fails robustly, and amplified input error is eliminated as
+> the cause of the negatives.
+
 For three of the four metals, the computed doping-junction contribution
 **alone exceeds the entire measured lumped contact resistance**, which
 would require a negative "transmission resistance" to balance the
@@ -364,3 +377,122 @@ Section 6.5 in particular flags a "spatially resolved collection model" as
 a prerequisite for improving the photodetector responsivity estimate;
 today's Section 4.5 contact-doping model is a direct, reusable building
 block toward that.
+
+## 4.10 Conditioning: which Chapter 4 numbers inherit their inputs' errors, and by how much
+
+This section applies to Chapter 4 a diagnostic developed in Chapter 6. It
+adds no physics and changes no input; it asks only how each of this
+chapter's computed numbers would respond if one of its inputs were wrong.
+
+### 4.10.1 Why the question is not rhetorical
+
+Section 6.12.5 measured a **65-fold** difference in how two classes of
+quantity respond to the *same* 17.12 % input perturbation: a same-sign
+(near-cancelling) contact pair moved 77.94 %, a straddling (reinforcing)
+pair 1.21 %. The physics of the two cases is identical. What differs is that
+the first is a *difference of two comparable numbers*, so its fractional
+error is the inputs' fractional error multiplied by the ratio of input
+magnitude to output magnitude.
+
+That is arithmetic, not photodetector physics, and Chapter 4's central
+recalibration result is a difference of two comparable numbers:
+
+    R_transmission(metal) = R_c,measured(metal) − R_extra(metal)          (4.21)
+
+### 4.10.2 The diagnostic
+
+For a quantity written as a sum of additive terms `Q = Σ_i T_i`, the signed
+logarithmic sensitivity of `Q` to term `T_i` is exactly `S_i = T_i / Q`,
+read as *a 1 % change in `T_i` produces an `S_i` % change in `Q`*, and
+
+    Σ_i S_i = 1        exactly                                           (4.22)
+
+by Euler's homogeneous-function theorem. The **condition number** is
+`κ(Q) = max_i |S_i|`, and the classification used here is `κ ≤ 1`
+reinforcing, `1 < κ < 3` mildly ill-conditioned, `κ ≥ 3` near-cancelling
+(Chapter 6's same-sign pairs sit at 4.55).
+
+Equation (4.22) is the implementation's exact validation: it held to
+`1.8 × 10⁻¹⁵` over all fifteen decompositions audited across Chapters 4, 5
+and 6. Three further exact checks are reported in Section 11 of the
+2026-09-22 note, and a fourth — three independent exact zeros — is described
+in Chapter 5, Section 5.5.
+
+### 4.10.3 Result: Section 4.7's four metals, conditioned
+
+| metal | residual (Ω·µm) | `S(R_c)` | `S(R_extra)` | `κ` | class |
+|---|---|---|---|---|---|
+| Pd | +50.9 | +11.462 | −10.462 | **11.46** | near-cancelling |
+| Au | −90.2 | −5.756 | +6.756 | **6.76** | near-cancelling |
+| Ni | −360.5 | −1.304 | +2.304 | 2.30 | mildly ill-cond. |
+| Cu | −787.5 | −0.234 | +1.234 | 1.23 | mildly ill-cond. |
+
+A prediction written into the note before the audit ran — that **at least
+three** of the four would be near-cancelling — is **falsified**: only two
+are. The hand arithmetic behind it had been done for Pd and Au and
+generalised from those two; Ni and Cu were never computed. This is the third
+consecutive session in which a claim generalised from a partial enumeration
+failed on the full one, and the first in which the failure was in a
+*prediction about* the model rather than in the model.
+
+### 4.10.4 Result: κ and sign-robustness run in opposite order
+
+`κ` says how an input error is amplified. The question Section 4.7 actually
+needs answered is the inverse and sharper one: **how wrong would `R_extra`
+have to be to flip the *sign* of the residual?** For (4.21) that fraction is
+
+    f = (R_extra − R_c) / R_extra = −R_transmission / R_extra             (4.23)
+
+| metal | residual | `κ` | `R_extra` must move by | sign is |
+|---|---|---|---|---|
+| Pd | +50.9 | 11.46 | **−9.6 %** | **fragile** |
+| Au | −90.2 | 6.76 | +14.8 % | intermediate |
+| Ni | −360.5 | 2.30 | +43.4 % | intermediate |
+| Cu | −787.5 | 1.23 | **+81.1 %** | **robust** |
+
+The two orderings are **exactly reversed**, and that reversal carries the
+section's two conclusions.
+
+**First, the additive decomposition fails robustly rather than marginally.**
+Section 4.7 reported three failures and one survivor and hedged
+accordingly. The survivor is the weakest row in the table: a 9.6 % error in
+a quantity computed from a model with an admittedly uncertain `λ_decay`
+erases Pd's positive residual entirely. Read with its conditioning, the
+table does not contain one plausible case and three implausible ones; it
+contains one case that establishes nothing and three that establish
+something, the strongest being the one that looked worst.
+
+**Second, amplified input error is eliminated as the cause of the negative
+residuals** — one branch of an item open since 2026-08-31. Had the negatives
+been an artefact of a large `κ` acting on a mis-specified input, the largest
+negatives would sit at the largest `κ`. They sit at the smallest: Cu is both
+the largest violation and the best-conditioned row. The cause must therefore
+lie in the model's structure, which leaves Section 4.7's own two hypotheses
+(TLM double-counting the near-contact region; `λ_decay = 250 nm`
+over-integrating) standing and removes a third that had not been named. This
+is a candidate eliminated by measurement rather than by argument, and it is
+the first narrowing of that open item since it was opened.
+
+### 4.10.5 What this section does not claim
+
+1. It does **not** claim any Chapter 4 number is wrong. `κ` converts an
+   input error into an output error and is silent on whether an input error
+   exists.
+2. The 5 % perturbation used for the illustrative error bars is
+   **hypothetical**: none of the four literature `R_c` values is quoted with
+   an uncertainty. The resulting bars (Pd 57 %, Au 34 %, Ni 12 %, Cu 6 %)
+   inherit that status.
+3. A second pre-registered prediction — that some *published* Chapter 4 or 5
+   number would carry a >100 % bar under a 5 % input error — is also
+   **falsified**. The worst is Pd's 57 %. `κ` is large exactly where the
+   output is small, so large `κ` here threatens signs, not orders of
+   magnitude; the sign-flip margin of (4.23), not the error bar, is the right
+   instrument and it was not the one predicted.
+4. Sections 4.5, 4.6 and 4.8 are **not** audited here. Only the Section 4.7
+   decomposition and Chapter 5's two families were, and Section 4.8's
+   geometry model in particular contains a ratio of two computed resistances
+   that has never been conditioned.
+
+Figure: `sensitivity_audit.png`, panel (a). Machine output:
+`audit_output.txt`. Pre-registration and outcome:
+`notes/2026-09-22-condition-number-audit-of-chapters-4-and-5.md`.
