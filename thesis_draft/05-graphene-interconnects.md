@@ -328,8 +328,7 @@ ill-conditioned in the quantities those arguments were derived from.**
 Auditing the visible formula alone would have returned `κ ≤ 0.66` and a
 clean bill of health.
 
-### 5.5.3 An exact result: the calibration point pins the model, and the
-### sensitivity to ρ_bulk changes sign through it
+### 5.5.3 An exact result: the calibration point pins the model, and S(ρ_bulk) changes sign through it
 
 The bold row above is not rounding. At `W = W_calibration = 22 nm` the model
 reproduces `ρ_calibration = 3.6 µΩ·cm` **bitwise**, and
