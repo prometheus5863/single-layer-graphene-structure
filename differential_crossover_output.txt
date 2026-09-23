@@ -1,0 +1,112 @@
+==========================================================================
+THE DIFFERENTIAL CROSSOVER OFFSET AND THE SIGN-FLIP THRESHOLD
+scoring notes/2026-09-23-...md, committed at 7175db7 before this file existed
+==========================================================================
+
+Validation 1 (EXACT, bitwise): (c, tau) = (0, 0) reproduces the 2026-09-18 signed model
+  21 pairs; worst |difference|: 0.000e+00 (BITWISE)
+
+Validation 2 (EXACT, bitwise): tau = 0 reproduces 2026-09-22's scalar-offset model
+  231 (pair, c) combinations; bitwise in 231/231; worst |difference|: 0.000e+00
+
+Validation 3 (EXACT): N == 0 at tau = tau*, at EVERY common offset c
+  189 (pair, c) cases; worst |N|: 7.420e-15  (Pd/Pt at c=+0.00)
+
+Validation 4 (EXACT): charge conjugation under a DIFFERENTIAL offset
+  315 cases; exactly 0.000e+00 in 315/315; worst |N + N_flip|: 0.000e+00
+
+Validation 5 (EXACT): a bracketed bisection lands on tau* = W_B - W_A
+  189 (pair, c) searches; worst |root - tau*|: 4.829e-15 eV  (Ti/Cr at c=-1.00)
+  worst drift of the root as c sweeps [-1, +1] eV: 9.659e-15 eV  (Ti/Cr)
+  bracket guard fired on 21/21 deliberately root-free intervals (2026-09-22's bug would have returned an endpoint on every one)
+  P1 (both <= 1e-12 eV): PASS
+
+Validation 6 (EXACT, found while scoring P2): the response factorises by parity
+  169 (m, s) points at zero bias
+  odd in s   : worst |N(m,s) + N(m,-s)| = 2.331e-15
+  even in m  : worst |N(m,s) - N(-m,s)| = 2.331e-15
+  grid convergence of odd-in-s at 0.2 V bias (residual x (n-1) should be constant):
+    n_points =   501   residual = 4.000000e-03   x (n-1) = 2.0000
+    n_points =  1001   residual = 2.000000e-03   x (n-1) = 2.0000
+    n_points =  2001   residual = 1.000000e-03   x (n-1) = 2.0000
+    n_points =  4001   residual = 5.000000e-04   x (n-1) = 2.0000
+    n_points =  8001   residual = 2.500000e-04   x (n-1) = 2.0000
+  => one trapezoid cell, converging as 1/n.  The parity is exact in the continuum;
+     the grid is what departs from it.
+
+RESULT 1: the sign-flip threshold of all 21 pairs (tau* = W_B - W_A, EXACT)
+  pair        tau* (eV)    tau_model range (eV)   margin   status
+  Au/Pd           0.020                      --      --   unreachable (chemisorbed or no d_eq)
+  Ni/Au           0.060                      --      --   unreachable (chemisorbed or no d_eq)
+  Ni/Pd           0.080                      --      --   unreachable (chemisorbed or no d_eq)
+  Cr/Cu           0.150                      --      --   unreachable (chemisorbed or no d_eq)
+  Ti/Cr           0.170                      --      --   unreachable (chemisorbed or no d_eq)
+  Ti/Cu           0.320                      --      --   unreachable (chemisorbed or no d_eq)
+  Cu/Ni           0.390                      --      --   unreachable (chemisorbed or no d_eq)
+  Cu/Au           0.450      [-0.1579, -0.0303]    2.85x   model
+  Cu/Pd           0.470                      --      --   unreachable (chemisorbed or no d_eq)
+  Pd/Pt           0.530                      --      --   unreachable (chemisorbed or no d_eq)
+  Cr/Ni           0.540                      --      --   unreachable (chemisorbed or no d_eq)
+  Au/Pt           0.550      [+0.0060, +0.0295]   18.64x   model
+  Cr/Au           0.600                      --      --   unreachable (chemisorbed or no d_eq)
+  Ni/Pt           0.610                      --      --   unreachable (chemisorbed or no d_eq)
+  Cr/Pd           0.620                      --      --   unreachable (chemisorbed or no d_eq)
+  Ti/Ni           0.710                      --      --   unreachable (chemisorbed or no d_eq)
+  Ti/Au           0.770                      --      --   unreachable (chemisorbed or no d_eq)
+  Ti/Pd           0.790                      --      --   unreachable (chemisorbed or no d_eq)
+  Cu/Pt           1.000      [-0.1284, -0.0243]    7.79x   model
+  Cr/Pt           1.150                      --      --   unreachable (chemisorbed or no d_eq)
+  Ti/Pt           1.320                      --      --   unreachable (chemisorbed or no d_eq)
+
+  pairs Section 6.12 can reach: 3/21
+  the three smallest thresholds: Au/Pd 0.02 eV, Ni/Au 0.06 eV, Ni/Pd 0.08 eV
+  every one of those three contains a chemisorbed metal, i.e. a metal for which
+  Section 6.12 Result 2 REFUSED to return a crossover.  The pairs most at risk are
+  exactly the pairs the model cannot reach.
+
+RESULT 2: is |N| symmetric about the flip?  (u = 0.05 eV either side of tau*)
+  pair             sign   |N(t*-u)|   |N(t*+u)|     asym
+  Cr/Ni       same-sign     0.05975     0.05975    0.00%
+  Ti/Cr       same-sign     0.04019     0.04019    0.00%
+  Ti/Ni       same-sign     0.05354     0.05354    0.00%
+  Ti/Pd       same-sign     0.05628     0.05628    0.00%
+  Cu/Ni       same-sign     0.06658     0.06658    0.00%
+  Ti/Cu       same-sign     0.04325     0.04325    0.00%
+  ... 15 more
+  largest asymmetry over all 21 pairs: 5.574e-15 (relative) -- machine precision, not 'small'
+  P2 (some pair > 1%): FAIL -- FALSIFIED, and by an identity rather than by a margin
+  straddling  asym max: 8.114e-16   same-sign asym max: 5.574e-15
+  P4 (straddling more asymmetric): FAIL -- FALSIFIED; both are zero
+  Reason (Validation 6): N is exactly ODD in s, so |N| depends on s only through
+  |s| and MUST be symmetric about the flip.  P2 and P4 were not long shots that
+  missed; they were excluded by a symmetry the note did not notice it was assuming
+  away.  The useful device statement: at zero bias the response MAGNITUDE is blind
+  to the direction of a differential crossover error, while its SIGN is entirely
+  determined by it.
+
+RESULT 3: the three pairs Section 6.12 can reach
+  pair        tau* (eV) |tau_model| min      max  worst margin
+  Cu/Au           0.450          0.0303   0.1579         2.85x
+  Cu/Pt           1.000          0.0243   0.1284         7.79x
+  Au/Pt           0.550          0.0060   0.0295        18.64x
+  worst margin: Cu/Au at 2.85x -- the sign survives, with that much room
+  P3 (Cu/Au worst, ratio in [2, 4]): PASS  [worst pair Cu/Au, ratio 2.85]
+  smallest |tau_model| anywhere: 0.0060 eV; smallest tau* of all 21 pairs: 0.020 eV
+  P5 (no pair below the smallest model offset): PASS
+
+RESULT 4 (CONDITIONAL -- not a prediction of reversal)
+  Among the metals Section 6.12 admits, the differential crossover offset runs
+  |tau_model| in [0.0060, 0.1579] eV.  Pairs whose ENTIRE sign margin is smaller than
+  the top of that range: 4/21
+    Au/Pd     tau* = 0.020 eV   (unreachable metal: Pd)
+    Ni/Au     tau* = 0.060 eV   (unreachable metal: Ni)
+    Ni/Pd     tau* = 0.080 eV   (unreachable metals: Ni, Pd)
+    Cr/Cu     tau* = 0.150 eV   (unreachable metal: Cr)
+  The conditional: IF Ni and Pd have differential crossover offsets of the same
+  order as the physisorbed metals do, THEN Au/Pd's sign is not merely uncertain,
+  it is more likely wrong than right.  The antecedent is UNTESTED and Section
+  6.12.4 gives reason to think the chemisorbed offsets are LARGER, not smaller,
+  since d_eq sits ~1.2 A below the anchor.  That direction strengthens the
+  conditional and does not license dropping it.
+
+saved differential_crossover.png
