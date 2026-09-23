@@ -2458,3 +2458,182 @@ attention only.
   open since 2026-08-31; **one branch closed by the first session of today**
 - Ti and Cr per-metal `Rc` recalibration (ResearchGate rate-limiting)
 - Second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+---
+
+## 2026-09-23
+
+**Status:** Automated session. Live web search was **not used**; the session
+was analytical and the inputs were already in the repo. The top item of
+2026-09-22's "Not yet covered" list, taken verbatim.
+
+**The question.** 2026-09-22 proved that no *scalar* crossover offset can
+reverse a two-terminal photoresponse: a common offset moves
+`m = (dW_A + dW_B)/2` and leaves `s = (dW_B − dW_A)/2` exactly fixed, and `s`
+sets the sign. That theorem covers the **common mode** of the crossover
+uncertainty and nothing else. Section 6.12 predicts a crossover *per metal*,
+so two contacts do not share one, and their **difference** is the only part
+that moves `s`. 09-22's log named this the top open item and attached a
+number to it: *"a crossover difference of 0.02 eV would flip Au/Pd, where a
+3 eV scalar offset cannot."*
+
+**Pre-registration**, fourth consecutive session, and this time with a change
+of practice: each prediction is labelled **[D]** where the note's own
+reasoning already constrains it (so only a *failure* is informative) or
+**[P]** where it is genuinely open. 09-22's four predictions were not
+labelled this way and two of them were closer to [D] than they looked.
+Committed at `7175db7`, before `graphene_differential_crossover_model.py`
+existed.
+
+**Work done:**
+
+1. **The threshold, in closed form, and it is the session's cleanest
+   result.** Parameterise the two contact crossovers as `w_cross + c ∓ τ/2`,
+   so that exactly `m → m − c` and `s → s − τ/2`. Then
+
+       N = 0 exactly when s = 0, i.e. at   τ* = W_B − W_A
+
+   independently of `c`, of `λ`, of `L` and of every transport parameter.
+   **The differential crossover offset needed to reverse a pair's
+   photoresponse is exactly that pair's work-function gap** — no model
+   evaluation required, and Section 6.13's whole scalar uncertainty band
+   exactly irrelevant to it. P1 (bisection lands on it to ≤1e-12 eV, and
+   does not drift as `c` sweeps ±1 eV): **PASS** at 4.8e-15 and 9.7e-15 eV.
+
+2. **RESULT — a parity factorisation, unplanned, that makes three earlier
+   results corollaries of one identity.** P2 predicted `|N|` would be
+   visibly asymmetric about the flip. It came back **0.00% on all 21
+   pairs** — the signature of an identity, not of a small number. The
+   identity:
+
+       N(m, −s) = −N(m, s)      odd in the differential offset
+       N(−m,  s) = +N(m, s)     even in the common offset
+
+   both to 2.3e-15 over a 13×13 `(m, s)` grid. Consequences: odd-in-`s`
+   **is** the τ* derivation above, in stronger form; even-in-`m` **is**
+   2026-09-22's sign-invariance result, which was obtained by scanning
+   12621 points over ±3 eV — a scan is evidence over the interval scanned,
+   a parity is not restricted to one; and odd-in-`s` forces `|N|` to depend
+   on `s` only through `|s|`, so **P2 and P4 are not near misses, they are
+   excluded**. The note assumed an asymmetry without noticing it was
+   assuming a symmetry away. Found the same way 09-22's Validation 5 was
+   found: while trying to score a prediction, not while planning.
+
+3. **Where the parity stops being exact, and why that is the useful part.**
+   Even-in-`m` is exact *bitwise* at every bias, because the `−m` field is
+   the literal spatial mirror of the `+m` field and `linspace(0, L, n)` is
+   symmetric, so the mirror is exact on the grid. Odd-in-`s` is exact at
+   zero bias and departs at finite bias by exactly `2/(n−1)` — measured at
+   `n = 501, 1001, 2001, 4001, 8001`, residual × (n−1) = **2.0000**
+   throughout, a sixteen-fold range. One trapezoid cell, weight 2 because
+   the collection label jumps `+1 → −1` across it, converging as `1/n`. **A
+   residual that scales with the grid is the grid; a residual that does not
+   is physics.** Third time this chapter has needed that distinction, and
+   the first time it was decided by a convergence study rather than by
+   argument.
+
+4. **RESULT — the pairs most at risk are exactly the pairs the model cannot
+   reach, and this is structural rather than accidental.** Because τ* needs
+   only `METAL_WORK_FUNCTIONS`, the margin table is exact for all 21 pairs.
+   The four smallest margins are Au/Pd **0.020 eV**, Ni/Au 0.060, Ni/Pd
+   0.080, Cr/Cu 0.150 — and every one contains Ni, Pd or Cr, i.e. a metal
+   Section 6.12 *refuses* (chemisorbed, or no tabulated `d_eq`).
+   Chemisorbed metals sit ~1.2 Å below the physisorbed anchor, which is
+   both why 6.12.4's anchored exponential diverges on them and why their
+   crossovers should differ most from everyone else's. **The model's reach
+   and the thesis's risk are anti-correlated by construction.**
+
+5. **RESULT — the three reachable pairs keep their sign, and the two
+   channels are qualitatively unlike.** Cu/Au 2.85×, Cu/Pt 7.79×, Au/Pt
+   18.6× against the model's largest differential offset over
+   `ℓ ∈ [0.3, 1.5] Å`. P3 (Cu/Au worst, ratio in [2, 4]): **PASS** at 2.85.
+   P5 (no pair below the smallest modelled offset): **PASS**. The honest
+   comparison is not a ratio: the common channel has **no** threshold at
+   any magnitude, so quoting "N× more dangerous" against an infinite margin
+   is meaningless — an error written into 6.14.5 earlier in this same
+   session and corrected in `21245f0` rather than silently dropped.
+
+6. **The 2026-09-22 audit item discharged, with two detectors instead of
+   one.** Last session's unbracketed bisection walked its lower bound to its
+   upper bound and returned the endpoint as a root, 21 times, every one
+   plausible, while all five of that module's exact validations passed.
+   This session's root-finder raises on an unbracketed interval — it fired
+   on **21/21** deliberately root-free intervals — and the root it finds is
+   cross-checked against a closed form known *in advance*. A root-finder
+   whose answer is known before it runs is the best possible test of that
+   fault class, and it is the reason this item was done here rather than as
+   a separate sweep.
+
+7. **Writing** (`thesis_draft/06-graphene-photodetectors.md`,
+   `thesis_draft/01-introduction.md`). New Section 6.14, eight subsections,
+   two tables; Chapter 1 status table updated; Chapter 7 handed an
+   **eighth** thread.
+
+**Methodological note, continuing the series.** 09-20: exact validation does
+not protect against an unrepresentative sample. 09-21: pre-registration
+reaches what exact validation cannot. 09-22: pre-registration does not reach
+the analysis layer either, and three failure classes went on record. Today is
+the first entry on the other side of the ledger — not a way claims *break*
+but a way they *consolidate*. One parity absorbed a 12621-point scan, a
+pre-registered derivation and two live predictions. The distinction it
+forces: **a claim checked on a wide sample and a claim derived from a
+symmetry are not the same kind of knowledge**, and this thesis has been
+accumulating the first while quietly assuming it was acquiring the second.
+Chapter 6 now holds exactly one symmetry-derived result against six
+survey-derived ones.
+
+**Predictions scored:** P1 **PASS**, P3 **PASS**, P5 **PASS**, P2
+**FALSIFIED**, P4 **FALSIFIED** — both by exclusion rather than by margin.
+Two of five failing is the same rate as 09-22's two of six; the difference
+is that today's failures were caused by a fact about the model that neither
+the note nor any earlier section had noticed.
+
+**Not yet covered (candidates for future runs):**
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21 and now the **top** item, promoted by today's result.
+  Every number in the margin table's "reachable" column is one anchored
+  exponential with a swept decay length; a second anchor is the only thing
+  that would turn `τ_model` from an illustration into an estimate, and it is
+  what stands between Result 4 and a real error bar on the sign of a
+  photoresponse
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record now, and today made it sharper than
+  ever: the metals the framework cannot describe are *precisely* the metals
+  whose pairs have the smallest sign margins. Still Chapter 6's central
+  structural weakness
+- **Ask which of Chapters 4 and 5's design rules could be restated as
+  parities or bounds rather than rankings over a tabulated set** — created
+  today, and the concrete form of the eighth Chapter 7 thread. Chapter 4's
+  `Rc` ranking and Chapter 5's liner comparison are both rankings; a parity
+  or a ceiling would survive a widened sample where a ranking has twice not
+- **Audit the repo's remaining analysis-layer code for the bracket bug
+  class** — `alpha_from_separation`, the `ell` bisection of 2026-09-21,
+  `contact_resistance_crossover.py` and `graphene_sensitivity_audit.py`.
+  Today's new root-finder is guarded; the four older ones are not known to be
+- **Whether the parity survives a photo-thermoelectric term** — created
+  today. Odd-in-`s` is a property of *this* collection kernel. A PTE term is
+  even in the temperature gradient and would enter with a different parity,
+  which would make it the first thing in the chapter that could break the
+  one clean symmetry it has
+- **Re-check whether other "for every …" claims rest on small samples** —
+  open since 2026-09-20; Chapter 4's per-metal `Rc` recalibration and
+  Chapter 5's liner scenarios still state general rules from subsets
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover** — open since 2026-09-18; Section 4.5 still uses the
+  `|W − W_graphene|` magnitude convention
+- **Chapter 7 (discussion/outlook)** — eight threads, a taxonomy of how
+  claims fail and now one of how they consolidate. Genuinely ready to draft
+- **Chapters 2–3 remain undrafted** despite complete computational results —
+  still the largest remaining block of pure writing
+- Reconciling Mueller *et al.*'s 0.12 eV step (arXiv:0902.1479) with the
+  0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS` assumes — open since
+  2026-09-18; bounded by the `S` table of 6.13 in the common channel and
+  **not** bounded in the differential one, which is a new gap as of today
+- A photo-thermoelectric term (Kasırga review) — see the parity item above
+- Shimomura *et al.*'s comb-electrode design — open since 2026-09-19
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery
+- Isolating the root cause of the Section 4.7 negative-residual result —
+  open since 2026-08-31
+- Ti and Cr per-metal `Rc` recalibration (ResearchGate rate-limiting)
+- Second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
