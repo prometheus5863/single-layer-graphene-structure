@@ -1471,6 +1471,218 @@ with the nominal band shaded, showing curves approaching but never crossing
 zero; (c) the Section 6.11.2 ">2×" claim crossing its own threshold twice
 inside ±0.2 eV.
 
+## 6.14 The differential crossover: an exact sign-flip threshold, and a parity that makes three earlier results corollaries
+
+Section 6.13 closed by naming its own blind spot. Its robustness theorem —
+no scalar crossover offset, of any size, can reverse a two-terminal
+photoresponse — is a statement about the **common mode** of the crossover
+uncertainty and about nothing else. Section 6.12 does not predict one
+crossover; it predicts one per metal. Two contacts therefore do not share a
+`w_cross` at all, and the **difference** between their crossovers is exactly
+the part Section 6.13's theorem cannot touch, because it is the only part
+that moves `s`.
+
+This section is that difference.
+
+### 6.14.1 The two-variable decomposition
+
+Give contact A the crossover `w_cross + c − τ/2` and contact B the crossover
+`w_cross + c + τ/2`. In the offset variables
+
+    dW_A = m − s,    dW_B = m + s,    s = (W_B − W_A)/2,
+    m = (W_A + W_B)/2 − w_cross
+
+this is exactly
+
+    m → m − c,       s → s − τ/2.
+
+`c` is Section 6.13's scalar offset renamed; `τ` is the **differential
+crossover offset**. Together `(c, τ)` span the whole two-metal crossover
+uncertainty, and they are not equally dangerous: `c` moves only `m`, while
+`τ` is the only thing that moves `s`.
+
+This is not a new model. It is the Section 6.8 signed-carrier field entered
+at the `dW` level, as Section 6.12 already does, and Validations 1 and 2
+below pin it bitwise to both predecessors.
+
+### 6.14.2 The threshold, in closed form
+
+    N = 0 exactly when s = 0, i.e. at   τ* = W_B − W_A                 (6.20)
+
+independently of `c`, of `λ`, of `L`, and of every parameter in the transport
+kernel. **The differential crossover offset required to reverse a pair's
+photoresponse is exactly that pair's work-function gap.** No model evaluation
+is needed to obtain it, and the entire scalar uncertainty band of Section
+6.13 is exactly irrelevant to it.
+
+(6.20) was derived and committed before the model existed (note
+`2026-09-23-...`, commit `7175db7`) and is scored below as prediction P1.
+
+### 6.14.3 Validation against six exactly known values
+
+Five were planned. The sixth was found while trying to score a prediction —
+the same way Section 6.13's fifth was — and it turned out to subsume three
+earlier results.
+
+| # | statement | result |
+|---|---|---|
+| 1 | `(c, τ) = (0, 0)` reproduces the Section 6.8 signed model | **bitwise**, 21 pairs |
+| 2 | `τ = 0` reproduces Section 6.13's scalar-offset model | **bitwise**, 231/231 cases |
+| 3 | `N = 0` at `τ = τ*`, at every `c` | worst `7.4 × 10⁻¹⁵`, 189 cases |
+| 4 | charge conjugation under a *differential* offset | **exactly 0**, 315/315 |
+| 5 | a bracketed bisection lands on (6.20) | worst `4.8 × 10⁻¹⁵` eV |
+| 6 | parity factorisation (unplanned) | `2.3 × 10⁻¹⁵` |
+
+Validation 5 carries the audit item Section 6.13.6 opened. The bug that
+section paid for was an unbracketed bisection that walked its lower bound to
+its upper bound and returned the endpoint as a root, 21 times, every one
+plausible. Two independent detectors are now active on the same fault:
+`bracketed_bisect()` raises on an unbracketed interval — it fired on **21/21**
+deliberately root-free intervals, where last session's loop would have
+returned a fake root on every one — and the root it does find is compared
+against a closed form known in advance. The located threshold drifts by
+`9.7 × 10⁻¹⁵` eV as `c` sweeps ±1 eV, which is Section 6.13's entire
+uncertainty band expressed as machine noise.
+
+### 6.14.4 Result: the response factorises by parity, and three earlier results collapse into it
+
+Prediction P2 held that `|N|` would be visibly asymmetric about the flip,
+since `m ≠ 0` there and the transport kernel is nonlinear. It came back
+`0.00%` for all 21 pairs — the signature of an identity, not of a small
+number. The identity is a **parity factorisation**:
+
+    N(m, −s) = −N(m, s)      N is ODD  in the differential offset
+    N(−m,  s) = +N(m, s)     N is EVEN in the common offset
+
+both to `2.3 × 10⁻¹⁵` over a 13 × 13 grid of `(m, s)`. Three results this
+chapter obtained separately are corollaries:
+
+1. **Odd in `s` ⇒ `N(m, 0) = 0` exactly**, which *is* (6.20). The derivation
+   in 6.14.2 went through the antisymmetry of the field; the parity is the
+   stronger and simpler statement.
+2. **Even in `m` ⇒ no common offset of any size can change `sign(N)`.** That
+   is Section 6.13.5, which reached the same conclusion by scanning 12621
+   points over ±3 eV. A scan is evidence over the interval scanned; a parity
+   is not restricted to an interval.
+3. **Odd in `s` ⇒ `|N|` depends on `s` only through `|s|`**, so `|N|` *must*
+   be symmetric about the flip. P2 and P4 are therefore not near misses:
+   they are **excluded**. The pre-registered note assumed the asymmetry
+   without noticing it was assuming a symmetry away.
+
+The device statement worth carrying forward: **at zero bias the response
+magnitude is blind to the direction of a differential crossover error, while
+its sign is entirely determined by it.** A fabrication run whose contact
+chemistry is uncertain in an unknown direction has a predictable
+signal *size* and an unpredictable signal *polarity* — which is the worse of
+the two failure modes for a differential readout.
+
+A note on where the parity stops being exact. Even-in-`m` is exact bitwise at
+every bias, because the `−m` field is the literal spatial mirror of the `+m`
+field and the grid `linspace(0, L, n)` is symmetric, so the mirror is exact
+*on the grid*. Odd-in-`s` is exact at zero bias and departs at finite bias by
+exactly `2/(n−1)`: measured at `n = 501, 1001, 2001, 4001, 8001` the residual
+is `4.0×10⁻³, 2.0×10⁻³, 1.0×10⁻³, 5.0×10⁻⁴, 2.5×10⁻⁴`, i.e. residual `×
+(n−1) = 2.0000` across a sixteen-fold range. That is one trapezoid cell — the
+weight is 2 because the collection label jumps from `+1` to `−1` across it —
+converging as `1/n`. **A residual that scales with the grid is the grid; a
+residual that does not is physics.** This chapter has now needed that
+distinction three times.
+
+### 6.14.5 Result: the pairs most at risk are exactly the pairs the model cannot reach
+
+Because (6.20) needs only `METAL_WORK_FUNCTIONS`, the margin table is exact
+for all 21 pairs, whether or not Section 6.12 can say anything about them.
+
+| pair | `τ*` (eV) | modelled `τ` range (eV) | margin | reachable? |
+|---|---|---|---|---|
+| Au/Pd | **0.020** | — | — | no (Pd chemisorbed) |
+| Ni/Au | **0.060** | — | — | no (Ni chemisorbed) |
+| Ni/Pd | **0.080** | — | — | no (both) |
+| Cr/Cu | **0.150** | — | — | no (Cr has no `d_eq`) |
+| Ti/Cr | 0.170 | — | — | no |
+| Cu/Au | 0.450 | −0.158 … −0.030 | **2.85×** | yes |
+| Au/Pt | 0.550 | +0.006 … +0.030 | 18.6× | yes |
+| Cu/Pt | 1.000 | −0.128 … −0.024 | 7.79× | yes |
+
+(Full 21-row table in `differential_crossover_output.txt`.)
+
+Two things follow, and they point in opposite directions.
+
+**The three pairs the model can reach keep their sign.** The worst margin is
+Cu/Au at **2.85×** — the modelled differential offset would have to be nearly
+three times its largest value across the whole `ℓ ∈ [0.3, 1.5] Å` sweep
+before Cu/Au reverses. That is survival, not comfort: Section 6.13's
+equivalent statement for the *scalar* offset was a factor of about fifteen.
+**The differential channel is roughly five times more dangerous than the
+common one, on the same physics and the same parameter sweep.** P3 predicted
+Cu/Au worst with a ratio in `[2, 4]`: **PASS**.
+
+**The four smallest margins in the whole table belong to pairs Section 6.12
+refuses.** Au/Pd, Ni/Au, Ni/Pd and Cr/Cu all sit below the largest
+differential offset the model produces for the metals it *does* admit
+(0.158 eV), and every one of them contains Ni, Pd or Cr — chemisorbed, or
+without a tabulated separation. This is not a coincidence of this table; it
+is structural. Chemisorbed metals sit ~1.2 Å below the physisorbed anchor,
+which is *both* why Section 6.12.4's anchored exponential diverges on them
+*and* why their crossovers should differ most from everyone else's. **The
+model's reach and the thesis's risk are anti-correlated by construction.**
+
+### 6.14.6 The conditional, stated as a conditional
+
+**If** Ni and Pd have differential crossover offsets of the same order as the
+physisorbed metals do (0.006–0.158 eV), **then** Au/Pd's response sign —
+`τ* = 0.020` eV — is not merely uncertain but more likely wrong than right.
+
+The antecedent is untested and Section 6.12 cannot test it. What can be said
+is the direction of the error: 6.12.4 gives reason to expect the chemisorbed
+differential offsets to be **larger**, not smaller. That strengthens the
+conditional and is emphatically not licence to drop it. Au/Pd is stated here
+as a **threshold that no available model can reach**, which is weaker than a
+prediction of reversal and is the strongest thing the evidence supports.
+
+Au/Pd is also, by Section 6.12.5, the most *sensitive* pair in the chapter,
+and by Section 6.11.2 one of the five in the retraction table. Three
+independent lines now converge on the same pair being the one this thesis
+knows least about.
+
+### 6.14.7 What this section does and does not change
+
+**Changes.**
+- Section 6.13.5's sign-robustness result is **strengthened in kind**: it was
+  a 12621-point scan and is now a parity identity, valid without an interval.
+- Section 6.13.10's closing remark — *"a per-metal crossover difference of
+  0.02 eV would flip Au/Pd"* — is confirmed **exactly**, and generalised: the
+  flipping offset is `W_B − W_A` for every pair.
+- The chapter now has an explicit statement of which of its sign claims are
+  safe (all of them against common offsets; three of twenty-one against
+  differential ones at the modelled magnitudes) and which are unevaluable
+  (the four smallest margins).
+
+**Does not change.** No number in Sections 6.8–6.13 is retracted or altered.
+Predictions P2 and P4 of this session's own note are falsified; they were
+predictions about this model, not results of an earlier section.
+
+### 6.14.8 What this section does not claim
+
+1. It does **not** claim Au/Pd, Ni/Au or Ni/Pd are sign-reversed. It claims
+   their thresholds are small and unreachable by the available model.
+2. `τ_model` is **not** a measurement. It is Section 6.12's one-parameter
+   anchored exponential with a swept decay length and no fitted prefactor;
+   6.12.7's caveats apply unchanged.
+3. The parity identities are established **numerically to machine precision**
+   over the sampled grids, and analytically only in the reflection argument
+   of 6.14.4. That is stronger than a plausible-range check and weaker than
+   a proof for arbitrary transport kernels.
+4. Zero bias is where odd-in-`s` was verified exactly. Under bias the grid
+   study shows the parity surviving in the continuum, but every *device*
+   statement above is a zero-bias statement.
+
+Figure: `differential_crossover.png` — (a) `N(τ)` through the flip for the
+three model-reachable pairs plus Au/Pd, with `τ*` marked; (b) all 21
+thresholds ranked, greyed where Section 6.12 cannot reach the pair, against
+the largest modelled differential offset; (c) the located threshold minus
+`τ*` in units of `10⁻¹⁵` eV as `c` sweeps ±1 eV.
+
 ## 6.10 Further follow-on work
 
 - ~~Model both contacts self-consistently~~ -- **done 2026-09-17,
