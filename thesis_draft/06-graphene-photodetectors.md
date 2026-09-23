@@ -1611,11 +1611,18 @@ Two things follow, and they point in opposite directions.
 **The three pairs the model can reach keep their sign.** The worst margin is
 Cu/Au at **2.85×** — the modelled differential offset would have to be nearly
 three times its largest value across the whole `ℓ ∈ [0.3, 1.5] Å` sweep
-before Cu/Au reverses. That is survival, not comfort: Section 6.13's
-equivalent statement for the *scalar* offset was a factor of about fifteen.
-**The differential channel is roughly five times more dangerous than the
-common one, on the same physics and the same parameter sweep.** P3 predicted
-Cu/Au worst with a ratio in `[2, 4]`: **PASS**.
+before Cu/Au reverses.
+
+That is survival, not comfort, and the right comparison makes the point
+sharper than any ratio would. In the **common** channel there is no threshold
+at all: by the even-in-`m` parity of 6.14.4, no offset of any magnitude
+reverses a sign, so the margin is not large, it is undefined-because-infinite.
+In the **differential** channel the margin is finite for every pair, and for
+Cu/Au it is 2.85 — within a factor of three of the model's own largest
+estimate, on the same physics and the same `ℓ` sweep. The two channels are
+not quantitatively different; they are **qualitatively** different, and the
+chapter's sign claims were previously defended only against the harmless one.
+P3 predicted Cu/Au worst with a ratio in `[2, 4]`: **PASS**.
 
 **The four smallest margins in the whole table belong to pairs Section 6.12
 refuses.** Au/Pd, Ni/Au, Ni/Pd and Cr/Cu all sit below the largest
