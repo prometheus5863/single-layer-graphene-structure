@@ -1169,6 +1169,29 @@ shortest sixth of the declared range. Declaring that range generously is what
 made the failure visible; a narrower sweep would have returned agreement and
 been worth less.
 
+> **Audited 2026-09-24 -- the number stands, and it nearly did not deserve to.**
+> The bisection that produced this boundary was, from the day it was written
+> until 2026-09-24, one of the *unguarded* root-finders whose fault class
+> Section 6.13.6 put on record: it ran 200 halvings with no check that its
+> interval contained a sign change. It has now been audited in full
+> (`graphene_rootfinder_audit.py`, seven validations, 7/7). At the values
+> actually used here the interval **is** bracketed -- `f(lo) = +1.371`,
+> `f(hi) = -0.090` -- so 0.4997 A is a genuine root, with residual
+> `worst(root) - tol = -9.6e-16`, and no number in this section moves. The
+> fault was latent rather than realised: on a deliberately root-free interval
+> the same loop returns 5.00 A, or one ulp above 0.05 A, with equal composure.
+> The audit also converted this section's monotonicity assumption -- that the
+> |dW| shift decreases in ell, without which a bracketed bisection could still
+> return the wrong one of several roots -- from an assertion into a
+> term-by-term proof, with Pt's identically zero term (the paragraph below)
+> as its exact test. And it found that the *fix* initially degraded this
+> number by ten significant digits, because the shared guard's default
+> tolerance is absolute and had been calibrated for a variable of order 1 eV
+> rather than 1e-10 m; see
+> `notes/2026-09-24-root-finder-bracket-audit.md`, Section 4. **The honest
+> reading is that this section's headline survived an audit it had a real
+> chance of failing, and that the audit's own repair had to be audited.**
+
 **Pt's exact 0.00% is an artefact and must not be read as robustness.**
 d_eq(Pt) = 3.30 Å coincides with the anchor, so Pt is pinned by construction
 for every ℓ. Every per-metal number in this section is a shift *relative to
