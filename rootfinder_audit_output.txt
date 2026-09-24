@@ -1,0 +1,111 @@
+==============================================================================
+ROOT-FINDER BRACKET AUDIT -- discharging the 2026-09-23 audit item
+==============================================================================
+==============================================================================
+CANDIDATE CLASSIFICATION -- the 2026-09-23 audit list
+==============================================================================
+  graphene_per_metal_crossover_model.p2_threshold
+      kind    : iterative bisection
+      verdict : REAL -- 200 halvings, no bracket check (the 'ell bisection of 2026-09-21'). Latent: shipped defaults ARE bracketed.
+  contact_doping_nonlinear.alpha_from_separation
+      kind    : affine formula
+      verdict : NOT this class -- cannot iterate. Separate hazard (negative alpha for d < d0) already guarded by alpha_for_metal().
+  contact_resistance_crossover.crossover_length
+      kind    : closed form
+      verdict : NOT this class -- L_x = Rc * W * sigma_sheet, one evaluation.
+  sensitivity_audit Family-B calibration solve
+      kind    : single division
+      verdict : NOT this class -- hazard is a vanishing denominator, not a bracket.
+
+==============================================================================
+VALIDATION 1 (EXACT) -- the three non-solvers contain no iteration
+==============================================================================
+  (a) crossover_length(2Rc) == 2*crossover_length(Rc) bitwise : PASS
+      3.14172720813498284e-13  vs  3.14172720813498284e-13
+  (b) alpha_from_separation affine (midpoint == mean)         : PASS  (0.0 ulp)
+  (c) lambda_imp == lambda_bulk / sum(terms) bitwise          : PASS
+      residual = 1.52173913043478048e-01   lambda_imp = 361.428571 nm
+  -> three of the four audit-list entries are not root-finders.
+
+==============================================================================
+VALIDATION 2 (EXACT) -- the shipped p2_threshold call is bracketed
+==============================================================================
+  f(lo) = worst(0.05 A) - 0.10 = +1.370649
+  f(hi) = worst(5.00 A) - 0.10 = -0.090361
+  sign change present : PASS
+  root  = 0.499733219 A,  worst(root) - tol = +2.359e-16  -> PASS
+  -> Chapter 6's 0.50 A is a genuine root. The fault was LATENT.
+
+==============================================================================
+VALIDATION 3 (EXACT, PRE-REGISTERED) -- the two plausible wrong numbers
+==============================================================================
+  A  tol=2.0     returned 0.050000 A   (predicted: one ulp above lo, not lo)
+     measured    1.0 ulp above lo,  == lo : False   -> PASS
+     worst(returned) = 1.470649, tol = 2.0  -- a root would need equality
+  B  tol=0.005   returned 5.000000 A   (predicted: hi exactly)
+     == hi : True   -> PASS
+     worst(returned) = 0.009639, tol = 0.005
+  -> both are physically plausible decay lengths. Neither is a root.
+  -> CORRECTION to the 2026-09-22 wording: the walk does not always
+     reach the endpoint. `result == lo or result == hi` is not a test.
+
+==============================================================================
+VALIDATION 4 (EXACT) -- the guarded p2_threshold refuses every root-free tolerance
+==============================================================================
+  worst(lo) = 1.470649   worst(hi) = 0.009639
+  12 tolerances above worst(lo) and 12 below worst(hi)
+  raised ValueError : 24/24  -> PASS
+
+==============================================================================
+VALIDATION 5 (EXACT, 1 ulp) -- the fix moves no published number
+==============================================================================
+  unguarded (pre-2026-09-24 body) : 4.99733219460098000e-11 m   residual -9.576e-16
+  guarded   (current)             : 4.99733219460097935e-11 m   residual +2.359e-16
+  separation : 1.0 ulp  -> PASS
+  both residuals at the noise floor : PASS
+  -> 0.4997 A, as published in Chapter 6. The 1 ulp is
+     `hi` vs the final midpoint, not a change in the root.
+
+==============================================================================
+VALIDATION 6 (PROOF, with two exact consequences) -- monotonicity
+==============================================================================
+   Cu  d_eq =  3.26 A   d_eq - D_ANCHOR = -0.04 A   term non-increasing: PASS
+   Au  d_eq =  3.31 A   d_eq - D_ANCHOR = +0.01 A   term non-increasing: PASS
+   Pt  d_eq =  3.30 A   d_eq - D_ANCHOR = +0.00 A   term non-increasing: PASS
+  (ii) Pt term == 0.0 bitwise for all 801 ell : PASS
+       Pt's d_eq equals D_ANCHOR exactly, so the max is over Cu and Au alone.
+  aggregate max non-increasing               : PASS
+  -> monotone by proof, not by sample. The bisection is entitled
+     to assume a unique root once the bracket is checked.
+
+==============================================================================
+VALIDATION 7 (EXACT, unplanned) -- absolute tolerance is not scale-free
+==============================================================================
+  halvings before (hi-lo) < 1e-14  at metre scale : 16   (relative precision 2.0e-04)
+  halvings before (hi-lo) < 1e-14  at O(1) scale  : 48   (relative precision 1.0e-14)
+  tol=1e-14 (absolute default)  : 4.99749374389648371e-11 m   residual -3.364e-06
+  rtol=eps  (scale-free)        : 4.99733219460097935e-11 m   residual +2.359e-16
+  the default is 2.500e+11 ulp from the root -> degradation reproduced: PASS
+  rtol=eps converges            : PASS
+  -> the guard prevents an unbracketed interval; it does not
+     prevent its own default from being wrong for the caller.
+
+==============================================================================
+SUMMARY
+==============================================================================
+  PASS  V1 non-solvers contain no iteration
+  PASS  V2 shipped call is bracketed
+  PASS  V3 pre-registered wrong numbers
+  PASS  V4 guard fires on root-free tolerances
+  PASS  V5 fix moves no published number
+  PASS  V6 monotonicity proved
+  PASS  V7 tolerance scale trap
+
+  7/7 validations passed
+
+  Audit outcome: 1 real instance of the bracket-bug class found and
+  fixed (p2_threshold); 3 of the 4 audit-list entries were not
+  root-finders at all; 0 published numbers changed; 1 correction to
+  the 2026-09-22 description of how the fault manifests.
+
+  Guard now lives in bracketed_root.py and is shared.
