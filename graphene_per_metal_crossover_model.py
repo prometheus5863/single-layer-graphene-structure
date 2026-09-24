@@ -60,6 +60,7 @@ from graphene_photodetector_signed_carrier_model import (
     Q_HOLE, Q_ELECTRON, N_POINTS, W_CROSS_CHEM, signed_offset,
 )
 from graphene_contact_doping_nonlinear_model import D_EQ, CHEMISORBED, D0_SEPARATION
+from bracketed_root import bracketed_bisect
 
 # ---------------------------------------------------------------------
 # The one anchor, and the one unknown
@@ -337,9 +338,24 @@ def result_1_per_metal_offsets(verbose=True):
 def p2_threshold(tol=0.10, lo=0.05e-10, hi=5.0e-10):
     """
     The shortest decay length ell for which EVERY usable metal's |dW| is
-    still within `tol` of its flat-crossover value.  |dW| shift is monotone
-    decreasing in ell (Delta_c -> the anchor as ell grows), so a bisection
-    is exact to machine precision rather than a scan.
+    still within `tol` of its flat-crossover value.
+
+    The |dW| shift is monotone decreasing in ell (Delta_c -> the anchor as
+    ell grows), so a bisection is exact to machine precision rather than a
+    scan.  That monotonicity was asserted here from 2026-09-21 and is now
+    PROVED term by term -- see Validation 6 of graphene_rootfinder_audit.py.
+
+    GUARDED 2026-09-24.  From 2026-09-21 to 2026-09-23 this function ran 200
+    halvings with no check that [lo, hi] bracketed a root, which is exactly
+    the fault class found in graphene_crossover_sensitivity_model.py on
+    2026-09-22.  At the shipped defaults the interval IS bracketed, so no
+    published number was ever wrong -- 0.4997 A is a genuine root and
+    Validation 5 of the audit shows the guarded value is BITWISE identical to
+    the unguarded one.  The fault was latent: `tol`, `lo` and `hi` are
+    keyword arguments, and moving any of them outside the bracketed region
+    returned a plausible decay length that was not a root
+    (measured: 5.00 A for tol=0.005, and one ulp above 0.05 A for tol=2.0).
+    It now raises instead.
     """
     def worst(ell):
         w = 0.0
@@ -348,13 +364,12 @@ def p2_threshold(tol=0.10, lo=0.05e-10, hi=5.0e-10):
             d = METAL_WORK_FUNCTIONS[m] - w_cross_for_metal(m, ell)[0]
             w = max(w, abs(d - f) / abs(f))
         return w
-    for _ in range(200):
-        mid = 0.5 * (lo + hi)
-        if worst(mid) > tol:
-            lo = mid
-        else:
-            hi = mid
-    return hi
+    # tol=0.0, rtol=eps: `ell` is in METRES, so bracketed_bisect's absolute
+    # default of 1e-14 would stop after 16 halvings at a relative precision
+    # of 2e-4 -- see the scale note in bracketed_root.py, and Validation 7
+    # of graphene_rootfinder_audit.py, which measures it.
+    return bracketed_bisect(lambda ell: worst(ell) - tol, lo, hi,
+                            tol=0.0, rtol=np.finfo(float).eps)
 
 
 def result_2_chemisorbed_reductio(verbose=True):
