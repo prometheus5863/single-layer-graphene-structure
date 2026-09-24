@@ -2637,3 +2637,224 @@ the note nor any earlier section had noticed.
   open since 2026-08-31
 - Ti and Cr per-metal `Rc` recalibration (ResearchGate rate-limiting)
 - Second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+---
+
+## 2026-09-24 — The bracket-bug audit: three of four suspects were not root-finders, the one that was never produced a wrong number, and the fix did
+
+**Status:** Automated session. Live web search **not used** — the session was
+an audit of the repo's own analysis layer and every input was already here.
+Taken from 2026-09-23's "Not yet covered" list: *"Audit the repo's remaining
+analysis-layer code for the bracket bug class."* Not the top item (that
+remains the second `Δ_c` anchor); chosen over it because an unguarded
+root-finder can silently corrupt any number the repo later computes,
+including the ones a second anchor would produce.
+
+**The question.** 2026-09-22 found an unguarded bisection in
+`graphene_crossover_sensitivity_model.py` that walked one bound onto the other
+when no sign change existed and reported that bound as a root — 21 times, all
+21 physically plausible, while all five of that module's exact validations
+passed and printed underneath. 2026-09-23 answered it with a
+`bracketed_bisect` that raises, and left an item asking whether anything else
+in the repo had the same hole, naming four suspects.
+
+1. **RESULT — the audit list was wrong about three of its four entries, and
+   it took a test rather than a re-reading to find that out.**
+   `crossover_length` is a closed form (`L_x = R_c W σ_sheet`, one
+   evaluation); `alpha_from_separation` is affine in `d`; Family B's
+   "calibration solve" is a single division. None can iterate, so none can
+   have a bracket. Validation 1 establishes this by identity rather than by
+   inspection, and each identity is false for anything iterative:
+   `crossover_length(2R_c) == 2·crossover_length(R_c)` **bitwise**, α's
+   midpoint equals the mean of its endpoints to **1 ulp**, and
+   `λ_imp == λ_bulk / Σ(terms)` **bitwise**. The two misclassified entries do
+   carry hazards — α goes negative for `d < d₀` (already guarded by
+   `alpha_for_metal`), and the Family-B denominator can vanish — and they are
+   a *different* class. **An audit list assembled by recalling which
+   functions "solve for something" collects functions that merely compute
+   something.**
+
+2. **RESULT — the one real instance, and no published number was ever
+   wrong.** `p2_threshold()` in `graphene_per_metal_crossover_model.py` ran
+   200 halvings with no bracket check from 2026-09-21. At the shipped
+   defaults the interval **is** bracketed (`f(lo) = +1.371`,
+   `f(hi) = −0.090`), so Chapter 6's ℓ = 0.4997 Å is a genuine root with
+   residual `−9.6e-16`. The fault was **latent**: `tol`, `lo` and `hi` are
+   keyword arguments, and the first caller to move any of them out of the
+   bracketed region gets a plausible number and no warning.
+
+3. **Naming an unguarded solver is not showing it can produce a wrong
+   number**, so Validation 3 pre-registered the two wrong numbers and then
+   measured them: `tol = 2.0` (above `worst(lo) = 1.4706`) returns 0.0500 Å,
+   `tol = 0.005` (below `worst(hi) = 0.009638`) returns 5.00 Å. Both are
+   reasonable decay lengths. Neither is a root.
+
+4. **A CORRECTION to the 2026-09-22 wording, and it matters more than it
+   looks.** That note recorded that an unguarded bisection "returns the
+   ENDPOINT". It does in one direction and **does not** in the other: when
+   the loop takes `lo = mid` it lands on `hi` exactly, but when it takes
+   `hi = mid` it **stalls one ulp above `lo`** — once `hi` is the next double
+   after `lo`, `0.5·(lo + hi)` rounds back up to `hi`. Both directions were
+   pre-registered; the ulp count was the prediction and it measured 1.0. So
+   `result == lo or result == hi` looks like a cheap test for this fault and
+   is **false half the time while the answer is meaningless anyway**. The
+   earlier wording would have reassured exactly the caller who went looking.
+
+5. **RESULT — the fix introduced a second fault, of a class no guard can
+   see, and this is the session's real finding.** The first version failed its
+   own Validation 5. The cause was not the guard but the guard's **default
+   tolerance**: `bracketed_bisect(..., tol=1e-14)` compares an **absolute**
+   interval width, chosen in `graphene_differential_crossover_model` for τ, a
+   variable of order 1 eV, where it is ~machine precision (48 halvings).
+   `p2_threshold` bisects a decay length in **metres**, order 5e-11, where the
+   same 1e-14 stops after **16** halvings at a relative precision of **2e-4**
+   — landing `2.5e11` ulps from the root with residual `−3.4e-6`, wrong in the
+   fifth significant figure, and **nothing raised**. The call now passes
+   `tol=0.0, rtol=eps`; `rtol` defaults to 0.0 so every pre-existing caller is
+   bitwise unaffected. **A guard moved to a new call site carries its defaults
+   with it, and a default tolerance is a claim about the scale of the caller's
+   variable.** Reviewing the guard for correctness would never have found
+   this — the guard was correct. It was caught only because the unguarded loop
+   had been returning the right answer for three days and could be used as an
+   oracle. **Deleting the old body before validating against it would have
+   destroyed the only evidence that the new one was worse**, which is the
+   operational form of this repo's standing rule about not quietly rewriting
+   superseded numbers.
+
+6. **RESULT — a load-bearing assumption converted from asserted to proved.**
+   `p2_threshold`'s docstring claimed since 2026-09-21 that the |ΔW| shift is
+   monotone decreasing in ℓ. A checked bracket buys nothing without it: a
+   bisection on a non-monotone function can bracket a root and return the
+   wrong one of several. It is provable term by term — `d_m − d_anchor` has a
+   fixed sign per metal, so each `|exp(−(d_m − d_anchor)/ℓ) − 1|` approaches
+   zero monotonically and a pointwise max of monotone non-increasing functions
+   is monotone non-increasing. The sharper test is an exact consequence rather
+   than the proof: **Pt's `d_eq` equals `D_ANCHOR` exactly (3.30 Å), so Pt's
+   term is `0.0` bitwise at all 801 grid points and the max is really over Cu
+   and Au alone.** Continuing 2026-09-23's distinction, this is the repo's
+   **second** conversion of a sampled claim into a derived one.
+
+7. **Housekeeping, verified rather than assumed.** `bracketed_bisect` now
+   lives in `bracketed_root.py`; `graphene_differential_crossover_model`
+   imports it and its local copy is replaced by a comment recording why the
+   function exists. All six validations and all four results of that module
+   were run before and after the move: printed output **bitwise identical,
+   107 lines**. (Its two `FAIL` lines are 2026-09-23's P2 and P4, falsified
+   then and unchanged now.)
+
+8. **A scoring near-miss worth recording, because it is the DV repo's
+   verdict-vs-checking class appearing here.** The first pass at re-running
+   the differential module scored each validation by the truthiness of its
+   return value. `validate_zero_perturbation` returns its worst deviation —
+   `0.0` on success — so the *passing* case scored as FAIL. A harness that
+   scores a numeric return as a boolean inverts exactly the validations that
+   succeed perfectly. It was caught in the same call by comparing against the
+   original file, which failed identically.
+
+**Methodological note, continuing the series.** 09-20: exact validation does
+not protect against an unrepresentative sample. 09-21: pre-registration
+reaches what exact validation cannot. 09-22: pre-registration does not reach
+the analysis layer. 09-23: the other side of the ledger — how claims
+consolidate. Today adds a fourth failure class and it is the first one
+*created by* a fix: **a correct guard, correctly applied, silently degraded a
+correct number because its default tolerance encoded the scale of its
+original caller.** Every numeric default in this repo — tolerances, step
+sizes, grid counts — is such a claim, made at the call site where each
+function was born. `log_sensitivity`'s `rel_step=1e-5` is relative and
+therefore safe; 09-23's grid counts were settled by a convergence study.
+Nothing else has been looked at.
+
+**Predictions scored:** V3-A **PASS** (one ulp above `lo`, not `lo` — the ulp
+count was the prediction), V3-B **PASS** (`hi` exactly). V5 was written as a
+bitwise claim and **honestly weakened to 1 ulp** when it could not be one:
+the old loop returns `hi` and the shared one returns the final midpoint, which
+differ by one ulp for any function, so a bitwise claim there would have been a
+claim about which of two adjacent doubles a loop names. 7/7 validations pass.
+
+**Not yet covered (candidates for future runs):**
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21 and still the **top** item, untouched today. Every number
+  in 09-23's margin table's "reachable" column is one anchored exponential
+  with a swept decay length; a second anchor is the only thing that would turn
+  `τ_model` from an illustration into an estimate. Today sharpened the stake:
+  the ℓ = 0.4997 Å boundary is now a *verified* root of a *one-anchor* model,
+  so its numerical trustworthiness has outrun its physical content
+- **Audit every other numeric DEFAULT in the repo for the scale assumption
+  it encodes** — created today, and the direct successor to the item just
+  closed. `rel_step`, grid counts, `max_iter`, the `h=H_DIFF` finite
+  difference in `graphene_crossover_sensitivity_model`, `tol` everywhere. The
+  bracket class is closed; this class has one measured member and no detector
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record, and 09-23 showed the metals the
+  framework cannot describe are precisely the metals whose pairs have the
+  smallest sign margins. Still Chapter 6's central structural weakness
+- **Ask which of Chapters 4 and 5's design rules could be restated as
+  parities or bounds rather than rankings over a tabulated set** — created
+  09-23, the concrete form of the eighth Chapter 7 thread, and today added a
+  second symmetry-derived result to argue from
+- **Whether the parity survives a photo-thermoelectric term** — created
+  09-23. Odd-in-`s` is a property of *this* collection kernel; a PTE term
+  enters with a different parity
+- **Re-check whether other "for every …" claims rest on small samples** —
+  open since 2026-09-20; Chapter 4's per-metal `Rc` recalibration and
+  Chapter 5's liner scenarios still state general rules from subsets
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover** — open since 2026-09-18; Section 4.5 still uses the
+  `|W − W_graphene|` magnitude convention
+- **Chapter 7 (discussion/outlook)** — now **eight threads plus today's
+  fourth failure class**, and genuinely ready to draft. It is the largest
+  piece of writing whose material is entirely in hand
+- **Chapters 2–3 remain undrafted** despite complete computational results —
+  still the largest remaining block of pure writing
+- **`__pycache__` is tracked in this repo**, so every script run dirties the
+  working tree and every automated session has to work around it. Repo
+  hygiene, no bearing on any result, deliberately not folded into an audit
+  commit — created today
+- Reconciling Mueller *et al.*'s 0.12 eV step (arXiv:0902.1479) with the
+  0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS` assumes — open since
+  2026-09-18; bounded in the common channel by 6.13's `S` table and **not**
+  bounded in the differential one
+- A photo-thermoelectric term (Kasırga review) — see the parity item above
+- Shimomura *et al.*'s comb-electrode design — open since 2026-09-19
+- Integrating Section 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery
+- Isolating the root cause of the Section 4.7 negative-residual result —
+  open since 2026-08-31
+- Ti and Cr per-metal `Rc` recalibration (ResearchGate rate-limiting)
+- Second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health:** Device reachable, folder connected; neither repo had a
+2026-09-24 entry, so a full session was run. **New constraint measured
+today, and it changed how the repo is obtained:** a full `git clone` of this
+repo over the session VM's proxy would not complete — four attempts, two with
+`early EOF` / `invalid index-pack output` and two silently stalled, at one
+point measuring **238 B/s** from codeload while the other repo cloned in 8.7 s.
+The working recipe is a **partial + shallow + sparse clone**, which never asks
+for the plot blobs at all:
+
+```
+git init -b main && git remote add origin <url>
+git config core.sparseCheckout true
+git config remote.origin.promisor true
+git config remote.origin.partialclonefilter blob:none
+printf '/*\n!*.png\n!*.jpg\n!*.pdf\n!*.gif\n!*.npz\n' > .git/info/sparse-checkout
+git fetch --depth 1 --filter=blob:none origin main     # 5.6 s
+git update-ref refs/heads/main FETCH_HEAD && git checkout main   # 20 s
+```
+
+26 seconds instead of never. Two consequences for a future run: the checkout
+reports "69% of tracked files present" and that is expected, not damage; and
+a regenerated plot must be committed deliberately, since PNGs are
+`SKIP_WORKTREE`. `scipy` is still absent from the device VM and still needs
+installing (`pip install scipy`) — it failed once at 13.6/37.7 MB and
+succeeded on retry, because pip resumes partial downloads. The bridge dropped
+twice mid-session; both times the in-flight command had **not** executed, and
+`git log` in each clone was the reliable check.
+
+**Commits this run:** 5 (the shared guard module with the differential
+module's migration; the `p2_threshold` fix with the tolerance-scale fix; the
+audit with its recorded output; the study note; the Chapter 6.12.3
+annotation). This AUTOMATION_LOG.md entry makes 6. The guard extraction and
+the fix are separate commits because the second one carries a finding of its
+own, and a fix that introduced a fault should be visible as that in the
+history.
