@@ -64,6 +64,7 @@ from graphene_photodetector_signed_carrier_model import (
 from graphene_per_metal_crossover_model import (
     net_response_dw, w_cross_for_metal, usable_metals, ELL_RANGE,
 )
+from bracketed_root import bracketed_bisect
 
 METALS = sorted(METAL_WORK_FUNCTIONS, key=lambda m: METAL_WORK_FUNCTIONS[m])
 U_SMALL = 0.05          # eV -- offset from the flip used in the asymmetry test
@@ -99,40 +100,20 @@ def tau_star(pair):
 # ---------------------------------------------------------------------
 # A root-finder that cannot repeat 2026-09-22's bug
 # ---------------------------------------------------------------------
-def bracketed_bisect(f, lo, hi, tol=1e-14, max_iter=200):
-    """
-    Bisection that REFUSES an unbracketed interval.
-
-    On 2026-09-22 a bisection in graphene_crossover_sensitivity_model.py ran
-    without this check, walked its lower bound up to its upper bound when no
-    sign change existed, and returned the ENDPOINT as a root -- 21 times,
-    every one of them physically plausible, and all five of that module's
-    exact validations passed while it printed them.  The fault was in the
-    analysis layer, which is why model-level validation could not see it.
-
-    The guard is one line and it is the first line.  It raises rather than
-    returning a sentinel, because a sentinel is something a caller can
-    forget to check and an exception is not.
-    """
-    flo, fhi = f(lo), f(hi)
-    if flo == 0.0:
-        return lo
-    if fhi == 0.0:
-        return hi
-    if np.sign(flo) == np.sign(fhi):
-        raise ValueError(
-            f"root not bracketed on [{lo:.6g}, {hi:.6g}]: "
-            f"f(lo)={flo:+.6e}, f(hi)={fhi:+.6e} -- refusing to bisect")
-    for _ in range(max_iter):
-        mid = 0.5 * (lo + hi)
-        fmid = f(mid)
-        if fmid == 0.0 or (hi - lo) < tol:
-            return mid
-        if np.sign(fmid) == np.sign(flo):
-            lo, flo = mid, fmid
-        else:
-            hi, fhi = mid, fmid
-    return 0.5 * (lo + hi)
+# `bracketed_bisect` lived here from 2026-09-23, written after the 2026-09-22
+# fault in graphene_crossover_sensitivity_model.py: a bisection that ran with
+# no bracket check, walked one bound onto the other when no sign change
+# existed, and returned that bound as a root -- 21 times, every one
+# physically plausible, while all five of that module's exact validations
+# passed and printed underneath. The fault was in the analysis layer, which
+# is why model-level validation could not see it.
+#
+# MOVED 2026-09-24 to bracketed_root.py, unchanged in behaviour, because the
+# 2026-09-23 audit item found a second unguarded bisection elsewhere in the
+# repo (p2_threshold) and a guard with two copies is a guard that can drift.
+# This module's six validations were re-run after the move and are unchanged.
+# The move also exposed a scale trap in the `tol` default -- see the note in
+# bracketed_root.py; it does not affect this module, whose variable is O(1) eV.
 
 
 # =====================================================================
