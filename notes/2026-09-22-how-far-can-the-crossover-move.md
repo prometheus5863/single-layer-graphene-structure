@@ -134,6 +134,14 @@ nearest-cancelling pair should be the worst. This is falsifiable in a way P1
 is not: near-cancellation could be non-monotone in separation once the
 kernel's spatial structure enters, in which case some other pair wins.
 
+> **2026-09-25.** That is what happened, and this paragraph is the reason the
+> failure could be scored rather than merely noticed. The verdict **HELD**
+> recorded below was an artefact of a finite-difference step 3.5 decades too
+> coarse; converged, Ti/Cu (0.32 eV apart) wins at 2.828, Cr/Au (0.60 eV) is
+> second, Ni/Pd (0.08 eV) third, and Au/Pd fourth at 2.016. The two closest
+> pairs in the table place third and fourth. Near-cancellation is **not**
+> monotone in contact separation at finite `delta`.
+
 **P3 -- Ti/Pt survives.** Chapter 6's headline pair changes `|N|` by **less
 than 5%** over the whole nominal band `|delta| <= 0.2 eV`. *Rationale:* Ti/Pt
 straddles, and the two previous refinements moved it 4.9% (2026-09-20) and
@@ -214,8 +222,8 @@ Scoring is mechanical: `check_predictions()` in
 | # | prediction | verdict |
 |---|---|---|
 | P1 | clean dichotomy in `A_pair`, ratio > 10 | **FALSIFIED as written** |
-| P1' | the same dichotomy in `S = dln\|N\|/d(delta)` | **HELD, 30.4x** |
-| P2 | Au/Pd is the most sensitive pair | **HELD** |
+| P1' | the same dichotomy in `S = dln\|N\|/d(delta)` | **HELD, 30.4x** — *re-measured 2026-09-25: still held, at 26.7x* |
+| P2 | Au/Pd is the most sensitive pair | **HELD** — **RETRACTED 2026-09-25: falsified; the converged answer at `delta = +0.1 eV` is Ti/Cu. See `notes/2026-09-25-numeric-default-scale-audit.md` and thesis Section 6.13.11.** |
 | P3 | Ti/Pt moves < 5% over the nominal band | **HELD, 0.45%** |
 | P4 | the ">2x mask gain" membership changes | **HELD, twice** |
 | D5 | 21 sign flips, nearest at -0.29 eV | **FALSIFIED: there are none** |
