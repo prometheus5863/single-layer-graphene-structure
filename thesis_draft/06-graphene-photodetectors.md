@@ -1380,6 +1380,18 @@ The most sensitive pair is **Au/Pd** (`|S| = 2.56 eV⁻¹`), whose contacts are
 0.02 eV apart; the least is Pd/Pt (0.0077). This was predicted in advance and
 held.
 
+> **Annotated 2026-09-25 — the numbers in this subsection were computed with a
+> finite-difference step 3.5 decades too coarse; see Section 6.13.11.** The
+> table's numbers are left as computed. Converged, the same-sign range is
+> **0.5817 – 2.5662** rather than 0.6625 – 2.5628, and the dichotomy ratio is
+> **26.7×** rather than 30.4×. The straddling column does not move at all
+> (all six pairs agree to better than 1 part in 10⁵). The result of this
+> subsection — a clean separation with no overlap, an order of magnitude wide
+> — is unaffected, and so is the claim in this paragraph: Au/Pd remains the
+> most sensitive pair at `δ = 0` converged, at `|S| = 2.5662`. What does not
+> survive is the *prediction* P2, which was about `δ = +0.1 eV`, and it is the
+> subject of 6.13.11.
+
 ### 6.13.5 Result: no scalar offset can reverse a response sign
 
 Write `dW_A = m − s` and `dW_B = m + s`, with `s = (W_B − W_A)/2` and
@@ -1493,6 +1505,85 @@ log axis, straddling in blue and same-sign in red; (b) `N(δ)` over ±0.5 eV
 with the nominal band shaded, showing curves approaching but never crossing
 zero; (c) the Section 6.11.2 ">2×" claim crossing its own threshold twice
 inside ±0.2 eV.
+
+### 6.13.11 Annotation (2026-09-25): the step size, and the one prediction it overturned
+
+Every logarithmic sensitivity in Section 6.13 was computed by a central
+difference with the step `H_DIFF = 10⁻³ eV`. A numeric-default audit on
+2026-09-25 measured, for the first time, where that step actually sits relative
+to the plateau of its own derivative. The plateau — the range of `h` over which
+`S(h)` is stationary in `h` — runs from about `10⁻¹⁰` to `3 × 10⁻⁷ eV`. The
+shipped step is **3.5 decades above its top.**
+
+The consequences are uneven and the unevenness is the whole story. Six pairs
+move not at all: every straddling pair agrees to better than 1 part in 10⁵,
+because `|S|` there is small and smooth. Four same-sign pairs move by under
+0.4%. The remaining eleven move by 5.9% to **44.4%**:
+
+| pair | `S` at `h = 10⁻³` | `S` converged | shift |
+|---|---|---|---|
+| Ti/Ni | −1.4037 | −0.9723 | 44.4% |
+| Cr/Ni | −1.4790 | −2.4208 | 38.9% |
+| Cr/Pd | −1.6942 | −1.2836 | 32.0% |
+| Cr/Au | −1.6374 | −1.3223 | 23.8% |
+| Cu/Au | −1.7729 | −2.2627 | 21.6% |
+| Ti/Cu | −0.9503 | −0.7962 | 19.4% |
+| Ti/Cr | −0.6625 | −0.5817 | 13.9% |
+| Cu/Ni | −1.6256 | −1.4757 | 10.2% |
+| Cu/Pd | −1.8114 | −1.6673 | 8.7% |
+| Cr/Cu | −1.1687 | −1.0836 | 7.9% |
+| Ni/Au | −2.3306 | −2.4768 | 5.9% |
+
+Note that the shift is not even one-signed: Cr/Ni and Cu/Au were
+*under*-estimated, the rest over-estimated. A uniform correction factor would
+not have helped.
+
+**What survives.** The dichotomy of 6.13.4 — the sole load-bearing result of
+this section — survives cleanly, at 26.7× instead of 30.4×, with no overlap.
+Au/Pd remains the most sensitive pair at `δ = 0`. Section 6.13.5's sign
+robustness does not involve a derivative at all. Section 6.13.8's Ti/Pt band is
+a ratio of `|N|` values, not a derivative, and is untouched. Nothing in
+Sections 6.8–6.12 or 6.14 reads a number off `S`.
+
+**What does not survive: prediction P2.** P2, pre-registered in the 2026-09-22
+note and recorded there as **HELD**, asserted that the largest `|S|` at
+`δ = +0.1 eV` belongs to **Au/Pd**, on the rationale that amplification is
+near-cancellation and Au/Pd is the nearest-cancelling pair in the table
+(0.02 eV apart). Converged, the ranking at `δ = +0.1 eV` is
+
+| rank | pair | `\|S\|` (eV⁻¹) | contact separation |
+|---|---|---|---|
+| 1 | **Ti/Cu** | 2.828 | 0.32 eV |
+| 2 | Cr/Au | 2.518 | 0.60 eV |
+| 3 | Ni/Pd | 2.291 | 0.08 eV |
+| … | Au/Pd | 2.016 | 0.02 eV |
+
+and that ordering is identical at every step inside the plateau, across four
+decades. **P2 is falsified, and it is falsified in exactly the way its own
+rationale said it could be.** The 2026-09-22 note wrote: *"near-cancellation
+could be non-monotone in separation once the kernel's spatial structure enters,
+in which case some other pair wins."* Some other pair wins. The two closest
+pairs in the table, Au/Pd at 0.02 eV and Ni/Pd at 0.08 eV, place fourth and
+third; a pair 16× further apart places first. Near-cancellation is not
+monotone in contact separation at finite `δ`, and the `δ = 0` extremum
+(Au/Pd, which does hold) was giving a misleading impression that it was.
+
+The mechanism of the artefact is worth one sentence, because it generalises
+past this table. Au/Pd's `|S|` is nearly independent of `h` — 2.0162 across
+five decades, 2.0609 at the shipped step, a 2% drift — while Ti/Cu's collapses
+from 2.8282 to 0.8725, a 69% error. Au/Pd did not lead at `h = 10⁻³` because it
+was the most sensitive pair; it led because it was the pair whose derivative
+that step happened to get right, while its competitors' were destroyed. **A
+ranking taken at a step outside the plateau ranks the entries by how well the
+step suits them.** No amount of care about the physics would have caught that;
+only a sweep over `h` does.
+
+The shipped `H_DIFF` is deliberately *not* changed — these numbers stay
+reproducible and comparable — and a second accessor,
+`sensitivity_converged()`, supplies the plateau-anchored derivative with a
+runtime check that refuses to return an unconverged one. Full measurement in
+`default_scale_audit_output.txt` and `notes/2026-09-25-*.md`; the figure is
+`default_scale_audit.png`.
 
 ## 6.14 The differential crossover: an exact sign-flip threshold, and a parity that makes three earlier results corollaries
 
