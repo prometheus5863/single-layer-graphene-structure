@@ -2858,3 +2858,258 @@ annotation). This AUTOMATION_LOG.md entry makes 6. The guard extraction and
 the fix are separate commits because the second one carries a finding of its
 own, and a fix that introduced a fault should be visible as that in the
 history.
+
+---
+
+## 2026-09-25
+
+**The item closed:** *"Audit every other numeric DEFAULT in the repo for the
+scale assumption it encodes — the bracket class is closed; this class has one
+measured member and **no detector**."* Created 2026-09-24 as the direct
+successor to the item that session closed. The detector exists now, and it
+convicted a default that has been feeding a published table for four days.
+
+Code: `graphene_default_scale_audit.py` (929 lines), output
+`default_scale_audit_output.txt`, figure `default_scale_audit.png`. Follow-on
+code: `sensitivity_converged()` in `graphene_crossover_sensitivity_model.py`,
+output `sensitivity_converged_output.txt`. Study note:
+`notes/2026-09-25-numeric-default-scale-audit.md`. Thesis annotation: new
+Section 6.13.11, plus an annotation block inside 6.13.4.
+
+1. **THE DETECTOR, and why "no detector" was the operative half of that item.**
+   The 09-24 fault was found only because the unguarded loop it replaced had
+   been returning the right answer for three days and could serve as an
+   **oracle**. Most defaults in this repo have no older correct implementation
+   standing beside them, so a technique needing one detects nothing. The
+   detector built today is a **unit-covariance probe**: restate a procedure's
+   problem with its variable in different units and require the answer to
+   transform covariantly, `P_λ(f_λ) == λ·P(f)`. A default that is a pure ratio
+   satisfies this identically; one carrying the dimensions of the variable does
+   not. It needs no oracle, no reference implementation and no correct answer —
+   it tests a procedure against its own units — and it **reproduces the 09-24
+   fault with nothing borrowed from it.**
+
+2. **RESULT — the census, and the 09-24 item conflated two classes.** 19 numeric
+   defaults enumerated and sorted: **5 TOLERANCE-like** (the probe reaches
+   them), **4 COUNT-like** (a dimensionless count passes the probe trivially;
+   only a convergence study reaches what it claims), **10 PHYSICAL** (`T=300 K`,
+   `hopping=2.8 eV`, `sigma=20 nm` — statements about graphene, not about
+   numerics). The PHYSICAL rows are enumerated anyway so the audit's boundary is
+   auditable rather than asserted. Sharpest instance: `p2_threshold(tol=0.10)`
+   *looks* like a numerical tolerance and is not — 10% is P2's definition, and
+   tightening it changes the question. The two unstudied counts were studied:
+   `n_points=400` is converged to 6.6e-06 against a 25 600-node reference (D6
+   held), and `max_iter=200` has a 3.3× margin over the 61 halvings the widest
+   interval here uses (D5 held).
+
+3. **RESULT — the probe's five verdicts all matched pre-registration.** Two
+   defaults are scale-bound: `bracketed_bisect`'s `tol=1e-14` (the known member,
+   4.9e-02 at λ=1e-3) and **`H_DIFF`** (2.5e+01). The `rtol` call, the
+   pure-halving call and `log_sensitivity`'s `rel_step` are scale-free at
+   **exactly 0.0** deviation.
+
+4. **A property of the probe, learned from a failed prediction.** D1 predicted
+   the deviation band `1e-6 … 1e-2`; measured 4.9e-02 at λ=1e-3 and 4.8e-05 at
+   λ=1e+3. The band was written from the λ>1 direction alone and **the probe is
+   asymmetric in λ**: shrinking the variable makes an absolute tolerance coarse
+   relative to the interval (catastrophic), while growing it makes the tolerance
+   fine, so the residual deviation is then dominated by the error of the λ=1
+   **baseline** rather than of the rescaled run. A deviation from this probe is a
+   reliable yes/no and **not a calibrated error estimate.** Same asymmetry
+   `bracketed_root.py` already records for the unguarded loop, in a new guise.
+
+5. **RESULT — the screen is not the verdict, and separating them is what kept a
+   correct number correct.** Failing covariance means a default *encodes* a
+   scale, not that it is wrong. Stage (a), the screen, is cheap and needs
+   nothing; stage (b), a plateau or convergence measurement at the shipped
+   scale, is the only stage that can convict. Reporting (a) as the verdict would
+   condemn correct numbers, which is the **mirror image** of the 09-24 fault and
+   the more expensive mistake, because it moves published tables. Of the two
+   flagged, `tol=1e-14` was acquitted (its one metre-scale caller passes `rtol`)
+   and `H_DIFF` was convicted.
+
+6. **RESULT — `H_DIFF = 1e-3 eV` sits 3.5 DECADES above the top of its own
+   plateau.** The plateau of `d ln|N|/dδ` was measured for the first time today
+   and runs ~`1e-10` to `3e-7 eV`. **D4 was written as a null result precisely
+   so it could fail, and it failed.** The damage is uneven and the unevenness is
+   the story: all six straddling pairs agree to better than 1 part in 1e5; four
+   same-sign pairs move under 0.4%; the remaining **eleven move 5.9% to 44.4%**
+   (Ti/Ni 44.38, Cr/Ni 38.90, Cr/Pd 31.99, Cr/Au 23.83, Cu/Au 21.65, Ti/Cu
+   19.35, Ti/Cr 13.89, Cu/Ni 10.16, Cu/Pd 8.65, Cr/Cu 7.85, Ni/Au 5.90) — and
+   **not one-signed**: Cr/Ni and Cu/Au were *under*-estimated, so no uniform
+   correction factor would have rescued the table. **Section 6.13.4's dichotomy,
+   that section's only load-bearing result, SURVIVES** at 26.7× rather than
+   30.4×, with no overlap. That is the outcome to lead with.
+
+7. **RESULT — prediction P2 is FALSIFIED, and in exactly the way its own
+   rationale said it might be.** P2 (pre-registered 2026-09-22, recorded there
+   as **HELD**, verdict row now annotated in place): the largest `|S|` at
+   `δ = +0.1 eV` is Au/Pd, because amplification is near-cancellation and Au/Pd
+   is the nearest-cancelling pair (0.02 eV apart). Converged: **Ti/Cu 2.828
+   (0.32 eV apart), Cr/Au 2.518 (0.60 eV), Ni/Pd 2.291 (0.08 eV), Au/Pd fourth
+   at 2.016** — identical at every step inside the plateau, over four decades.
+   The two closest pairs place third and fourth; a pair **16× further apart
+   wins**. Near-cancellation is **not monotone in contact separation at finite
+   δ**. The 09-22 note had written the escape hatch into the prediction —
+   *"near-cancellation could be non-monotone in separation once the kernel's
+   spatial structure enters, in which case some other pair wins"* — and some
+   other pair wins. That is what converts this from a surprise into a scored
+   falsification, and it is the strongest evidence yet for the pre-registration
+   habit adopted 09-21. **The mechanism generalises past this table:** Au/Pd's
+   `|S|` drifts **2%** across five decades of step size while Ti/Cu's collapses
+   **69%**, so Au/Pd led at `h=1e-3` not by being most sensitive but by being
+   the pair that step suited. **A ranking taken outside the plateau ranks its
+   entries by how well the step suits them.**
+
+8. **RESULT — the fifth failure class, and the first in the series where the FIX
+   for the previous class was itself the fault.** The obvious fix was already in
+   the repo: `log_sensitivity` has returned `|S(h) − S(2h)|` with every value
+   since 09-22. The first `sensitivity_converged()` adopted that pattern and it
+   is **blind**: at `h=1e-3`, Ti/Ni's true error is **44.38%** and its
+   step-doubling estimate is **2.33e-06** — under-reporting by **190 268×** (also
+   Cu/Ni 10.16% vs 5.48e-05, Cr/Pd 31.99% vs 3.96e-04). The mechanism is exact:
+   step-doubling measures `dE/d(log h)` of the error curve `E(h) = S(h) − S(0)`
+   and reads **zero at any stationary point** of it, and `S(h)` for Ti/Ni is flat
+   to four digits from `1e-3` to `1e-2`. **A shipped default has no reason to
+   avoid a stationary point of its own error curve, and landing on one makes
+   every local self-consistency test agree with it.** The criterion is therefore
+   **anchored, not self-consistent** — accept a step only if the derivative is
+   unchanged at `h/10` *and* `h/100`. Measured: **11 of 11** moved pairs caught
+   at `H_DIFF`, **zero escapes**, Ti/Ni included; all 21 pass at
+   `H_DIFF_CONVERGED = 1e-8`, worst residual 9.6e-05; the two populations are
+   separated by **2.82 decades** and `rtol = 1e-3` is placed inside that measured
+   gap rather than chosen for roundness — an odd thing to do on the day the repo
+   learned a threshold is a default and a default is a claim.
+
+9. **Two design points recorded in the code because they are not trivia.**
+   `H_DIFF_CONVERGED` is `1e-8` and not `1e-7` because at `1e-7` two pairs fail a
+   `1e-6` requirement — Cr/Ni 3.98e-05 and Cu/Au 5.07e-05, against 1e-9…1e-7 for
+   the other nineteen — and both drop exactly 100× when `h` drops 10×, so it is
+   ordinary second-order truncation and those two pairs simply have a third
+   derivative ~100× the rest. **No single global step is right for every pair,
+   and the only reason that is visible is that the function returns its
+   estimates instead of asserting them.** And the residual 9.6e-05 at the
+   accepted step belongs to Pd/Pt, whose `|S|` is 0.0077: two decades down at
+   `1e-10` it reaches the **cancellation floor**, not any truncation.
+
+10. **This audit's own validation committed the audited error.** Validation 4
+    asserted a central difference of an exactly linear function recovers the
+    slope to better than `1e-14` relative, and **measured 4.8e-11 and failed.**
+    The arithmetic was right and the assertion wrong: cancellation leaves
+    `eps·|c₀|` in the numerator, so the bound is `eps·|c₀|/(2h|c₁|)` — 7.7e-15 at
+    `h=1e-3`, 7.7e-10 at `h=1e-8`. **The threshold `1e-14` was an absolute
+    constant silently encoding `h ≈ 1e-3`: the audited fault class, one level up,
+    inside the auditor.** Caught by the test failing, not by review, and recorded
+    rather than quietly corrected.
+
+11. **One validation retained BECAUSE IT CANNOT DISCRIMINATE.** Bisecting an odd
+    function on a symmetric interval returns bitwise `0.0` after one evaluation
+    at any tolerance, any width, with or without `rtol`. Exact, and it passes for
+    the good default and the bad one alike — it proves the harness and nothing
+    about the default. Recording a non-discriminating test **as**
+    non-discriminating is cheaper than rediscovering that it was; this repo has
+    twice mistaken one for the other (09-22's analysis-layer fault, which every
+    model-level validation passed underneath; 09-24's truthiness-scored
+    validation).
+
+12. **Nothing was quietly rewritten.** `H_DIFF` stays at `1e-3` and
+    `sensitivity()` is bitwise unchanged — the whole module's printed output is
+    **identical before and after**, 100 lines. Section 6.13.4 keeps its table and
+    gains an annotation; the 09-22 note keeps its `HELD` and gains a retraction
+    beside it. The converged accessor is additive.
+
+**Methodological note, continuing the series.** 09-20: exact validation does not
+protect against an unrepresentative sample. 09-21: pre-registration reaches what
+exact validation cannot. 09-22: pre-registration does not reach the analysis
+layer. 09-23: the other side of the ledger — how claims consolidate. 09-24: a
+correct guard silently degraded a correct number because its default encoded the
+scale of its original caller. **09-25: a procedure asked whether it has
+converged can answer yes and be wrong by 44%. Self-consistency near a stationary
+point of the error curve is not evidence; only an anchored comparison against a
+step known independently to be in the plateau distinguishes them.** And an
+ordering worth stating, because it was not obvious in advance: the screen came
+first and cost nothing, the margin measurement second and cost seconds, and the
+published-claim check last — and it is the only one that produced a correction.
+The screen alone flags `H_DIFF` without knowing whether to care; the margin study
+alone shows a bad step without knowing which claim it reaches. Neither alone is
+an audit.
+
+**Predictions scored:** D2, D3, D5, D6 **PASS**. D1 **FAIL** on its magnitude
+band and not its class call (see item 4). D4 **FAIL**, written as a null result
+so that it could (see item 6). **5/5 validations pass**, after Validation 4 was
+rebuilt on a derived bound following its first-form failure.
+
+**Not yet covered (candidates for future runs):**
+- **`output_conductance(dVds=1e-3)` at `Vds = 0.05 V`** — created today and the
+  **top numerical item**. The identical construction to `H_DIFF`, a step 2% of
+  its variable, found by the census rather than the probe. Deliberately not
+  measured today because `g_ds` feeds `f_max`, a published number, and moving it
+  needs its own before/after comparison. The instrument now exists and takes
+  minutes per default
+- **`log_sensitivity`'s own convergence estimate IS step-doubling** — created
+  today and sharper than it looks: the Chapter 4 `R_transmission` decomposition
+  and Chapter 5 liner scenarios rest on the pattern item 8 shows to be blind by
+  five orders of magnitude, and have never been checked against an anchored
+  criterion
+- **Whether any Chapter 4 or 5 RANKING is a step artefact of the same kind** —
+  created today. The 6.13 ranking was, and "a ranking orders its entries by how
+  well a shared numerical choice suits each" is not specific to derivatives or
+  to Chapter 6
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open since
+  2026-09-21 and still the top *physics* item, untouched today. Every number in
+  09-23's margin table's "reachable" column is one anchored exponential with a
+  swept decay length; a second anchor is the only thing that would turn
+  `τ_model` from an illustration into an estimate
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; still Chapter 6's central structural
+  weakness. Today's result touches it: Ti/Cu and Ti/Ni are among the pairs whose
+  sensitivities moved most, and Ti is one of the three metals the framework
+  cannot describe
+- **Ask which of Chapters 4 and 5's design rules could be restated as parities
+  or bounds rather than rankings over a tabulated set** — created 09-23, and
+  today is a strong new argument *for* it: a parity or a bound is not a ranking,
+  and today showed a ranking can be an artefact of a shared numerical default
+- **Whether the parity survives a photo-thermoelectric term** — created 09-23
+- **Re-check whether other "for every …" claims rest on small samples** — open
+  since 2026-09-20
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover** — open since 2026-09-18
+- **Chapter 7 (discussion/outlook)** — now **nine threads plus today's fifth
+  failure class**, and still the largest piece of writing whose material is
+  entirely in hand. Planned for today and displaced by the P2 falsification,
+  which was worth the displacement
+- **Chapters 2–3 remain undrafted** despite complete computational results
+- **`__pycache__` is tracked in this repo** — open since 09-24 and it cost real
+  time today: a `git stash` used for the before/after regression check refused
+  to pop because the stale `.pyc` files had been rewritten by the intervening
+  run. Recoverable (`git checkout -- __pycache__` then pop) but it is now a
+  hazard and not only an annoyance
+- Reconciling Mueller *et al.*'s 0.12 eV step (arXiv:0902.1479) with the
+  0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS` assumes — open since 2026-09-18
+- A photo-thermoelectric term (Kasırga review); Shimomura *et al.*'s
+  comb-electrode design; integrating 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery; isolating the root cause of the
+  Section 4.7 negative residual (open since 2026-08-31); Ti and Cr per-metal
+  `Rc` recalibration (ResearchGate rate-limiting); a second independent
+  edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health:** Device reachable, folder connected; neither repo had a
+2026-09-25 entry, so a full session was run. **The 09-24 clone constraint did
+not reproduce:** a plain `git clone` of this repo completed normally and fast,
+so the partial/shallow/sparse recipe recorded yesterday was not needed. That
+makes yesterday's 238 B/s measurement look like a transient proxy condition
+rather than a standing property of this repo — the recipe is kept in yesterday's
+entry as a fallback, not a requirement. `git config user.name/user.email` was
+again absent in the fresh clone and was set **in its own call**, per 09-24's
+finding. `scipy` was again absent from the device VM and `pip install scipy`
+succeeded first time (1.15.3). No live web search was used today: the session's
+work was entirely internal — an audit of this repo's own numbers — and needed
+none.
+
+**Commits this run:** 4 (the audit with its output and figure; the
+plateau-anchored accessor with its recorded output; the thesis 6.13 annotation
+and P2 retraction; the study note with the 09-22 note's in-place annotation).
+This AUTOMATION_LOG.md entry makes 5. The audit and the accessor are separate
+commits because the accessor's first version was wrong in a way that is a result
+of its own, and a fix whose obvious form was blind should be visible as that in
+the history — the same reason 09-24 split its guard extraction from its fix.
