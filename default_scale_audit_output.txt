@@ -1,0 +1,271 @@
+==============================================================================
+NUMERIC-DEFAULT SCALE AUDIT -- 2026-09-25
+closing the 2026-09-24 item: the scale-assumption class had one
+measured member and no detector.  This is the detector.
+==============================================================================
+
+------------------------------------------------------------------------------
+VALIDATIONS (exact)
+------------------------------------------------------------------------------
+
+VALIDATION 1 (exact): identity rescaling lam=1 -> deviation must be bitwise 0.0
+    bisect tol=1e-14       deviation = 0.0e+00   OK
+    bisect rtol=eps        deviation = 0.0e+00   OK
+    H_DIFF=1e-3            deviation = 0.0e+00   OK
+  -> worst = 0.0e+00   PASS
+
+VALIDATION 2 (exact, and NON-DISCRIMINATING BY CONSTRUCTION):
+    odd f on symmetric [-b,b] -> root exactly 0.0, first midpoint exactly 0.0
+    b=  1.0e+00  {'tol': 1e-14}               -> 0.0
+    b=  1.0e+00  {'tol': 0.0, 'rtol': np.float64(2.220446049250313e-16)} -> 0.0
+    b=  5.0e-11  {'tol': 1e-14}               -> 0.0
+    b=  5.0e-11  {'tol': 0.0, 'rtol': np.float64(2.220446049250313e-16)} -> 0.0
+    b=  5.0e+11  {'tol': 1e-14}               -> 0.0
+    b=  5.0e+11  {'tol': 0.0, 'rtol': np.float64(2.220446049250313e-16)} -> 0.0
+  -> all bitwise 0.0: True   PASS (harness sound; discriminates nothing)
+
+VALIDATION 3 (exact): reproduce 2026-09-24's measured member
+    interval width 4.9500e-10 m, absolute tol 1e-14
+    halvings to convergence = 16   (2026-09-24 logged: 16)
+    final interval 7.553e-15 m -> relative precision 1.5e-04   (logged: 2e-4)
+  -> PASS
+
+VALIDATION 4 (exact, DERIVED bound -- first form of this test FAILED):
+    central difference of f = c0 + c1*d has no truncation error, only cancellation
+             h    rel. error   derived bound   ok
+       1.0e+00      0.00e+00        7.66e-18   yes
+       1.0e-01      1.23e-16        7.66e-17   yes
+       1.0e-03      2.94e-15        7.66e-15   yes
+       1.0e-08      4.79e-11        7.66e-10   yes
+  -> PASS   (a fixed 1e-14 threshold would FAIL here, and did)
+
+VALIDATION 5 (exact): probing must not move the shipped numbers
+    21 pairs, d ln|N|/d delta at H_DIFF, before vs after all probes: bitwise identical = True
+  -> PASS
+
+==============================================================================
+RESULT 1 -- census of numeric defaults, and which instrument reaches each
+==============================================================================
+
+  [TOLERANCE]  n = 5   instrument: unit-covariance probe (this module)
+    bracketed_bisect tol                   = 1e-14            absolute interval width; the one member measured 2026-09-24
+    bracketed_bisect rtol                  = 0.0              relative; default 0.0 keeps pre-existing callers bitwise unchanged
+    log_sensitivity rel_step               = 1e-5             RELATIVE step -- flagged safe by inspection 2026-09-24
+    H_DIFF                                 = 1e-3 eV          ABSOLUTE central-difference step on delta
+    output_conductance dVds                = 1e-3 V           ABSOLUTE finite-difference step on Vds (order 0.05 V)
+
+  [COUNT]  n = 4   instrument: convergence study -- the probe says NOTHING
+    bracketed_bisect max_iter              = 200              halving budget; interacts with tol=0.0, where it SETS the precision
+    sign_invariance_scan n                 = 601              settled by the 2026-09-23 convergence study
+    junction_extra_resistance n_points     = 400              trapezoid nodes over the junction; never studied
+    k_path_graphene n_points               = 100              plot resolution only; no number is read off it
+
+  [PHYSICAL]  n = 10   instrument: out of scope: a claim about graphene, not numerics
+    DELTA_NOMINAL / DELTA_OUTER            = 0.2 / 0.5 eV     the perturbation band adopted in Section 2
+    junction_extra_resistance L_junction   = 1e-6 m           the junction length the integral is taken over
+    contact_edge_carrier_density T         = 300.0 K          room temperature
+    recalibrate_metal_rc n_bulk            = 2.0e16 m^-2      the bulk doping the recalibration assumes
+    graphene_hamiltonian hopping           = 2.8 eV           the nearest-neighbour hopping integral
+    p2_threshold tol                       = 0.10             the 10% band P2 is DEFINED as; not a numerical tolerance
+    p2_threshold lo / hi                   = 0.05e-10 / 5.0e-10 m the swept decay-length range
+    g_gaussian_spot sigma                  = 20e-9 m          the spot size
+    transfer_characteristic Vds            = 0.05 V           the bias the transfer curve is taken at
+    gate_resistance N_fingers              = 1                a layout choice, swept explicitly in Section 4.9
+
+  total enumerated: 19
+  The PHYSICAL rows are listed and not probed ON PURPOSE.  The
+  2026-09-24 item said 'every numeric default'; two thirds of
+  them are modelling choices, and an audit that probed those
+  would report covariance failures that mean nothing.  A
+  default like p2_threshold's tol=0.10 LOOKS like a numerical
+  tolerance and is not: 10% is the definition of P2.
+
+==============================================================================
+RESULT 2 -- unit-covariance probe.  Relative deviation from P(lam*x) == lam*P(x)
+==============================================================================
+  default                                      lam=0.001       lam=1    lam=1000   lam=1e+06       verdict
+  bracketed_bisect tol=1e-14                    4.92e-02    0.00e+00    4.80e-05    4.81e-05   SCALE-BOUND
+  bracketed_bisect tol=0, rtol=eps              0.00e+00    0.00e+00    0.00e+00    0.00e+00    scale-free
+  bracketed_bisect tol=0, rtol=0 (200 halvings)    0.00e+00    0.00e+00    0.00e+00    0.00e+00    scale-free
+  H_DIFF = 0.001 (absolute)                     2.47e+01    0.00e+00    1.33e-03    1.33e-03   SCALE-BOUND
+  h = 0.5% of DELTA_NOMINAL (relative)          0.00e+00    0.00e+00    0.00e+00    1.42e-16    scale-free
+
+  threshold for 'scale-free': worst deviation <= 64 eps (1.4e-14)
+  all five verdicts match the pre-registered expectation: True
+
+==============================================================================
+RESULT 3 -- H_DIFF margin.  Worst relative deviation of d ln|N|/d delta over all 21 pairs
+==============================================================================
+  reference step 1e-07 eV;  plateau band = 0.001 relative
+        h (eV)   worst rel. dev.   in band
+      1.00e-10          9.54e-05   yes 
+      3.16e-10          3.45e-05   yes 
+      1.00e-09          1.69e-05   yes 
+      3.16e-09          1.68e-05   yes 
+      1.00e-08          1.67e-05   yes 
+      3.16e-08          1.52e-05   yes 
+      1.00e-07          0.00e+00   yes 
+      3.16e-07          1.52e-04   yes 
+      1.00e-06          1.67e-03   no  
+      3.16e-06          1.67e-02   no  
+      1.00e-05          1.30e-01   no  
+      3.16e-05          1.72e-01   no  
+      1.00e-04          3.65e-01   no  
+      3.16e-04          4.68e-01   no  
+      1.00e-03          4.44e-01   no    <-- SHIPPED H_DIFF
+      3.16e-03          6.02e-01   no  
+      1.00e-02          2.19e+01   no  
+      3.16e-02          8.53e+00   no  
+
+  plateau edges: 1.00e-10 .. 3.16e-07 eV
+  shipped H_DIFF = 0.001 eV, worst deviation 4.44e-01
+  margin: 7.00 decades below, -3.50 decades above
+
+==============================================================================
+RESULT 4 -- max_iter=200 margin
+==============================================================================
+  halvings until the midpoint stops moving (double precision, this interval): 56
+  shipped max_iter = 200  ->  margin x3.57
+  Covariant: halving is a ratio, so the count is scale-free and the probe
+  in RESULT 2 confirms it.  But the number is still a claim -- that 200
+  exceeds what any interval in this repo needs -- and it is now measured
+  rather than assumed.
+
+==============================================================================
+RESULT 5 -- grid convergence of junction_extra_resistance (COUNT class)
+==============================================================================
+  reference n_points = 25600;  R_extra in Ohm.um
+       n          Ti          Ni          Pd          Au          Pt    worst rel.
+      50     55.4329    830.3311    533.0667    609.1308   -351.2861      4.35e-04
+     100     55.4147    830.4313    533.0548    609.1524   -351.3115      1.07e-04
+     200     55.4102    830.4557    533.0518    609.1577   -351.3177      2.64e-05
+     400     55.4091    830.4618    533.0511    609.1590   -351.3192      6.57e-06  <-- SHIPPED
+     800     55.4088    830.4633    533.0509    609.1593   -351.3196      1.64e-06
+    1600     55.4088    830.4637    533.0509    609.1594   -351.3197      4.08e-07
+    3200     55.4087    830.4638    533.0509    609.1594   -351.3197      1.01e-07
+    6400     55.4087    830.4638    533.0509    609.1594   -351.3197      2.40e-08
+
+  at the shipped n_points=400 the worst relative error is 6.57e-06
+
+==============================================================================
+RESULT 6 -- a SECOND absolute-step default, from the census
+==============================================================================
+  output_conductance(dVds=1e-3) at Vds = 0.05 V   ->  step is 2.0% of the variable
+  sensitivity()'s H_DIFF = 1e-3 eV at delta ~ 0.2 eV       ->  step is 0.5% of the variable
+  Both are the identical construction -- an absolute step whose correctness
+  depends on a scale stated nowhere near it.  H_DIFF is measured in RESULT 3.
+  dVds is NOT measured here and is logged as an open item: it feeds f_max.
+
+==============================================================================
+RESULT 7 -- P2 IS A TRUNCATION ARTEFACT  (unpredicted; the session's real finding)
+==============================================================================
+
+  Top three pairs by |S| at delta = 0.1, as a function of the step:
+    h=1e-09  Ti-Cu 2.8282   Cr-Au 2.5185   Ni-Pd 2.2912
+    h=1e-08  Ti-Cu 2.8282   Cr-Au 2.5185   Ni-Pd 2.2912
+    h=1e-07  Ti-Cu 2.8282   Cr-Au 2.5184   Ni-Pd 2.2912
+    h=1e-06  Ti-Cu 2.8275   Cr-Au 2.5159   Ni-Pd 2.2912
+    h=1e-05  Ti-Cu 2.7563   Ni-Pd 2.2908   Cr-Au 2.2286
+    h=1e-04  Ni-Pd 2.1475   Au-Pd 2.0172   Ti-Cu 1.9935
+    h=1e-03  Au-Pd 2.0609   Ni-Au 1.9028   Ni-Pd 1.8977   <-- SHIPPED
+    h=1e-02  Au-Pd 2.0451   Ni-Pd 1.9294   Ni-Au 1.8930
+
+  P2 ('the top pair is Au-Pd') at the shipped step: PASS
+  P2 at every step inside the plateau (1e-9 .. 1e-6):        FAIL  <-- FALSIFIED
+
+  Per-pair shift, shipped H_DIFF vs converged h = 1e-7:
+    pair         shipped   converged     shift
+    Ti-Ni       -1.40372    -0.97226    44.38%
+    Cr-Ni       -1.47897    -2.42073    38.90%
+    Cr-Pd       -1.69421    -1.28355    31.99%
+    Cr-Au       -1.63736    -1.32230    23.83%
+    Cu-Au       -1.77290    -2.26264    21.64%
+    Ti-Cu       -0.95027    -0.79618    19.35%
+    Ti-Cr       -0.66249    -0.58172    13.89%
+    Cu-Ni       -1.62562    -1.47565    10.16%
+    Cu-Pd       -1.81142    -1.66725     8.65%
+    Cr-Cu       -1.16869    -1.08363     7.85%
+    Ni-Au       -2.33062    -2.47677     5.90%
+    Ni-Pd       -2.39874    -2.40619     0.31%
+    Au-Pd       -2.56284    -2.56624     0.13%
+    Ti-Au       -1.23182    -1.23162     0.02%
+    Ti-Pd       -0.70015    -0.70011     0.01%
+    Pd-Pt       -0.00774    -0.00774     0.00%   straddling
+    Au-Pt       -0.01160    -0.01160     0.00%   straddling
+    Ni-Pt       -0.01903    -0.01903     0.00%   straddling
+    Cu-Pt       -0.02182    -0.02182     0.00%   straddling
+    Cr-Pt       -0.01924    -0.01924     0.00%   straddling
+    Ti-Pt       -0.01654    -0.01654     0.00%   straddling
+
+  P1 substance (min|S| same-side / max|S| straddling):
+    shipped   h=0.001:  30.362   (> 10 claimed: True)
+    converged h=1e-07:  26.660   (> 10 claimed: True)
+
+  So: the straddle-versus-same-side result SURVIVES, the per-pair table moves
+  by up to 44%, and one pre-registered prediction that was scored PASS is now
+  falsified.  Nothing here is rewritten -- the shipped numbers stay, annotated.
+
+==============================================================================
+PREDICTIONS SCORED
+==============================================================================
+  D1  FAIL   probe reproduces the 09-24 member; rtol version passes
+  D2  PASS   log_sensitivity rel_step covariance is BITWISE zero
+  D3  PASS   H_DIFF fails covariance -- second scale-encoding default
+  D4  FAIL   H_DIFF's shipped value inside plateau, >=2 decades both sides
+  D5  PASS   max_iter=200 scale-free and margin >= 3x
+  D6  PASS   n_points=400 converged to better than 1e-3
+
+  D1 FAILED on its MAGNITUDE BAND, not its class call.  It predicted the
+  covariance deviation of `tol=1e-14` would land in 1e-6..1e-2; measured
+  4.9e-2 at lam=1e-3 and 4.8e-5 at lam=1e+3.  The band was written from the
+  lam > 1 direction alone, and the probe is ASYMMETRIC in lam: shrinking the
+  variable makes an absolute tolerance coarse relative to the interval (one or
+  two halvings, catastrophic), while growing it makes the tolerance fine and
+  the residual deviation is then dominated by the error of the lam = 1
+  BASELINE, not of the rescaled run.  A deviation from this probe is therefore
+  a reliable yes/no and NOT a calibrated error estimate.  That asymmetry is
+  the same one bracketed_root.py already records for the unguarded loop, met
+  again in a different guise.
+
+  D4 FAILED outright and it was written as a null result so that it could.
+  See RESULT 7.
+
+==============================================================================
+VALIDATION SUMMARY
+==============================================================================
+  PASS  V1 identity rescaling bitwise zero
+  PASS  V2 odd-function exact zero (non-discriminating)
+  PASS  V3 reproduces 09-24's 16 halvings / 2e-4
+  PASS  V4 central difference within its DERIVED rounding bound
+  PASS  V5 shipped sensitivity numbers bitwise unmoved
+
+  5/5 validations pass
+
+==============================================================================
+WHAT THE DETECTOR BUYS, STATED PLAINLY
+==============================================================================
+
+  The 2026-09-24 fault was found with an ORACLE -- a three-day-old unguarded
+  loop that happened to be right.  The probe in RESULT 2 finds the same fault
+  with no oracle, no reference implementation and no correct answer: it asks
+  only whether a procedure respects the units of its own variable.  That is
+  why it generalises, and it is what the open item asked for.
+
+  The probe is strictly a SCREEN: every verdict it returns is 'this default
+  encodes a scale' or 'it does not', never 'this number is wrong'.  RESULT 3
+  is the half that decides.  On 2026-09-25 the screen flagged two defaults and
+  the deciding half convicted one of them -- H_DIFF, whose shipped value sits
+  3.5 decades ABOVE the top of its own plateau, moving individual entries of
+  Chapter 6's sensitivity table by up to 44% and falsifying prediction P2
+  outright (RESULT 7).  D4 was written as a prediction that this would NOT
+  happen, and writing it that way is the only reason it could be scored.
+
+  The order matters and is worth stating: the screen came first and cost
+  nothing, the margin measurement second and cost a few seconds, and the
+  published-claim check (RESULT 7) came last and is the only one that produced
+  a correction.  Running only the screen would have flagged H_DIFF without
+  knowing whether to care.  Running only the margin study would have shown a
+  bad step without knowing which claim it reached.  Neither alone is an audit.
+
+
+plot written: default_scale_audit.png
