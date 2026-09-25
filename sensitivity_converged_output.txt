@@ -1,0 +1,44 @@
+sensitivity_converged() -- recorded output, 2026-09-25
+H_DIFF (unchanged, still quoted in Chapter 6) = 0.001
+H_DIFF_CONVERGED                              = 1e-08
+
+pair        S shipped  S converged    shift  conv_local  conv_plateau
+Ti-Cr        -0.66249     -0.58172   13.89%    3.48e-08      5.78e-06
+Ti-Cu        -0.95027     -0.79618   19.35%    5.01e-08      3.00e-07
+Ti-Ni        -1.40372     -0.97226   44.38%    3.54e-09      1.34e-06
+Ti-Au        -1.23182     -1.23162    0.02%    1.74e-08      4.65e-07
+Ti-Pd        -0.70015     -0.70011    0.01%    4.96e-09      1.85e-06
+Ti-Pt        -0.01654     -0.01654    0.00%    1.83e-07      3.19e-05   straddling
+Cr-Cu        -1.16869     -1.08363    7.85%    2.26e-08      3.05e-06
+Cr-Ni        -1.47897     -2.42076   38.90%    4.03e-07      3.57e-07
+Cr-Au        -1.63736     -1.32230   23.83%    7.93e-09      4.44e-07
+Cr-Pd        -1.69421     -1.28355   31.99%    3.10e-08      3.72e-07
+Cr-Pt        -0.01924     -0.01924    0.00%    3.19e-07      3.19e-06   straddling
+Cu-Ni        -1.62562     -1.47565   10.16%    3.52e-09      4.58e-07
+Cu-Au        -1.77290     -2.26268   21.65%    5.17e-07      4.38e-07
+Cu-Pd        -1.81142     -1.66725    8.65%    9.52e-09      8.48e-07
+Cu-Pt        -0.02182     -0.02182    0.00%    4.27e-07      1.82e-05   straddling
+Ni-Au        -2.33062     -2.47677    5.90%    2.30e-09      2.24e-06
+Ni-Pd        -2.39874     -2.40619    0.31%    1.39e-08      1.63e-06
+Ni-Pt        -0.01903     -0.01903    0.00%    5.24e-07      1.89e-05   straddling
+Au-Pd        -2.56284     -2.56624    0.13%    4.23e-08      5.25e-06
+Au-Pt        -0.01160     -0.01160    0.00%    2.92e-07      2.92e-05   straddling
+Pd-Pt        -0.00774     -0.00774    0.00%    8.81e-07      9.60e-05   straddling
+
+at H_DIFF_CONVERGED: worst conv_local 8.81e-07, worst conv_plateau 9.60e-05  (rtol = 1e-4)
+pairs whose |S| moves by more than 5% from the shipped step: 11 of 21
+
+THE CRITERION AT THE SHIPPED STEP -- does it catch every pair that moved?
+  pairs moving >5% and CAUGHT at h=0.001: 11
+    Ti-Cr   13.89%
+    Ti-Cu   19.35%
+    Ti-Ni   44.38%
+    Cr-Cu    7.85%
+    Cr-Ni   38.90%
+    Cr-Au   23.83%
+    Cr-Pd   31.99%
+    Cu-Ni   10.16%
+    Cu-Au   21.65%
+    Cu-Pd    8.65%
+    Ni-Au    5.90%
+  pairs moving >5% and MISSED at h=0.001: 0

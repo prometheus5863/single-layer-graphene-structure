@@ -61,6 +61,33 @@ from graphene_photodetector_nonuniform_illumination_model import (
 DELTA_NOMINAL = 0.2      # eV -- band adopted in Section 2 of the note
 DELTA_OUTER = 0.5        # eV -- outer sweep
 H_DIFF = 1e-3            # eV -- central-difference step for the derivative
+#
+# H_DIFF IS 3.5 DECADES TOO COARSE.  Measured 2026-09-25 by
+# graphene_default_scale_audit.py (RESULT 3): the h -> 0 plateau of
+# d ln|N| / d delta runs from ~1e-10 to ~3e-7 eV, and 1e-3 sits well above its
+# top.  The value is LEFT UNCHANGED so that every number this module has
+# already published stays reproducible and can be compared against rather than
+# silently replaced -- see the repo's standing rule about superseded numbers.
+# Use `sensitivity_converged()` below for the converged derivative, and
+# `H_DIFF_CONVERGED` for the step it uses.
+#
+# The consequences, measured: per-pair |S| moves by up to 44% (Ti-Ni), and
+# prediction P2 ("the largest |S| at delta = 0.1 belongs to Au-Pd"), scored
+# PASS on 2026-09-21, is FALSIFIED -- converged, the pair is Ti-Cu.  P1's
+# substance (the straddling/same-side separation) survives: 30.4 shipped,
+# 26.7 converged, against a claimed factor of 10.
+H_DIFF_CONVERGED = 1e-8  # eV -- inside the measured plateau, 2026-09-25
+#
+# 1e-8 AND NOT 1e-7, AND THE REASON IS A MEASUREMENT.  A first attempt used
+# 1e-7 with a 1e-6 convergence requirement and RAISED on two pairs: Cr-Ni at
+# 3.98e-5 and Cu-Au at 5.07e-5, against 1e-9..1e-7 for the other nineteen.
+# The ratio is exactly second-order -- both drop by 100x when h drops by 10x --
+# so it is ordinary truncation and those two pairs simply have a third
+# derivative ~100x the rest.  At 1e-8 the worst estimate over all 21 pairs is
+# 8.8e-7.  THE CONSEQUENCE IS A DESIGN POINT: no single global step is right
+# for every pair, and the only reason this is visible at all is that
+# sensitivity_converged() returns its convergence estimate instead of
+# asserting one.
 
 # Metals, low work function first, so pair ordering is deterministic.
 METALS = sorted(METAL_WORK_FUNCTIONS, key=lambda m: METAL_WORK_FUNCTIONS[m])
@@ -103,6 +130,11 @@ def mean_abs_dW(pair, delta=0.0):
 
 def sensitivity(pair, h=H_DIFF):
     """
+    THE DEFAULT STEP IS KNOWN TOO COARSE -- see H_DIFF above and
+    `sensitivity_converged()`.  Kept at 1e-3 deliberately: this function's
+    outputs are quoted in Chapter 6 and in the 2026-09-21/09-23 prediction
+    records, and changing the default would rewrite them in place.
+
     S = d ln|N| / d delta  [1/eV]   and
     A = (d|N|/|N|) / (d<|dW|>/<|dW|>)   [dimensionless, 2026-09-21's ratio]
 
@@ -115,6 +147,80 @@ def sensitivity(pair, h=H_DIFF):
     dlnW = (wp - wm) / (2.0 * h) / w0
     A = abs(dlnN / dlnW) if dlnW != 0.0 else np.inf
     return dlnN, A, N0
+
+
+def sensitivity_converged(pair, h=H_DIFF_CONVERGED, rtol=1e-3, decades=2):
+    """
+    The same quantities as `sensitivity()`, at a step inside the measured
+    plateau, with TWO convergence diagnostics returned alongside -- and only
+    one of them is allowed to be the pass criterion.
+
+    Returns (S, A, N0, conv_local, conv_plateau).
+
+        conv_local   = |S(h) - S(2h)| / |S(h)|            REPORTED ONLY
+        conv_plateau = max over k = 1..decades of
+                       |S(h) - S(h/10**k)| / |S(h)|       THE PASS CRITERION
+
+    WHY THE OBVIOUS CHECK IS NOT THE CRITERION, MEASURED 2026-09-25.  The
+    first version of this function used step-doubling alone, the pattern
+    `graphene_sensitivity_audit.log_sensitivity` has used since 2026-09-22.
+    At the shipped H_DIFF = 1e-3 that estimate is BLIND:
+
+        pair    true error vs converged S     step-doubling estimate
+        Ti-Ni              44.38 %                   2.33e-06
+        Cu-Ni              10.16 %                   5.48e-05
+        Cr-Pd              31.99 %                   3.96e-04
+
+    Ti-Ni under-reports its own error by a factor of 190 000.  The mechanism
+    is not mysterious: step-doubling measures dE/d(log h) of the error curve
+    E(h) = S(h) - S(0), so it reads zero wherever that curve is STATIONARY,
+    and S(h) for Ti-Ni is flat to four digits from h = 1e-3 to 1e-2 while
+    sitting 44% away from its limit.  A shipped default has no reason to avoid
+    a stationary point of its own error curve, and if it lands on one, every
+    local self-consistency test certifies it.
+
+    So the criterion walks DOWNWARD instead: a step is accepted only if the
+    derivative is unchanged at h/10 and h/100.  That is an anchored
+    comparison, not a self-consistency one, and it is the thing that fires.
+    `rtol = 1e-3` IS PLACED IN A MEASURED GAP, not chosen for roundness --
+    which matters in a function written on the day this repo learned that a
+    threshold is a default and a default is a claim about scale.  The two
+    populations it has to separate were measured over all 21 pairs:
+
+        worst conv_plateau at H_DIFF_CONVERGED (must pass)   9.60e-05
+        cheapest conv_plateau at H_DIFF among the 11 pairs
+        whose |S| moves by more than 5%      (must fire)     6.36e-02
+
+    -- a clean separation of 2.82 decades, and 1e-3 sits inside it with an
+    order of margin below the firing population and an order above the passing
+    one.  At that value: 11 of 11 moved pairs fire at H_DIFF, zero escape, and
+    all 21 pass at H_DIFF_CONVERGED.  The residual 9.6e-05 belongs to Pd-Pt,
+    a straddling pair whose |S| is 0.0077, where walking two decades down to
+    h = 1e-10 reaches the cancellation floor rather than any truncation.
+
+    Raises rather than returning a flag, so an unconverged derivative cannot
+    be received silently.
+    """
+    def _S(hh):
+        Np, Nm = N_of(pair, +hh), N_of(pair, -hh)
+        return (abs(Np) - abs(Nm)) / (2.0 * hh) / abs(N_of(pair, 0.0))
+
+    S = _S(h)
+    denom = abs(S) if S != 0.0 else 1.0
+    conv_local = abs(S - _S(2.0 * h)) / denom
+    conv_plateau = max(abs(S - _S(h / 10.0 ** k)) / denom
+                       for k in range(1, decades + 1))
+    if conv_plateau > rtol:
+        raise ValueError(
+            f"d ln|N|/d delta for {pair} is not on a plateau at h={h:g}: "
+            f"worst deviation over {decades} decades below is "
+            f"{conv_plateau:.3e} > rtol={rtol:g} "
+            f"(the step-doubling estimate here is {conv_local:.3e}, which is "
+            f"why step-doubling is not the criterion)")
+    wp, wm, w0 = mean_abs_dW(pair, +h), mean_abs_dW(pair, -h), mean_abs_dW(pair)
+    dlnW = (wp - wm) / (2.0 * h) / w0
+    A = abs(S / dlnW) if dlnW != 0.0 else np.inf
+    return S, A, N_of(pair, 0.0), conv_local, conv_plateau
 
 
 # =====================================================================
