@@ -178,6 +178,18 @@ for non-exotic gate lengths (see
 `notes/2026-08-22-rf-figures-of-merit-fT-fmax.md` for benchmarks up to
 hundreds of GHz for aggressively scaled record devices).
 
+> **Operating point, made explicit 2026-09-26.** The ≈20 GHz above is
+> evaluated at **V_ds = 0.1 V** — the value `plot_fT_fmax()` passes, and
+> therefore the value behind `rf_figures_of_merit.png`. Measured precisely:
+> peak f_T = 20.279 GHz, peak f_max = 18.731 GHz. This sentence previously
+> quoted the number without naming the bias, which invited exactly the
+> confusion described in Section 4.6.1: `output_conductance`'s own signature
+> default is V_ds = 0.05 V, at which the same model gives peak
+> f_T = 10.140 GHz and peak f_max = 9.355 GHz. Neither number is wrong and
+> neither supersedes the other; they are one model at two bias points, and
+> the ≈20 GHz figure quoted throughout this chapter is the V_ds = 0.1 V
+> one.
+
 The earlier version of this model (through 2026-08-22) omitted the
 source/drain access resistance R_s from the f_max denominator and had no
 way to separate an intrinsic (de-embedded-equivalent) estimate from an
@@ -203,6 +215,69 @@ direction, if not the same magnitude, as the raw-vs-de-embedded gap
 Feijoo et al. report (~60-70%). See
 `notes/2026-08-26-fmax-parasitics-and-fT-fmax-ratio.md` for the full
 derivation and literature citations.
+
+### 4.6.1 Numerical provenance of g_ds, and a caution about auditing a discretised model
+
+The output conductance g_ds entering the f_max expression above is not a
+closed-form derivative. It is a central difference in V_ds of
+`transfer_characteristic()`, which is itself a 50-point quadrature of the
+local channel resistance over the drain-bias drop
+(`V_channel_profile = linspace(0, V_ds, 50)`). Two numerical defaults are
+therefore entangled in every f_max number in this chapter: a step size
+ΔV_ds = 10⁻³ V and a resolution n_segments = 50. They are not independent,
+because the quadrature grid is itself set by V_ds — differencing in V_ds
+differences the quadrature error too.
+
+That entanglement was audited on 2026-09-26
+(`graphene_gds_quadrature_audit.py`,
+`notes/2026-09-26-gds-step-quadrature-audit.md`) because the analogous
+absolute step in Chapter 6 (`H_DIFF = 10⁻³`) had been convicted eight days
+earlier of moving eleven of Section 6.13's sensitivities by up to 44%.
+**Both defaults here are innocent, and the numbers in this section stand
+unchanged:**
+
+| quantity | measured effect on g_ds | effect on peak f_max |
+|---|---|---|
+| step ΔV_ds = 10⁻³ V vs. anchored-plateau step | 1.25 × 10⁻⁶ | — |
+| n_segments = 50 vs. n → ∞ (Richardson in 1/(n−1)) | 8.4 × 10⁻⁷ | — |
+| both, propagated | — | 1.1 × 10⁻⁷ (0.00001%) |
+
+f_T contains no g_ds and is untouched; the 400-point V_g grid behind
+g_m = ∂I_d/∂V_g moves peak f_T by 0.001% under sixteenfold refinement.
+
+The methodological point survives the null result, and is the reason this
+subsection exists rather than a one-line footnote. **A step-refinement
+study of a discretised function converges to the derivative of the
+discretisation that was held fixed, not to the derivative of the model.**
+The anchored step criterion adopted in Section 6.13 — accept a step only if
+the derivative is unchanged at h/10 *and* h/100 — is therefore blind to a
+quadrature bias by construction, at any tolerance. This was verified rather
+than argued: the n = 50 bias measured 3.04 × 10⁻⁷ at ΔV_ds = 10⁻³ and
+3.04 × 10⁻⁷ at ΔV_ds = 10⁻⁷, drifting 2.3 × 10⁻⁴ across four decades of
+step refinement. And the mechanism is not small in general: in a test case
+with R(V_ch) = a + b·V_ch², where both the discretised and the continuum
+channel average are exact closed forms (the discrete mean of V_ch² over an
+endpoint-inclusive grid is V²(2n−1)/(6(n−1)) against a continuum V²/3, so the
+bias is exactly V²/(6(n−1))), the same mechanism reaches **1.32%**. Graphene's
+channel resistance simply has too little curvature in V_ch across a 50 mV
+drop for it to bite here. That is a property of this model, not a general
+licence to ignore the effect — a higher-V_ds or a shorter-channel model with
+stronger pinch-off curvature would not inherit this exoneration.
+
+Two defects in the surrounding machinery were found by the same audit and
+are recorded here because they bear on how the chapter's numbers should be
+read. First, the guard `max(V_ds − ΔV_ds, 10⁻⁴)` in `output_conductance()`
+moved the evaluation interval without changing the divisor, returning the
+true secant slope times exactly (V_ds + ΔV_ds − 10⁻⁴)/(2ΔV_ds) — an 8.42%
+silent under-report whenever it fired. It never fired at either operating
+point in use (it is reachable only for V_ds ≤ 1.1 mV), so no number in this
+chapter was ever affected; it is fixed, with the unaffected path verified
+bitwise unchanged. Second, the 2026-09-25 default-scale census scored
+ΔV_ds/V_ds as 2 × 10⁻² by reading the function's *signature* default, whereas
+at the call site that actually produces this chapter's figures it is
+1 × 10⁻². **A default-scale census must read call sites, not signatures**;
+the discrepancy is the ratio between the two, here a factor of two and in
+general unbounded.
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
@@ -364,7 +439,7 @@ open item rather than fitted away.
 | Contact resistance (lumped, literature-calibrated) | Complete (`graphene_fet_model.py`) |
 | Contact-resistance-vs-channel-length crossover | Complete (`contact_resistance_crossover.py`) |
 | Spatially-resolved, work-function-dependent contact doping | Complete, diagnostic model (`graphene_contact_doping_model.py`) — see Section 4.5 for known limitations |
-| RF figures of merit (f_T, f_max) | Complete, incl. access resistance + extrinsic pad-capacitance estimate (`rf_small_signal_model.py`, Section 4.6) |
+| RF figures of merit (f_T, f_max) | Complete, incl. access resistance + extrinsic pad-capacitance estimate (`rf_small_signal_model.py`, Section 4.6); numerical provenance of g_ds audited 2026-09-26 and both entangled defaults exonerated to <10⁻⁶ (Section 4.6.1) |
 | Using the doping-profile model to *recalibrate* Rc per metal (vs. using it only diagnostically) | Attempted (Section 4.7) — additive decomposition found NOT to hold for 3 of 4 metals (Cu, Ni, Au); only Pd gives a physically plausible residual. Root cause (TLM double-counting vs. `lambda_decay` mismatch) not yet isolated; Ti and Cr not recalibrated (no literature Rc sourced this session) |
 | Contact-geometry dependence (edge vs. top, patterned contacts) | Complete, DFT-Fermi-shift-derived model (Section 4.8, `graphene_edge_contact_model.py`) — reproduces the qualitative direction (edge lower than top) and the large-hole-diameter branch of Passi et al.'s patterned-contact data; does not reproduce their small-diameter upturn or the full ~11x measured device-level reduction (only ~2.6x from the isolated doping-density effect) |
 
