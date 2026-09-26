@@ -1,0 +1,143 @@
+==========================================================================
+g_ds STEP-AND-QUADRATURE AUDIT -- rf_small_signal_model / graphene_fet_model
+==========================================================================
+
+==========================================================================
+PRE-REGISTERED PREDICTIONS (recorded before measurement)
+==========================================================================
+  Q1: The shipped default dVds=1e-3 passes the 09-25 anchored step criterion (agreement at h/10 AND h/100 to rtol=1e-3) at the default operating point. Id(Vds) is close to linear at small Vds, so unlike H_DIFF the STEP is expected to be innocent.
+  Q2: Nevertheless g_ds at the anchored step is biased by n_segments=50 at the >=0.1% level, and -- the discriminating half -- that bias is INVARIANT under step refinement: refining dVds by four decades changes it by less than 1%% of itself.
+  Q3: The quadrature bias is FIRST order in 1/n (not second), because np.mean over an endpoint-inclusive linspace is not the trapezoid rule. Predicted: halving 1/(n-1) halves the residual.
+  Q4: The `max(Vds - dVds, 1e-4)` guard is silently wrong whenever it fires, because it changes the interval but not the divisor 2*dVds. Predicted relative error >10%% at dVds=0.06, Vds=0.05.
+  Q5: Propagated to f_max the bias is SMALLER than the bias in g_ds, because f_max ~ 1/sqrt(g_ds*(Rg+Rs) + 2*pi*f_T*Cgd*Rg): the square root halves it and the second denominator term dilutes it. Predicted f_max shift < half the g_ds shift.
+  Q6: The 400-point Vg grid behind g_m (and hence behind the published peak f_T ~ 20 GHz) is a third entangled default. Predicted: peak f_T moves by <1%% under 16x Vg-grid refinement -- i.e. this one is innocent and the item can be closed rather than carried.
+
+FIDELITY OF THE INSTRUMENT
+  reimplementation vs shipped transfer_characteristic: bitwise=False, max rel diff 3.15e-16
+  reimplementation vs shipped output_conductance:       max rel diff 1.45e-14
+
+EXACT VALIDATIONS
+  [A] quadratic test resistance, exact closed forms                 DISCRIMINATING
+      quadrature rule  measured c_n = 0.3367346938775511
+                       exact    c_n = 0.3367346938775510   rel err 3.30e-16   PASS
+      central difference vs DISCRETISED closed form: 1.941e-04
+      order test: err(h)/err(h/2) = 3.9995  (4.0 = second order in h)
+      central difference vs CONTINUUM   closed form: 1.303e-02
+      as h->0 that residual -> 1.3220563663e-02, and the exact quadrature gap is 1.3220563698e-02   PASS
+      discrete-vs-continuum gap at h=1e-3/1e-5/1e-7: -1.321530e-02 -1.322056e-02 -1.322056e-02
+      -> gap drifts 3.99e-04 over 4 decades of step refinement   PASS
+      MEANING: a step-convergence study of a discretised function converges
+      to the derivative of the discretisation, and cannot see this gap at all.
+  [B] Vds-independent channel resistance                    NON-DISCRIMINATING
+      exact for every (n, h) up to the DERIVED cancellation floor; worst
+      measured/bound ratio 0.429 over n in (2,50,5000) x h in (1e-1,1e-3,1e-9)   PASS
+      passes for a good default and a bad one -- proves the harness only.
+  [C] linear channel resistance -> zero quadrature bias      DISCRIMINATING
+      worst rel err over n in (2,3,50,501): 1.62e-16   PASS
+  [D] cancellation floor tracks its derived bound               DISCRIMINATING
+      h=1e-09: measured 3.451e-09  derived bound 5.565e-09  ratio 0.62
+      h=1e-11: measured 5.911e-07  derived bound 5.565e-07  ratio 1.06
+      PASS  (no absolute constant used)
+  [E] the Vds-dVds guard, exactly                             DISCRIMINATING
+      shipped/true secant measured 0.9158333333333334
+                           exact   0.9158333333333334   rel err 0.00e+00   PASS
+      -> the guard under-reports g_ds by 8.42% when it fires, silently.
+  validations passing: 5/5
+
+RESULT 1 -- the STEP, at n_segments = 50 (default)
+  Vg (V)   anchored h    g_ds(h*) [S]     g_ds(1e-3) [S]   rel diff   r(h/10)   r(h/100)
+   +0.00   1e-02     +8.48722259e-04   +8.48721336e-04   1.09e-06   1.1e-06   1.1e-06
+   +1.60   1e-02     +8.42069598e-04   +8.42068546e-04   1.25e-06   1.2e-06   1.3e-06
+   +2.00   1e-02     +8.71920534e-04   +8.71919960e-04   6.59e-07   6.6e-07   6.7e-07
+   +2.60   1e-02     +9.27180117e-04   +9.27180085e-04   3.55e-08   3.5e-08   3.6e-08
+   +3.20   1e-02     +9.85492863e-04   +9.85493093e-04   2.33e-07   2.3e-07   2.4e-07
+  worst step-induced relative error in g_ds: 1.250e-06  (0.0001%)
+
+RESULT 2 -- the QUADRATURE, at the anchored step h = 1e-02
+  Vg = +0.00 V
+    g_ds(n=50)   = +8.48722259e-04 S
+    g_ds(n->inf) = +8.48721632e-04 S   (Richardson in 1/(n-1) from n=3200,6400)
+    n=50 bias    = 7.3881e-07  (0.0001%)
+    difference ratios under n-doubling (2.0 => first order in 1/n): 2.031 2.015 2.008 2.004 2.002 2.001
+  Vg = +1.60 V
+    g_ds(n=50)   = +8.42069598e-04 S
+    g_ds(n->inf) = +8.42068895e-04 S   (Richardson in 1/(n-1) from n=3200,6400)
+    n=50 bias    = 8.3521e-07  (0.0001%)
+    difference ratios under n-doubling (2.0 => first order in 1/n): 2.031 2.015 2.008 2.004 2.002 2.001
+  Vg = +2.00 V
+    g_ds(n=50)   = +8.71920534e-04 S
+    g_ds(n->inf) = +8.71920263e-04 S   (Richardson in 1/(n-1) from n=3200,6400)
+    n=50 bias    = 3.1125e-07  (0.0000%)
+    difference ratios under n-doubling (2.0 => first order in 1/n): 2.031 2.015 2.008 2.004 2.002 2.001
+  Vg = +2.60 V
+    g_ds(n=50)   = +9.27180117e-04 S
+    g_ds(n->inf) = +9.27180295e-04 S   (Richardson in 1/(n-1) from n=3200,6400)
+    n=50 bias    = 1.9143e-07  (0.0000%)
+    difference ratios under n-doubling (2.0 => first order in 1/n): 2.031 2.015 2.008 2.004 2.002 2.001
+  Vg = +3.20 V
+    g_ds(n=50)   = +9.85492863e-04 S
+    g_ds(n->inf) = +9.85493222e-04 S   (Richardson in 1/(n-1) from n=3200,6400)
+    n=50 bias    = 3.6367e-07  (0.0000%)
+    difference ratios under n-doubling (2.0 => first order in 1/n): 2.031 2.015 2.008 2.004 2.002 2.001
+  worst quadrature bias at n=50: 8.352e-07  (0.0001%)
+
+RESULT 3 -- is the quadrature bias visible to a step study? (the real model)
+     dVds      g_ds(n=50)        g_ds(n=6400)      gap (rel)
+   1e-02   +8.71920534e-04   +8.71920265e-04   +3.088652e-07
+   1e-03   +8.71919960e-04   +8.71919695e-04   +3.038649e-07
+   1e-05   +8.71919954e-04   +8.71919689e-04   +3.038140e-07
+   1e-07   +8.71919954e-04   +8.71919689e-04   +3.037942e-07
+  gap drifts 2.33e-04 over 4 decades of step refinement (1e-3 -> 1e-7)
+  -> refining dVds by 1e4 removes none of it. The anchored step criterion is
+     silent on this bias BY CONSTRUCTION: it converges in h at fixed n.
+
+RESULT 4 -- propagation to f_T and f_max (Chapter 4, Section 4.6)
+  peak f_T  = 10.140 GHz at Vg = -1.137 V  (f_T does not contain g_ds; unchanged)
+  peak f_max default   = 9.3550 GHz at Vg = +2.635 V
+  peak f_max corrected = 9.3550 GHz at Vg = +2.635 V
+  peak f_max shift            = 1.101e-07  (0.0000%)
+  worst g_ds shift on the sweep = 4.818e-07  (0.0000%)
+  worst f_max shift on the sweep = 2.409e-07  (0.0000%)
+  weight of the g_ds term in the f_max denominator at peak f_max: 0.9999
+  -> dilution factor observed: f_max shift / g_ds shift at peak = 0.2286
+     (a pure square-root would give 0.5; the R_g term contributes the rest)
+
+RESULT 5 -- the Vg grid behind g_m (and the published peak f_T)
+    points    dVg (mV)   peak f_T (GHz)   Vg at peak (V)
+       400     12.531       10.14017   -1.1366
+      1600      3.127       10.14026   -1.1341
+      6400      0.781       10.14026   -1.1335
+  peak f_T moves 9.546e-06 (0.0010%) under 16x Vg-grid refinement
+
+RESULT 6 -- signature default vs call site (NOT PRE-REGISTERED)
+  output_conductance signature default   Vds = 0.05 V   -> dVds/Vds = 2.000e-02
+  plot_fT_fmax call site (Chapter 4)     Vds = 0.1 V   -> dVds/Vds = 1.000e-02
+  -> 09-25's census scored the ratio as 2e-2; at the call site it is 1e-2, low by exactly 2x
+  at the call site: peak f_T = 20.279 GHz, peak f_max = 18.731 GHz
+  -> this is Chapter 4's "Peak f_T ~20 GHz"; the 10.14 GHz in RESULT 4 is the
+     SAME model at the signature default Vds = 0.05 V, not a discrepancy.
+  step error at Vds=0.1:       7.320e-07 (0.00007%)  [anchored h = 1e-02]
+  quadrature bias at Vds=0.1:  1.390e-06 (0.00014%)
+  ratio to the Vds=0.05 quadrature bias: 1.66x  (a curvature effect grows with Vds)
+  the guard `max(Vds-dVds,1e-4)` becomes reachable for Vds <= 1.1e-03 V;
+  neither operating point is near it, so the 8.42% error is latent, not active.
+
+==========================================================================
+PREDICTIONS SCORED
+==========================================================================
+  Q1 PASS: dVds=1e-3 step error 0.0001% (inside the anchored plateau)
+  Q2 FAIL: n=50 bias 0.0001%, invariant to 2.3e-04 under 4 decades of step refinement
+  Q3 PASS: n-doubling difference ratio mean 2.010 (2.0 = first order in 1/n)
+  Q4 FAIL: guard under-reports g_ds by 8.42% when it fires
+  Q5 PASS: f_max shift / g_ds shift = 0.2286
+  Q6 PASS: peak f_T moves 0.0010% under 16x Vg-grid refinement
+
+  score: 4/6 predictions, 5/5 validations
+
+  UNPREDICTED FINDING (RESULT 6): Chapter 4's published RF
+  numbers are evaluated at Vds = 0.1 V while output_conductance's
+  signature default is 0.05 V, so 09-25's default-scale census
+  scored dVds/Vds as 2e-2 where the call site makes it 1e-2.
+  A default-scale census must read CALL SITES, not signatures.
+
+  figure written: gds_quadrature_audit.png
