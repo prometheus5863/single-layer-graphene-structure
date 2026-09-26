@@ -249,6 +249,21 @@ without knowing which claim it reached. Neither alone is an audit.
   probe. Deliberately **not** measured today: `g_ds` feeds `f_max`, a published
   number, and moving it needs its own before/after comparison. This is the
   direct successor to today's work and the top numerical item.
+
+  > **ANNOTATED 2026-09-26 — this item is now CLOSED, and the "2%" above is
+  > the ratio at the function's *signature*, not at the call site.** Measured
+  > this session (`graphene_gds_quadrature_audit.py`,
+  > `notes/2026-09-26-gds-step-quadrature-audit.md`): `dVds = 1e-3` sits
+  > inside a broad anchored plateau (worst error 1.25e-6), the entangled
+  > `n_segments = 50` quadrature bias is 8.4e-7, and peak f_max moves 1.1e-7
+  > — four to five decades below anything that could touch a published
+  > number. That audit's prediction Q2, which expected ≥ 0.1%, **FAILED on
+  > its magnitude band.** Separately, Chapter 4's RF numbers are computed at
+  > `Vds = 0.1 V` (`plot_fT_fmax`), where the ratio is 1e-2 and not the 2e-2
+  > this census recorded from the signature default of 0.05 V: **a
+  > default-scale census must read call sites, not signatures.** The 2e-2 is
+  > left in place above — it is right about the signature and wrong about the
+  > claim it was aimed at.
 * **Every remaining `h`-like step and tolerance in `rf_small_signal_model.py`
   and the photodetector modules**, now that the instrument exists and takes
   minutes per default.

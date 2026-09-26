@@ -652,6 +652,21 @@ def result_6_dvds(verbose=True):
     different call site, found by the census rather than by the probe (the
     probe confirms the class; the census is what noticed it exists).
 
+    ANNOTATED 2026-09-26, and the annotation is about this census's METHOD,
+    not about the number it reported.  "0.05 V" above is the function's
+    SIGNATURE default.  The call site that produces Chapter 4's RF figures
+    (`plot_fT_fmax`) passes Vds = 0.1 V, so at the place the published
+    numbers are actually computed the ratio is 1e-2, not 2e-2 -- this census
+    was low by exactly the factor between the signature default and the call
+    site, which here is 2x and in general is unbounded.  A DEFAULT-SCALE
+    CENSUS MUST READ CALL SITES, NOT SIGNATURES.  The 2e-2 below is left as
+    it was measured; it is the correct ratio for the signature and the wrong
+    one for the claim it was pointing at.  Also resolved 2026-09-26: the
+    open item this docstring defers is now closed -- the step IS inside a
+    plateau (1.25e-6) and the entangled n_segments=50 quadrature is
+    innocent too (8.4e-7, 1.1e-7 in peak f_max).  See
+    graphene_gds_quadrature_audit.py.
+
     This is measured WITHOUT importing the RF module, because the quantity
     of interest is the arithmetic of the step, not the device physics: the
     ratio dVds / Vds is the claim, and it is 2e-2.  Whether that lands inside
