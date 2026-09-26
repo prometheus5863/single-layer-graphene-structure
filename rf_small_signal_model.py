@@ -63,6 +63,8 @@ resistance/pad-capacitance revision and the corrected f_max vs. f_T
 framing (f_max > f_T is not itself unphysical -- see Feijoo et al. 2016).
 """
 
+import warnings
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -126,9 +128,64 @@ def transconductance(Vg_range, Vds=0.05):
     return gm, Id
 
 
+VDS_FLOOR = 1e-4   # lowest Vds transfer_characteristic() is evaluated at
+
+
 def output_conductance(Vg_range, Vds=0.05, dVds=1e-3):
-    """g_ds(V_g) = d(Id)/d(Vds) at fixed Vg, via a two-point finite
-    difference around the operating Vds."""
+    """g_ds(V_g) = d(Id)/d(Vds) at fixed Vg, via a central difference
+    around the operating Vds.
+
+    BUG FIXED 2026-09-26 (see graphene_gds_quadrature_audit.py,
+    validation E, and notes/2026-09-26-gds-step-quadrature-audit.md).
+    This function previously read
+
+        Id_minus = transfer_characteristic(Vg, Vds=max(Vds - dVds, 1e-4))
+        gds = (Id_plus - Id_minus) / (2 * dVds)
+
+    which moved the lower evaluation point without changing the divisor.
+    When the guard fired the returned value was therefore the true secant
+    slope over [1e-4, Vds+dVds] multiplied by exactly
+
+        (Vds + dVds - 1e-4) / (2 * dVds)
+
+    an algebraic factor with no approximation in it: 0.9158333333333334 at
+    Vds = 0.05, dVds = 0.06, i.e. an 8.42% silent under-report, confirmed
+    against the closed form to rel err 0.0.  The guard is reachable for
+    Vds <= dVds + 1e-4 (1.1 mV with the default step) and from any upward
+    step-size sweep, so the error was latent rather than active at the two
+    operating points this repo actually uses -- 0.05 V (this signature) and
+    0.1 V (plot_fT_fmax, which is where Chapter 4's RF numbers come from).
+
+    The fix shrinks the step SYMMETRICALLY rather than widening the
+    interval, because the caller asked for the derivative AT Vds: an
+    asymmetric secant over [1e-4, Vds+dVds] estimates d(Id)/d(Vds) at that
+    interval's midpoint, which is a different operating point.  A step that
+    had to shrink is reported through `warnings.warn` rather than being
+    absorbed silently.
+
+    When no shrink is needed the arithmetic is unchanged expression by
+    expression, so this function is bitwise identical to the previous one
+    everywhere the guard did not fire -- verified over
+    Vds in (0.05, 0.1, 0.2) x dVds in (1e-4, 1e-3, 1e-2) on the standard
+    400-point Vg sweep.
+    """
+    if Vds <= VDS_FLOOR:
+        raise ValueError(
+            f"output_conductance needs Vds > {VDS_FLOOR:g} V to take a "
+            f"symmetric difference; got Vds = {Vds:g} V")
+    dVds_eff = dVds
+    if Vds - dVds < VDS_FLOOR:
+        dVds_eff = Vds - VDS_FLOOR
+        warnings.warn(
+            f"output_conductance: dVds = {dVds:g} V does not fit below "
+            f"Vds = {Vds:g} V above the {VDS_FLOOR:g} V floor; step shrunk "
+            f"to {dVds_eff:g} V to keep the difference centred on Vds. "
+            f"g_ds is returned at Vds, not at a shifted operating point.",
+            RuntimeWarning, stacklevel=2)
+        Id_plus = gfet.transfer_characteristic(Vg_range, Vds=Vds + dVds_eff)
+        Id_minus = gfet.transfer_characteristic(Vg_range, Vds=Vds - dVds_eff)
+        return (Id_plus - Id_minus) / (2 * dVds_eff)
+
     Id_plus = gfet.transfer_characteristic(Vg_range, Vds=Vds + dVds)
     Id_minus = gfet.transfer_characteristic(Vg_range, Vds=max(Vds - dVds, 1e-4))
     gds = (Id_plus - Id_minus) / (2 * dVds)
