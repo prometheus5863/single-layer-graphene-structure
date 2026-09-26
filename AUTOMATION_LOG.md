@@ -3113,3 +3113,240 @@ This AUTOMATION_LOG.md entry makes 5. The audit and the accessor are separate
 commits because the accessor's first version was wrong in a way that is a result
 of its own, and a fix whose obvious form was blind should be visible as that in
 the history — the same reason 09-24 split its guard extraction from its fix.
+
+---
+
+## 2026-09-26 — The top numerical item closes as a NULL result, and the closure is only meaningful because the mechanism was shown to reach 1.32% elsewhere
+
+**The item closed:** *"`output_conductance(dVds=1e-3)` at `Vds = 0.05 V` —
+created today and the **top numerical item**. The identical construction to
+`H_DIFF`, a step 2% of its variable... Deliberately not measured today because
+`g_ds` feeds `f_max`, a published number, and moving it needs its own
+before/after comparison."* Created 2026-09-25. It is measured now, and the
+answer is that the default is innocent — together with a second default nobody
+had noticed was entangled with it, a real latent bug in the surrounding
+function, and a systematic error in the instrument that created the item.
+
+Code: `graphene_gds_quadrature_audit.py` (~700 lines), output
+`gds_quadrature_audit_output.txt`, figure `gds_quadrature_audit.png`. Fix:
+`rf_small_signal_model.output_conductance`. Study note:
+`notes/2026-09-26-gds-step-quadrature-audit.md`. Thesis: new Section 4.6.1,
+plus an annotation inside 4.6 and a 4.9 status-table update. In-place
+annotations: `graphene_default_scale_audit.py` RESULT 6 docstring and
+`notes/2026-09-25-…` §10.
+
+1. **THE STRUCTURAL DIFFERENCE FROM `H_DIFF`, which is why this was a session
+   and not a footnote.** `H_DIFF` differentiates a closed form. `dVds`
+   differentiates `transfer_characteristic()`, which is **itself a 50-point
+   quadrature** over the drain-bias drop — and the quadrature grid *is set by
+   `Vds`* (`linspace(0, Vds, n_segments)`). Differencing in `Vds` differences
+   the quadrature error too. **Two defaults are entangled and not
+   independent**, which nothing in the 09-22…09-25 series had encountered, and
+   which makes a failure mode available that 09-25's fix does not reach: the
+   anchored step criterion tests convergence **in the step**, so a step study
+   of a discretised function converges to the derivative of *the
+   discretisation you fixed* and is blind to its bias **at any tolerance, by
+   construction.**
+
+2. **RESULT — both defaults innocent, four to five decades clear.** Step vs.
+   anchored-plateau step: **1.25e-6**. `n_segments = 50` vs. `n → ∞`
+   (Richardson in 1/(n−1), n up to 6400): **8.4e-7**. Propagated to peak
+   `f_max`: **1.1e-7** (0.00001%). `f_T` contains no `g_ds` and does not move
+   at all. The quadrature error is confirmed **first order** in 1/n —
+   difference ratios under n-doubling 2.031, 2.015, 2.008, 2.004, 2.002, 2.001
+   — because `np.mean` over an endpoint-inclusive `linspace` is not the
+   trapezoid rule. **Q2 FAILED on its magnitude band** (predicted ≥ 0.1%) and
+   not on its class call. The item is **CLOSED, not carried** — the first
+   clean exoneration in the series that began 09-22.
+
+3. **WHY THE NULL RESULT IS NOT MERELY REASSURING, which is the actual content
+   of the session.** "We refined the step and nothing moved" is *compatible
+   with the criterion being blind*, so on its own it closes the item for the
+   wrong reason. Two measurements fix that. **(a)** The `n=50` bias is
+   **invariant under step refinement** on the real model: +3.089e-07 at
+   `dVds=1e-2`, +3.039e-07 at 1e-3, +3.038e-07 at 1e-5, +3.038e-07 at 1e-7 —
+   drifting **2.3e-4 of itself across four decades**. Refining the step
+   removes none of it, exactly as item 1 predicts. **(b)** In an
+   exactly-solvable case the same mechanism is **1.32%**: for
+   `R(V_ch) = a + b·V_ch²` the discrete mean of `V_ch²` over an
+   endpoint-inclusive grid is `V²(2n−1)/(6(n−1))` against a continuum `V²/3`,
+   so the bias is exactly `V²/(6(n−1))`; measured `c_n` matched the closed
+   form to 3.3e-16, the central difference converged to the **discretised**
+   closed form at second order in `h` (order test 3.9995), and its residual
+   against the **continuum** form converged to 1.3220563663e-02 where the
+   exact gap is 1.3220563698e-02 — **to the gap, not to zero.** So the
+   criterion can be satisfied to any tolerance while the answer is 1.32%
+   wrong. **The exoneration is a property of graphene's nearly-linear
+   `R(V_ch)` across a 50 mV drop, not a licence.** Validation C pins that
+   down oracle-free: the endpoint-inclusive mean is exact for a constant *and*
+   exact for a linear integrand (1.6e-16 over n ∈ {2,3,50,501}), failing only
+   from curvature onward.
+
+4. **RESULT — a real latent bug, convicted by an exact algebraic factor.**
+   `max(Vds − dVds, 1e-4)` moved the **interval** without changing the
+   **divisor**, so when it fired the function returned the true secant slope
+   times exactly `(Vds+dVds−1e-4)/(2·dVds)`. Validation E reproduced that to
+   **rel err 0.0**: measured 0.9158333333333334, exact 0.9158333333333334.
+   Against the anchored reference at `V_g = 2.0 V`: **−8.46%**, silently.
+   **Q4 FAILED on its magnitude band** (predicted > 10%) and not its class
+   call. Reachable for `Vds ≤ dVds + 1e-4` (1.1 mV at the default step) **and
+   from any upward step-size sweep — i.e. from exactly what a step-size audit
+   does.** The bug was one careless sweep away from contaminating an audit of
+   itself. It never fired at either operating point in use, so no published
+   number was ever affected.
+
+5. **The fix shrinks the step instead of widening the interval, and that is
+   the substantive choice.** Widening was the smaller edit, but an asymmetric
+   secant over `[1e-4, Vds+dVds]` is a second-order estimate of `dId/dVds` at
+   that interval's **midpoint** — the caller who asked for `g_ds` at `Vds`
+   would have received `g_ds` somewhere else, correctly computed. Shrinking
+   keeps it centred: **+0.0017%** instead of −8.46% at the same point. A
+   shrink now **warns** (09-24: a correct guard that silently degrades a
+   correct number is worse than one that fails loudly) and `Vds ≤ 1e-4`
+   raises. The non-firing path is unchanged expression by expression and
+   verified **bitwise — not to a tolerance** — over
+   `Vds ∈ {0.05, 0.1, 0.2} × dVds ∈ {1e-4, 1e-3, 1e-2}` on the 400-point
+   sweep, with warnings promoted to errors so an unexpected shrink would have
+   failed the check.
+
+6. **UNPREDICTED RESULT — 09-25's census read a SIGNATURE, not a call site,
+   and this is a systematic error across the whole list it produced.** This
+   module's peak `f_T` came out **10.140 GHz** against Chapter 4's published
+   **≈20 GHz**. Neither is wrong: `output_conductance`'s *signature* default
+   is `Vds = 0.05 V`, while `plot_fT_fmax()` — the path that produces
+   `rf_figures_of_merit.png` and the chapter's numbers — passes
+   **`Vds = 0.1 V`**, giving 20.279 / 18.731 GHz. §4.6 had never named which.
+   The consequence: the census scored `dVds` as "a step **2%** of its
+   variable"; at the call site it is **1%**, low **by exactly the factor
+   between the signature default and the call site** — 2× here and in general
+   unbounded. **A default-scale census must read call sites, not signatures.**
+   Recorded as unpredicted rather than folded into a prediction after the
+   fact. Both the census code and the 09-25 note are annotated in place; the
+   2e-2 stays.
+
+7. **A number worth recording because it is counter-intuitive.** The `g_ds`
+   term carries **0.9999** of the `f_max` denominator at peak `f_max`, so the
+   dilution should have been the square root's 0.5. It measured **0.229**.
+   The remainder is a property of reporting the peak value of a near-flat
+   maximum, not of the physics: **a denominator weight of 0.9999 does not
+   imply a sensitivity weight of 0.9999 in the reported figure of merit.**
+   Q5 passed, for a reason partly other than the one predicted.
+
+8. **A SECOND ITEM CLOSED, cheaply.** Q6: the 400-point `V_g` grid behind
+   `g_m = np.gradient(Id, V_g)`, and hence behind the published peak `f_T`,
+   moves it **0.001%** under 16× refinement (10.14017 → 10.14026 GHz). A
+   third entangled default, created and closed in the same session.
+
+9. **THE AUDITOR COMMITTED THE AUDITED ERROR, FOR THE SECOND TIME IN TWO
+   DAYS.** Validation **[B]** required its residual below an absolute `1e-12`
+   and measured **6.08e-10** — which **is** the derived cancellation floor
+   `eps·|Id|/(2h|g|)` at `h=1e-9`, so the constant silently encoded
+   `h ≳ 1e-7`. That is 09-25 item 10's fault class, in a fresh module, **one
+   day after it was documented, by the same process that documented it.**
+   Validation **[A]** likewise asserted a round "100× larger" and measured
+   67×. Both rebuilt on derived quantities — an oracle-free order test and the
+   exact algebraic gap — and both failures left in the source rather than
+   quietly corrected. **The conclusion is not "be more careful":** knowing the
+   class demonstrably does not prevent reproducing it, and what caught it both
+   times was **a test that reports a number instead of asserting a verdict.**
+
+10. **One validation retained BECAUSE IT CANNOT DISCRIMINATE** (continuing
+    09-25 item 11). **[B]** is exact for every `(n, h)` tried, for a constant
+    `R(V_ch)`, and passes for the shipped default and an absurd one alike: it
+    proves the harness and nothing about the default. Labelled as such in the
+    source. **[D]** states its cancellation bound as a derivation and reports
+    measured/bound ratios (0.62, 1.06) rather than clearing a constant.
+
+11. **Nothing was quietly rewritten.** `dVds` and `n_segments` are unchanged.
+    §4.6's "≈20 GHz" sentence is kept verbatim with its operating point added
+    beside it. The 09-25 census keeps its 2e-2 and gains an annotation. The
+    only behavioural change in the repo is the guard fix, on a path that never
+    ran.
+
+**Methodological note, continuing the series.** 09-20: exact validation does
+not protect against an unrepresentative sample. 09-21: pre-registration
+reaches what exact validation cannot. 09-22: pre-registration does not reach
+the analysis layer. 09-23: how claims consolidate. 09-24: a correct guard
+silently degraded a correct number because its default encoded the scale of
+its original caller. 09-25: a procedure asked whether it has converged can
+answer yes and be wrong by 44%. **09-26: the anchored comparison is anchored
+in ONE variable. Refining a step converges to the derivative of whatever other
+discretisation was held fixed, and when two defaults are entangled —
+and they are entangled whenever one sets the other's grid — convergence in one
+is not evidence about the pair.** Second, and earned the hard way today: **a
+null result is worth a session only if it is a null result about a mechanism
+you have shown can be large.** Both formulations close the item; only one
+closes it for a reason.
+
+**Predictions scored:** Q1, Q3, Q5, Q6 **PASS**. Q2 **FAIL** on its magnitude
+band (≥0.1% predicted, 0.0001% measured), class call correct. Q4 **FAIL** on
+its magnitude band (>10% predicted, 8.42% measured), class call correct.
+**5/5 validations pass**, after [A] and [B] each failed in their first form
+and were rebuilt on derived bounds.
+
+**Not yet covered (candidates for future runs):**
+- **`log_sensitivity`'s own convergence estimate IS step-doubling** — created
+  09-25 and now the **top numerical item** by default, since today closed the
+  one above it. Chapter 4's `R_transmission` decomposition and Chapter 5's
+  liner scenarios rest on the pattern 09-25 showed blind by five orders of
+  magnitude, and have never been checked against an anchored criterion
+- **Every remaining `h`-like step and tolerance in `rf_small_signal_model.py`
+  and the photodetector modules** — open since 09-25, and today sharpened the
+  method rather than the list: **score them at call sites.** Item 6 makes the
+  census's signature-reading a systematic error across that entire list
+- **Whether any Chapter 4 or 5 RANKING is a step artefact of the same kind** —
+  created 09-23/09-25, untouched today, and today adds nothing for or against
+  it
+- **`n_segments = 50` at a bias with more curvature** — created today. Today
+  exonerated it for `g_ds` at two bias points, but item 3 showed the
+  exoneration is curvature-dependent, and `n_segments` sets **every** `Id` in
+  Chapter 4. The follow-up is whether any other Chapter 4 quantity
+  differentiates through that quadrature where `R(V_ch)` curves more
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21 and still the top *physics* item, **untouched for six
+  consecutive sessions**. Every "reachable" number in 09-23's margin table is
+  one anchored exponential with a swept decay length
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural
+  weakness
+- **Ask which of Chapters 4 and 5's design rules could be restated as parities
+  or bounds rather than rankings over a tabulated set** — created 09-23
+- **Whether the parity survives a photo-thermoelectric term** — created 09-23
+- **Re-check whether other "for every …" claims rest on small samples** — open
+  since 2026-09-20
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover** — open since 2026-09-18
+- **Chapter 7 (discussion/outlook)** — now **ten threads**, material entirely
+  in hand, and displaced for a seventh session. It is the largest piece of
+  writing whose material is complete, and the numerical thread has now
+  produced two consecutive sessions that displaced it
+- **Chapters 2–3 remain undrafted** despite complete computational results
+- **`__pycache__` is tracked in this repo** — open since 09-24; it dirtied the
+  working tree on every run today and cost real time on 09-25
+- Reconciling Mueller *et al.*'s 0.12 eV step (arXiv:0902.1479) with the
+  0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS` assumes — open since 2026-09-18
+- A photo-thermoelectric term (Kasırga review); Shimomura *et al.*'s
+  comb-electrode design; integrating 6.5's plasmonic near-field picture with
+  the spatially-resolved contact-doping machinery; isolating the root cause of
+  the Section 4.7 negative residual (open since 2026-08-31); Ti and Cr
+  per-metal `Rc` recalibration (ResearchGate rate-limiting); a second
+  independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health:** Device reachable at the 04:34 UTC firing, folder
+connected; neither repo had a 2026-09-26 entry and neither had commits since
+midnight, so a full session was run. A plain `git clone` of both repos
+completed normally and fast (the 09-24 partial/shallow recipe was again not
+needed). `git config user.name/user.email` was again absent in the fresh
+clones and set in its own call per 09-24's finding. `scipy` was again absent
+from the device VM; `pip install scipy` succeeded first time (1.15.3), though
+nothing in today's work needed it. No live web search was used: the session
+was an internal audit of this repo's own numbers and needed none.
+`__pycache__` again showed as modified in `git status` on every run (see the
+open item).
+
+**Commits this run:** 4 (the audit with its output and figure; the guard fix
+with its bitwise regression check; the thesis 4.6 annotation and new 4.6.1;
+the study note with the two in-place annotations). This AUTOMATION_LOG.md
+entry makes 5. The audit and the fix are separate commits because the audit
+is a null result and the fix is not — a session whose headline is "nothing
+moved" should not bury a −8.46% bug inside that commit.
