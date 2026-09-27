@@ -3350,3 +3350,290 @@ the study note with the two in-place annotations). This AUTOMATION_LOG.md
 entry makes 5. The audit and the fix are separate commits because the audit
 is a null result and the fix is not — a session whose headline is "nothing
 moved" should not bury a −8.46% bug inside that commit.
+
+---
+
+## 2026-09-27 — The convergence estimate reports machine precision where the answer is 14% wrong, and Chapter 7 is finally drafted
+
+**Status:** Automated session. Live web search **not used** — the numerical half
+was an internal audit of this repository's own estimator and the writing half
+was a synthesis of results already in hand; neither needed it. Device reachable
+at the **04:34 UTC** firing, folder connected; neither repo had a 2026-09-27
+entry and neither had commits since midnight, so a full session was run.
+
+**Pre-registration committed first** (commit `e2eed30`, before the audit module
+existed): `notes/2026-09-27-log-sensitivity-preregistration.md`, seven questions
+Q1–Q7 and five validations V1–V5, continuing the practice established 09-21.
+
+**The item.** `graphene_sensitivity_audit.log_sensitivity(f, p, rel_step=1e-5)`
+is the only finite-difference estimator in this thesis's conditioning work. It
+reports `conv = |S(h) − S(2h)|` with every value — step-doubling, the pattern
+09-25 caught answering *yes* while the answer was 44% wrong — and had been the
+**top open numerical item since 09-25**.
+
+1. **A correction to the session's own pre-registration, before any result.**
+   Q1 and Q4 named "Chapter 4/5 call sites". **There are no Chapter 4 call
+   sites.** Section 4.10 is entirely term-level and closed form
+   (`S_i = T_i/Q`, no finite differences, no tolerance), so this estimator's
+   whole exposure is Chapter 5. The pre-registration asserted a call site it had
+   not checked for — a smaller version of 09-26 item 6, where a census read
+   signatures instead of call sites. Recorded here rather than silently
+   narrowed.
+
+2. **RESULT — the estimator was never the central difference its docstring
+   claimed, and this is 09-26 item 5's fault class on a DEFAULT path.** It
+   sampled `p(1 ± h)`. In `L = ln p` those points sit at `L + ln(1+h)` and
+   `L + ln(1−h)`, and `ln(1+h) ≠ −ln(1−h)`, so it was a **secant over an
+   asymmetric log interval**, returning `dln|f|/dln p` at the interval midpoint
+   `L + ½ln(1−h²) = L − h²/2 + O(h⁴)`. Its leading error carries
+   `−(h²/2)g″` — proportional to `dS/dln p` — a term a centred difference's
+   error does not involve at all. 09-26 found the identical class on a guard
+   path that had **never fired**; this is the path behind **every** published
+   sensitivity in Section 5.5.
+
+3. **Proved by closed form, not asserted.** For `ln|f| = A(ln p)²` the old
+   estimator's error is `A·ln(1−h²)` **exactly, at every order**, while a
+   centred difference on the same function is **exactly zero** — a centred
+   difference of a quadratic has no error. One function separates the two
+   estimators by a closed form at every step, and the measured agreement sits at
+   the derived cancellation bound throughout (worst measured/bound **2.08**).
+   Magnitude at the shipped step: **9.47e-10** relative, worst over 23 call
+   sites, so Q1's class call and magnitude band both **PASS** and no number
+   moves.
+
+4. **RESULT — THE HEADLINE, and it falsifies this session's own Q4.** Q4
+   predicted **no** zero of `conv` at any real call site in `h ∈ [1e-8, 1e-1]`,
+   reasoning that these are smooth rationals where `g″` dominates `g‴`. **Four
+   zeros lie on the truncation branch**, located by bracketed bisection (09-24's
+   rule) against a derived rounding floor, and **all four are in Family B — the
+   λ_impurity calibration, `κ = 19.71`, the step Section 5.5 calls the
+   worst-conditioned in this thesis**:
+
+   | call site | `h` at `conv = 0` | `conv` there | error in `S` | relative |
+   |---|---|---|---|---|
+   | `λ_imp/ρ_calibration` | 2.928e-2 | 4.97e-14 | 2.76 | **14.0%** |
+   | `λ_imp/ρ_bulk` | 3.084e-2 | 1.42e-14 | 2.62 | **13.3%** |
+   | `λ_imp/W_calibration` | 4.391e-2 | 1.24e-14 | 1.83 | **15.1%** |
+   | `λ_imp/λ_bulk` | 4.752e-2 | 1.95e-14 | 1.69 | **12.9%** |
+
+   Understatement factor up to **1.8e14**. **At `h ≈ 3%` the only instrument the
+   code offers reports convergence to machine precision while the sensitivity is
+   wrong by 14%.** That is 09-25's finding reproduced on this estimator, at 14%
+   rather than 44%. Q4's reasoning failed for the reason that made Family B the
+   right place to look: `λ_imp = λ_bulk/residual` with a near-zero residual puts
+   large higher derivatives into `ln|f|`, so `c₂` and `c₄` acquire opposite
+   signs. **The near-cancellation that makes `κ = 19.71` is the same
+   near-cancellation that creates the blind spot** — one mechanism, two
+   symptoms, and Section 5.5 had measured only the first.
+
+5. **What is NOT claimed, stated before anything else is drawn from item 4.**
+   Nothing published moves. Every `S` in Sections 4.10 and 5.5 is stable to
+   **1.3e-8** relative under 16× refinement, against the corrected estimator,
+   and against an independent Richardson reference (**Q5 PASS**). The nearest
+   zero is **≈3000× above** the shipped `h = 1e-5`. The shipped step is safe by
+   a wide margin. What is unsafe is the **procedure**: a sweep over the natural
+   range passes straight through all four points — and **the repo ran exactly
+   such a sweep on 09-25 and 09-26**.
+
+6. **The exactly-solvable half, which is what licenses item 4.** A blind spot
+   was *constructed* rather than found: for `ln|f| = A L² + B L⁴` the secant is
+   exact in closed form, and with `A = −2B + δ` at `L = 1`, `conv` vanishes near
+   `h*² = 3δ/(20B)` with a relative error there of **exactly `(3/8)h*²`,
+   independent of `A`, `B` and `δ`**. Measured ratio to that prediction
+   **1.0668** — **Q3 FAILS on its magnitude band** (the `h⁶` term contributes
+   6.7% at `h* = 0.0179`), class call correct. The construction also gives the
+   honest *limit* on the mechanism: the ratio of understatement is unbounded
+   while the absolute error hidden is of ordinary `O(h²)` size. Family B exceeds
+   that limit only because its `h*` is 3% rather than 1.8%. **Q2 confirmed to
+   four digits:** `conv/|error|` = 3.0000, 3.0001, 3.0006, 3.0054.
+
+7. **UNPREDICTED RESULT — `conv` is minimised where the answer is worst, and
+   this is more general than item 4.** Median ratio of the `h` that minimises
+   the error to the `h` that minimises `conv`: **877**. Minimising `conv` gives a
+   **worse** answer than the shipped step at **18 of 23** call sites, worst
+   penalty **3.5e4×**. Far below the cancellation knee `conv` differences two
+   noise samples and is small for that reason. Item 4's blind spots are four
+   isolated points; **this is the whole low-`h` half of the range.**
+
+8. **UNPREDICTED RESULT — for two of three families `conv` measures rounding,
+   not convergence.** `conv` at the shipped step divided by the derived floor
+   `4ε|ln Q|/h`: Family B median **431**, Family C median **0.4**, Family D
+   median **0.5**. So Section 5.5's "worst convergence estimate over the table:
+   2.7e-10" and "worst convergence estimate: 1.9e-10" lines are measurements of
+   double precision and **would print roughly the same number for a model with
+   any amount of curvature**. The reassurance scales with `|ln Q|` and `h`, not
+   with the quality of the answer.
+
+9. **Q7: eleven `log_sensitivity` call sites, ZERO of which compare the returned
+   `conv` against anything.** Every one prints it. Class call right, **scope
+   wrong** — one *unrelated* module does compare its own convergence quantity to
+   a tolerance, so the repository knows how and simply did not here. A
+   convergence estimate with no criterion attached is a number, not a check, and
+   items 4, 7 and 8 are what that number was hiding.
+
+10. **The fix, and what it costs — reported rather than absorbed.**
+    `symmetric=True` (now the default) samples `p·exp(±h)`, exactly symmetric in
+    `L`. The old path is kept as `symmetric=False`, not deleted, per 09-24.
+    Before/after diff of `graphene_sensitivity_audit.py`: **every value printed
+    to four decimals is identical**, sole exception one `0.0000` becoming
+    `-0.0000`. But **Validation 4(c)'s "three independent exact zeros … the
+    strongest form of check this repo uses" becomes 2/3 BITWISE**:
+    `S(ρ_bulk)` at the calibration width is now `−1.11e-11` instead of exactly
+    `0.0`. That value **is** the derived floor `4ε|ln ρ|/(2h) = 5.7e-11`, so all
+    three zeros survive as mathematics and one has lost its *bitwise* exactness —
+    which turns out to have depended on the **old** estimator's evaluation
+    points happening to cancel. **An exact-zero check written as `v == 0.0`
+    cannot distinguish structure from floating-point luck.** Both counts are now
+    printed, the criterion is the derived floor, the annotation is in the source,
+    and the structural fact is untouched.
+
+11. **`validate_power_laws` annotated in place as NON-DISCRIMINATING, with its
+    own output as the proof.** All four sub-checks are power laws or closed
+    forms; a power law makes `ln|f|` linear in `ln p`, so every secant is exact
+    and every step equally good — it passes identically for the old estimator,
+    the corrected one, and an absurd `rel_step = 0.25`. **Switching to the
+    provably more accurate estimator moved its "worst |error|" from 1.66e-11 to
+    3.79e-11.** A validation whose number gets *worse* when the estimator gets
+    *better* is measuring rounding. Retained deliberately and labelled, because
+    a labelled blind check is more useful than a deleted one — continuing 09-25
+    item 11 and 09-26 item 10, and now the third consecutive session with such a
+    check identified.
+
+12. **THE AUDITOR COMMITTED THE AUDITED ERROR THREE TIMES, IN ONE SESSION.**
+    Three of five validations failed in their first form and **all three failed
+    the same way: a round absolute tolerance — 1e-13, 1e-14, 1e-13 — that
+    silently encoded a step size.** V2 required 1e-13 and measured 5.10e-08,
+    which *is* the derived floor at `h = 1e-3`. V5 required 1e-13 and measured
+    its own floor. V3 required 1e-14 and was wrong in **shape**: `ln|1/f| =
+    −ln|f|` holds in exact arithmetic, but `1/f` is a separately rounded number,
+    so `log(1/x)` is not `−log(x)` bitwise. Two boundary definitions for
+    "truncation branch" were also tried and discarded before a derived one
+    worked. **This is the class documented 09-25 item 10 and reproduced 09-26
+    item 9 — now three consecutive sessions, and today three times inside the
+    session auditing it.** 09-26 concluded that knowing the class does not
+    prevent reproducing it. Today supports something stronger: **an absolute
+    tolerance is the default way a numerical assertion gets written,
+    exhortation does not fix it, and the only defence found so far is
+    structural — report the measured value beside a derived bound and let the
+    ratio be the verdict.** All three first forms are left in the source.
+
+13. **WRITING — Chapter 7 is drafted, after seven consecutive sessions of
+    displacement.** `thesis_draft/07-discussion-and-outlook.md`, 704 lines,
+    eleven sections, discharging all ten synthesis threads. No new physics; it
+    is the synthesis the other chapters were generating material for. Its four
+    arguments: (i) the single-junction/two-junction split, with Section 6.14's
+    parity making the blindness exact and the device-facing polarity statement
+    carried verbatim; (ii) bounds and parities versus rankings over tabulated
+    sets, with Section 6.9's retracted ceiling as the cautionary case that a
+    claim's *grammar* is not evidence about its population; (iii) five failure
+    classes with five **non-overlapping** detectors and a table of which ones
+    Chapters 4–5 actually have; (iv) unequal scrutiny — `κ = 19.71` in Chapter 5
+    against 4.55 in Chapter 6, and the only convergence blind spots in the
+    repository are at that same Chapter 5 calibration, so the chapter that has
+    failed most publicly is the one that has been *looked at* most. Chapter 4's
+    `f_T` is the worked example: "≈20 GHz" and 10.140 GHz are both right, at
+    `V_ds = 0.1 V` and `0.05 V`, and the chapter had never named which for a
+    month. Chapter 1's status row rewritten to lead with the draft, with the
+    ten-thread history kept below it. **Two threads added on the drafting day
+    itself:** an untested prediction that any *differential* interconnect figure
+    of merit is dominated by edge-scattering variance rather than mean
+    resistivity, and the caution that **a bound derived from a near-cancelling
+    quantity inherits the near-cancellation** — so "restate it as a bound" is
+    not a way around conditioning but a way of making it explicit.
+
+**Methodological note, continuing the series.** 09-20: exact validation does not
+protect against an unrepresentative sample. 09-21: pre-registration reaches what
+exact validation cannot. 09-22: pre-registration does not reach the analysis
+layer. 09-23: how claims consolidate. 09-24: a default tolerance is a claim
+about the scale of the caller's variable. 09-25: a procedure asked whether it has
+converged can answer yes and be wrong by 44%. 09-26: the anchored comparison is
+anchored in one variable; entangled defaults break it.
+**09-27, and it is the sharpest form yet: an instrument can be systematically
+smallest where the answer is worst. `conv` is minimised a median 877× below the
+right step, and at four real points it reports 1e-14 where the answer is 14%
+wrong. A convergence estimate is not a convergence criterion, and the two are
+distinguished only by attaching a derived bound to it — which nobody in this
+repository had done at any of eleven call sites in five weeks.** Second, and
+earned three times over today: **the fault class of asserting a round absolute
+tolerance is not a lapse of care but a default of authorship, and the fix has to
+be structural.**
+
+**Predictions scored:** Q1 (class and magnitude), Q2, Q5, Q7 (class) **PASS**.
+Q3 **FAIL** on magnitude band (1.067 vs 1.000), class correct. Q4 **FAIL** on
+its class call *and* as written. Q6 **FAIL** (Family B worse by 4.35×, not
+>10×). Q7 **FAIL** as written (over-scoped). **Unpredicted:** items 7, 8, 10 and
+the item-1 correction. **5/5 validations pass** after three of the five failed in
+their first form and were rebuilt on derived bounds.
+
+**Not yet covered (candidates for future runs):**
+- **Whether `graphene_default_scale_audit`'s own `rel_step` sweeps are affected
+  by today's item 7** — created today and the natural top numerical item, since
+  that module swept this estimator's step on 09-25 and today showed that
+  minimising `conv` walks 877× away from the right step. The question is whether
+  any of 09-25's conclusions rest on a `conv`-guided step choice
+- **Whether any OTHER near-cancellation in this repo would show the same
+  `c₂`/`c₄` sign flip if it were differentiated rather than evaluated** —
+  created today. Chapter 4 §4.7's residual and Chapter 6's same-sign pairs are
+  the candidates; today's mechanism says near-cancellation and blind spot are
+  the same mechanism, so `κ` is a *predictor* of where to look
+- **Migrating every remaining validation in the repo to measured-value-beside-
+  derived-bound form** — created today by item 12, and the only defence found
+  against a fault class now at three consecutive sessions. This is the largest
+  piece of purely mechanical numerical work outstanding
+- **Whether Chapter 4 or 5 contains a RANKING that is a step artefact** —
+  created 09-23/09-25, untouched today
+- **`n_segments = 50` at a bias with more curvature** — created 09-26,
+  untouched today
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open since
+  2026-09-21, still the top *physics* item, and now **untouched for seven
+  consecutive sessions**. Chapter 7 §7.9 lists it first for exactly that reason
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural weakness,
+  and Chapter 7 §7.9 item 2
+- **Chapters 2–3 remain undrafted** despite complete computational results —
+  **now the largest remaining block of pure writing by a wide margin**, since
+  Chapter 7 is drafted. Their computational results have been complete longest of
+  anything in the repo
+- **Whether Chapter 7's §7.3 differential-interconnect prediction holds** —
+  created today, stated as a prediction in the chapter rather than a result
+- **Asking which of Chapters 4 and 5's design rules could be restated as
+  parities or bounds** — created 09-23; Chapter 7 §7.4.3 now names three
+  concrete candidates, so the item is sharpened rather than closed
+- **Whether the parity survives a photo-thermoelectric term** — created 09-23,
+  and Chapter 7 §7.9 raises its stakes: if it does not, §7.2.3's polarity
+  statement loses its exactness
+- **Re-check whether other "for every …" claims rest on small samples** — open
+  since 2026-09-20
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover** — open since 2026-09-18
+- **`__pycache__` is tracked in this repo** — open since 09-24; it dirtied the
+  working tree again on every run today
+- Reconciling Mueller *et al.*'s 0.12 eV step (arXiv:0902.1479) with the
+  0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS` assumes — open since 2026-09-18;
+  Chapter 7 §7.8.2 now states it as bounding everything in Chapter 6
+- A photo-thermoelectric term (Kasırga review); Shimomura *et al.*'s
+  comb-electrode design; integrating 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery; isolating the root cause of the
+  Section 4.7 negative residual (open since 2026-08-31); Ti and Cr per-metal
+  `Rc` recalibration (ResearchGate rate-limiting); a second independent
+  edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health:** Device reachable at the 04:34 UTC firing. A plain
+`git clone` of both repos completed normally and fast (the 09-24 partial/shallow
+recipe again not needed). `git config user.name/user.email` again absent in the
+fresh clones and set in its own call per 09-24. `scipy` again absent from the
+device VM at import time; `pip install scipy` succeeded immediately and **was
+required today** — `graphene_sensitivity_audit` imports it transitively through
+`graphene_contact_doping_model`. `__pycache__` again showed as modified on every
+run. One self-inflicted syntax error (a multi-line f-string inside a patch
+heredoc) and one heredoc-quoting collision (a `'''` sequence in prose inside a
+`'''`-delimited Python string) cost two round-trips; both are authoring hazards
+of patching Python through heredocs, not repo problems.
+
+**Commits this run:** 5 (the pre-registration; the audit with its output and
+figure; the estimator fix with its before/after regression check and the
+Validation 4 annotation; the study note; Chapter 7 plus the Chapter 1 status
+row). This AUTOMATION_LOG.md entry makes 6. The audit and the fix are separate
+commits for the same reason as 09-26: the audit's Q5 result is that nothing
+moved, and a session whose numerical headline is "nothing published moves"
+should not bury a docstring-falsifying estimator bug inside that commit.
