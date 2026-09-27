@@ -100,15 +100,58 @@ def classify(kappa):
 # =====================================================================
 # Diagnostic 2: parameter-level (central difference in log space)
 # =====================================================================
-def log_sensitivity(f, p, rel_step=1e-5, check=True):
+def log_sensitivity(f, p, rel_step=1e-5, check=True, symmetric=True):
     """
-    S = d ln|f| / d ln p by central difference.  Returns (S, conv) where
-    conv is |S(h) - S(2h)|, a convergence estimate that is reported with
-    every value rather than assumed small.
+    S = d ln|f| / d ln p.  Returns (S, conv) where conv is |S(h) - S(2h)|.
+
+    TWO THINGS ABOUT THIS FUNCTION ARE NOT WHAT THEY LOOK LIKE, both measured
+    on 2026-09-27 (graphene_log_sensitivity_step_audit.py,
+    notes/2026-09-27-log-sensitivity-step-audit.md):
+
+    (1) `symmetric=False` reproduces the estimator used from 2026-09-22 to
+        2026-09-26, which sampled p*(1 +/- h).  In the variable the derivative
+        is taken with respect to -- L = ln p -- those points sit at
+        L + ln(1+h) and L + ln(1-h), and ln(1+h) != -ln(1-h).  It was therefore
+        NOT a central difference, whatever its docstring said, but a secant over
+        an ASYMMETRIC log interval, returning dln|f|/dln p at the interval's
+        midpoint L + (1/2)ln(1-h^2) = L - h^2/2 + O(h^4).  Its leading error
+        carries -(h^2/2)*d2ln|f|/dL2, a term a central difference does not have.
+        Proof rather than assertion: for ln|f| = A(ln p)^2 the old estimator's
+        error is A*ln(1-h^2) EXACTLY at every order, while a central difference
+        on the same function is EXACTLY ZERO.
+
+        `symmetric=True` (the default from 2026-09-27) samples p*exp(+/-h), which
+        is exactly symmetric in L, so it IS the central difference this
+        docstring always claimed.  At rel_step = 1e-5 the two agree to 9.5e-10
+        relative on every call site in this module, so NO published number in
+        Chapter 4 Section 4.10 or Chapter 5 Section 5.5 changes -- verified by
+        running this file before and after and diffing the output.  The old path
+        is kept rather than deleted because 2026-09-24 established that deleting
+        a superseded implementation destroys the only oracle available for
+        judging its replacement.
+
+    (2) `conv` IS NOT A CONVERGENCE CRITERION AND MUST NOT BE READ AS ONE.  It
+        is 3x the true error where truncation dominates (measured 3.0000), but
+        it has exact blind spots wherever the h^2 and h^4 error terms cancel
+        between h and 2h, and FOUR of them lie on the truncation branch of the
+        lambda_impurity calibration -- Family B, kappa = 19.71.  At h = 2.93e-2
+        conv is 4.97e-14 while S is 14.0% wrong.  Worse, minimising conv chooses
+        a step a median 877x below the one that minimises the error, because far
+        below the cancellation knee conv differences two noise samples and is
+        small for that reason.  DO NOT SWEEP rel_step AND PICK THE h THAT
+        MINIMISES conv; it walks away from the answer while reporting success.
+        For Families C and D, conv at rel_step = 1e-5 is already AT the derived
+        rounding floor 4*eps*|ln Q|/h, so those "worst convergence estimate"
+        lines measure double precision, not convergence.
     """
-    def _S(h):
-        fp, fm = f(p * (1 + h)), f(p * (1 - h))
-        return (np.log(abs(fp)) - np.log(abs(fm))) / (np.log(1 + h) - np.log(1 - h))
+    if symmetric:
+        def _S(h):
+            fp, fm = f(p * np.exp(h)), f(p * np.exp(-h))
+            return (np.log(abs(fp)) - np.log(abs(fm))) / (2.0 * h)
+    else:
+        def _S(h):
+            fp, fm = f(p * (1 + h)), f(p * (1 - h))
+            return (np.log(abs(fp)) - np.log(abs(fm))) / (np.log(1 + h) - np.log(1 - h))
     S = _S(rel_step)
     conv = abs(S - _S(2 * rel_step)) if check else float("nan")
     return S, conv
@@ -395,6 +438,24 @@ def validate_power_laws(verbose=True):
       (c) the bulk-only limit: with edge and impurity terms zeroed,
           S(rho_bulk) == 1 and every other S == 0 EXACTLY.
       (d) a pure inverse: Q = c/x has S == -1 exactly.
+
+    ANNOTATION 2026-09-27 -- THIS VALIDATION CANNOT DISCRIMINATE, and is
+    retained because saying so is more useful than replacing it.  Every one of
+    (a), (b) and (d) is a pure power law, and (c) is closed-form with no finite
+    difference in it at all.  For a power law ln|f| is LINEAR in ln p, so every
+    secant over it is exact and every step size is equally good: this check
+    passes identically for the asymmetric estimator used to 2026-09-26, for the
+    corrected symmetric one, and for an absurd rel_step = 0.25.  It has
+    therefore never been capable of judging either the estimator or its step,
+    and its "worst |error|" line measures double-precision rounding.  The live
+    demonstration is in this file's own output: switching to the provably MORE
+    accurate estimator on 2026-09-27 moved that worst error from 1.66e-11 to
+    3.79e-11 -- a validation whose number gets worse when the estimator gets
+    better is measuring rounding.  The discriminating check is
+    ln|f| = A(ln p)^2, where the old estimator's error is A*ln(1-h^2) exactly
+    and a centred difference's is exactly zero; it lives in
+    graphene_log_sensitivity_step_audit.py rather than here because it is a
+    statement about the estimator, not about Chapters 4 and 5.
     """
     checks = []
     S, c = log_sensitivity(lambda v: v / 0.1522, 55.0)
@@ -477,14 +538,37 @@ def validate_calibration_point_pinning(verbose=True):
         zeros[name] = log_sensitivity(
             lambda v, k=kw: _rho_propagated(Wc, **{k: v}), val)[0]
     n_exact = sum(v == 0.0 for v in zeros.values())
+    # ANNOTATION 2026-09-27.  This count was 3/3 from 2026-09-22 to 2026-09-26
+    # and is 2/3 from 2026-09-27, and the change is NOT a regression: it is the
+    # switch to the provably more accurate symmetric stepping (see
+    # log_sensitivity).  S(rho_bulk) is now -1.11e-11 rather than exactly 0.0.
+    # 1.11e-11 IS the derived cancellation floor eps*|ln rho|/(2h) = 1.8e-11 at
+    # h = 1e-5, so the zero is still there as mathematics; what has gone is its
+    # BITWISE exactness, which turns out to have depended on the old estimator's
+    # particular evaluation points p*(1 +/- h) happening to cancel.  The
+    # docstring below called these "three independent exact zeros ... the
+    # strongest form of check this repo uses"; one of the three was partly
+    # floating-point luck, and an exact-zero check written as `v == 0.0` cannot
+    # tell the difference between structure and luck.  Both counts are now
+    # printed and the criterion is the derived floor.  Nothing about the
+    # underlying structural fact has changed: at the calibration width the
+    # prediction carries no information from rho_bulk, p or lambda_bulk.
+    floor = 4.0 * np.finfo(float).eps * abs(np.log(abs(
+        _rho_propagated(Wc)))) / (2.0 * 1e-5)
+    n_at_floor = sum(abs(v) <= floor for v in zeros.values())
     if verbose:
         print("\nValidation 4 (EXACT): the calibration point pins rho")
         print(f"  (a) rho({Wc:.0f} nm) == rho_calibration bitwise : {bitwise}")
         print(f"  (b) S(rho_calibration) = {S_cal:.12f}  |err| {abs(S_cal-1):.1e}")
-        print(f"  (c) exact zeros : {n_exact}/3  "
-              + ", ".join(f"S({k}) = {v:.1f}" for k, v in zeros.items()))
-        print(f"  {'PASS' if (bitwise and n_exact == 3 and abs(S_cal-1) < 1e-9) else 'FAIL'}")
-    return bitwise, S_cal, zeros
+        print(f"  (c) BITWISE zeros : {n_exact}/3   "
+              f"zeros within the derived floor {floor:.1e} : {n_at_floor}/3")
+        print("      " + ", ".join(f"S({k}) = {v:.3e}" for k, v in zeros.items()))
+        print(f"      (was 3/3 BITWISE up to 2026-09-26 under the old asymmetric")
+        print(f"      stepping; 2/3 since 2026-09-27 under the corrected symmetric")
+        print(f"      stepping, which is more accurate.  See the annotation in the")
+        print(f"      source: one of the three exact zeros was floating-point luck.)")
+        print(f"  {'PASS' if (bitwise and n_at_floor == 3 and abs(S_cal-1) < 1e-9) else 'FAIL'}")
+    return bitwise, S_cal, zeros, n_exact, n_at_floor
 
 
 def sign_flip_margins(rows, verbose=True):
