@@ -1,0 +1,353 @@
+==============================================================================
+AN ANCHORED AUDIT OF log_sensitivity's STEP AND CONVERGENCE ESTIMATE
+  pre-registration: notes/2026-09-27-log-sensitivity-preregistration.md
+==============================================================================
+
+==============================================================================
+Q7 -- SOURCE CENSUS: is `conv` ever compared against anything?
+==============================================================================
+  log_sensitivity call sites found : 11
+    graphene_default_scale_audit.py:73  D2  `log_sensitivity(rel_step=1e-5)` passes covariance EXACTLY (
+    graphene_default_scale_audit.py:201  S1, _ = log_sensitivity(f1, 1.0, rel_step=rel_step)
+    graphene_default_scale_audit.py:203  S2, _ = log_sensitivity(f2, 1.0 * lam, rel_step=rel_step)
+    graphene_sensitivity_audit.py:193  par[name] = log_sensitivity(lambda v, n=key[name]: _lambda_imp(*
+    graphene_sensitivity_audit.py:257  row[name] = log_sensitivity(
+    graphene_sensitivity_audit.py:292  Sp, conv = log_sensitivity(
+    graphene_sensitivity_audit.py:400  S, c = log_sensitivity(lambda v: v / 0.1522, 55.0)
+    graphene_sensitivity_audit.py:402  S, c = log_sensitivity(
+    graphene_sensitivity_audit.py:408  S, c = log_sensitivity(lambda v: 7.0 / v, 3.0)
+    graphene_sensitivity_audit.py:471  S_cal, c_cal = log_sensitivity(
+    graphene_sensitivity_audit.py:477  zeros[name] = log_sensitivity(
+  lines in which a conv-like name appears in a COMPARISON : 1
+    graphene_crossover_sensitivity_model.py:213  if conv_plateau > rtol:
+  NOTE: a `conv`-like quantity IS compared against a tolerance in
+  graphene_crossover_sensitivity_model.py -- a DIFFERENT convergence
+  quantity in a different module.  The repository knows how to attach
+  a criterion to a convergence estimate; it did not do so here.
+
+==============================================================================
+V1 + V4 (EXACT, AND DELIBERATELY NON-DISCRIMINATING)
+  f = 3.71 p^-2.5 at p = 4.3 : S must be exactly -2.5 for EVERY h
+==============================================================================
+         h            S_affine              S_geom        conv  bitwise?
+     1e-08 -2.5000000070107831 -2.5000000070107831     4.4e-16  affine False  geom False  conv==0 False
+     1e-06 -2.4999999999045222 -2.4999999999053557     1.1e-10  affine False  geom False  conv==0 False
+     1e-05 -2.4999999999996581 -2.4999999999941735     5.4e-12  affine False  geom False  conv==0 False
+     1e-03 -2.4999999999999596 -2.5000000000001688     1.5e-13  affine False  geom False  conv==0 False
+     1e-02 -2.5000000000000235 -2.4999999999999689     1.7e-14  affine False  geom False  conv==0 False
+     1e-01 -2.5000000000000027                -2.5     3.6e-15  affine False  geom  True  conv==0 False
+     2e-01                -2.5                -2.5     0.0e+00  affine  True  geom  True  conv==0  True
+  affine bitwise 1/7, geom bitwise 2/7, conv exactly 0.0 1/7
+  THIS CHECK CANNOT DISCRIMINATE.  For a power law g(L) is LINEAR, so
+  every secant over it is exact and `conv` is exactly zero -- for the
+  shipped estimator, for the corrected one, and for an absurd h = 0.25
+  alike.  `graphene_sensitivity_audit.validate_power_laws` is built
+  ENTIRELY out of this case (its four sub-checks (a),(b),(d) are pure
+  power laws and (c) is closed-form), so that validation has never
+  been capable of judging either the estimator or its step.
+
+==============================================================================
+V2 (EXACT, DISCRIMINATING) -- ln|f| = A(ln p)^2, A = 0.8123, ln p = 1.37
+  The shipped estimator's error is A*ln(1-h^2) EXACTLY, at every order.
+  A true centred difference on the same function is EXACTLY ZERO,
+  because a centred difference of a quadratic has no error at all.
+==============================================================================
+           h     E_affine measured           A ln(1-h^2)    rel dev       E_geom
+   1.000e-03-8.123003647497740e-07-8.123004061502709e-07    5.1e-08     5.15e-14
+   1.778e-03-2.568722122120448e-06-2.568722204863337e-06    3.2e-08     1.47e-14
+   3.162e-03-8.123040604157694e-06-8.123040615270770e-06    1.4e-09     1.64e-14
+   5.623e-03-2.568758760013168e-05-2.568758759211034e-05    3.1e-10     1.51e-14
+   1.000e-02-8.123406177684700e-05-8.123406177078699e-05    7.5e-11    -2.62e-14
+   1.778e-02-2.569124379196985e-04-2.569124378999026e-04    7.7e-11     7.99e-15
+   3.162e-02-8.127064209642043e-04-8.127064209699041e-04    7.0e-12    -8.88e-16
+   5.623e-02-2.572788226107292e-03-2.572788226107596e-03    1.2e-13    -2.66e-15
+   1.000e-01-8.163887813800397e-03-8.163887813799222e-03    1.4e-13    -8.88e-16
+  worst relative deviation from the closed form : 5.10e-08
+  measured / DERIVED cancellation bound, per h :
+    0.24  0.87  0.21  0.27  0.36  2.08  1.06  0.10  0.69
+  worst measured/bound ratio : 2.080   PASS
+  FIRST FORM OF THIS VALIDATION FAILED and the failure is left in the
+  record: it required the deviation below an absolute 1e-13 and
+  measured 5.10e-08 at h = 1e-3, which IS the derived floor
+  EPS*|g|/(2h)/|E| = 2.1e-07 there.  The constant silently
+  encoded h >~ 1e-2.  That is 2026-09-25 item 10's and 2026-09-26
+  item 9's fault class, committed for the third consecutive session
+  by the session auditing it.
+  worst |E_geom| over the same sweep            : 5.15e-14   (cancellation floor at the smallest h is ~1.7e-13)
+  The corrected estimator is at its roundoff floor; the shipped one is
+  above it by up to four orders of magnitude, on a function where the
+  right answer is exactly recoverable.
+
+==============================================================================
+V3 (EXACT SYMMETRY) -- S[1/f] = -S[f], which must be bitwise
+==============================================================================
+  ln|1/f| = -ln|f| and the estimator is linear in g, so S[f] + S[1/f]
+  must be exactly 0.0 at every h.
+  bitwise zero : 27/31 over h in [1e-8, 1e-1]
+  worst |S[f] + S[1/f]| : 2.58e-10
+  worst / DERIVED bound 4*EPS*|g|/(2h) : 0.225   PASS
+  NOT 31/31, and reported as such.  The prediction was wrong in SHAPE,
+  not only in magnitude: ln|1/f| = -ln|f| holds in exact arithmetic,
+  but 1/f is a separately rounded number, so log(1/x) != -log(x)
+  bitwise.  The symmetry is exact as mathematics and holds to the
+  cancellation floor in double precision -- a floating-point
+  statement, not a modelling one.  (Same shape as Validation 3(c)
+  of graphene_sensitivity_audit.py, which says so about kappa.)
+
+==============================================================================
+Q2 -- is conv = |S(h) - S(2h)| conservative, and by how much?
+==============================================================================
+         h    |true error|            conv   conv/|error|
+     1e-03       8.123e-07       2.437e-06         3.0000
+     3e-03       7.311e-06       2.193e-05         3.0001
+     1e-02       8.123e-05       2.438e-04         3.0006
+     3e-02       7.314e-04       2.198e-03         3.0054
+  Expected 3.000 exactly where E = c2 h^2 dominates (conv = |c2 h^2 -
+  4 c2 h^2| = 3|c2|h^2), approaching it from above as h -> 0 because the
+  h^4 term adds 12|c4|h^4 to the numerator and |c4|h^4 to the denominator.
+
+==============================================================================
+Q3 + V5 (EXACT) -- conv's blind spot, constructed and located exactly
+==============================================================================
+  g(L) = A L^2 + B L^4 with B = 1.0, A = -1.997333333333, at L = 1
+  S_exact = 2*delta                         = 0.00533333333333319
+  h* (bracketed bisect on the CLOSED FORM)  = 0.017889371018484139
+  conv MEASURED at h*                       = 6.107e-15
+  true error at h*, closed form             = -6.828218311643241e-07
+  true error at h*, measured                = -6.828218341928260e-07
+    relative deviation measured vs closed form : 4.44e-09
+    DERIVED floor EPS*|g|/(2h*)/|E| = 9.1e-09, measured/bound = 0.489   PASS
+    The first form of this check also required an absolute 1e-13 and
+    also measured its own floor.  Second instance in one session.
+  relative error in S at h*                 = 1.280291e-04
+  predicted (3/8) h*^2                      = 1.200111e-04   (ratio 1.066810)
+  conv UNDERSTATES the error there by a factor of 1.12e+08
+
+  How narrow is the blind spot?  conv and |error| at h* * m:
+          m          conv       |error|   conv/|err|
+       0.50     4.801e-07     2.027e-07    2.369e+00
+       0.90     3.942e-07     5.793e-07    6.805e-01
+       0.99     4.997e-08     6.726e-07    7.430e-02
+       1.00     6.107e-15     6.828e-07    8.944e-09
+       1.01     5.253e-08     6.930e-07    7.580e-02
+       1.10     6.511e-07     7.829e-07    8.317e-01
+       2.00     3.081e-05     6.828e-07    4.512e+01
+  conv is a valid 3x-conservative bar everywhere EXCEPT within ~1% of
+  h*, where it collapses.  The absolute error it hides is of ordinary
+  O(h^2) size -- exactly (3/8)h*^2 relative, independent of the
+  function -- so the RATIO of understatement is unbounded while the
+  DAMAGE is bounded by the step-size error itself.  That is the honest
+  limit on this mechanism, and it is why Q4 matters more than Q3.
+
+==============================================================================
+Q4 (ORACLE-FREE) -- does conv have a zero at any real call site?
+  A zero of conv requires the SIGNED difference S(h) - S(2h) to change
+  sign, which can be counted without knowing the true S at all.
+==============================================================================
+  call site                  flips all flips trunc  trunc branch from   conv(1e-5)    /floor
+  B lambda_imp/rho_calibration         6           1           2.78e-06     7.64e-07    1460.8
+  B lambda_imp/rho_bulk              9           1           3.59e-06     6.53e-07    1249.0
+  B lambda_imp/p_default            11           0           1.67e-05     5.36e-09      10.2
+  B lambda_imp/W_calibration         7           1           4.64e-06     2.26e-07     431.4
+  B lambda_imp/lambda_bulk           8           1           4.64e-06     1.78e-07     339.6
+  C rho(18)/rho_calibration         12           0           5.99e-05     2.69e-11       0.2
+  C rho(18)/rho_bulk                12           0           7.74e-05     1.20e-11       0.1
+  C rho(18)/p_default               13           0           1.29e-04     7.41e-12       0.1
+  C rho(18)/W_calibration           10           0           2.78e-05     2.01e-10       1.6
+  C rho(18)/lambda_bulk             10           0           7.74e-05     9.37e-13       0.0
+  C rho(30)/rho_calibration          9           0           4.64e-05     5.80e-11       0.6
+  C rho(30)/rho_bulk                15           0           5.99e-05     2.52e-11       0.3
+  C rho(30)/p_default                6           0           1.00e-04     4.81e-13       0.0
+  C rho(30)/W_calibration           12           0           2.15e-05     3.54e-10       3.6
+  C rho(30)/lambda_bulk             14           0           5.99e-05     3.08e-11       0.3
+  C rho(52)/rho_calibration          7           0           2.78e-05     2.14e-10       2.9
+  C rho(52)/rho_bulk                12           0           4.64e-05     5.79e-11       0.8
+  C rho(52)/p_default               14           0           5.99e-05     2.80e-11       0.4
+  C rho(52)/W_calibration            8           0           1.67e-05     5.48e-10       7.3
+  C rho(52)/lambda_bulk             14           0           4.64e-05     4.68e-11       0.6
+  D rho_Cu(18)/t_liner              10           0           4.64e-05     8.89e-11       0.6
+  D rho_Cu(30)/t_liner              11           0           4.64e-05     5.50e-11       0.5
+  D rho_Cu(52)/t_liner              13           0           4.64e-05     4.15e-11       0.5
+  total sign changes, WHOLE sweep            : 243
+  total sign changes, TRUNCATION regime only : 4
+  The two numbers answer different questions and the first form of
+  this test conflated them.  Below the derived rounding floor the
+  signed difference is cancellation noise and changes sign freely;
+  that is not Q3's c2/c4 mechanism and it is not evidence about the
+  published values.  It IS evidence for something else: a step-size
+  sweep that trusts a small conv will be pulled BELOW the knee.
+
+  IS conv AT THE SHIPPED STEP A TRUNCATION ESTIMATE AT ALL?
+  conv(1e-5) divided by the derived cancellation floor 4*EPS*|g|/h :
+    Family B: min 10.2  median 431.4  max 1460.8
+    Family C: min 0.0  median 0.4  max 7.3
+    Family D: min 0.5  median 0.5  max 0.6
+  Family B's conv is three decades above its own rounding floor and
+  is a real truncation estimate.  Families C and D sit AT the floor:
+  for them the 'worst convergence estimate' lines printed by Chapter
+  5 Section 5.5 are measurements of double-precision rounding, not of
+  convergence, and would print the same number for a model with any
+  amount of curvature.  That is the sharpest form of this session's
+  finding: the reassurance scales with |ln Q| and h, not with the
+  quality of the answer.
+
+==============================================================================
+Q1 magnitude + Q5 + Q6 -- at the shipped h = 1e-5
+==============================================================================
+  call site                      S shipped   S corrected  |rel shift|  16x refine  vs Richardson
+  B lambda_imp/rho_calibration  -19.71428597  -19.71428595     9.47e-10    1.29e-08       1.29e-08
+  B lambda_imp/rho_bulk        19.71428593   19.71428595     9.30e-10    1.12e-08       1.11e-08
+  B lambda_imp/p_default       -3.72670808   -3.72670808     1.45e-10    5.75e-10       4.93e-10
+  B lambda_imp/W_calibration  -12.14285722  -12.14285721     6.69e-10    6.05e-09       6.20e-09
+  B lambda_imp/lambda_bulk     13.14285720   13.14285721     5.91e-10    4.47e-09       4.52e-09
+  C rho(18)/rho_calibration     0.87960340    0.87960340     1.72e-11    1.22e-10       1.15e-12
+  C rho(18)/rho_bulk            0.12039660    0.12039660     1.26e-10    2.64e-09       2.72e-11
+  C rho(18)/p_default          -0.03695036   -0.03695036     3.33e-11    3.94e-09       2.89e-10
+  C rho(18)/W_calibration       0.54178470    0.54178470     1.10e-10    2.83e-11       1.42e-10
+  C rho(18)/lambda_bulk         0.12039660    0.12039660     2.18e-10    1.07e-09       1.33e-10
+  C rho(30)/rho_calibration     1.19653179    1.19653179     2.23e-11    4.10e-11       8.11e-12
+  C rho(30)/rho_bulk           -0.19653179   -0.19653179     3.33e-11    3.32e-11       3.43e-11
+  C rho(30)/p_default           0.06031666    0.06031666     3.33e-11    8.87e-10       8.55e-11
+  C rho(30)/W_calibration       0.73699422    0.73699422     8.72e-11    3.32e-11       1.46e-10
+  C rho(30)/lambda_bulk        -0.19653179   -0.19653179     2.32e-11    2.33e-11       2.22e-11
+  C rho(52)/rho_calibration     1.55123217    1.55123217     3.82e-11    1.10e-10       4.52e-11
+  C rho(52)/rho_bulk           -0.55123217   -0.55123217     6.35e-11    4.30e-10       2.28e-12
+  C rho(52)/p_default           0.16917611    0.16917611     5.21e-13    3.94e-10       4.65e-11
+  C rho(52)/W_calibration       0.95546909    0.95546909     1.06e-10    7.97e-11       1.95e-10
+  C rho(52)/lambda_bulk        -0.55123217   -0.55123217     4.34e-11    2.69e-10       2.62e-12
+  D rho_Cu(18)/t_liner          1.16666667    1.16666667     7.14e-11    7.15e-11       1.64e-11
+  D rho_Cu(30)/t_liner          0.55000000    0.55000000     5.35e-11    5.52e-10       3.10e-11
+  D rho_Cu(52)/t_liner          0.27591973    0.27591973     4.71e-11    4.70e-10       1.56e-11
+  worst |shipped - corrected| / |S|          : 9.47e-10
+  worst |S(1e-5) - S(6.25e-7)| / |S|         : 1.29e-08
+  worst |shipped - Richardson ref| / |S|     : 1.29e-08
+  Family B worst shift 9.47e-10   Families C/D worst shift 2.18e-10   ratio 4.347
+
+==============================================================================
+Q9 (THE RESULT Q4 PREDICTED WOULD NOT EXIST) -- conv's zeros, located
+==============================================================================
+  call site                       h_zero   conv there  |error| there   err/conv  h_zero/1e-5
+  B lambda_imp/rho_calibration 2.92795e-02     4.97e-14       2.76e+00    5.6e+13     2927.951
+  B lambda_imp/rho_bulk      3.08433e-02     1.42e-14       2.62e+00    1.8e+14     3084.333
+  B lambda_imp/W_calibration 4.39073e-02     1.24e-14       1.83e+00    1.5e+14     4390.729
+  B lambda_imp/lambda_bulk   4.75192e-02     1.95e-14       1.69e+00    8.7e+13     4751.918
+  worst understatement factor : 1.8e+14
+  closest zero to the shipped step : B lambda_imp/rho_calibration at h = 2.928e-02 = 2927.95 x 1e-5
+  ALL of them are in FAMILY B -- the lambda_impurity calibration,
+  kappa = 19.71, the step Chapter 5 Section 5.5 calls the
+  worst-conditioned in this thesis.  Q4 predicted no such zero
+  anywhere, and reasoned that these are smooth rationals in which
+  the second derivative of ln|f| dominates the third.  Family B is
+  a 1/residual with a near-zero residual, which is exactly where
+  that reasoning fails: the near-cancellation puts large higher
+  derivatives into ln|f|, c2 and c4 acquire opposite signs, and
+  the blind spot appears.
+  relative error in S at those zeros : 14.0%, 13.3%, 15.1%, 12.9%
+  So at h ~ 3-5% conv reports 1e-14 -- machine precision -- while
+  the sensitivity is wrong by 14%.  That is 2026-09-25's finding
+  (a procedure asked whether it has converged can answer yes and
+  be wrong by 44%) reproduced on THIS estimator, at 14%, on the
+  step this thesis calls its worst-conditioned.
+  NOTHING PUBLISHED MOVES -- Q5 stands, worst 1.3e-8 relative, and
+  the nearest zero is ~3000x ABOVE the shipped step, not near it.
+  The shipped h = 1e-5 is safe by a wide margin and this session
+  does not claim otherwise.  What is unsafe is the PROCEDURE: a
+  step-size sweep over the natural range h in [1e-8, 1e-1] passes
+  straight through these four points, and at each of them the only
+  instrument the code offers reports full convergence.  The repo
+  ran exactly such a sweep on 2026-09-25 and 2026-09-26.
+
+==============================================================================
+Q8 (UNPREDICTED) -- which step does conv choose, and is it a good one?
+==============================================================================
+  call site                   h at min conv  h at min err    ratio  err(h_conv)/err(1e-5)
+  B lambda_imp/rho_calibration       2.98e-09      8.77e-07    294.0               3.36e-01
+  B lambda_imp/rho_bulk            3.71e-09      2.94e-07     79.2               1.37e-01
+  B lambda_imp/p_default           4.62e-09      2.62e-06    566.5               5.85e-01
+  B lambda_imp/W_calibration       9.86e-08      2.36e-07      2.4               3.94e-02
+  B lambda_imp/lambda_bulk         1.71e-08      2.65e-08      1.5               3.25e-01
+  C rho(18)/rho_calibration        1.24e-09      2.62e-06   2102.7               3.54e+04
+  C rho(18)/rho_bulk               1.24e-09      4.05e-06   3255.8               1.78e+02
+  C rho(18)/p_default              1.55e-09      9.71e-06   6272.9               1.22e+03
+  C rho(18)/W_calibration          1.93e-09      4.05e-06   2102.7               2.26e+02
+  C rho(18)/lambda_bulk            2.40e-09      4.05e-06   1689.8               5.67e+02
+  C rho(30)/rho_calibration        2.65e-08      5.66e-07     21.3               3.21e+01
+  C rho(30)/rho_bulk               1.93e-09      1.50e-05   7805.6               8.68e+02
+  C rho(30)/p_default              1.24e-09      1.50e-05  12085.9               1.03e+04
+  C rho(30)/W_calibration          2.98e-09      1.09e-06    365.8               7.76e+01
+  C rho(30)/lambda_bulk            8.90e-09      7.81e-06    877.1               1.10e+03
+  C rho(52)/rho_calibration        1.00e-09      5.04e-06   5041.2               4.60e+02
+  C rho(52)/rho_bulk               1.11e-08      5.04e-06    455.2               6.16e+02
+  C rho(52)/p_default              2.13e-08      1.36e-06     63.6               1.84e+02
+  C rho(52)/W_calibration          3.30e-08      2.62e-06     79.2               7.49e+00
+  C rho(52)/lambda_bulk            1.24e-09      6.27e-06   5041.2               1.60e+04
+  D rho_Cu(18)/t_liner             1.24e-09      3.26e-06   2616.5               2.45e+03
+  D rho_Cu(30)/t_liner             1.00e-09      1.09e-06   1091.4               2.67e+03
+  D rho_Cu(52)/t_liner             3.30e-08      2.10e-06     63.6               3.24e+02
+  median h_err / h_conv : 877.1
+  call sites at which minimising conv gives a WORSE answer than the
+  shipped h = 1e-5 : 18/23, worst penalty 3.5e+04x
+  conv is minimised DEEP IN THE CANCELLATION REGIME, two to three
+  decades below the step that actually minimises the error, because
+  there the two estimates it differences are both noise and their
+  difference is small for that reason.  A step-size sweep steered by
+  conv therefore walks AWAY from the right step, and reports a
+  smaller convergence estimate as it goes.  This is 2026-09-25's
+  finding -- a procedure asked whether it has converged can answer
+  yes and be wrong -- on this estimator, and it is the strongest
+  reason to attach a criterion rather than a number to conv.
+
+[figure written: log_sensitivity_step_audit.png]
+
+==============================================================================
+SCORING
+==============================================================================
+  Q1 class call : the shipped estimator IS an asymmetric log-interval
+                  secant; V2 confirms its error against the closed form
+                  A ln(1-h^2) at the derived cancellation bound
+                  (worst measured/bound 2.08).  PASS
+  Q1 magnitude  : predicted < 1e-9 relative at the shipped h; measured
+                  worst 9.47e-10.  PASS
+  Q2            : predicted conv/|error| = 3.00 +/- 0.02 at h = 1e-2;
+                  measured ['3.0000', '3.0001', '3.0006', '3.0054'].  PASS
+  Q3            : conv exactly zero at a constructible h* with relative
+                  error (3/8)h*^2; measured ratio to prediction 1.066810.  FAIL
+  Q4            : predicted NO sign change at any real call site over
+                  h in [1e-8, 1e-1].  Truncation branch: 4 sign
+                  changes -> class call CORRECT.  Whole sweep: 243,
+                  all below the cancellation knee -> the prediction as
+                  WRITTEN ("over h in [1e-8, 1e-1]") is FALSIFIED, because
+                  it named a range it had not thought about.  FAIL
+  Q5            : predicted every published S moves < 1e-6 relative;
+                  worst 16x refinement 1.29e-08, worst vs the
+                  corrected estimator 9.47e-10, worst vs a
+                  Richardson reference 1.29e-08.  PASS
+  Q6            : predicted Family B worse than the rest by > 10x;
+                  measured ratio 4.347.  FAIL
+  Q7            : predicted no call site compares conv with anything.
+                  11 log_sensitivity call sites, 0 of which
+                  compare the returned conv with anything: class call
+                  PASS.  The census also found 1 comparison of a
+                  DIFFERENT convergence quantity in another module, so the
+                  prediction as written ("no call site in the repository")
+                  is FAIL -- it over-scoped.
+  Q4 FALSIFIED ON ITS CLASS CALL TOO: 4 zeros of conv sit on the
+                  truncation branch, ALL in Family B, worst
+                  understatement 1.8e+14x, closest to
+                  the shipped step at 2927.95 x 1e-5.
+  Q8 UNPREDICTED: minimising conv chooses a step 877x below the one
+                  that minimises the error, and gives a worse answer than
+                  the shipped h at 18/23 call sites (worst 3.5e+04x).
+
+  V1 (non-discriminating, retained as such) : affine 1/7 bitwise, geom 2/7, conv==0.0 1/7
+  V2 (discriminating)  : worst relative deviation 5.10e-08, worst measured/derived-bound 2.08
+  V3 (exact symmetry)  : 27/31 bitwise, worst 2.58e-10, worst measured/derived-bound 0.22
+  V4 (non-discriminating) : conv exactly 0.0 at 1/7 steps including h = 0.25
+  V5 (exact blind spot): measured error vs closed form 4.44e-09 relative, measured/derived-bound 0.49
+
+  THREE of five validations failed in their first form, and all three
+  failed the SAME way: a round absolute tolerance (1e-13, 1e-14, 1e-13)
+  that silently encoded a step size.  That is the fault class documented
+  on 2026-09-25 and reproduced on 2026-09-26, committed three more times
+  here, in the session auditing it.  All three are rebuilt on derived
+  bounds and all three first forms are left in the record.
