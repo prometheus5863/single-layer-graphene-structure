@@ -72,6 +72,33 @@ PRE-REGISTERED PREDICTIONS (written before the first run; scored at the end)
       1e-4, and the `tol=0.0, rtol=eps` call passes at the 1-ulp level.
   D2  `log_sensitivity(rel_step=1e-5)` passes covariance EXACTLY (bitwise
       zero deviation), because `rel_step` multiplies the parameter.
+      *** ANNOTATED 2026-09-28 -- THE NUMBER STANDS, THE REASON IS WRONG,
+      *** AND THE CHECK IS NOT MEASURING WHAT THIS LINE SAYS IT IS.
+      *** (graphene_covariance_probe_audit.py,
+      ***  notes/2026-09-28-auditing-the-auditor.md)
+      *** (a) `rel_step` NO LONGER MULTIPLIES THE PARAMETER.  Since
+      ***     2026-09-27 the default path samples p*exp(+/-h), i.e. it
+      ***     EXPONENTIATES it.  D2 still returns bitwise 0.0, identically,
+      ***     on both the multiplying and the exponentiating path.  A test
+      ***     unchanged by the removal of its stated cause was never
+      ***     testing that cause.
+      *** (b) What the check actually tests is `(lam*a)/lam == a`.  When
+      ***     that round trip is exact -- and it is at lam = 1e3, the one
+      ***     lam this prediction is scored at -- the scaled and unscaled
+      ***     evaluations are THE SAME floating-point expression, so the
+      ***     deviation is bitwise zero for ANY f, any estimator, any h.
+      ***     Verified as an exact set equality: over lam = 1e1..1e15 the
+      ***     decades with non-zero deviation are EXACTLY the decades with
+      ***     an inexact round trip -- {1e7} for the corrected estimator,
+      ***     {1e4} for the old one, for both a power law and a
+      ***     log-quadratic.  Different decades, one cause.
+      *** (c) The test function `3p^2.5` is a POWER LAW, the class
+      ***     2026-09-27 item 11 established cannot discriminate anything
+      ***     about a log-derivative estimator.  That is a second reason
+      ***     the check is weak, though (b) shows it is not the operative
+      ***     one: a curved function gives bitwise zero here too.
+      *** The word "EXACTLY" is retained above rather than edited out,
+      *** per the 2026-09-24 rule, so that what was claimed stays legible.
   D3  `H_DIFF = 1e-3` (eV) FAILS covariance -- it is an absolute step on a
       variable in eV -- and is the repo's second scale-encoding default.
   D4  Despite D3, H_DIFF's shipped value sits inside its plateau with at
@@ -127,6 +154,31 @@ def covariance_deviation(solve, lam):
     which is identically zero for a scale-free procedure and grows with the
     mismatch for one whose default carries dimensions.  Zero at lam == 1 for
     ANY procedure, which is Validation 1.
+
+    *** ANNOTATED 2026-09-28.  BOTH CLAIMS IN THE PARAGRAPH ABOVE ARE TOO
+    *** STRONG, measured in graphene_covariance_probe_audit.py:
+    ***
+    *** "identically zero for a scale-free procedure" -- NO, zero to ONE
+    *** ULP.  This function evaluates solve(lam)/lam, a multiply and a
+    *** divide by the same constant, and that round trip is not exact in
+    *** IEEE-754.  An exactly-proportional solver (solve(s) = 5e-11*s,
+    *** covariant by construction) gives a worst deviation of 1.29e-16 over
+    *** lam = 1e1..1e15, against a derived one-ulp bound of eps = 2.22e-16.
+    *** Validation 1's BITWISE zero survives only because lam == 1 makes
+    *** the round trip trivial.  Do not write a scale-free check here as
+    *** `dev == 0.0`; compare it against eps.
+    ***
+    *** "grows with the mismatch" -- ONLY DOWNWARD.  For H_DIFF = 1e-3 the
+    *** deviation SATURATES above lam = 1e3 (1e3 and 1e6 agree to 5e-5
+    *** relative) at 1.327e-3, which is the shipped central difference's own
+    *** relative truncation error in the ORIGINAL units -- confirmed by
+    *** direct refinement to h = 1e-6, ratio 1.0014.  Below lam = 1 it
+    *** diverges instead: 2.47e1 at lam = 1e-3 and 2.12e12 at lam = 1e-6.
+    *** RESULT 2 therefore convicts every TOLERANCE-class default from the
+    *** SATURATED branch, where the number has a ceiling and cannot express
+    *** severity; the probe's whole dynamic range is in the direction this
+    *** module never runs.  The convictions are correct.  Their MAGNITUDES
+    *** are not a severity scale.
     """
     x1 = solve(1.0)
     xl = solve(lam)
@@ -196,7 +248,22 @@ def _hdiff_solver_relative(rel):
 # comparing S(p) against S(lam*p) for a function rescaled to match.
 # ---------------------------------------------------------------------
 def _logsens_invariance(rel_step, lam):
-    """S = d ln|f| / d ln p is dimensionless: rescaling p must not move it."""
+    """S = d ln|f| / d ln p is dimensionless: rescaling p must not move it.
+
+    *** ANNOTATED 2026-09-28.  THIS CHECK HAS NO POWER OVER `rel_step`.
+    *** f is a pure power law, so ln|f| is linear in ln p and every secant
+    *** estimator is exact at every step; and more decisively, at a lam
+    *** where (lam*a)/lam is exact the two branches are the same
+    *** floating-point expression, so the deviation is bitwise zero
+    *** whatever f, estimator or step is used.  Retained unchanged, and
+    *** labelled, because 2026-09-25 item 11 and 09-26 item 10 both
+    *** concluded that a labelled blind check is more useful than a deleted
+    *** one.  A check with power is v3_log_quadratic_discriminates() in
+    *** graphene_covariance_probe_audit.py: for ln|f| = A(ln p)^2 + B ln p
+    *** the corrected estimator is EXACT and the old one is wrong by
+    *** EXACTLY A*ln(1-h^2), two exact statements about one function that
+    *** disagree.
+    """
     f1 = lambda p: 3.0 * p ** 2.5
     S1, _ = log_sensitivity(f1, 1.0, rel_step=rel_step)
     f2 = lambda p: 3.0 * (p / lam) ** 2.5
@@ -815,6 +882,11 @@ def main():
     print("=" * 78)
     d1 = (rows2[0][3] == "SCALE-BOUND" and 1e-6 < rows2[0][2] < 1e-2
           and rows2[1][3] == "scale-free")
+    # ANNOTATED 2026-09-28: this passes, and it would pass for any f.
+    # See the D2 annotation in the module docstring.  `== 0.0` is the
+    # form 09-27 item 10 showed cannot distinguish structure from
+    # floating-point luck; here it is luck, and the luck is the
+    # (lam*a)/lam round trip at this one lam.
     d2 = _logsens_invariance(1e-5, 1e3)[0] == 0.0
     d3 = rows2[3][3] == "SCALE-BOUND"
     d4 = (ship_err < 1e-3) and (dec_lo >= 2.0) and (dec_hi >= 2.0)
