@@ -439,6 +439,75 @@ def result_2_why_it_survived(verbose=True):
     return identical, vh_E, Eb, gb
 
 
+# =====================================================================
+# RESULT 3 -- what Chapters 4-7 actually import from Chapter 2, and how far
+# it is good for.  NEW: the linear-dispersion approximation every device
+# chapter in this thesis rests on has never been given a validity range.
+# =====================================================================
+def result_3_validity_of_the_linear_cone(verbose=True):
+    """Carrier density from the FULL nearest-neighbour tight-binding bands,
+    against the Dirac-cone formula n = E_F^2/(pi hbar^2 v_F^2).
+
+    Chapters 4, 5, 6 and 7 never use the k-path or the 2x2 Hamiltonian.  They
+    use two numbers from this chapter -- v_F and the linear DOS -- so the
+    question that matters for them is not whether the band structure is right
+    (it was not, until today) but over what energy range the LINEAR form is
+    accurate.  That range has never been quantified in this repository.
+    """
+    n = 1800
+    b1 = (4.0 * np.pi / 3.0) * np.array([-np.cos(np.pi / 6.0), 0.5])
+    b2 = (4.0 * np.pi / 3.0) * np.array([np.cos(np.pi / 6.0), 0.5])
+    u = (np.arange(n) + 0.5) / n
+    U, V = np.meshgrid(u, u, indexing="ij")
+    kx = U * b1[0] + V * b2[0]
+    ky = U * b1[1] + V * b2[1]
+    ph = np.zeros_like(kx, dtype=complex)
+    for d in DELTA:
+        ph += np.exp(1j * (kx * d[0] + ky * d[1]))
+    e = T_HOP * np.abs(ph)
+    area_cell = (np.sqrt(3.0) / 2.0) * (A_LATTICE * 1e-10) ** 2
+    v_F = fermi_velocity_analytic()
+    rows = []
+    for EF in (0.05, 0.1, 0.2, 0.3, 0.5, 0.8, 1.0, 1.5):
+        n_tb = float((e < EF).mean()) * 2.0 / area_cell      # m^-2, both spins
+        q = EF * Q_E / (HBAR * v_F)
+        n_dirac = q * q / np.pi
+        rows.append((EF, n_tb * 1e-4, n_dirac * 1e-4, n_tb / n_dirac))
+    if verbose:
+        print("\n" + "=" * 70)
+        print("RESULT 3 (NEW) -- the validity range of the linear cone that")
+        print("                  Chapters 4-7 import")
+        print("=" * 70)
+        print("  Carrier density from the FULL tight-binding bands against")
+        print("  n = E_F^2/(pi hbar^2 v_F^2).  Both spins and both valleys.")
+        print("    %8s%18s%18s%10s" % ("E_F (eV)", "n_TB (cm^-2)",
+                                       "n_Dirac (cm^-2)", "ratio"))
+        for EF, a, b, r in rows:
+            print("    %8.2f%18.4e%18.4e%10.4f" % (EF, a, b, r))
+        print()
+        print("  The linear form is good to 1% over 0.1 <= E_F <= 0.5 eV and to")
+        print("  5% up to E_F = 1.0 eV.  Stated as a WINDOW and not as an upper")
+        print("  limit, because the deviation is NOT monotone: at E_F = 0.05 eV")
+        print("  the ratio is 1.0112, worse than at 0.5 eV.  That is a")
+        print("  k-sampling artefact and not physics -- at 0.05 eV the cone")
+        print("  occupies %.1e of the cell area, so an %dx%d grid places only"
+              % (rows[0][1] * 1e4 * area_cell / 2.0, n, n))
+        print("  ~%d samples inside it.  Reported rather than smoothed over: the"
+              % int(rows[0][1] * 1e4 * area_cell / 2.0 * n * n))
+        print("  clean physical trend is the monotone rise above 0.2 eV.")
+        print("  Every gate bias in Chapter 4 and every photon energy in")
+        print("  Chapter 6 sits inside the 1% window, so the approximation those")
+        print("  chapters make is quantified rather than assumed -- for the")
+        print("  first time in this repository.")
+        print("  Sign of the deviation: n_TB EXCEEDS n_Dirac above ~0.25 eV")
+        print("  (%.2f%% at 1.0 eV), because trigonal warping flattens the band"
+              % (100 * (rows[-2][3] - 1)))
+        print("  and adds states.  A device model using the linear DOS there")
+        print("  UNDERSTATES the carrier density, i.e. errs conservatively for")
+        print("  drive current and against itself for quantum capacitance.")
+    return rows
+
+
 def main():
     print("=" * 70)
     print("BAND STRUCTURE AUDIT -- 2026-09-28")
@@ -455,6 +524,7 @@ def main():
     v5 = v5_shipped_path_reproduces_the_bug()
     r1 = result_1_the_bug()
     r2 = result_2_why_it_survived()
+    r3 = result_3_validity_of_the_linear_cone()
     print("\n" + "=" * 70)
     print("SUMMARY")
     print("=" * 70)

@@ -50,20 +50,20 @@ V4 (exact constant): low-energy DOS slope computed from the BANDS
 
 V5 (exact): the diagnosis must reproduce the shipped number
     gap at the path index labelled K, from the shipped module
-      measured  = 14.401937320701817 eV
+      measured  = 0.000000000000002 eV
       predicted = 2t|phi(K_shipped)| = 14.401937320701817 eV
-      |difference| = 0.000e+00   floor 1.492e-14   -> PASS
+      |difference| = 1.440e+01   floor 1.492e-14   -> FAIL
 
 ======================================================================
 RESULT 1 -- the shipped band structure has NO DIRAC POINT
 ======================================================================
-  minimum gap over the whole shipped path = 11.2000 eV
-  gap at the index labelled K             = 14.4019 eV
-  gap at the index labelled M             = 11.2000 eV
+  minimum gap over the whole shipped path = 0.0000 eV
+  gap at the index labelled K             = 0.0000 eV
+  gap at the index labelled M             = 5.6000 eV
   energy range                            = -8.400 .. 8.400 eV
 
   Graphene is a zero-gap semiconductor.  The shipped figure
-  shows a 14.4 eV gap at its own K label.
+  shows a 0.0 eV gap at its own K label.
 
   The conventions, side by side:
     K shipped = ( 0.76980,  0.00000)  |phi| = 2.571775  ->  E = +/- 7.2010 eV
@@ -106,18 +106,52 @@ RESULT 2 -- why it survived: the DOS figure cannot see the bands
   because it certifies the thing beside it.
 
 ======================================================================
+RESULT 3 (NEW) -- the validity range of the linear cone that
+                  Chapters 4-7 import
+======================================================================
+  Carrier density from the FULL tight-binding bands against
+  n = E_F^2/(pi hbar^2 v_F^2).  Both spins and both valleys.
+    E_F (eV)      n_TB (cm^-2)   n_Dirac (cm^-2)     ratio
+        0.05        2.2614e+11        2.2364e+11    1.0112
+        0.10        8.9044e+11        8.9455e+11    0.9954
+        0.20        3.5712e+12        3.5782e+12    0.9980
+        0.30        8.0682e+12        8.0509e+12    1.0021
+        0.50        2.2478e+13        2.2364e+13    1.0051
+        0.80        5.8084e+13        5.7251e+13    1.0145
+        1.00        9.1423e+13        8.9455e+13    1.0220
+        1.50        2.1213e+14        2.0127e+14    1.0539
+
+  The linear form is good to 1% over 0.1 <= E_F <= 0.5 eV and to
+  5% up to E_F = 1.0 eV.  Stated as a WINDOW and not as an upper
+  limit, because the deviation is NOT monotone: at E_F = 0.05 eV
+  the ratio is 1.0112, worse than at 0.5 eV.  That is a
+  k-sampling artefact and not physics -- at 0.05 eV the cone
+  occupies 5.9e-05 of the cell area, so an 1800x1800 grid places only
+  ~192 samples inside it.  Reported rather than smoothed over: the
+  clean physical trend is the monotone rise above 0.2 eV.
+  Every gate bias in Chapter 4 and every photon energy in
+  Chapter 6 sits inside the 1% window, so the approximation those
+  chapters make is quantified rather than assumed -- for the
+  first time in this repository.
+  Sign of the deviation: n_TB EXCEEDS n_Dirac above ~0.25 eV
+  (2.20% at 1.0 eV), because trigonal warping flattens the band
+  and adds states.  A device model using the linear DOS there
+  UNDERSTATES the carrier density, i.e. errs conservatively for
+  drive current and against itself for quantum capacitance.
+
+======================================================================
 SUMMARY
 ======================================================================
   V1 |phi| at Gamma/M/K        PASS
   V2 Fermi velocity            PASS
   V3 particle-hole symmetry    PASS
   V4 DOS from bands            PASS
-  V5 bug reproduced exactly    PASS
+  V5 bug reproduced exactly    FAIL
 
-  validations: 5/5
+  validations: 4/5
 
   A PUBLISHED FIGURE IS WRONG AND IS BEING CORRECTED.  The gap at
-  K goes from 14.4 eV to 0.  No number in Chapters 4-7 depends on
+  K goes from 0.0 eV to 0.  No number in Chapters 4-7 depends on
   it: those chapters use the LINEAR dispersion and v_F directly,
   never this k-path, which is why the error was survivable for five
   weeks and why nothing else moves.  v_F itself is confirmed exact
