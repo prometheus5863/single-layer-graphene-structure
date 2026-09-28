@@ -3637,3 +3637,331 @@ row). This AUTOMATION_LOG.md entry makes 6. The audit and the fix are separate
 commits for the same reason as 09-26: the audit's Q5 result is that nothing
 moved, and a session whose numerical headline is "nothing published moves"
 should not bury a docstring-falsifying estimator bug inside that commit.
+
+---
+
+## 2026-09-28 — The band structure of graphene in this repository had no Dirac point, and a prediction's stated reason outlived the code it referred to
+
+**Status:** Automated session. Live web search **not used** — both halves were
+internal audits of this repository's own code and the writing half was a
+synthesis of results in hand; neither needed it. Device reachable at the
+**05:28 UTC** firing (a schedule of 04:33 delivered late), folder connected;
+neither repo had a 2026-09-28 entry and neither had commits since midnight, so
+a full session was run.
+
+**Pre-registration committed first** (commit `6b5dc78`, before the audit module
+existed): `notes/2026-09-28-covariance-probe-preregistration.md`, five
+questions Q1–Q5 and five validations V1–V5, continuing the practice established
+09-21. The second half of the session was **not** pre-registered, and why is
+item 6.
+
+### Half one — auditing the auditor
+
+The logged top numerical item was whether `graphene_default_scale_audit`'s own
+`rel_step` sweeps inherit 09-27 item 7. Reading the module to scope that
+question turned up something sharper, so the session answered both.
+
+1. **Q4 PASS — the logged top item closes as a NULL, and the null is
+   load-bearing.** No conclusion in `graphene_default_scale_audit` rests on a
+   `conv`-guided step choice. Its single `log_sensitivity` call site binds the
+   second return value to `_`; the `H_DIFF` and RESULT 7 sweeps go through
+   `sensitivity()`, which uses an **absolute** step and never computes `conv`.
+   The census is by AST plus six regex patterns, and it is given a **positive
+   control** — the same census run on a snippet that *does* minimise `conv`,
+   which it detects. Without that control the null would be
+   indistinguishable from a census that cannot see anything. This is
+   mutation-testing's move applied to a static census. **None of 09-25's
+   conclusions inherit 09-27 item 7. Item closed.**
+
+2. **Q1 PASS — a prediction's stated reason outlived the code it referred
+   to.** Prediction D2 of `graphene_default_scale_audit` reads: *"
+   `log_sensitivity(rel_step=1e-5)` passes covariance EXACTLY (bitwise zero
+   deviation), **because `rel_step` multiplies the parameter**."* On 09-27 the
+   default path was changed so that `rel_step` **exponentiates** the parameter
+   (`p·exp(±h)`). D2 still returns bitwise `0.0`, and returns it identically on
+   both paths. **A test whose verdict is unchanged by the removal of its
+   stated cause was never testing that cause.** D2's number stands; D2's
+   explanation is falsified.
+
+3. **UNPREDICTED, and it subsumes Q2 and Q3 — D2's check is a test of
+   `(λa)/λ == a` and of nothing else.** When that round trip is exact, the
+   scaled and unscaled branches are **literally the same floating-point
+   expression**, so the deviation is bitwise zero for *any* function, estimator
+   or step. Verified as an **exact set equality**, no tolerance anywhere: over
+   λ = 1e1…1e15 the decades with non-zero deviation are exactly the decades
+   with an inexact round trip — **{1e7} for the corrected estimator, {1e4} for
+   the old one**, for both a power law and a log-quadratic. Different decades,
+   one cause, and nothing mathematical distinguishes those decades. Three
+   scored items fall out of this: **Q2 FAILS on magnitude** (non-zero at 7% of
+   decades, predicted ≥ 20%; class correct); **Q3 FAILS outright** — a curved
+   test function does *not* break the exactness, because the check never
+   reaches the estimator; and **V5 FAILS as first written**, one level up,
+   because `covariance_deviation` divides by λ too.
+
+4. **The probe's docstring is wrong in both of its claims, measured.**
+   *"Identically zero for a scale-free procedure"* — no, zero to **one ulp**:
+   an exactly-proportional solver gives 1.29e-16 against a derived bound of
+   `eps` = 2.22e-16, and V1's bitwise zero survives only because λ = 1 makes
+   the round trip trivial. *"Grows with the mismatch"* — **only downward**.
+   **Q5 FAILS: class call correct, direction and magnitude backwards.** Q5
+   predicted the downward run would be the lenient one; it is the **severe**
+   one, by **1.86e4×** (2.47e1 at λ = 1e-3 against 1.327e-3 at λ = 1e3). And
+   the structure is not one curve: **upward it saturates** (λ = 1e3 and 1e6
+   agree to 5e-5, so the probe has a **ceiling** and its magnitude cannot
+   express severity) while **downward it diverges**, steepening faster than any
+   power of λ — reported as a breakdown, not fitted, since two or three points
+   are not a law. The convictions in RESULT 2 are **correct**; their
+   magnitudes are not a severity scale.
+
+5. **A true claim withdrawn by the wrong oracle, then recovered — and the
+   failed oracle kept.** The saturated ceiling was identified with the shipped
+   step's own truncation error. A Richardson reference from `(h, h/2)` implied
+   1.53e-2, missed the saturated 1.327e-3 by **11.6×**, and the module printed
+   *"the identification DOES NOT HOLD, and the claim is withdrawn."* Direct
+   refinement to `h = 1e-6` gives 1.3288e-3 — the same number to **0.14%**.
+   Richardson is the invalid one, and the refinement sequence proves it: the
+   error **grows** from `h = 1e-3` (1.329e-3) to `h = 3e-4` (4.705e-3), so
+   there is no smooth `h²` expansion to extrapolate. **Mirror image of 09-25
+   and 09-27:** there an instrument reported success where the answer was
+   wrong; here one reported failure where the claim was right. Both first
+   forms stay in the source.
+
+   Four annotations went into `graphene_default_scale_audit.py`, verified
+   comment-only (full stdout byte-identical before and after), with every
+   original wording retained above its annotation.
+
+### Half two — the band structure, found by writing rather than by auditing
+
+6. **THE HEADLINE, and it was not the planned work. The shipped band structure
+   of graphene had NO DIRAC POINT.** `k_path_graphene()` wrote, three lines
+   apart, `k_point = [4/(3√3), 0]` — **no π** — and `m_point = [π/(3√3), π/3]`
+   — **with π** — while `graphene_hamiltonian()` builds its phases from
+   nearest-neighbour vectors of unit length, for which the corner is at
+   `4π/(3√3)`. The shipped K was **exactly a factor of π too small** (measured
+   ratio 3.141592654), so `|φ(K)| = 2.5718` instead of 0:
+
+   | quantity | as shipped | corrected | exact |
+   |---|---|---|---|
+   | gap at the point labelled K | **14.4019 eV** | 2.5e-15 eV | 0 |
+   | minimum gap over the whole path | **11.2000 eV** | 2.5e-15 eV | 0 |
+   | gap at the point labelled M | 11.2000 eV | 5.6000 eV | `2t` = 5.6 |
+
+   Graphene's single defining electronic property was absent from
+   `band_structure.png`, the repository's oldest figure, for **five weeks of
+   daily automated sessions**. Superseded values kept as
+   `HIGH_SYMMETRY_LEGACY`, broken spectrum still reproducible via
+   `calculate_band_structure(legacy=True)`.
+
+   **It was found by drafting Chapter 2**, not by any audit, validation,
+   convergence study or pre-registration — which is why this half of the
+   session has no pre-registration and should not have one. A chapter cannot
+   contain the sentence *"the two bands touch at K"* without someone checking
+   whether they do.
+
+7. **Why five weeks of audits never touched it: three band/DOS figures exist
+   here and NOT ONE was a calculation that could have failed.**
+   `band_structure_simple.png` *draws* `E = ±v_F|k|`, the known answer.
+   `calculate_density_of_states()` returns `|E|/(πt²)` analytically and **never
+   calls the Hamiltonian at all** — demonstrated by **mutation**: replacing
+   `graphene_hamiltonian` with the k-independent gapped matrix `diag(+7, −7)`,
+   which has no Dirac point and no dispersion, leaves its output **bitwise
+   identical**. The third computed, and was wrong. A DOS computed from the
+   bands would have caught this on the first run. **The figure that could have
+   falsified the calculation was instead the figure that certified it.** Both
+   non-discriminating functions annotated in place and retained, per 09-25
+   item 11 and 09-26 item 10.
+
+8. **Five exact validations, two of which FAILED in their first form — both
+   failures kept and explained.**
+   **V2 (`v_F`) failed because of PHYSICS.** It assumed second-order
+   convergence of the one-sided slope and failed by 2e4; measured errors were
+   2.512e-3 / 2.501e-4 / 2.500e-5 at `dk` = 1e-2 / 1e-3 / 1e-4, clean **first**
+   order. Derived along Γ–K: `|φ| = (3/2)q(1 − q/4 + O(q²))`, so the leading
+   correction is linear in `q` with coefficient **exactly 1/4** — trigonal
+   warping. Rewritten to check the derived constant: measured **0.250013**, and
+   correcting by `(1 + q/4)` recovers `v_F = 9.062708e5 m/s` to **1.9e-9**.
+   **V4 failed twice, and one failure was THE AUDITED FAULT COMMITTED BY THE
+   AUDITOR, WITHIN THE HOUR.** The reciprocal vectors `(4π/3)(1,0)` and
+   `(4π/3)(½,√3/2)` have the right magnitude and span the right area but are
+   **not reciprocal lattice vectors** — `|φ|` is not periodic under them — so
+   the sampled cell held **one** Dirac cone instead of two and halved the
+   low-energy DOS. And the obvious check did not notice: *"the DOS integrates
+   to 4 states per unit cell"* passed to **sixteen digits** with the wrong
+   vectors in place, because that normalisation divides by the sample count and
+   returns 4 per cell whatever the Hamiltonian is. **The same
+   cannot-fail fault as the shipped DOS figure, inside the module written to
+   audit it.** Kept and printed as **vacuous**, beside the two checks that
+   replaced it: periodicity of `|φ|` under `b₁,b₂` (1.6e-15 vs a derived
+   1.4e-14) and **a count of Dirac cones in the sampled cell** (2 required, 1
+   found). Corrected, the computed DOS matches the exact slope
+   `2q_e²/(πħ²v_F²) = 1.7891e18 eV⁻¹m⁻²` to **3.6%** (residual = the same `q/4`
+   term, derived window bound 19.6%) and the van Hove peak sits at **2.771 eV**
+   against `t` = 2.800. V1 (`|φ|` = 3, 1, 0 — three integers, three chances to
+   fail), V3 (particle–hole symmetry **bitwise at 4000/4000** random k) and V5
+   (the diagnosis reproduces the 14.401937320702 eV gap **bitwise** as
+   `2t|φ(K_shipped)|`) passed first time.
+
+9. **NEW PHYSICS, small but missing: the first quantitative validity window for
+   the linear dispersion this thesis has ever had.** Carrier density from the
+   full nearest-neighbour bands against `n = E_F²/(πħ²v_F²)`: ratio 0.9954 at
+   0.1 eV, 1.0021 at 0.3, 1.0051 at 0.5, 1.0220 at 1.0, 1.0539 at 1.5. **1%
+   over 0.1–0.5 eV, 5% to 1.0 eV.** Stated as a **window** not a limit, because
+   the deviation is **non-monotone** — 1.0112 at 0.05 eV is worse than at 0.5 —
+   and that is k-sampling (at 0.05 eV the cones cover 5.9e-5 of the cell, ~190
+   samples on an 1800² grid), with the sample count printed so the artefact is
+   legible. The **sign** is what the device chapters carry: the full bands hold
+   *more* states than the cone above ~0.25 eV, so a linear-DOS model
+   **understates** carrier density at high bias — conservative for drive
+   current, against itself for quantum capacitance.
+
+10. **NOTHING IN CHAPTERS 4–7 MOVES, and the reason is the finding.** Those
+    chapters import `v_F`, the linear DOS and the absence of a gap, and import
+    the k-path and the 2 × 2 `H(k)` **nowhere** (Chapter 2 §2.11 tabulates
+    this). That is simultaneously why a 14 eV error was survivable for five
+    weeks and why no device number changes now. `v_F` confirmed to 1e-6.
+
+11. **WRITING — Chapter 2 is drafted**, `thesis_draft/02-electronic-structure.md`,
+    459 lines, eleven sections, and the drafting **falsified its own status
+    row**: "Computational results complete", in place since 2026-08-23. §2.8's
+    quantum capacitance (1.43–14.33 µF/cm² over 0.05–0.5 eV) is the one place
+    Chapter 2's physics is directly visible in Chapter 4's numbers, being
+    comparable to a 1 nm-EOT `C_ox` rather than negligible beside it. §2.11 is
+    a table of exactly what later chapters import, whose last row reads "the
+    k-path and 2 × 2 `H(k)`: nothing". Chapter 1's status row rewritten to lead
+    with the correction, ten-thread history kept below.
+
+12. **`__pycache__` untracked and a `.gitignore` added — an item open since
+    09-24, and it had teeth.** Five sessions of "shows as modified on every
+    run" was not cosmetic: today it broke a `git stash` round trip mid-session,
+    because the caches were rewritten while the stash was applied. That is a
+    failure mode that loses work rather than adding noise.
+
+**Methodological note, continuing the series.** 09-20: exact validation does
+not protect against an unrepresentative sample. 09-21: pre-registration reaches
+what exact validation cannot. 09-22: it does not reach the analysis layer.
+09-23: how claims consolidate. 09-24: a default tolerance is a claim about the
+scale of the caller's variable. 09-25: a procedure asked whether it has
+converged can answer yes and be 44% wrong. 09-26: an anchored comparison is
+anchored in one variable. 09-27: an instrument can be systematically smallest
+where the answer is worst.
+**09-28 gives two, and the first is the most transferable thing five weeks have
+produced. (i) PROSE IS A DETECTOR, and it is the one this repository did not
+have. A 14 eV error in its foundational figure was found by writing the
+chapter, after five weeks of daily audits, exact validations, convergence
+studies and pre-registrations had all passed over it — because those instruments
+check what the code says about itself, and a chapter has to state what the code
+says about GRAPHENE. The sessions that displaced Chapter 7 seven consecutive
+times, and Chapters 2–3 for five weeks, were not merely accumulating a writing
+backlog; they were accumulating an unmeasured error. (ii) A CHECK THAT CANNOT
+FAIL IS WORSE THAN NO CHECK, because it certifies whatever sits beside it — and
+the defence is not care but a deliberate provocation: mutate the Hamiltonian and
+require the DOS to change; break the reciprocal vectors and require the cone
+count to drop; hand the census a snippet containing the pattern it reports
+absent. Every non-discriminating check found today — the shipped DOS figure,
+`_logsens_invariance`, the 4-states-per-cell normalisation written this morning —
+was found by that move and by no other. Three of them, one written today, in a
+repository that has been auditing itself daily for five weeks.**
+Secondary, and now twice in one day: **an instrument reporting FAILURE misleads
+exactly as one reporting success does** — a Richardson oracle withdrew a true
+claim, and a convergence-rate assumption mistook trigonal warping for a bug.
+Both were settled by deriving the expected behaviour in closed form and testing
+that, not the rate.
+
+**Predictions scored:** **Q1 PASS** (D2's reason falsified by its own continued
+success). **Q4 PASS** (null, with a positive control). **Q2 FAIL** on magnitude
+(7% vs ≥ 20%), class correct. **Q3 FAIL** outright — and the reason it cannot
+hold (RESULT 6) is stronger than the prediction was; the pre-registration
+reached for the newest available criticism (09-27's power law, one day old)
+rather than the sharpest one, which is recorded against this session.
+**Q5 FAIL** — class call correct, direction and magnitude backwards (1.86e4×
+more severe downward, not less). **Unpredicted:** RESULT 6, the saturation/
+divergence structure, the Richardson reversal, and all of half two.
+**Validations:** half one 5/5 against derived bounds, with V5's as-first-written
+bitwise form failing and kept; half two 5/5, with V2 and V4 failing in their
+first forms and both kept.
+
+**Not yet covered (candidates for future runs):**
+- **Whether any DEVICE figure in this repository is drawn from a known answer
+  rather than computed** — created today, and **the new top item in the
+  repository**. Three of three band-structure figures were. Chapters 4–6's
+  figures have never been asked. The detector is known and cheap: mutate the
+  model the figure claims to come from and require the figure to change
+- **Chapter 3 is still undrafted, and after today it is a RISK item rather than
+  a writing-backlog item** — it carries the same "computational results
+  complete" label Chapter 2's did this morning, and that label has just been
+  shown to mean nothing. Drafting it is now the highest-value work available on
+  both the writing and the correctness axis
+- **Whether other `== 0.0` exactness checks in this repo are round-trip
+  tautologies** — created today by RESULT 6; the mechanism generalises to any
+  check comparing a quantity against a rescaled recomputation of itself
+- **Whether RESULT 2's other convictions are read from the saturated branch** —
+  created today. Only the `tol=1e-14` conviction has an independent anchor
+  (09-24)
+- **A probe that reports both directions of λ** — created today; its whole
+  dynamic range is in the direction the module never runs, and today's table is
+  most of the work
+- **Angular trigonal warping** (the `cos 3θ` structure) — created today; §2.5
+  derives the coefficient along Γ–K only, and the angular part is what matters
+  for anisotropic transport
+- **Finite-temperature carrier density `n(E_F, T)`** — created today; §2.7 is
+  the `T = 0` integral and Chapter 6 runs at room temperature
+- **Whether `t′` can be EXCLUDED quantitatively** as the source of Chapter 4's
+  electron–hole asymmetry, rather than argued away on magnitude — created today
+- **Whether any OTHER near-cancellation would show the `c₂`/`c₄` sign flip if
+  differentiated rather than evaluated** — created 09-27, untouched
+- **Migrating every remaining validation to measured-value-beside-derived-bound
+  form** — created 09-27 item 12, and today added two more instances of the
+  fault class caught by that defence
+- **Whether Chapter 4 or 5 contains a RANKING that is a step artefact** —
+  created 09-23/09-25, untouched
+- **`n_segments = 50` at a bias with more curvature** — created 09-26, untouched
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open since
+  2026-09-21, still the top *physics* item, now **untouched for eight
+  consecutive sessions**
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural weakness
+- **Whether Chapter 7's §7.3 differential-interconnect prediction holds** —
+  created 09-27
+- **Which of Chapters 4 and 5's design rules could be restated as parities or
+  bounds** — created 09-23, three candidates named in Chapter 7 §7.4.3
+- **Whether the parity survives a photo-thermoelectric term** — created 09-23
+- **Re-check whether other "for every …" claims rest on small samples** — open
+  since 2026-09-20
+- **Whether Chapter 4's contact-resistance results should be re-run at the
+  5.4 eV crossover** — open since 2026-09-18
+- Reconciling Mueller *et al.*'s 0.12 eV step (arXiv:0902.1479) with the
+  0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS` assumes — open since 2026-09-18
+- A photo-thermoelectric term (Kasırga review); Shimomura *et al.*'s
+  comb-electrode design; integrating 6.5's plasmonic near-field picture with
+  the spatially-resolved contact-doping machinery; isolating the root cause of
+  the Section 4.7 negative residual (open since 2026-08-31); Ti and Cr
+  per-metal `Rc` recalibration (ResearchGate rate-limiting); a second
+  independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health:** Device reachable at the **05:28 UTC** firing (scheduled
+04:33, delivered late — the first of the day's three, so the redundancy was not
+needed). Plain `git clone` of both repos completed normally and fast.
+`git config user.name/user.email` again absent in the fresh clones and set in
+its own call per 09-24. `scipy` again absent from the device VM and
+`pip install scipy` succeeded immediately; it is required transitively by
+`graphene_covariance_probe_audit` through `graphene_default_scale_audit` →
+`graphene_contact_doping_model`. **New and worth recording: `/tmp` is NOT
+writable in the device VM this session** — the documented `GIT_ASKPASS` recipe
+failed with "Permission denied" on `/tmp/.tok` and `/tmp/askpass.sh`, and was
+moved to `$HOME/.sess/` (still outside `mnt/`, still invisible to the user,
+deleted with the session). Everything else in the push recipe worked unchanged
+and every commit was pushed as it was made, per 09-25. **`__pycache__` cost a
+round trip today and is now untracked** (item 12). Two self-inflicted
+`print`-formatting errors (a `%`-format argument attached to the wrong `print`
+of a multi-line block, twice) cost two round trips; the same authoring hazard
+class as 09-27's heredoc collisions.
+
+**Commits this run:** 8 (the pre-registration; the covariance-probe audit with
+its output and figure; the four in-place annotations; the `__pycache__`
+untracking; that half's study note; the band-structure fix with its audit,
+output and regenerated figures; the linear-cone validity window; Chapter 2 plus
+the Chapter 1 status row; that half's study note). This AUTOMATION_LOG.md entry
+makes 9. The band-structure fix is separate from the validity-window result
+because the first is a **correction to a published figure** and the second is a
+**new measurement**, and a correction that arrives buried inside a new result is
+one nobody reads — the same reasoning as 09-26 and 09-27.
