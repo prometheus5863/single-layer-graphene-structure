@@ -23,15 +23,62 @@ def graphene_lattice_vectors():
     
     return a1, a2, b1, b2
 
-def k_path_graphene(n_points=100):
+# =====================================================================
+# HIGH-SYMMETRY POINTS -- CORRECTED 2026-09-28.  READ THIS BEFORE EDITING.
+#
+# graphene_hamiltonian() below builds its phases from nearest-neighbour vectors
+# of UNIT LENGTH, i.e. expressed in units of the C-C bond length a_cc = a/sqrt3.
+# In that convention the zone corner is at |K| = 4*pi/(3*sqrt3) = 2.41840 and
+# the edge midpoint at |M| = 2*pi/3 = 2.09440.
+#
+# The values shipped from the creation of this file until 2026-09-28 were
+#
+#     k_point = [4.0/(3*sqrt(3)), 0]        <-- NO pi.  A factor of pi too small.
+#     m_point = [pi/(3*sqrt(3)), pi/3]      <-- pi, and still the wrong vector.
+#
+# written three lines apart, so the inconsistency was internal to one function.
+# The consequence was not subtle: |phi(K_shipped)| = 2.5718 instead of 0, so the
+# band structure this module produced had a 14.40 eV GAP at its own K label and
+# a minimum gap of 11.20 eV over the whole path.  Graphene's single defining
+# electronic property -- the gapless linear crossing -- was absent from
+# band_structure.png for five weeks of daily automated runs.
+#
+# Why nothing caught it, which is the part worth remembering: the DOS figure in
+# this same file does not use these bands (see calculate_density_of_states
+# below), and band_structure_simple.png draws E = +/- v_F|k| from the known
+# answer.  No figure in the repository was a calculation that could fail.
+#
+# Full diagnosis, five exact validations and the corrected DOS:
+#   graphene_band_structure_audit.py, band_structure_audit_output.txt,
+#   notes/2026-09-28-the-band-structure-had-no-dirac-point.md
+# The superseded values are kept below as HIGH_SYMMETRY_LEGACY, per the
+# 2026-09-24 rule that a deleted implementation destroys the only oracle
+# available for judging its replacement.
+# =====================================================================
+HIGH_SYMMETRY = {
+    "gamma": np.array([0.0, 0.0]),
+    "K": np.array([4.0 * np.pi / (3.0 * np.sqrt(3.0)), 0.0]),
+    "M": (2.0 * np.pi / 3.0) * np.array([np.cos(np.pi / 6.0), 0.5]),
+}
+HIGH_SYMMETRY_LEGACY = {
+    "gamma": np.array([0.0, 0.0]),
+    "K": np.array([4.0 / (3.0 * np.sqrt(3.0)), 0.0]),
+    "M": np.array([np.pi / (3.0 * np.sqrt(3.0)), np.pi / 3.0]),
+}
+
+
+def k_path_graphene(n_points=100, legacy=False):
     """
     Generate k-points along high symmetry path in graphene Brillouin zone
     Path: Γ -> K -> M -> Γ
+
+    `legacy=True` reproduces the pre-2026-09-28 path, which had no Dirac point.
+    See the HIGH_SYMMETRY block above.
     """
-    # High symmetry points in reciprocal space (in units of 2π/a)
-    gamma = np.array([0.0, 0.0])  # Γ point
-    k_point = np.array([4.0/(3*np.sqrt(3)), 0.0])  # K point  
-    m_point = np.array([np.pi/(3*np.sqrt(3)), np.pi/3])  # M point
+    pts = HIGH_SYMMETRY_LEGACY if legacy else HIGH_SYMMETRY
+    gamma = pts["gamma"]
+    k_point = pts["K"]
+    m_point = pts["M"]
     
     # Interpolate between points
     k_path = []
@@ -88,11 +135,14 @@ def graphene_hamiltonian(k, hopping=2.8):  # hopping parameter in eV
     
     return H
 
-def calculate_band_structure():
+def calculate_band_structure(legacy=False):
     """
     Calculate the band structure of graphene along high symmetry path
+
+    `legacy=True` reproduces the pre-2026-09-28 (gapped, wrong) spectrum, for
+    comparison rather than for use.
     """
-    k_points, labels = k_path_graphene()
+    k_points, labels = k_path_graphene(legacy=legacy)
     energies = []
     
     for k in k_points:
@@ -184,6 +234,22 @@ def plot_fermi_surface():
 def calculate_density_of_states():
     """
     Calculate the density of states for graphene (analytical approximation near Dirac point)
+
+    *** ANNOTATED 2026-09-28 -- THIS FUNCTION CANNOT FAIL, AND THAT IS WHY A
+    *** BROKEN BAND STRUCTURE SURVIVED FIVE WEEKS BESIDE IT.
+    *** It returns |E|/(pi t^2) analytically and never calls
+    *** graphene_hamiltonian at all.  Demonstrated by mutation in
+    *** graphene_band_structure_audit.result_2_why_it_survived(): replacing the
+    *** Hamiltonian with the k-independent gapped matrix diag(+7, -7) -- no
+    *** Dirac point, no dispersion -- leaves this function's output BITWISE
+    *** IDENTICAL.  It would draw the correct V shape for any band structure
+    *** whatsoever.
+    *** Retained rather than deleted, and labelled, per 09-25 item 11 and
+    *** 09-26 item 10: a labelled blind check is more useful than a deleted
+    *** one.  For a DOS that is actually computed from the bands -- and which
+    *** reproduces the exact analytic slope 2 q_e^2/(pi hbar^2 v_F^2) to 3.6%
+    *** and the van Hove peak at E = t to 1% -- use
+    *** graphene_band_structure_audit.dos_from_bands().
     """
     # Energy values near the Dirac point
     energies = np.linspace(-3.0, 3.0, 1000)

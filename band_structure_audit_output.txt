@@ -1,0 +1,124 @@
+======================================================================
+BAND STRUCTURE AUDIT -- 2026-09-28
+Chapter 2's foundational figure, and why five weeks of daily runs
+never touched it.
+======================================================================
+
+----------------------------------------------------------------------
+VALIDATIONS (exact model values, measured beside derived floors)
+----------------------------------------------------------------------
+
+V1 (exact x3): |phi| at the three high-symmetry points
+    point          measured     exact        error        floor    ratio
+    Gamma    3.000000000000       3.0    0.000e+00    1.332e-15    0.000
+    M        1.000000000000       1.0    0.000e+00    1.395e-15    0.000
+    K        0.000000000000       0.0    4.441e-16    1.332e-15    0.333
+    worst ratio = 0.333  -> PASS
+
+V2 (exact, rewritten -- see the docstring for why the first
+    form failed): Fermi velocity and the leading warping term
+    closed form  3 t a_cc / (2 hbar) = 9.062708e+05 m/s
+            dk       slope (m/s)      rel err  rel err / dk
+         1e-02      9.039938e+05    2.512e-03      0.251248
+         1e-03      9.060442e+05    2.501e-04      0.250125
+         1e-04      9.062482e+05    2.500e-05      0.250013
+    derived coefficient = 1/4 exactly;  measured 0.250013
+    |measured - 0.25| = 1.25e-05, admissible 5.00e-05  -> PASS
+    extrapolated v_F (slope x (1 + dk/4)) = 9.062708e+05 m/s,
+    against the closed form 9.062708e+05 -- agreement 1.88e-09 relative
+
+V3 (exact, identical in k): E_+ + E_- must vanish everywhere
+    4000 random k, bitwise zero at 4000 of them (100.0%)
+    worst |E_+ + E_-| = 0.000e+00   derived floor 3.730e-15   ratio 0.000
+    -> PASS
+
+V4 (exact constant): low-energy DOS slope computed from the BANDS
+    analytic 2 q_e^2/(pi hbar^2 v_F^2) = 1.789092e+18 states/(eV m^2)
+    measured from the band histogram   = 1.853757e+18
+    relative difference 0.0361   derived bound 0.1955
+    (the bound is the q/4 warping term of V2 averaged over the
+     fit window -- physics, not error)
+    VACUOUS COMPANION, kept and labelled: integral g dE = 7.632365e+19
+      against 4/A_cell = 7.632365e+19, agreement 0.0e+00 -- and this
+      PASSED IDENTICALLY with the wrong reciprocal vectors in
+      place, so it has no power.  It cannot fail by construction.
+    CHECKS WITH POWER, added because that one has none:
+      |phi| periodic under b1, b2: worst deviation 1.55e-15 against
+        a derived floor of 1.42e-14  -> ok
+      Dirac cones inside the sampled cell: 2 (must be 2)
+    -> PASS
+
+V5 (exact): the diagnosis must reproduce the shipped number
+    gap at the path index labelled K, from the shipped module
+      measured  = 14.401937320701817 eV
+      predicted = 2t|phi(K_shipped)| = 14.401937320701817 eV
+      |difference| = 0.000e+00   floor 1.492e-14   -> PASS
+
+======================================================================
+RESULT 1 -- the shipped band structure has NO DIRAC POINT
+======================================================================
+  minimum gap over the whole shipped path = 11.2000 eV
+  gap at the index labelled K             = 14.4019 eV
+  gap at the index labelled M             = 11.2000 eV
+  energy range                            = -8.400 .. 8.400 eV
+
+  Graphene is a zero-gap semiconductor.  The shipped figure
+  shows a 14.4 eV gap at its own K label.
+
+  The conventions, side by side:
+    K shipped = ( 0.76980,  0.00000)  |phi| = 2.571775  ->  E = +/- 7.2010 eV
+    K correct = ( 2.41840,  0.00000)  |phi| = 0.000000  ->  E = +/- 0.0000 eV
+    M shipped = ( 0.60460,  1.04720)  |phi| = 2.000000  ->  E = +/- 5.6000 eV
+    M correct = ( 1.81380,  1.04720)  |phi| = 1.000000  ->  E = +/- 2.8000 eV
+
+  ratio |K_correct| / |K_shipped| = 3.141592654   (pi = 3.141592654)
+  The shipped K is exactly a factor of pi too small.  The same
+  function writes M WITH pi factors, so the inconsistency is
+  internal to seven consecutive lines, not between modules.
+
+======================================================================
+RESULT 2 -- why it survived: the DOS figure cannot see the bands
+======================================================================
+  calculate_density_of_states() returns |E|/(pi*2.8^2)
+  analytically.  MUTATION TEST -- replace the Hamiltonian with a
+  k-independent gapped matrix diag(+7, -7), which has no Dirac
+  point and no dispersion at all, and recompute the DOS:
+    shipped DOS identical before and after: True
+    -> the shipped DOS figure has ZERO sensitivity to the
+       Hamiltonian.  It would print the correct V shape for any
+       band structure whatsoever, including the broken one.
+
+  A DOS computed FROM the bands is sensitive, and is the check
+  that was missing.  Computed here over the reciprocal cell:
+    van Hove peak on the electron side at E = 2.771 eV
+    exact tight-binding value                  = 2.800 eV (= t)
+    relative error 0.010  (bin width 0.067 eV)
+    DOS in the bin straddling E = 0: 5.080e+16 states/(eV m^2),
+      which is 0.4% of the van Hove peak and is consistent
+      with a linear DOS averaged over one bin: the derived value
+      is (slope/4) x bin width = 2.986e+16, ratio 1.70
+
+  THE PATTERN, and it is the sharpest instance in five weeks:
+  three band/DOS figures in this repository, and not one of them
+  was a calculation that could have failed.  Two draw the known
+  answer (E = +/- v_F|k|, |E|) and the third computes and is
+  wrong.  An unfalsifiable figure is worse than no figure,
+  because it certifies the thing beside it.
+
+======================================================================
+SUMMARY
+======================================================================
+  V1 |phi| at Gamma/M/K        PASS
+  V2 Fermi velocity            PASS
+  V3 particle-hole symmetry    PASS
+  V4 DOS from bands            PASS
+  V5 bug reproduced exactly    PASS
+
+  validations: 5/5
+
+  A PUBLISHED FIGURE IS WRONG AND IS BEING CORRECTED.  The gap at
+  K goes from 14.4 eV to 0.  No number in Chapters 4-7 depends on
+  it: those chapters use the LINEAR dispersion and v_F directly,
+  never this k-path, which is why the error was survivable for five
+  weeks and why nothing else moves.  v_F itself is confirmed exact
+  to 1.0e-06 by V2, once its q/4 warping term is included.
