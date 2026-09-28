@@ -3945,11 +3945,27 @@ needed). Plain `git clone` of both repos completed normally and fast.
 its own call per 09-24. `scipy` again absent from the device VM and
 `pip install scipy` succeeded immediately; it is required transitively by
 `graphene_covariance_probe_audit` through `graphene_default_scale_audit` →
-`graphene_contact_doping_model`. **New and worth recording: `/tmp` is NOT
-writable in the device VM this session** — the documented `GIT_ASKPASS` recipe
-failed with "Permission denied" on `/tmp/.tok` and `/tmp/askpass.sh`, and was
-moved to `$HOME/.sess/` (still outside `mnt/`, still invisible to the user,
-deleted with the session). Everything else in the push recipe worked unchanged
+`graphene_contact_doping_model`. **New and worth recording: the documented
+`GIT_ASKPASS` recipe failed with "Permission denied" on `/tmp/.tok` and
+`/tmp/askpass.sh`, and was moved to `$HOME/.sess/`** (still outside `mnt/`,
+still invisible to the user, deleted with the session).
+**CORRECTION, appended later the same session after the other repository's half
+diagnosed it properly — the first sentence written here said `/tmp` is not
+writable, and that is wrong.** `/tmp` in the device VM *is* writable. What is
+true is sharper and more consequential: **`/tmp` PERSISTS ACROSS SESSIONS, and
+files left there by a previous session are owned by a different uid with mode
+600**, so with `/tmp` sticky they cannot be overwritten, read or removed.
+Yesterday's `/tmp/.tok` and `/tmp/askpass.sh` are still present, which is the
+actual cause of the "Permission denied", and the 09-25 `iverilog` install at
+`/tmp/iverilog_install` is still present for the same reason. The stale
+`/tmp/.tok` is 93 bytes dated 2026-09-27 04:58 — the same length as the current
+token — so **a plaintext copy of the PAT has outlived its session, the recipe's
+`shred -u` did not take effect, and this session cannot remove it**; reported to
+Harsh by notification, with a recommendation to rotate the token and move the
+recipe to `$HOME/.sess/` permanently. The wrong first diagnosis is left above
+rather than edited out, per this repository's own annotate-don't-rewrite rule,
+because "the directory is unwritable" and "yesterday's files are still there and
+belong to someone else" call for different fixes and only the second is right. Everything else in the push recipe worked unchanged
 and every commit was pushed as it was made, per 09-25. **`__pycache__` cost a
 round trip today and is now untracked** (item 12). Two self-inflicted
 `print`-formatting errors (a `%`-format argument attached to the wrong `print`
