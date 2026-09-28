@@ -1,0 +1,317 @@
+======================================================================
+COVARIANCE PROBE AUDIT -- 2026-09-28
+An audit of graphene_default_scale_audit.py, the module that judges
+every numeric default in this repository.
+Pre-registered: notes/2026-09-28-covariance-probe-preregistration.md
+======================================================================
+
+----------------------------------------------------------------------
+VALIDATIONS (measured value beside a DERIVED bound, per 09-27 #12)
+----------------------------------------------------------------------
+
+V1 (exact): lam = 1 is the identity -> deviation must be bitwise 0.0
+    H_DIFF=1e-3 (absolute)   deviation = 0.000e+00   bitwise 0
+    rel step (scale-free)    deviation = 0.000e+00   bitwise 0
+    bisect tol=1e-14         deviation = 0.000e+00   bitwise 0
+    logsens power law  sym   deviation = 0.000e+00   bitwise 0
+    logsens power law  old   deviation = 0.000e+00   bitwise 0
+    logsens log-quad   sym   deviation = 0.000e+00   bitwise 0
+    worst = 0.000e+00   -> PASS
+
+V2 (exact): f = 3p^2.5 -> S == 2.5 exactly; measured error vs DERIVED floor
+    est           h       |S-2.5|         floor     ratio
+    sym       1e-03     5.329e-14     4.879e-13     0.109
+    sym       1e-05     5.826e-12     4.879e-11     0.119
+    sym       1e-07     1.871e-09     4.879e-09     0.383
+    old       1e-03     9.592e-14     4.879e-13     0.197
+    old       1e-05     2.842e-12     4.879e-11     0.058
+    old       1e-07     2.775e-10     4.879e-09     0.057
+    worst ratio = 0.383  (must be <= 1)  -> PASS
+
+V3 (exact, DISCRIMINATING): ln|f| = A(ln p)^2 + B ln p at p = 3, S_true = 4.697225
+    centred difference of a quadratic -> EXACTLY zero truncation error
+    old estimator's error             -> EXACTLY A*ln(1-h^2)
+             h    |sym err|       floor        old err      predicted    ratio
+         1e-03    1.421e-14   1.756e-12  -1.000001e-06  -1.000001e-06    0.074
+         1e-04    1.540e-12   1.756e-11  -9.996301e-09  -1.000000e-08    0.211
+         1e-05    1.486e-11   1.756e-10  -1.539293e-10  -1.000000e-10    0.307
+    sym/floor worst = 0.088 ; |old - closed form|/floor worst = 0.307  -> PASS
+
+V4 (mechanism): count of (lam*a)/lam != a over 15 decades x 4 sample points
+    inexact round trips = 2 of 60
+      lam = 1e+04  a = 1-h       off by 1 ulp
+      lam = 1e+07  a = exp(-h)   off by 1 ulp
+    count > 0 required for Q2's mechanism  -> PASS
+
+V5: an exactly-proportional solver, deviation vs lam
+    AS FIRST WRITTEN, requiring bitwise 0.0 at every lam: FAIL
+    worst deviation = 1.292e-16 at lam = 1e+04
+    DERIVED bound (one ulp, eps) = 2.220e-16   ratio = 0.582  -> PASS
+    WHY THE FIRST FORM FAILED, and it is the session's unifying
+    mechanism: covariance_deviation evaluates solve(lam)/lam --
+    a multiply followed by a divide by the same constant.  That
+    round trip is not exact in IEEE-754, so the probe's own
+    docstring claim that the deviation is 'identically zero for
+    a scale-free procedure' is FALSE.  It is zero to one ulp.
+    V1's bitwise zero survives only because lam = 1 makes the
+    round trip trivial.
+
+======================================================================
+RESULT 1 (Q1) -- D2 after its named mechanism was removed
+======================================================================
+  D2, verbatim: 'log_sensitivity(rel_step=1e-5) passes
+   covariance EXACTLY (bitwise zero deviation), BECAUSE
+   rel_step MULTIPLIES the parameter.'
+
+  Is the multiplying form still the default path?  NO -- exponentiating (symmetric=True) is the default since 2026-09-27
+    'p * (1 + h)' present in source (as the kept legacy path): True
+    'p * np.exp(h)' present (the default path):               True
+
+  D2's scored expression, on both estimators:
+    symmetric=True  (rel_step EXPONENTIATES): deviation = 0.000e+00  -> D2 PASSES
+    symmetric=False (rel_step MULTIPLIES)   : deviation = 0.000e+00  -> D2 PASSES
+    S values: sym 2.4999999999941735 vs 2.4999999999941735 ; old 2.4999999999971583 vs 2.4999999999971583
+
+  VERDICT: D2 passes IDENTICALLY with and without the
+  mechanism it names.  A test that is unchanged by the
+  removal of its stated cause was never testing that cause.
+  D2's number stands; D2's EXPLANATION is falsified.
+
+======================================================================
+RESULT 2 (Q2) -- D2's 'EXACTLY' swept over lam
+======================================================================
+  D2 is scored at ONE lam (1e3).  Same expression, other decades:
+           lam       dev (sym)       dev (old)    round trip
+         1e+01       0.000e+00       0.000e+00         exact
+         1e+02       0.000e+00       0.000e+00         exact
+         1e+03       0.000e+00       0.000e+00         exact
+         1e+04       0.000e+00       1.110e-11         exact
+         1e+05       0.000e+00       0.000e+00         exact
+         1e+06       0.000e+00       0.000e+00         exact
+         1e+07       1.110e-11       0.000e+00       INEXACT
+         1e+08       0.000e+00       0.000e+00         exact
+         1e+09       0.000e+00       0.000e+00         exact
+         1e+10       0.000e+00       0.000e+00         exact
+         1e+11       0.000e+00       0.000e+00         exact
+         1e+12       0.000e+00       0.000e+00         exact
+         1e+13       0.000e+00       0.000e+00         exact
+         1e+14       0.000e+00       0.000e+00         exact
+         1e+15       0.000e+00       0.000e+00         exact
+
+  non-zero at 1 of 15 decades (symmetric), 1 of 15 (old)
+  failing fraction = 7%   (Q2 predicted >= 20%)
+  derived rounding floor at h = 1e-5: 4.879e-11 -- every non-zero
+  deviation above is at or below this, so none of them is a
+  numerical error; they are the SAME quantity D2 calls exact.
+
+  VERDICT: 'EXACTLY' is a statement about the arithmetic at one
+  chosen lam, not about rel_step.  The word would have to be
+  withdrawn at 1 of the 15 decades tested.
+
+======================================================================
+RESULT 3 (Q3) -- D2's test function is a POWER LAW
+======================================================================
+  2026-09-27 item 11: a power law makes ln|f| LINEAR in ln p,
+  so every secant is exact and no step or estimator is
+  distinguishable.  D2's f is 3p^2.5.  Same check, same lam,
+  same h, on a function with curvature in ln p:
+
+    function             est       deviation          S (unscaled)
+    power law 3p^2.5     sym       0.000e+00    2.4999999999941735
+    power law 3p^2.5     old       0.000e+00    2.4999999999971583
+    log-quadratic        sym       0.000e+00    2.4999999999889084
+    log-quadratic        old       0.000e+00    2.4999999998991616
+
+  power law   : deviation bitwise zero for both estimators: True
+  log-quadratic: deviation non-zero for both estimators: False (worst 0.000e+00)
+
+  Both functions have the SAME exact S at the evaluation point
+  and the same exact covariance in real arithmetic.  Only the
+  function changed.  D2's 'EXACTLY' therefore measures the
+  LINEARITY OF ITS OWN TEST CASE.
+
+======================================================================
+RESULT 4 (Q4) -- the logged TOP ITEM: does anything here pick a
+                 step by minimising `conv`?
+======================================================================
+  Census of graphene_default_scale_audit.py by AST + pattern search.
+
+  log_sensitivity call sites: 2
+    line 201   binds S1,_                   conv -> DISCARDED into `_`
+    line 203   binds S2,_                   conv -> DISCARDED into `_`
+  sites discarding conv: 2 of 2
+
+  conv-minimisation patterns matched: 0
+
+  POSITIVE CONTROL -- the same census run on a snippet that
+  DOES choose a step by minimising conv, to show the census can
+  see the thing it reports absent:
+    call sites found = 1, patterns matched = 1  -> census CAN detect the pattern
+      control hit: conv\s*<\s*best        conv < best
+
+  VERDICT: NULL RESULT, and a load-bearing one.  The single
+  log_sensitivity call site in this module throws conv away
+  into `_`; the H_DIFF and RESULT 7 sweeps use an ABSOLUTE
+  step through sensitivity() and never compute conv at all.
+  No conclusion of 2026-09-25 inherits 09-27 item 7.
+  The item closes.  It closes as a null BECAUSE the census
+  was shown able to detect the pattern, not because nothing
+  was found.
+
+======================================================================
+RESULT 5 (Q5) -- the probe measures lam in ONE DIRECTION
+======================================================================
+  RESULT 2 of graphene_default_scale_audit convicts H_DIFF=1e-3
+  at lam = 1e3: the variable rescaled UP by three decades.
+  Nothing in that module argues the direction is irrelevant.
+
+           lam      H_DIFF (abs)     relative step
+         1e-06         2.123e+12         1.428e-16
+         1e-04         2.587e+05         0.000e+00
+         1e-03         2.465e+01         0.000e+00
+         1e-02         7.018e-02         0.000e+00
+         1e-01         3.456e-03         1.428e-16
+         1e+01         1.853e-03         0.000e+00
+         1e+02         1.332e-03         0.000e+00
+         1e+03         1.327e-03         1.428e-16
+         1e+04         1.327e-03         0.000e+00
+         1e+06         1.327e-03         1.428e-16
+
+  deviation at lam = 1e3 : 1.327e-03   <- the conviction
+  deviation at lam = 1e-3: 2.465e+01   <- same default, same probe,
+                                     unit rescaled DOWN instead
+  ratio(up/down) = %.3g   (Q5 predicted >= 1e4 -- i.e. the
+  WRONG WAY ROUND: this session predicted the downward run would
+  be the LENIENT one.  It is the severe one, by 1.86e+04 x.)
+
+  UNPREDICTED, and it is the structural half of Q5: the two
+  directions are not two halves of one curve.
+    UPWARD   lam >= 1e3: deviation SATURATES at 1.3270e-03
+             (spread over lam = 1e3 .. 1e6 is 5.4e-05 relative, so
+             lam = 1e3 and lam = 1e6 report the same number)
+    DOWNWARD lam <= 1e-2: deviation DIVERGES, 2.123e+12 at lam = 1e-6
+             and steepening faster than any power of lam, so it
+             is the difference quotient breaking down rather
+             than a law -- stated as a breakdown, not fitted.
+
+  So the probe's LAM = 1e3 IS defensible as a reproducible
+  number -- it sits on a plateau -- and that is exactly why the
+  magnitude it reports cannot be read as 'how badly this default
+  encodes a scale'.  The saturated value 1.327e-3 is the shipped
+  central difference's OWN truncation error in the original
+  units, which is a useful number and not the one the probe
+  claims to measure.  The probe's docstring says the deviation
+  'grows with the mismatch'.  It grows in the direction the
+  module never runs, and has a CEILING in the direction it does.
+
+
+  The scale-free alternative stays at its floor (<= 1 ulp) in
+  BOTH directions, so the asymmetry belongs to the DEFAULT and
+  not to the probe's arithmetic.  The conviction of H_DIFF is
+  CORRECT.  What is wrong is reading its MAGNITUDE as a measure
+  of severity: the probe convicted H_DIFF with the number from
+  its saturated branch, 1.86e+04 x smaller than the same detector reports
+  one decade of lam away in the other direction.
+
+  The saturated value, CHECKED rather than asserted -- AND THE
+  FIRST CHECK WAS THE WRONG ONE, which is reported rather than
+  replaced.  Claim: the upward limit IS the shipped difference's
+  own truncation error in the original units, no rescaling
+  anywhere.  Two independent references, and they disagree:
+    1/S at the shipped h = 1e-3          = -3.901922819294e-01
+    (a) Richardson from (h, h/2)         = -3.842989654439e-01
+        implied relative error = 1.5335e-02   ratio to the probe's
+        saturated 1.3270e-03         = 11.5562
+    (b) direct refinement, h = 1e-6      = -3.896744633116e-01
+        implied relative error = 1.3288e-03   ratio to the probe's
+        saturated 1.3270e-03         = 1.0014
+
+  Reference (b) reproduces the probe's saturated deviation to
+  0.14%.  Reference (a) misses it by 11.6x and would have
+  WITHDRAWN A TRUE CLAIM.  Why (a) is the invalid one, measured:
+  Richardson assumes a smooth h^2 error expansion, and this
+  difference quotient does not have one --
+             h                   1/S     rel vs 1e-6
+         1e-02   -3.888439521383e-01       2.131e-03
+         3e-03   -3.889975904132e-01       1.737e-03
+         1e-03   -3.901922819294e-01       1.329e-03
+         3e-04   -3.878410937448e-01       4.705e-03  <- error GREW as h shrank
+         1e-04   -3.894691862220e-01       5.268e-04
+         3e-05   -3.896560277875e-01       4.731e-05
+    non-monotone refinement steps: 1 of 5
+
+  So the identification HOLDS, on the reference that is valid
+  here, and the session's own first oracle was wrong.  This is
+  the mirror image of 2026-09-25 and 09-27: there an instrument
+  reported success where the answer was wrong; here an
+  instrument reported failure where the claim was right.  Both
+  first forms stay in the source.
+
+  WHAT THAT MAKES OF THE PROBE.  Its ceiling on the upward
+  branch is not an arbitrary plateau: it is exactly the shipped
+  default's own truncation error, 1.327e-03.  Which is a useful
+  number, and NOT the one the probe's docstring claims -- the
+  docstring says the deviation 'grows with the mismatch'.  Above
+  lam = 1e3 it does not grow at all, because the scaled step has
+  become negligible and all that is left is the UNSCALED error.
+  RESULT 3's plateau conclusion in the audited module is
+  unaffected and this number agrees with it: 1.3e-3 relative is
+  inside its margin.  No published number moves.
+
+======================================================================
+RESULT 6 -- UNPREDICTED: D2's covariance check IS a test of
+            (lam*a)/lam == a, and of nothing else
+======================================================================
+  Q3 predicted a curved function would break the exactness.  It
+  does not (RESULT 3).  The mechanism is stronger than Q3's:
+  when the round trip is exact, the scaled and unscaled
+  evaluations are the SAME floating-point expression, so the
+  deviation is bitwise zero for ANY f, any estimator, any h.
+
+  EXACT CHECK -- set of lam with non-zero deviation, against set
+  of lam with an inexact round trip.  Set equality, no tolerance:
+    est  function        non-zero deviation at     round trip inexact at     equal
+    sym  power law       {1e+07}                   {1e+07}                   YES
+    sym  log-quadratic   {1e+07}                   {1e+07}                   YES
+    old  power law       {1e+04}                   {1e+04}                   YES
+    old  log-quadratic   {1e+04}                   {1e+04}                   YES
+
+  all four cases agree: True
+
+  VERDICT.  Three of this session's own predictions are
+  explained by one mechanism, and so are two of the
+  repository's exactness claims:
+    * Q2 FAILED on magnitude (7% of decades, not >= 20%)
+      because the round trip is inexact only rarely -- and
+      the decades where it IS inexact differ BETWEEN the two
+      estimators, which is why 'exactly' held for one and
+      not the other at the same lam.
+    * Q3 FAILED outright because the test never reaches the
+      estimator: the function is irrelevant when both sides
+      are the same expression.
+    * V5 FAILED as first written for the same reason, one
+      level up: the PROBE divides by lam too.
+  D2's 'EXACTLY ... because rel_step multiplies the
+  parameter' is therefore wrong twice over: the mechanism it
+  names is gone from the code (RESULT 1), and the mechanism
+  that actually produces the zero has nothing to do with
+  rel_step, the estimator, or graphene.
+
+======================================================================
+PRE-REGISTERED PREDICTIONS, SCORED
+======================================================================
+  Q1  PASS   D2 passes identically with and without its named mechanism -> its REASON is falsified
+  Q2  FAIL   D2's bitwise zero fails at >= 20% of lam decades (measured 7%)
+  Q3  FAIL   a curved function breaks the exactness for BOTH estimators (worst 0.00e+00) -- see RESULT 6 for why it cannot
+  Q4  PASS   NULL: no conv-guided step choice, census passed its positive control
+  Q5  FAIL   one-sided in lam AS PREDICTED (>= 1e4) -- class call CORRECT, direction and magnitude WRONG: measured 1.86e+04 x MORE severe downward, not less
+  V5 AS FIRST WRITTEN (bitwise 0.0 at every lam): FAIL -- kept in the source
+
+  UNPREDICTED: RESULT 6 -- the check is a round-trip test and nothing else
+               (exact set equality holds: True), which explains Q2, Q3 and V5.
+
+  validations: 5/5 pass   (V1 ok, V2 ok, V3 ok, V4 ok, V5 (vs derived bound) ok)
+
+  NOTHING PUBLISHED MOVES.  Every finding above is about a
+  prediction's stated reason, a validation's discriminating power,
+  or a probe's choice of direction.
