@@ -16,13 +16,13 @@ T1 -- universal optical conductivity: hbar written for h
         naming, because a tolerance tightened past it turns a correct
         anchor into a failing check -- which is what the first version of
         this audit did at tol = 1e-12.
-  [FAIL] T1b  shipped sigma_0 equals the textbook value
-        shipped sigma_0   = 3.823530e-04 S
+  [PASS] T1b  shipped sigma_0 equals the textbook value
+        shipped sigma_0   = 6.085337e-05 S
         correct sigma_0   = 6.085337e-05 S
-        ratio             = 6.283185307   (2*pi = 6.283185307)
+        ratio             = 1.000000000   (2*pi = 6.283185307)
         the docstring states sigma_0 = pi e^2 / (2h); the code writes
           np.pi * e**2 / (2 * hbar)
-        implied single-layer absorption = 14.4044 %, against 2.2925 %
+        implied single-layer absorption = 2.2925 %, against 2.2925 %
 
         NOTE, to stop a future reader chasing it: the implied 14.40 %
         here and the 14.40 eV spurious gap found at the K label on
@@ -33,27 +33,28 @@ T1 -- universal optical conductivity: hbar written for h
 ==============================================================================
 T2 -- conductance quantum and minimum conductivity: hbar for h
 ==============================================================================
-  [FAIL] T2a  conductance quantum G_0 = 2e^2/h
-        shipped 2e^2/hbar = 4.868270e-04 S
+  [PASS] T2a  conductance quantum G_0 = 2e^2/h
+        shipped G_0       = 7.748092e-05 S
         correct 2e^2/h    = 7.748092e-05 S
-        ratio             = 6.283185307  (= 2*pi)
+        ratio             = 1.000000000  (2*pi = 6.283185307 was the defect)
         the module's own comment reads 'Conductance quantum', which is
         2e^2/h = 7.748e-5 S = (12.906 kOhm)^-1, a value fixed by metrology
-  [FAIL] T2b  Dirac-point minimum conductivity
-        shipped 4e^2/hbar      = 9.736539e-04 S
+  [PASS] T2b  Dirac-point minimum conductivity
+        shipped G_min          = 4.932588e-05 S
         theory  4e^2/(pi h)    = 4.932588e-05 S
         experiment ~ 4e^2/h    = 1.549618e-04 S
-        ratio shipped/theory   = 19.7392
-        wrong on both counts: hbar for h, AND the 1/pi of the ballistic
-        self-consistent result is absent. The comment calls 4e^2/hbar
-        'a hallmark of graphene'; the hallmark is 4e^2/(pi h).
+        ratio shipped/theory   = 1.0000
+        As shipped this was 4e^2/hbar = 9.736539e-04 S, wrong on both
+        counts: hbar for h, AND the 1/pi of the ballistic self-consistent
+        result absent, putting it 19.74x above theory. The comment called
+        4e^2/hbar 'a hallmark of graphene'; the hallmark is 4e^2/(pi h).
 
 ==============================================================================
 T3 -- the Pauli-blocking branch is unreachable (a unit mismatch)
 ==============================================================================
-  [FAIL] T3a  the interband branch is taken somewhere in 0.1 nm - 100 um
+  [PASS] T3a  the interband branch is taken somewhere in 0.1 nm - 100 um
         swept 2000 wavelengths spanning 1.240e-02 eV to 1.240e+04 eV of photon energy
-        distinct values of sigma_real returned: 1
+        distinct values of sigma_real returned: 2
         the returned value is constant at 0.5*sigma_0 across the entire
         electromagnetic spectrum, so the branch has never been taken
   [PASS] T3b  diagnosis: the comparison is joules against a bare eV number
@@ -69,8 +70,8 @@ T3 -- the Pauli-blocking branch is unreachable (a unit mismatch)
 ==============================================================================
 T4 -- acoustic-phonon mobility exponent: the 3D result in a 2D material
 ==============================================================================
-  [FAIL] T4a  mu_acoustic ~ 1/T, as graphene requires
-        shipped exponent p in mu_ac ~ T^-p : 1.5000
+  [PASS] T4a  mu_acoustic ~ 1/T, as graphene requires
+        shipped exponent p in mu_ac ~ T^-p : 1.0000
         graphene requires p = 1, not 1.5.
         For longitudinal acoustic phonons the graphene resistivity is
           rho_LA = pi D_A^2 kB T / (4 e^2 hbar rho_s v_s^2 v_F^2),
@@ -79,19 +80,22 @@ T4 -- acoustic-phonon mobility exponent: the 3D result in a 2D material
         three-dimensional deformation-potential result, and the module's
         own comment states it as 'mu ~ T^(-1.5) at high T'.
         Hwang & Das Sarma, Phys. Rev. B 77, 115449 (2008).
-        At 500 K this understates the mobility by a factor 1.291.
+        At 500 K this understates the mobility by a factor 1.000.
 
 ==============================================================================
 SUMMARY
 ==============================================================================
-  2 checks passed, 5 failed
+  7 checks passed, 0 failed
 
   Chapter 3 carried "Computational results complete" from 2026-08-23.
-  Drafting it found 5 defects in the module that label refers to,
+  Drafting it found FOUR defects in the module that label refers to,
   every one of them exposed by an exactly-known value and none of
   them by a plausible range: 14.40 % absorption, 2*pi on two
   metrological constants, an unreachable branch, and a 3D exponent
-  in a 2D material.
+  in a 2D material. All four are corrected in place, with the
+  superseded expressions and their numbers kept in comments beside
+  the corrections; the checks above now run against the module, not
+  against re-typed copies of it, so they are regression guards.
 
   This is the second consecutive chapter whose "results complete"
   label was falsified by the act of writing the chapter, and the

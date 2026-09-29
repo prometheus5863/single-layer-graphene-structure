@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.constants import hbar, e, Boltzmann as kB
+from scipy.constants import hbar, h, e, Boltzmann as kB
 import matplotlib.patches as patches
 
 def calculate_fermi_velocity():
@@ -98,14 +98,22 @@ def calculate_mobility_vs_temperature(T_range, scattering_mechanisms=True):
     T = T_range
     
     # Scattering mechanisms in graphene:
-    # 1. Acoustic phonon scattering: μ ~ T^(-1.5) at high T
+    # 1. Acoustic phonon scattering: μ ~ T^(-1) in graphene
+    #    (this comment read T^(-1.5) until 2026-09-29 -- the 3D result)
     # 2. Optical phonon scattering: becomes significant at higher temperatures
     # 3. Impurity scattering: relatively temperature independent
     # 4. Remote interfacial scattering: temperature dependent
     
     # At room temperature and high mobility substrates, 
     # acoustic phonon scattering often dominates
-    mu_acoustic = 10000 * (300/T)**1.5  # in cm²/Vs, normalized to 10000 at 300K
+    # CORRECTED 2026-09-29 (graphene_transport_optical_audit.py, T4).
+    # As shipped: mu_acoustic = 10000 * (300/T)**1.5, the THREE-DIMENSIONAL
+    # deformation-potential exponent. In graphene the longitudinal-acoustic
+    # resistivity rho_LA = pi D_A^2 kB T / (4 e^2 hbar rho_s v_s^2 v_F^2) is
+    # linear in T and independent of carrier density, so at fixed n the
+    # mobility goes as 1/T, not T^-3/2 (Hwang & Das Sarma, Phys. Rev. B 77,
+    # 115449 (2008)). The old exponent understated the 500 K mobility by 1.291x.
+    mu_acoustic = 10000 * (300/T)**1.0  # cm^2/Vs, normalized to 10000 at 300 K
     
     # At low temperatures, impurity scattering dominates
     mu_impurity = 15000 * np.ones_like(T)  # Temperature independent
@@ -142,13 +150,29 @@ def calculate_quantum_conductance():
     Calculate the quantum of conductance in graphene
     Due to Klein tunneling and unique band structure, graphene shows unique transport properties
     """
-    # Conductance quantum
-    G0 = 2 * e**2 / hbar  # Factor of 2 for spin degeneracy in graphene
+    # CORRECTED 2026-09-29 (graphene_transport_optical_audit.py, T2).
+    # As shipped from 2026-08-23 to 2026-09-29 these read:
+    #     G0    = 2 * e**2 / hbar   ->  4.868270e-04 S
+    #     G_min = 4 * e**2 / hbar   ->  9.736539e-04 S
+    # Both used hbar where the definition requires h: a factor 2*pi too large.
+    # The superseded values are kept here rather than deleted, per this
+    # repository's annotate-don't-rewrite rule.
+    #
+    # Conductance quantum, fixed by metrology: 2e^2/h = 7.748092e-05 S
+    # = (12.906 kOhm)^-1.
+    G0 = 2 * e**2 / h
+
+    # Dirac-point minimum conductivity. The shipped line was wrong twice: hbar
+    # for h, and the 1/pi of the ballistic self-consistent result was absent,
+    # making it 19.74x the theoretical value. Theory gives 4e^2/(pi h);
+    # experiment clusters nearer 4e^2/h. The theoretical value is used, and the
+    # experimental one is returned alongside so the gap between them -- which
+    # is a real and unresolved feature of graphene transport, not a modelling
+    # choice -- stays visible to the caller.
+    G_min = 4 * e**2 / (np.pi * h)
+    G_min_experimental = 4 * e**2 / h
     
-    # At the charge neutrality point (Dirac point), minimum conductivity is 4e²/h
-    G_min = 4 * e**2 / hbar  # This is a hallmark of graphene
-    
-    return G0, G_min
+    return G0, G_min, G_min_experimental
 
 def plot_conductance_map(Vg_range, Vd_range):
     """
@@ -227,21 +251,38 @@ def calculate_optical_conductivity(freq_range):
     Universal value at low frequencies: σ₀ = πe²/(2h) ≈ (4π/α)⁻¹
     where α is the fine structure constant
     """
-    # Universal optical conductivity of graphene
-    sigma0 = np.pi * e**2 / (2 * hbar)  # ≈ 4π/α⁻¹ where α is fine structure constant
-    
-    # Frequency-dependent correction (simplified)
-    omega = 2 * np.pi * freq_range
-    hbar_omega = hbar * omega  # Energy of photons
-    
-    # At finite chemical potential μ, there's interband contribution
-    mu = 0.1  # Chemical potential in eV
-    
-    # Interband transitions become significant when photon energy > 2μ
-    interband_factor = np.where(hbar_omega > 2 * mu, 1.0, 0.5)
-    
+    # CORRECTED 2026-09-29 (graphene_transport_optical_audit.py, T1 and T3).
+    # As shipped from 2026-08-23 to 2026-09-29 this function read:
+    #     sigma0 = np.pi * e**2 / (2 * hbar)          -> 3.823530e-04 S
+    #     interband_factor = np.where(hbar_omega > 2 * mu, 1.0, 0.5)
+    # and returned sigma0 * interband_factor.
+    # Two independent defects, both kept on the record here:
+    #  T1  hbar was written where the docstring's own formula has h, making
+    #      sigma_0 a factor 2*pi too large and implying a single-layer
+    #      absorption of 14.4044% instead of 2.2925%.
+    #  T3  hbar_omega is in joules and 2*mu was a bare 0.2 intended as eV, so
+    #      the interband branch required a photon energy above 1.25e18 eV and
+    #      was never taken at any frequency. The function returned a constant
+    #      0.5*sigma_0 across the entire electromagnetic spectrum; swept from
+    #      0.1 nm to 100 um it produced exactly one distinct value.
+    #
+    # Universal optical conductivity, sigma_0 = pi e^2 / (2h) = e^2/(4 hbar).
+    # Anchored two ways: sigma_0/(eps_0 c) and pi*alpha agree to 3.0e-16.
+    sigma0 = np.pi * e**2 / (2 * h)
+
+    # Photon energy, in eV, so the Pauli-blocking comparison below has the same
+    # units on both sides.
+    omega = 2 * np.pi * np.asarray(freq_range, dtype=float)
+    hbar_omega_eV = hbar * omega / e
+
+    # Chemical potential in eV. Interband absorption is Pauli-blocked for
+    # hbar*omega < 2*mu and recovers the universal value above it.
+    mu = 0.1
+
+    interband_factor = np.where(hbar_omega_eV > 2 * mu, 1.0, 0.5)
+
     sigma_real = sigma0 * interband_factor
-    
+
     return freq_range, sigma_real
 
 def plot_optical_absorption():

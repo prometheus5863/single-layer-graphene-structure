@@ -74,8 +74,15 @@ def main():
     banner('T1 -- universal optical conductivity: hbar written for h')
 
     sigma0_correct = np.pi * e**2 / (2 * h)          # = e^2 / (4 hbar)
-    _, sigma_shipped = tp.calculate_optical_conductivity(np.array([5e14]))
-    sigma_shipped = float(np.atleast_1d(sigma_shipped)[0])
+    # Take sigma_0 as the maximum over a full-spectrum sweep, i.e. the value
+    # on the UNBLOCKED interband branch. Reading it this way works both before
+    # and after the T3 fix: as shipped the branch was unreachable and the sweep
+    # returned a constant 0.5*sigma_0, so the pre-fix number this check
+    # reported (3.823530e-04 S) was 0.5 * 2*pi * sigma_0_correct.
+    _sweep_nm = np.logspace(-1, 5, 2000)
+    _, _sig_sweep = tp.calculate_optical_conductivity(c / (_sweep_nm * 1e-9))
+    _sig_sweep = np.atleast_1d(_sig_sweep)
+    _blocked = np.unique(np.round(_sig_sweep, 20)).size == 1
 
     # The identity that makes this exact rather than approximate: the
     # normal-incidence absorption of a free-standing conducting sheet of
@@ -112,7 +119,7 @@ def main():
 
     # The shipped function multiplies sigma_0 by interband_factor, which T3
     # shows is always 0.5, so undo that to expose the sigma_0 it used.
-    sigma0_shipped = sigma_shipped / 0.5
+    sigma0_shipped = float(_sig_sweep.max()) * (2.0 if _blocked else 1.0)
     ratio = sigma0_shipped / sigma0_correct
     is_2pi = abs(ratio - 2 * np.pi) < 1e-9
     ok = not is_2pi
@@ -140,9 +147,13 @@ def main():
     banner('T2 -- conductance quantum and minimum conductivity: hbar for h')
 
     G0_correct = 2 * e**2 / h
-    G0_shipped = 2 * e**2 / hbar          # as written at line 145 of the module
-    Gmin_shipped = 4 * e**2 / hbar        # as written at line 149
     sigma_min_theory = 4 * e**2 / (np.pi * h)
+    # Read from the module rather than re-typed here, so that this check
+    # measures the shipped code and not the auditor's memory of it -- the
+    # 2026-09-28 rule about checks that cannot fail cuts both ways.
+    _g = tp.calculate_quantum_conductance()
+    G0_shipped = _g[0]
+    Gmin_shipped = _g[1]
 
     ok = abs(G0_shipped / G0_correct - 1) < 1e-12
     if ok:
@@ -150,9 +161,9 @@ def main():
     else:
         n_bad += 1
     check('T2a  conductance quantum G_0 = 2e^2/h', ok,
-          'shipped 2e^2/hbar = %.6e S\n'
+          'shipped G_0       = %.6e S\n'
           'correct 2e^2/h    = %.6e S\n'
-          'ratio             = %.9f  (= 2*pi)\n'
+          'ratio             = %.9f  (2*pi = 6.283185307 was the defect)\n'
           "the module's own comment reads 'Conductance quantum', which is\n"
           '2e^2/h = 7.748e-5 S = (12.906 kOhm)^-1, a value fixed by metrology'
           % (G0_shipped, G0_correct, G0_shipped / G0_correct))
@@ -163,13 +174,14 @@ def main():
     else:
         n_bad += 1
     check('T2b  Dirac-point minimum conductivity', ok,
-          'shipped 4e^2/hbar      = %.6e S\n'
+          'shipped G_min          = %.6e S\n'
           'theory  4e^2/(pi h)    = %.6e S\n'
           'experiment ~ 4e^2/h    = %.6e S\n'
           'ratio shipped/theory   = %.4f\n'
-          'wrong on both counts: hbar for h, AND the 1/pi of the ballistic\n'
-          'self-consistent result is absent. The comment calls 4e^2/hbar\n'
-          "'a hallmark of graphene'; the hallmark is 4e^2/(pi h)."
+          'As shipped this was 4e^2/hbar = 9.736539e-04 S, wrong on both\n'
+          'counts: hbar for h, AND the 1/pi of the ballistic self-consistent\n'
+          "result absent, putting it 19.74x above theory. The comment called\n"
+          "4e^2/hbar 'a hallmark of graphene'; the hallmark is 4e^2/(pi h)."
           % (Gmin_shipped, sigma_min_theory, 4 * e**2 / h,
              Gmin_shipped / sigma_min_theory))
 
@@ -245,11 +257,17 @@ def main():
     print('  %d checks passed, %d failed' % (n_ok, n_bad))
     print()
     print('  Chapter 3 carried "Computational results complete" from 2026-08-23.')
-    print('  Drafting it found %d defects in the module that label refers to,' % n_bad)
+    print('  Drafting it found FOUR defects in the module that label refers to,')
     print('  every one of them exposed by an exactly-known value and none of')
     print('  them by a plausible range: 14.40 % absorption, 2*pi on two')
     print('  metrological constants, an unreachable branch, and a 3D exponent')
-    print('  in a 2D material.')
+    print('  in a 2D material. All four are corrected in place, with the')
+    print('  superseded expressions and their numbers kept in comments beside')
+    print('  the corrections; the checks above now run against the module, not')
+    print('  against re-typed copies of it, so they are regression guards.')
+    if n_bad:
+        print()
+        print('  %d check(s) currently FAILING -- see above.' % n_bad)
     print()
     print('  This is the second consecutive chapter whose "results complete"')
     print('  label was falsified by the act of writing the chapter, and the')
