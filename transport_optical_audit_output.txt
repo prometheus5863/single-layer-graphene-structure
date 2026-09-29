@@ -1,0 +1,99 @@
+
+==============================================================================
+T1 -- universal optical conductivity: hbar written for h
+==============================================================================
+  [PASS] T1a  anchor: sigma_0/(eps_0 c) is pi*alpha, to machine precision
+        sigma_0 = pi e^2 / (2h)             = 6.085337e-05 S
+        route 1, sigma_0 / (eps_0 c)        = 2.2925309207 %
+        route 2, pi * e^2/(4 pi eps_0 hbar c) = 2.2925309207 %
+        relative disagreement               = 3.027e-16   (algebraic identity)
+        route 3, pi * CODATA measured alpha = 2.2925309207 %
+        which differs from routes 1-2 by    = 4.524e-12
+        That last residual is not a defect and not a rounding error: it
+        is the slack between CODATA's independently MEASURED alpha and
+        the alpha implied by its e, h, eps_0 and c, and it is well inside
+        the ~1.6e-10 relative uncertainty CODATA quotes on alpha. Worth
+        naming, because a tolerance tightened past it turns a correct
+        anchor into a failing check -- which is what the first version of
+        this audit did at tol = 1e-12.
+  [FAIL] T1b  shipped sigma_0 equals the textbook value
+        shipped sigma_0   = 3.823530e-04 S
+        correct sigma_0   = 6.085337e-05 S
+        ratio             = 6.283185307   (2*pi = 6.283185307)
+        the docstring states sigma_0 = pi e^2 / (2h); the code writes
+          np.pi * e**2 / (2 * hbar)
+        implied single-layer absorption = 14.4044 %, against 2.2925 %
+
+        NOTE, to stop a future reader chasing it: the implied 14.40 %
+        here and the 14.40 eV spurious gap found at the K label on
+        2026-09-28 are numerically a COINCIDENCE. That one was a
+        wrong reciprocal-lattice convention; this one is hbar for h.
+        They share no mechanism.
+
+==============================================================================
+T2 -- conductance quantum and minimum conductivity: hbar for h
+==============================================================================
+  [FAIL] T2a  conductance quantum G_0 = 2e^2/h
+        shipped 2e^2/hbar = 4.868270e-04 S
+        correct 2e^2/h    = 7.748092e-05 S
+        ratio             = 6.283185307  (= 2*pi)
+        the module's own comment reads 'Conductance quantum', which is
+        2e^2/h = 7.748e-5 S = (12.906 kOhm)^-1, a value fixed by metrology
+  [FAIL] T2b  Dirac-point minimum conductivity
+        shipped 4e^2/hbar      = 9.736539e-04 S
+        theory  4e^2/(pi h)    = 4.932588e-05 S
+        experiment ~ 4e^2/h    = 1.549618e-04 S
+        ratio shipped/theory   = 19.7392
+        wrong on both counts: hbar for h, AND the 1/pi of the ballistic
+        self-consistent result is absent. The comment calls 4e^2/hbar
+        'a hallmark of graphene'; the hallmark is 4e^2/(pi h).
+
+==============================================================================
+T3 -- the Pauli-blocking branch is unreachable (a unit mismatch)
+==============================================================================
+  [FAIL] T3a  the interband branch is taken somewhere in 0.1 nm - 100 um
+        swept 2000 wavelengths spanning 1.240e-02 eV to 1.240e+04 eV of photon energy
+        distinct values of sigma_real returned: 1
+        the returned value is constant at 0.5*sigma_0 across the entire
+        electromagnetic spectrum, so the branch has never been taken
+  [PASS] T3b  diagnosis: the comparison is joules against a bare eV number
+        code: np.where(hbar_omega > 2 * mu, 1.0, 0.5), mu = 0.1
+        hbar_omega is in J; 2*mu = 0.2 is intended as eV but is bare.
+        the branch therefore requires a photon energy above
+          0.2 J = 1.248e+18 eV
+        which is 6e+17 times the energy of a 550 nm photon.
+        POSITIVE CONTROL that this detector works: with the
+        comparison written correctly (hbar_omega/e > 2*mu, eV on
+        both sides) the same sweep returns 2 distinct values.
+
+==============================================================================
+T4 -- acoustic-phonon mobility exponent: the 3D result in a 2D material
+==============================================================================
+  [FAIL] T4a  mu_acoustic ~ 1/T, as graphene requires
+        shipped exponent p in mu_ac ~ T^-p : 1.5000
+        graphene requires p = 1, not 1.5.
+        For longitudinal acoustic phonons the graphene resistivity is
+          rho_LA = pi D_A^2 kB T / (4 e^2 hbar rho_s v_s^2 v_F^2),
+        LINEAR in T and independent of carrier density, so at fixed n the
+        mobility goes as 1/T. The T^-3/2 the code uses is the
+        three-dimensional deformation-potential result, and the module's
+        own comment states it as 'mu ~ T^(-1.5) at high T'.
+        Hwang & Das Sarma, Phys. Rev. B 77, 115449 (2008).
+        At 500 K this understates the mobility by a factor 1.291.
+
+==============================================================================
+SUMMARY
+==============================================================================
+  2 checks passed, 5 failed
+
+  Chapter 3 carried "Computational results complete" from 2026-08-23.
+  Drafting it found 5 defects in the module that label refers to,
+  every one of them exposed by an exactly-known value and none of
+  them by a plausible range: 14.40 % absorption, 2*pi on two
+  metrological constants, an unreachable branch, and a 3D exponent
+  in a 2D material.
+
+  This is the second consecutive chapter whose "results complete"
+  label was falsified by the act of writing the chapter, and the
+  second consecutive time the defects were in the part of the
+  repository that nothing downstream imports.
