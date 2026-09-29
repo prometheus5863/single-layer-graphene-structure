@@ -3981,3 +3981,292 @@ makes 9. The band-structure fix is separate from the validity-window result
 because the first is a **correction to a published figure** and the second is a
 **new measurement**, and a correction that arrives buried inside a new result is
 one nobody reads — the same reasoning as 09-26 and 09-27.
+
+---
+
+## 2026-09-29 (automated session)
+
+**Two halves, and the second replicated the first day's finding on a different
+chapter.** Half one answered the repository's top open item; half two drafted
+Chapter 3 and, in drafting it, falsified its status row for the second
+consecutive chapter on the second consecutive day.
+
+### Half one -- the top open item, answered
+
+1. **`graphene_figure_provenance_audit.py`, `figure_provenance_audit_output.txt`,
+   `figure_provenance_audit.png` -- NO device figure in Chapters 4-6 is drawn
+   from a known answer.** The item created 09-28 and made the repository's top
+   item is closed. Six device figures mutated against the models they claim to
+   come from: `quantum_capacitance` responds to `v_F` and `T`;
+   `gfet_transfer_characteristics` to `C_ox`, mobility and the puddle floor;
+   `rf_figures_of_merit` to channel length, mobility and finger count;
+   `edge_vs_top_contact` to the Au Fermi shift by 519x. **Four null controls
+   held at exactly zero** (mobility and contact resistance mutated 10x against
+   `C_q`, which is electrostatic and cannot contain them), so the detector is
+   not reporting that everything moves. **Four closed-form validations, three
+   bitwise:** `R_bare` exactly linear in EQE (ratio 2.0, deviation 0.000e+00
+   over 200 decades); `G*BW` exactly constant (spread 3.8e-16); `C_q` exactly
+   `1/v_F^2` (deviation 0.000e+00 over 401 gate voltages); `C_q` exactly even
+   in `V` (0.000e+00). **The band-structure fault is genuinely absent from the
+   device chapters**, which was not the prior after 09-28 and is worth stating
+   plainly.
+
+2. **What the audit found instead -- THE WRITE-ONLY KNOB, a fault class new to
+   this log.** Three MUST_CHANGE checks failed bitwise, and all three were one
+   fault: a module-level constant captured as a DEFAULT ARGUMENT when `def`
+   executed. Rebinding the module attribute rebinds the *name* and leaves the
+   captured default alone, so the constant at the top of the file reads as a
+   parameter and behaves as a comment. **This matters here more than it would
+   elsewhere because this repository audits BY MUTATION:** a mutation applied
+   the obvious way -- `setattr(module, CONST, value)` -- is silently a no-op,
+   and the audit reports "no sensitivity" when it has measured "no mutation".
+   **Census: 49 occurrences across 14 files, 14 of them inside audit modules**,
+   with a positive control on the census itself per the 09-28 rule.
+
+3. **Two instances worse than inert.** (i) `plot_resistivity_vs_linewidth`
+   builds its legend from the LIVE global and its curve from the FROZEN
+   default, so with the constant at 4 nm it draws the 3 nm curve (4.8980
+   uohm.cm at W = 20 nm) under a legend reading "Cu, 4nm TaN/Co liner" -- the
+   figure is wrong **in writing, on the figure**, by 42.9% in the plotted
+   quantity, undetectable from the figure alone. (ii)
+   `graphene_band_structure_audit.T_HOP` is captured by the MEASURING functions
+   (`bands`, `fermi_velocity_analytic`, `dos_from_bands`) and LIVE in that same
+   module's expected-value expressions, so doubling it moves the ORACLE
+   (`2*T_HOP`: 5.600 -> 11.200 eV) and freezes the MEASUREMENT (8.379013 eV,
+   bitwise unchanged). The audit would report a disagreement manufactured by
+   its own mutation machinery, and an investigator following it would be
+   debugging a Hamiltonian that never changed. **Yesterday's Hamiltonian
+   mutation escaped this only because it replaced a FUNCTION rather than a
+   constant -- luck, not design.**
+
+4. **Nine sites fixed, under a bitwise no-change requirement.** Converted to
+   late-bound defaults in `graphene_interconnect_model` (3 functions),
+   `graphene_photodetector_model` (4) and `graphene_edge_contact_model` (2).
+   The hazard in such a fix is quietly moving a published number, so it was
+   made subject to an exact requirement rather than a plausibility check: all
+   three figures (86400, 8112 and 14592 bytes of harvested curve data) and all
+   three `summary_numbers()` transcripts captured before and after and compared
+   exactly. **None moved.** Section A now reports 24/24 with the same mutations
+   that failed an hour earlier, and Section B asserts the two properties rather
+   than narrating them. **37 occurrences deliberately left, 13 in audit
+   modules:** fixing an audit module from inside the audit that found it moves
+   the instrument and the measurement in one step.
+
+### Half two -- Chapter 3, and the same falsification again
+
+5. **`graphene_transport_optical_audit.py`,
+   `transport_optical_audit_output.txt` -- FOUR defects in
+   `graphene_transport_properties.py`.** Chapter 3 carried "Computational
+   results complete" from 2026-08-23, the same label and the same day as
+   Chapter 2's. Every defect was caught by comparison against an exactly known
+   value and none by a plausible range.
+   - **T1.** Universal optical conductivity coded `pi*e^2/(2*hbar)` while its
+     own docstring states `pi*e^2/(2*h)`. A factor 2*pi: 3.823530e-04 S against
+     6.085337e-05 S, implying a single-layer absorption of **14.4044%** instead
+     of 2.2925%. *(The 14.40 here and the 14.40 eV spurious gap of 09-28 are a
+     numerical COINCIDENCE -- that was a reciprocal-lattice convention, this is
+     `hbar` for `h`. Recorded so no future reader chases it.)*
+   - **T2.** Conductance quantum coded `2e^2/hbar` (4.868270e-04 S against
+     7.748092e-05 S, a value fixed by metrology). Minimum conductivity coded
+     `4e^2/hbar` and commented "a hallmark of graphene"; the hallmark is
+     `4e^2/(pi h)` and the shipped value was **19.74x** it -- wrong by 2*pi AND
+     missing the ballistic `1/pi`.
+   - **T3, the sharpest.** The Pauli-blocking switch compared `hbar_omega` in
+     JOULES against a bare `0.2` intended as eV, so the branch required a photon
+     energy above 1.25e18 eV. **Swept from 0.1 nm to 100 um the function
+     returned exactly ONE distinct value** -- a constant `0.5*sigma_0`. The
+     feature its comment describes had never operated, in either direction,
+     since it was written. This is the 09-28 cannot-fail check in its purest
+     form: not a check that always passes but **a branch that is never
+     reached**, so the code appeared to model the physics while modelling
+     nothing. Section 3.6's table is the first time this repository has actually
+     computed it. Positive control included: written correctly the same sweep
+     returns two values.
+   - **T4.** Acoustic-phonon mobility used `T^-3/2`, the THREE-DIMENSIONAL
+     deformation-potential exponent. Graphene's `rho_LA` is linear in T and
+     density-independent, so `mu ~ 1/T` [Hwang & Das Sarma, PRB 77, 115449
+     (2008)]. Measured exponent of the shipped curve 1.5000; understates the
+     500 K mobility by 1.291x -- small enough to look plausible, which is why it
+     survived.
+
+6. **All four corrected in place**, superseded expressions and their numbers
+   kept in comments beside the corrections. `G_min_experimental` (~`4e^2/h`) is
+   now RETURNED ALONGSIDE the theoretical value rather than the two being
+   conflated, because the gap between them is a real unresolved feature of
+   graphene transport. The audit now reads values FROM the module instead of
+   re-typing them, so its seven checks are regression guards rather than a
+   transcript of what the auditor believed the code said -- the 09-28
+   cannot-fail rule applied to the auditor. 7/7.
+
+7. **One check was itself wrong, and is recorded rather than quietly retuned.**
+   The `sigma_0/(eps_0 c) == pi*alpha` anchor first ran at `tol=1e-12` and
+   FAILED at 4.5e-12. That residual is the slack between CODATA's independently
+   MEASURED `alpha` and the `alpha` implied by its own `e`, `h`, `eps_0` and
+   `c`, well inside the ~1.6e-10 relative uncertainty CODATA quotes. The fix
+   was to check the algebraic identity (3.0e-16) and name the CODATA slack
+   separately -- **not to loosen a number until the check passed**, which is the
+   move this repository has to be most careful about given how many of its
+   tolerances are hand-set.
+
+8. **`thesis_draft/03-transport-and-optical-properties.md` drafted, ten
+   sections, 355 lines.** Built around what Chapters 4-7 actually take from it
+   (Section 3.8 tabulates it). **Section 3.2:** graphene's room-temperature
+   mobility is set by its ENVIRONMENT, not by graphene -- the intrinsic phonon
+   limit is ~25x Chapter 4's 4000 cm2/Vs, making the substrate the single
+   largest engineering lever in the thesis. **Section 3.3:** theory
+   (`4e^2/(pi h)` = 20.27 kOhm/sq) and experiment (`~4e^2/h` = 6.45 kOhm/sq)
+   separated rather than conflated; this is the thesis's central NEGATIVE
+   result, and Chapter 4's single-digit on/off ratio and Chapter 7's "no
+   digital logic" verdict both descend from it. **Section 3.4:** the first
+   Landau gap at 1 T is 32.9 meV against `kT` = 25.9 meV at 300 K, which is why
+   graphene's QHE is a room-temperature effect. **Section 3.5:** universal
+   absorption anchored two ways to 3.0e-16 and read as a BUDGET -- 97.7% of the
+   light is lost, and every Chapter 6 architecture is an attempt to buy it back.
+   **Section 3.6, genuinely new physical content:** the gate-tunable Pauli edge
+   `hbar*omega = 2 E_F`, computed here for the first time in this repository --
+   6199 nm at `E_F` = 0.1 eV down to **1550 nm at `E_F` = 0.4 eV**, so the
+   telecom C-band lands inside Chapter 4's existing gate range. That is the
+   physical basis of graphene electro-absorption modulators, and T3 means the
+   code that claimed to compute it never had.
+
+9. **Blast radius checked rather than assumed, and it is the Chapter 2 pattern
+   again.** None of the module's figures are committed and nothing imports it
+   -- but `graphene_photodetector_model.py`'s header CITES
+   `calculate_optical_conductivity` as the source of its 2.3% absorption while
+   independently re-typing the correct `pi/137.036`. **Chapter 6 was protected
+   from a 6.28x error in its first-line input only because it did not use the
+   result it cites.** Unlike Chapter 2, though, the protection was weaker: three
+   of Chapter 3's four defects were in quantities the device chapters DO use
+   (Section 3.8's first five rows), and they held only by re-typing.
+
+10. **Chapter 1's status row rewritten** to lead with the correction, per the
+    09-28 precedent.
+
+**Methodological note, continuing the series.** 09-25: a procedure asked whether
+it has converged can answer yes and be 44% wrong. 09-26: an anchored comparison
+is anchored in one variable. 09-27: an instrument can be systematically smallest
+where the answer is worst. 09-28: prose is a detector, and a check that cannot
+fail is worse than no check.
+**09-29 gives two. (i) A MUTATION THAT DOES NOT ARRIVE IS INDISTINGUISHABLE, IN
+THE OUTPUT, FROM A SYSTEM THAT DOES NOT RESPOND.** "No sensitivity" and "no
+stimulus" produce the same number, and every mutation-based instrument in this
+repository reports that number identically. The defence is not care: a mutation
+harness must carry a **positive control on the mutation itself** -- a paired
+assertion that some quantity the mutation must reach did in fact move -- before
+it is entitled to interpret a zero anywhere else. The null controls in today's
+audit were built to stop the detector over-reporting; the missing control was
+the opposite one, and it is the one the three failures needed.
+**(ii) PROSE IS A DETECTOR -- REPLICATED, on a different chapter, one day
+later.** 09-28 proposed it from a single instance, which is exactly the
+unrepresentative-sample failure this repository has recorded four times. It now
+has two, and the mechanism is identical in both: **an audit checks what the code
+says about itself; a chapter has to state what the code says about GRAPHENE.**
+Writing `sigma_0 = pi e^2/(2h)` in a sentence and then reading the line that
+computes it is a comparison no test here was making, and neither was writing
+"the interband transition switches on above 2 E_F" and then reading a `np.where`
+that compares joules to a bare 0.2. Two consecutive chapters, two consecutive
+days, both labelled "computational results complete" since 2026-08-23, both
+falsified by the act of being written.
+**Corollary that follows from (ii) and should shape the next weeks:** the only
+remaining undrafted chapter is gone. Chapters 1-7 are all drafted as of today,
+so the detector that found both of these has no further unused fuel, and the
+next equivalent instrument has to be built rather than written.
+
+**Validations:** half one 24/24 (4 closed-form, 4 null controls, 14 mutation
+responses, 2 regression guards), after 3 failures that were real and are fixed.
+Half two 7/7, after 5 failures that were real and are fixed, plus one check of
+the auditor's own that was wrong (the CODATA tolerance) and is recorded as
+wrong.
+
+**Not yet covered (candidates for future runs):**
+- **The 37 remaining write-only knobs, 13 of them in audit modules** -- created
+  today and **the new top item**. `graphene_band_structure_audit.T_HOP` is the
+  worst: captured by the measuring functions and live in the expected-value
+  expressions, so a mutation of it moves the oracle and freezes the
+  measurement. Fix the audit modules FIRST and from outside, then re-run every
+  mutation-based result in the repository, because any of them could have been
+  measuring nothing
+- **A positive control on the mutation itself, retrofitted to every
+  mutation-based audit here** -- created today by the methodological note; this
+  is the generalisable defence and it is currently in none of them
+- **Whether Chapter 4's `n_puddle` actually reproduces Section 3.3's measured
+  6.45 kOhm/sq floor** -- created today, a one-line calculation, and the only
+  place Chapter 3's central negative result touches Chapter 4's numbers
+- **The Section 3.6 Pauli edge is absent from Chapter 6's model** -- created
+  today, and it is a THIRD leg of the Chapter 4 / Chapter 6 contact-metal
+  contradiction Chapter 7 already holds. Unlike the other two it is not a
+  modelling disagreement but a physical mechanism: biasing to high `E_F` for
+  low contact resistance switches off the detector's own absorption
+- **A finite-temperature optical conductivity** -- created today; Section 3.6's
+  edge is the `T = 0` step function, smeared over several `kT` at 300 K, which
+  is what sets a modulator's extinction ratio
+- **The remote-polar-phonon cap on SiO2 is asserted, not computed** -- created
+  today; the third row of Section 3.2's table has no computational backing here
+- **Angular trigonal warping** (the `cos 3theta` structure) -- created 09-28,
+  untouched
+- **Finite-temperature carrier density `n(E_F, T)`** -- created 09-28, and
+  Section 3.6 now inherits the same `T = 0` assumption, so it is wanted twice
+- **Whether other `== 0.0` exactness checks here are round-trip tautologies** --
+  created 09-28, untouched
+- **Whether RESULT 2's other convictions are read from the saturated branch** --
+  created 09-28, untouched
+- **A probe that reports both directions of lambda** -- created 09-28, untouched
+- **Whether `t'` can be EXCLUDED quantitatively** as the source of Chapter 4's
+  electron-hole asymmetry -- created 09-28, untouched
+- **Whether any OTHER near-cancellation would show the `c2`/`c4` sign flip if
+  differentiated rather than evaluated** -- created 09-27, untouched
+- **Migrating every remaining validation to measured-value-beside-derived-bound
+  form** -- created 09-27, and today's CODATA-tolerance incident is another
+  instance of the class it defends against
+- **Whether Chapter 4 or 5 contains a RANKING that is a step artefact** --
+  created 09-23/09-25, untouched
+- **`n_segments = 50` at a bias with more curvature** -- created 09-26,
+  untouched
+- **A second anchor for `Delta_c`, at any separation other than 3.3 A** -- open
+  since 2026-09-21, still the top *physics* item, now **untouched for nine
+  consecutive sessions**
+- **A description of Ti, Ni and Pd that does not go through work function** --
+  three independent failures on record; Chapter 6's central structural weakness
+- **Whether Chapter 7's Section 7.3 differential-interconnect prediction
+  holds** -- created 09-27
+- **Which of Chapters 4 and 5's design rules could be restated as parities or
+  bounds** -- created 09-23
+- **Whether the parity survives a photo-thermoelectric term** -- created 09-23
+- Re-check whether other "for every ..." claims rest on small samples -- open
+  since 2026-09-20; whether Chapter 4's contact-resistance results should be
+  re-run at the 5.4 eV crossover -- open since 2026-09-18; reconciling Mueller
+  *et al.*'s 0.12 eV step (arXiv:0902.1479) with the 0.25-1.07 eV offsets
+  `METAL_WORK_FUNCTIONS` assumes -- open since 2026-09-18; a
+  photo-thermoelectric term (Kasirga review); Shimomura *et al.*'s
+  comb-electrode design; integrating 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery; isolating the root cause of the
+  Section 4.7 negative residual (open since 2026-08-31); Ti and Cr per-metal
+  `Rc` recalibration (ResearchGate rate-limiting); a second independent
+  edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health:** Device reachable at the **04:34 UTC** firing, the first
+of the day's three, so the redundancy was again not needed. Step 0's
+already-ran check was clean: neither repo had a 2026-09-29 AUTOMATION_LOG entry
+or a commit since midnight. Plain `git clone` of both repos completed normally.
+`git config user.name/user.email` again absent in the fresh clones and set
+per 09-24. `scipy` again absent and `pip install scipy` succeeded immediately
+(1.15.3 against numpy 2.2.6). **The 09-28 correction worked:** the `GIT_ASKPASS`
+recipe was placed in `$HOME/.sess/` from the start and had no permission
+trouble, confirming that entry's revised diagnosis (stale root-owned `/tmp`
+files from previous sessions, not an unwritable `/tmp`). Live web search was
+not used this session; both halves were audits and drafting against material
+already in the repository, and the one external citation added (Hwang & Das
+Sarma, PRB 77, 115449 (2008)) is from established knowledge rather than a fetch.
+**One authoring hazard cost two round trips and is worth recording as a class:**
+a Python patch script that wrote the file *before* calling `ast.parse` on it
+corrupted an untracked file beyond `git checkout`'s reach, and the second
+attempt then spliced into the corrupted result. The same shape as 09-27's
+heredoc collisions and 09-28's `print`-format errors -- **validate before
+writing, not after** -- and the specific aggravating factor is that an untracked
+file has no restore path, so the ordering matters more for a new file than for
+an edit to a tracked one. Every commit was pushed as it was made, per 09-25.
+
+**Commits this run:** 6 (the provenance audit with its output and figure; the
+nine-site late-binding fix; the Chapter 3 defect audit; the four in-place
+corrections; Chapter 3 plus the Chapter 1 status row; half one's study note).
+This AUTOMATION_LOG.md entry makes 7.
