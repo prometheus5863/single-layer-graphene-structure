@@ -158,12 +158,17 @@ def _solve_lambda_impurity_nm():
 lambda_impurity_nm = _solve_lambda_impurity_nm()
 
 
-def resistivity_vs_width(W_nm, p=p_default):
+def resistivity_vs_width(W_nm, p=None):
     """
     3D resistivity (uOhm.cm) of a graphene nanoribbon of width W_nm (nm),
     for edge specularity p, including the fixed (p-independent) residual
     impurity term calibrated above.
     """
+    # Late-bound default (2026-09-29 figure-provenance audit): the module
+    # constant is read at CALL time, not captured at `def` time, so setting
+    # the module attribute actually reaches this function.
+    if p is None:
+        p = p_default
     edge_term = _edge_inverse_mfp_ratio(W_nm, p)
     impurity_term = lambda_bulk_nm / lambda_impurity_nm
     ratio = 1.0 + edge_term + impurity_term
@@ -217,7 +222,7 @@ def cu_resistivity_vs_width(W_nm):
 t_liner_nm_default = 3.0
 
 
-def cu_resistivity_with_liner(W_nm, t_liner_nm=t_liner_nm_default):
+def cu_resistivity_with_liner(W_nm, t_liner_nm=None):
     """
     Effective Cu resistivity (uOhm.cm) *including* the non-conducting
     barrier/liner's consumption of the drawn cross-section, evaluated
@@ -249,6 +254,11 @@ def cu_resistivity_with_liner(W_nm, t_liner_nm=t_liner_nm_default):
     explicitly by returning NaN (not a large-but-finite number), since a
     real process simply cannot form a conducting Cu wire in that regime.
     """
+    # Late-bound default (2026-09-29 figure-provenance audit): the module
+    # constant is read at CALL time, not captured at `def` time, so setting
+    # the module attribute actually reaches this function.
+    if t_liner_nm is None:
+        t_liner_nm = t_liner_nm_default
     W_arr = np.atleast_1d(np.asarray(W_nm, dtype=float))
     W_eff = W_arr - 2.0 * t_liner_nm
 
@@ -316,8 +326,8 @@ t_liner_nm_ru_default = 0.3
 t_liner_nm_co_default = 1.0
 
 
-def cu_resistivity_with_liner_parallel(W_nm, t_liner_nm=t_liner_nm_default,
-                                        rho_liner_uohm_cm=rho_liner_tan_uohm_cm_default):
+def cu_resistivity_with_liner_parallel(W_nm, t_liner_nm=None,
+                                        rho_liner_uohm_cm=None):
     """
     Effective Cu resistivity (uOhm.cm) including the liner/barrier's
     cross-section consumption *and* its own (finite, non-zero) parallel
@@ -349,6 +359,13 @@ def cu_resistivity_with_liner_parallel(W_nm, t_liner_nm=t_liner_nm_default,
     all-liner-conductor regime, not a continuation of this Cu-core-centric
     model.
     """
+    # Late-bound default (2026-09-29 figure-provenance audit): the module
+    # constant is read at CALL time, not captured at `def` time, so setting
+    # the module attribute actually reaches this function.
+    if t_liner_nm is None:
+        t_liner_nm = t_liner_nm_default
+    if rho_liner_uohm_cm is None:
+        rho_liner_uohm_cm = rho_liner_tan_uohm_cm_default
     W_arr = np.atleast_1d(np.asarray(W_nm, dtype=float))
     W_eff = W_arr - 2.0 * t_liner_nm
 

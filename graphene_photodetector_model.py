@@ -91,19 +91,29 @@ TAU_TRANSIT = L_channel / (mu * E_field)  # = L^2 / (mu * V_bias)
 LAMBDA_NM = 550.0
 
 
-def responsivity_bare(wavelength_nm, eqe=EQE_BARE):
+def responsivity_bare(wavelength_nm, eqe=None):
     """
     Bare (gain-free) responsivity R = EQE * e * lambda / (h*c) [A/W].
     Implemented directly from R = EQE * e / E_photon, with E_photon in
     joules from hc/lambda (equivalent to the common R[A/W] = EQE *
     lambda[nm]/1240 shortcut, 1240 = hc/e in eV.nm).
     """
+    # Late-bound default (2026-09-29 figure-provenance audit): the module
+    # constant is read at CALL time, not captured at `def` time, so setting
+    # the module attribute actually reaches this function.
+    if eqe is None:
+        eqe = EQE_BARE
     E_photon_J = h * c / (wavelength_nm * 1e-9)
     return eqe * e / E_photon_J
 
 
-def photoconductive_gain(tau_trap, tau_transit=TAU_TRANSIT):
+def photoconductive_gain(tau_trap, tau_transit=None):
     """Classic photoconductor gain G = tau_trap / tau_transit."""
+    # Late-bound default (2026-09-29 figure-provenance audit): the module
+    # constant is read at CALL time, not captured at `def` time, so setting
+    # the module attribute actually reaches this function.
+    if tau_transit is None:
+        tau_transit = TAU_TRANSIT
     return tau_trap / tau_transit
 
 
@@ -112,17 +122,31 @@ def bandwidth_3db(tau_trap):
     return 1.0 / (2 * np.pi * tau_trap)
 
 
-def responsivity_with_gain(tau_trap, wavelength_nm=LAMBDA_NM, eqe=EQE_BARE,
-                            tau_transit=TAU_TRANSIT):
+def responsivity_with_gain(tau_trap, wavelength_nm=None, eqe=None,
+                            tau_transit=None):
     """Gain-boosted responsivity R(tau_trap) = R_bare(lambda) * G(tau_trap)."""
+    # Late-bound default (2026-09-29 figure-provenance audit): the module
+    # constant is read at CALL time, not captured at `def` time, so setting
+    # the module attribute actually reaches this function.
+    if wavelength_nm is None:
+        wavelength_nm = LAMBDA_NM
+    if eqe is None:
+        eqe = EQE_BARE
+    if tau_transit is None:
+        tau_transit = TAU_TRANSIT
     return responsivity_bare(wavelength_nm, eqe) * photoconductive_gain(tau_trap, tau_transit)
 
 
-def gain_bandwidth_invariant(tau_transit=TAU_TRANSIT):
+def gain_bandwidth_invariant(tau_transit=None):
     """
     Model-predicted gain-bandwidth product, independent of tau_trap in
     this simple picture: GBP = 1 / (2*pi*tau_transit).
     """
+    # Late-bound default (2026-09-29 figure-provenance audit): the module
+    # constant is read at CALL time, not captured at `def` time, so setting
+    # the module attribute actually reaches this function.
+    if tau_transit is None:
+        tau_transit = TAU_TRANSIT
     return 1.0 / (2 * np.pi * tau_transit)
 
 

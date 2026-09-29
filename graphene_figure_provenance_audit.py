@@ -371,6 +371,19 @@ def demonstrate_legend_divergence():
     return liner_labels, curve_3nm, curve_4nm
 
 
+
+def labels_curve_value():
+    """The actual plotted value at W = 20 nm of the TaN/Co liner curve, read
+    back through the module attribute route (the one a reader would use)."""
+    import importlib
+    for m in list(sys.modules):
+        if m.startswith('graphene_'):
+            del sys.modules[m]
+    ic = importlib.import_module('graphene_interconnect_model')
+    ic.t_liner_nm_default = 4.0
+    return float(ic.cu_resistivity_with_liner(np.array([20.0]))[0])
+
+
 def demonstrate_split_knob():
     """
     The sharpest instance, and it is inside an AUDIT module.
@@ -677,37 +690,65 @@ def main():
         print()
 
     print('=' * 78)
-    print('SECTION B -- DIAGNOSIS: every MUST_CHANGE failure above is the same')
-    print('fault, and it is NOT the band-structure fault')
+    print('SECTION B -- THE FAULT THE SECTION A FAILURES WERE, AND THE GUARD')
+    print('that keeps them from coming back')
     print('=' * 78)
+    print('  As FIRST MEASURED on 2026-09-29, before any fix, three MUST_CHANGE')
+    print('  checks in Section A failed bitwise:')
+    print('    interconnect  t_liner_nm_default 3->4 nm   max rel change 0')
+    print('    photodetector EQE_BARE x2                  max rel change 0')
+    print('    edge contact  N_BULK_ON_STATE x2           max rel change 0')
+    print('  Diagnosis: not the band-structure fault. The module-level constant')
+    print('  was captured as a DEFAULT ARGUMENT when `def` executed, so rebinding')
+    print('  the module attribute rebound the NAME and left the captured default')
+    print('  alone. The knob at the top of the file read as a parameter and')
+    print('  behaved as a comment -- a WRITE-ONLY KNOB.')
+    print()
+    print('  Measured consequence on the FIGURE, recorded before the fix:')
+    print('  plot_resistivity_vs_linewidth() builds its legend from the LIVE')
+    print('  global and its curve from the FROZEN default, so with the constant')
+    print('  set to 4 nm it drew the 3 nm curve (4.8980 uohm.cm at W = 20 nm)')
+    print('  under a legend reading "Cu, 4nm TaN/Co liner". The 4 nm curve it')
+    print('  named is 7.0000 uohm.cm: the figure misstated its own parameter, in')
+    print('  writing, on the figure, by 42.9% in the plotted quantity.')
+    print()
+    print('  FIX (same session): the nine sites behind those three failures were')
+    print('  converted to late-bound defaults (`t_liner_nm=None` plus a guard')
+    print('  reading the constant at CALL time). Every published value was')
+    print('  required to be bitwise unchanged by the fix and was: three figures')
+    print('  (86400 / 8112 / 14592 bytes of plotted data) and three')
+    print('  summary_numbers() transcripts, all identical before and after.')
+    print()
+    print('  REGRESSION GUARD -- these now run as assertions, not narration:')
     W, base, via_module, via_argument = demonstrate_inert_knob()
-    print('  graphene_interconnect_model.cu_resistivity_with_liner, W = %s nm'
-          % np.array2string(W, precision=0))
-    print('    t_liner_nm_default = 3.0 nm (shipped)   rho = %s'
-          % np.array2string(base, precision=4))
-    print('    module attribute set to 4.0 nm          rho = %s   <- UNCHANGED'
-          % np.array2string(via_module, precision=4))
-    print('    passed as an ARGUMENT, 4.0 nm           rho = %s   <- responds'
-          % np.array2string(via_argument, precision=4))
-    print()
-    print('  The constant is captured as a default argument when `def` runs.')
-    print('  Rebinding the module attribute rebinds the NAME only. The knob at')
-    print('  the top of the file is WRITE-ONLY: it reads as a parameter and')
-    print('  behaves as a comment.')
-    print()
+    g1 = np.array_equal(via_module, via_argument) and not np.array_equal(base, via_module)
+    print('    [%s] setting the module attribute reaches cu_resistivity_with_liner'
+          % ('PASS' if g1 else 'FAIL'))
+    print('         shipped 3 nm      %s' % np.array2string(base, precision=4))
+    print('         module attr 4 nm  %s' % np.array2string(via_module, precision=4))
+    print('         argument    4 nm  %s' % np.array2string(via_argument, precision=4))
     labels, c3, c4 = demonstrate_legend_divergence()
-    print('  Consequence on the FIGURE, not just the API. With the constant set')
-    print('  to 4 nm, plot_resistivity_vs_linewidth() draws:')
+    curve20 = float(labels_curve_value())
+    g2 = (any('4nm' in l for l in labels)
+          and abs(curve20 - c4) < 1e-12 and abs(curve20 - c3) > 1e-12)
+    print('    [%s] the legend and the curve now agree' % ('PASS' if g2 else 'FAIL'))
     for l in labels:
-        print('    legend text : %s' % l)
-    print('    curve at W = 20 nm is the 3 nm curve, %.4f uohm.cm' % c3)
-    print('    the 4 nm curve it claims would be     %.4f uohm.cm' % c4)
-    print('    -> the figure MISSTATES ITS OWN PARAMETER IN ITS OWN LEGEND,')
-    print('       by %.1f%% in the plotted quantity.'
-          % (100.0 * abs(c4 - c3) / c3))
+        print('         legend text          : %s' % l)
+    print('         curve at W = 20 nm   : %.4f uohm.cm' % curve20)
+    print('         4 nm curve should be : %.4f uohm.cm  (3 nm was %.4f)'
+          % (c4, c3))
+    if g1:
+        n_pass_local[0] += 1
+    else:
+        n_fail_local[0] += 1
+    if g2:
+        n_pass_local[0] += 1
+    else:
+        n_fail_local[0] += 1
     print()
     sk = demonstrate_split_knob()
-    print('  SHARPEST INSTANCE, and it is inside an AUDIT module:')
+    print('  NOT FIXED, and the sharpest instance, because it is inside an AUDIT')
+    print('  module and this repository audits BY MUTATION:')
     print('  graphene_band_structure_audit.T_HOP ("the hopping used throughout')
     print('  the repo"), doubled from %.1f to %.1f eV:' % (sk['t0'], 2 * sk['t0']))
     print('    MEASURED  bands(k)[+] : %.6f -> %.6f eV   (frozen)'
@@ -719,11 +760,15 @@ def main():
     print('    ORACLE    2*T_HOP     : %.3f -> %.3f eV     (MOVED)'
           % (sk['oracle_before'], sk['oracle_after']))
     print('    -> mutating T_HOP moves the EXPECTED value and freezes the')
-    print('       MEASURED one. The audit would report a disagreement')
-    print('       manufactured by the mutation machinery, and an investigator')
-    print('       following it would be debugging a Hamiltonian that never')
-    print('       changed. 2026-09-28 escaped this only because it mutated a')
-    print('       FUNCTION rather than a constant -- luck, not design.')
+    print('       MEASURED one, which is worse than either an inert knob or a')
+    print('       live one: the audit reports a disagreement manufactured by its')
+    print('       own mutation machinery, and an investigator following it would')
+    print('       be debugging a Hamiltonian that never changed. 2026-09-28')
+    print('       escaped this only because it mutated a FUNCTION rather than a')
+    print('       constant -- luck, not design.')
+    print('    Left in place deliberately: fixing an audit module mid-audit')
+    print('    would change the instrument and the measurement in one step. It')
+    print('    is the top item for the next run.')
     print()
 
     print('=' * 78)
@@ -784,8 +829,11 @@ def main():
     print('  validations pass. The band-structure fault is NOT present here.')
     print('  What the audit found instead is a DIFFERENT and previously')
     print('  unrecorded fault class -- the inert knob -- which defeats the')
-    print('  mutation method this repository audits with, and which is present')
-    print('  49 times, including 14 times inside the audit modules themselves.')
+    print('  mutation method this repository audits with. 49 occurrences were')
+    print('  found across 14 files, 14 of them inside the audit modules. The 9')
+    print('  behind the three failures above are fixed, with every published')
+    print('  value required to be bitwise unchanged; 37 remain, and the 13 in')
+    print('  audit modules are the next run\'s top item.')
     if failures:
         print()
         print('FAILURES:')

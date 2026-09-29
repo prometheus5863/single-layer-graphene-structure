@@ -98,7 +98,7 @@ def carrier_density_from_fermi_shift(E_F_eV, p_type=True):
     return -n_magnitude if p_type else n_magnitude
 
 
-def edge_vs_top_extra_resistance_au(n_bulk=N_BULK_ON_STATE):
+def edge_vs_top_extra_resistance_au(n_bulk=None):
     """
     Pure-edge-mode and pure-top-mode extra junction resistance for Au,
     using the DFT Fermi-shift-derived carrier densities above, both run
@@ -106,6 +106,11 @@ def edge_vs_top_extra_resistance_au(n_bulk=N_BULK_ON_STATE):
     integration. Returns (R_extra_top, R_extra_edge, n_top, n_edge), all in
     Ohm.um / 1/m^2.
     """
+    # Late-bound default (2026-09-29 figure-provenance audit): the module
+    # constant is read at CALL time, not captured at `def` time, so setting
+    # the module attribute actually reaches this function.
+    if n_bulk is None:
+        n_bulk = N_BULK_ON_STATE
     n_top = carrier_density_from_fermi_shift(AU_FERMI_SHIFT_SURFACE_EV, p_type=True)
     n_edge = carrier_density_from_fermi_shift(AU_FERMI_SHIFT_EDGE_EV, p_type=True)
 
@@ -150,7 +155,7 @@ def edge_influenced_area_fraction(D_nm, f, lambda_decay_nm=None):
 
 
 def patterned_contact_extra_resistance(D_nm, f, R_extra_top, R_extra_edge,
-                                        n_bulk=N_BULK_ON_STATE):
+                                        n_bulk=None):
     """
     Effective extra junction resistance (Ohm.um) for a patterned contact
     with hole diameter D_nm and areal fill fraction f, mixing R_extra_top
@@ -158,6 +163,11 @@ def patterned_contact_extra_resistance(D_nm, f, R_extra_top, R_extra_edge,
     parallel combination), then applying a 1/(1-f) current-constriction
     penalty for the etched-away area. Vectorized over D_nm and/or f.
     """
+    # Late-bound default (2026-09-29 figure-provenance audit): the module
+    # constant is read at CALL time, not captured at `def` time, so setting
+    # the module attribute actually reaches this function.
+    if n_bulk is None:
+        n_bulk = N_BULK_ON_STATE
     p_edge = edge_influenced_area_fraction(D_nm, f)
     f = np.asarray(f, dtype=float)
 
