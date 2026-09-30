@@ -4003,7 +4003,18 @@ consecutive chapter on the second consecutive day.
    `edge_vs_top_contact` to the Au Fermi shift by 519x. **Four null controls
    held at exactly zero** (mobility and contact resistance mutated 10x against
    `C_q`, which is electrostatic and cannot contain them), so the detector is
-   not reporting that everything moves. **Four closed-form validations, three
+   not reporting that everything moves.
+   **[ANNOTATED 2026-09-30 -- this inference does not follow, and the numbers
+   above are kept unchanged.** A `MUST_NOT_CHANGE` check passes whenever the
+   mutation fails to arrive, even when the output is 100% dependent on the
+   mutated constant, and its zero is bitwise the zero of a correct null
+   control -- proved in `graphene_mutation_arrival_probe.py` SECTION 1. These
+   four zeros therefore carry no evidence about the detector's specificity;
+   that evidence came entirely from the `MUST_CHANGE` checks that passed in the
+   same run. Three of the six null controls in the table are additionally
+   identity re-assignments, and one of them, `ALPHA_ABS`, was run against a
+   name read nowhere in its module. See the 2026-09-30 entry, items 2, 5 and
+   6.]** **Four closed-form validations, three
    bitwise:** `R_bare` exactly linear in EQE (ratio 2.0, deviation 0.000e+00
    over 200 decades); `G*BW` exactly constant (spread 3.8e-16); `C_q` exactly
    `1/v_F^2` (deviation 0.000e+00 over 401 gate voltages); `C_q` exactly even
@@ -4270,3 +4281,275 @@ an edit to a tracked one. Every commit was pushed as it was made, per 09-25.
 nine-site late-binding fix; the Chapter 3 defect audit; the four in-place
 corrections; Chapter 3 plus the Chapter 1 status row; half one's study note).
 This AUTOMATION_LOG.md entry makes 7.
+
+## 2026-09-30 — The control was in the wrong place: a null control cannot certify its own mutation, and 15 of the 20 remaining knobs were in T_HOP's class
+
+**The top open item of 09-29 is closed, and closing it falsified the
+methodological note that created it.** Yesterday's item asked for the 37
+remaining write-only knobs to be fixed, audit modules first and from outside,
+and for "a positive control on the mutation itself" to be retrofitted to every
+mutation-based audit. The first half is done. The second half turned out to be
+unbuildable as specified, and the reason is more useful than the retrofit would
+have been.
+
+### The instrument, and why it is not an audit
+
+1. **`graphene_mutation_arrival_probe.py`, `mutation_arrival_probe_output.txt`
+   — 29/29, of which 8 are positive controls on the probe itself.** Not an
+   audit module: it imports none, and nothing imports it. That satisfies the
+   09-29 constraint that fixing an audit from inside the audit that found it
+   moves the instrument and the measurement in one step.
+
+2. **THE 09-29 DEFENCE IS UNSOUND, and this is proved rather than argued.**
+   Yesterday: "a mutation harness must carry a positive control on the mutation
+   itself — a paired assertion that some quantity the mutation must reach did
+   in fact move." Two independent failures.
+   - **It cannot be applied to a null control at all.** A `MUST_NOT_CHANGE`
+     check asserts the output does *not* move, so there is by construction no
+     quantity in it in which to require movement. The rule therefore exempts
+     exactly the checks whose whole evidential content is a zero.
+   - **Even for a `MUST_CHANGE` check it confounds two causes** — "did not
+     arrive" and "genuinely insensitive" give the same zero, which is the
+     09-29 finding restated as its own remedy.
+   `null_controls_carry_no_arrival_evidence()` runs four cases against one
+   synthetic model. The fourth is the result: **a null control on an output
+   that is 100% dependent on the mutated constant PASSES when the mutation is
+   inert**, and its zero is bitwise the zero of a correct null control.
+   **Consequence for yesterday's entry:** its claim that "four null controls
+   held at exactly zero, so the detector is not reporting that everything
+   moves" is not supported by those four zeros. Whatever specificity the 09-29
+   audit demonstrated came entirely from the `MUST_CHANGE` checks passing in
+   the same run; the null controls were riding on them. Yesterday's §1 is
+   annotated in place rather than rewritten, and its numbers are kept.
+
+3. **Where the control belongs: at the point of DELIVERY, not downstream.**
+   Whether the binding the callee will read has changed is decidable by
+   introspection, with no model evaluation — which is exactly why it works
+   where the downstream form fails. It is available for null controls, and for
+   quantities the model is genuinely insensitive to. Six classes, all six
+   required by the probe's own positive control: `LIVE`, `FROZEN`, `MIXED`,
+   `IMPORT_USED`, `DEAD`, `ABSENT`. Two of them (`IMPORT_USED`, `DEAD`) were
+   added after this file's **own first run returned `UNUSED` for two names
+   with entirely different diagnoses**, which would have had them fixed the
+   same wrong way — `graphene_fet_model.t_ox` is consumed at import to derive
+   `C_ox` and is correctly handled by the 09-29 audit (verified mechanically,
+   §3b, rather than taken from that audit's comment), whereas `ALPHA_ABS` was
+   simply dead.
+
+### Four findings against the repository
+
+4. **A ONE-CHARACTER TYPO IS INDISTINGUISHABLE FROM INSENSITIVITY, on the real
+   instrument.** Misspelling the first 09-29 `MUST_CHANGE` patch key by one
+   character gives output **bitwise identical to no mutation over 2004
+   harvested points**: `setattr` creates the misspelled attribute and returns
+   normally. A renamed or mistyped mutation target is a write-only knob **with
+   no syntactic trace anywhere in the source**, which the 09-29 AST census
+   could not have found by construction.
+   **Second-order, and the sharper half:** the probe's verdict on that key
+   degrades from `ABSENT` to `DEAD` once the mutation has been applied, because
+   `importlib.reload` re-executes the source into the same module dict without
+   clearing it. **Applying a misspelled mutation destroys the evidence that it
+   was misspelled.** Arrival must be classified before the mutation, and that
+   ordering is a requirement, not a style choice.
+
+5. **`ALPHA_ABS` was a decorative name, and the check policing it was vacuous.**
+   `graphene_photodetector_model.ALPHA_ABS` was read by no function **and
+   nowhere in the module body**. So (i) the module docstring's claim to "reuse
+   the existing 2.3% universal-absorption result" was false — the only route
+   absorption could take is that name, and `EQE_BARE = 0.0015` is an
+   independent literature literal. This is **09-28's "prose is a detector" for
+   the third time and INVERTED**: 09-28 and 09-29 found code contradicting its
+   prose; here the prose asserts a dependency the code does not have. Distinct
+   from 09-29 item 9, which found this module re-typing `pi/137.036` — the
+   stronger statement is that it used the value by neither route. And (ii) the
+   09-29 null control on it, logged as "a real finding if it holds: the figure
+   must not double-count absorption", **could not have failed**: with the name
+   unread it would have passed had the figure double-counted absorption,
+   counted it once, or not counted it at all. The evidence for that was already
+   in yesterday's log, one item away, unconnected.
+   **The fix produces a physical number that was implicit until now.**
+   `internal_collection_efficiency()` reads both constants live and reports
+   `EQE_BARE / pi*alpha` = **6.5430%**: roughly fifteen of every sixteen
+   absorbed photons are assumed lost before collection. That is the
+   quantitative content of the phrase "collection bottleneck" the existing
+   comment uses without a number, and it underlies every bare-device
+   responsivity in the thesis — a Chapter 6 modelling assumption, not
+   bookkeeping. `EQE_BARE` deliberately stays a literature literal rather than
+   becoming derived, because the physical direction runs the other way.
+   **No number moved:** `(EQE_BARE/ALPHA_ABS)*ALPHA_ABS == EQE_BARE` bitwise,
+   and every pre-existing `summary_numbers()` line is unchanged (the two new
+   lines are appended, not inserted).
+
+6. **Three of the 09-29 null controls are identity re-assignments.**
+   `graphene_fet_model.T -> 300.0` when `T` is already 300.0;
+   `n_puddle -> 5e15` when it already is; `AU_FERMI_SHIFT_SURFACE_EV -> 0.14`
+   when it already is. Each passes with `setattr` replaced by `pass`, with the
+   constant frozen, and with the model deleted. **The 09-28 cannot-fail class
+   living inside the 09-29 null controls**, which were themselves offered as
+   the defence against over-reporting.
+
+7. **`MIXED` is the majority class, not the exception — the top item was
+   mis-sized.** Yesterday treated the 37 occurrences as one fault with `T_HOP`
+   singled out as "the worst". At the level of **names**, **15 of 20 were in
+   `T_HOP`'s class**, including `A_CC` in the very same file, which went
+   unmentioned. The oracle/measurement split also exists outside the audits:
+   `D0_SEPARATION`, `H_DIFF`, `W_CROSS_CHEM`, `ELL_DEFAULT` (4 frozen readers
+   against 1 live) and `N_POINTS` in three separate photodetector modules.
+
+### The fix, measured rather than described
+
+8. **All 14 audit-module sites converted, under a bitwise no-change
+   requirement.** `graphene_band_structure_audit` (4 sites / 3 functions),
+   `gds_quadrature_audit` (6 / 4), `rootfinder_audit` (3 / 1),
+   `sensitivity_audit` (1 / 1). All four audits run to completion before and
+   after; all four stdout transcripts (8232, 9463, 6388, 8421 bytes) compare
+   **IDENTICAL**, and each still reports its own full pass count.
+
+9. **`T_HOP` before and after, by running the pre-fix file out of git beside
+   the post-fix one** — 09-29 described this hazard; it is now measured:
+   ```
+   before  T_HOP MIXED: oracle 2*T_HOP  5.600 -> 11.200      (moved)
+                        bands()[0]     -7.225687 -> -7.225687  (FROZEN)
+   after   T_HOP LIVE : oracle 2*T_HOP  5.600 -> 11.200      (moved)
+                        bands()[0]     -7.225687 -> -14.451374 (moved)
+   ```
+   Doubling the hopping integral used to double every expected value in the
+   module and leave the computed band energies bitwise unchanged.
+
+10. **A standing guard, so the fix does not depend on the next session having
+    read this entry.** The probe's §7 fails if any `*audit*.py` in the
+    repository captures a module-level constant as a default again.
+
+11. **`notes/2026-09-30-arrival-not-response-...md`**, 209 lines, with the full
+    argument, the four-row proof table and the delivery-class table.
+
+**Methodological note, continuing the series.** 09-25: a procedure asked
+whether it has converged can answer yes and be 44% wrong. 09-26: an anchored
+comparison is anchored in one variable. 09-27: an instrument can be
+systematically smallest where the answer is worst. 09-28: prose is a detector,
+and a check that cannot fail is worse than no check. 09-29: a mutation that
+does not arrive is indistinguishable, in the output, from a system that does
+not respond.
+**09-30: A CONTROL HAS TO SIT WHERE THE FAILURE ENTERS, NOT WHERE IT SHOWS.**
+09-29 identified the failure correctly and then placed its control downstream,
+in the output — the one place where, by the very property it had just
+established, the two candidate causes are already indistinguishable. A defence
+built at the point of measurement can only compare zeros. Arrival is a property
+of the *binding*, so it has to be established at the binding, before the run;
+and since that check requires no model evaluation, it costs nothing to put
+there. **Corollary, and the uncomfortable one for this repository: the check
+most likely to be vacuous is the one whose passing you find reassuring.** A
+check that passes attracts no scrutiny, and a vacuous check always passes —
+which is why today's three worst findings (§4, §5, §6) are all *passing* checks
+from yesterday, not failing ones. Every previous entry in this series found its
+fault in something that gave a wrong answer; today's came from three things
+that gave the right answer for no reason.
+
+**Validations:** 29/29 (8 positive controls on the probe itself; 4-row null-
+control theorem; 2 real-instrument demonstrations; 19-target delivery census;
+1 import-consumed coverage check; 5 before/after `T_HOP` measurements; 1
+standing guard), plus 4 audit transcripts compared bitwise identical and 1
+bitwise round-trip check on the `EQE_BARE`/`ALPHA_ABS` decomposition. Two
+failures were found by this file against itself and are recorded in §3 and §4
+rather than quietly fixed.
+
+**Not yet covered (candidates for future runs):**
+- **The 10 remaining knobs in 6 MODEL modules, 7 of them MIXED** — the
+  audit-module half is done, and this is what is left of the 09-29 item and
+  **the new top item**. `W_CROSS_CHEM` (9 frozen readers against 2 live) and
+  `ELL_DEFAULT` (4 against 1) are the worst. Unlike the audit modules these are
+  not currently mutated by anything, so the hazard is prospective: the next
+  mutation-based result built on any of them starts out measuring nothing
+- **`require_delivery` is not actually CALLED by any audit yet** — created
+  today. The probe proves the rule and the audits do not yet obey it; wiring it
+  into the 09-29 provenance audit and the four fixed audits is the obvious next
+  step, and it must be done without moving their transcripts
+- **Are there OTHER dead names in this repository?** — created today by §5.
+  `ALPHA_ABS` was found only because a mutation happened to target it. A sweep
+  for module-level constants read nowhere is a ten-line AST pass and would
+  catch the rest of the class, including ones no audit touches. Each dead name
+  is a provenance claim with no code behind it
+- **Do any OTHER module docstrings claim a dependency the code does not have?**
+  — created today, and the inverted form of the 09-28 detector. §5 found one by
+  accident; the general check is to compare each module's stated inputs against
+  the names it actually reads
+- **Whether the three identity re-assignments should be replaced by real
+  mutations** — created today by §6. Replacing them changes a passing check
+  into one that can fail, which is the point, but it must be done knowing which
+  of the three the model is genuinely insensitive to
+- **Whether Chapter 4's `n_puddle` actually reproduces Section 3.3's measured
+  6.45 kOhm/sq floor** — created 09-29, untouched, a one-line calculation, and
+  the only place Chapter 3's central negative result touches Chapter 4's numbers
+- **The Section 3.6 Pauli edge is absent from Chapter 6's model** — created
+  09-29, untouched; a THIRD leg of the Chapter 4 / Chapter 6 contact-metal
+  contradiction, and the only one that is a physical mechanism rather than a
+  modelling disagreement: biasing to high `E_F` for low contact resistance
+  switches off the detector's own absorption
+- **Where does the 6.5430% internal collection efficiency come from?** —
+  created today by §5. It is now a named number with no derivation; a transit-
+  time-versus-recombination-lifetime estimate would either support it or make
+  `EQE_BARE` the quantity in tension with the rest of Chapter 6
+- **A finite-temperature optical conductivity** — created 09-29, untouched;
+  Section 3.6's edge is the `T = 0` step function
+- **The remote-polar-phonon cap on SiO2 is asserted, not computed** — created
+  09-29, untouched
+- **Angular trigonal warping** (the `cos 3theta` structure) — created 09-28,
+  untouched
+- **Finite-temperature carrier density `n(E_F, T)`** — created 09-28, wanted
+  twice
+- **Whether other `== 0.0` exactness checks here are round-trip tautologies** —
+  created 09-28, untouched, and today's `EQE_BARE`/`ALPHA_ABS` round-trip check
+  is an instance of the class that must not be allowed to become one
+- **Whether RESULT 2's other convictions are read from the saturated branch** —
+  created 09-28, untouched
+- **A probe that reports both directions of lambda** — created 09-28, untouched
+- **Whether `t'` can be EXCLUDED quantitatively** as the source of Chapter 4's
+  electron-hole asymmetry — created 09-28, untouched
+- **Whether any OTHER near-cancellation would show the `c2`/`c4` sign flip if
+  differentiated rather than evaluated** — created 09-27, untouched
+- **Migrating every remaining validation to measured-value-beside-derived-bound
+  form** — created 09-27, untouched
+- **Whether Chapter 4 or 5 contains a RANKING that is a step artefact** —
+  created 09-23/09-25, untouched
+- **`n_segments = 50` at a bias with more curvature** — created 09-26, untouched
+- **A second anchor for `Delta_c`, at any separation other than 3.3 A** — open
+  since 2026-09-21, still the top *physics* item, now **untouched for ten
+  consecutive sessions**
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural weakness
+- **Whether Chapter 7's Section 7.3 differential-interconnect prediction
+  holds** — created 09-27
+- **Which of Chapters 4 and 5's design rules could be restated as parities or
+  bounds** — created 09-23; whether the parity survives a photo-thermoelectric
+  term — created 09-23
+- Re-check whether other "for every ..." claims rest on small samples — open
+  since 2026-09-20; whether Chapter 4's contact-resistance results should be
+  re-run at the 5.4 eV crossover — open since 2026-09-18; reconciling Mueller
+  *et al.*'s 0.12 eV step (arXiv:0902.1479) with the 0.25-1.07 eV offsets
+  `METAL_WORK_FUNCTIONS` assumes — open since 2026-09-18; a photo-thermoelectric
+  term (Kasirga review); Shimomura *et al.*'s comb-electrode design; integrating
+  6.5's plasmonic near-field picture with the spatially-resolved contact-doping
+  machinery; isolating the root cause of the Section 4.7 negative residual (open
+  since 2026-08-31); Ti and Cr per-metal `Rc` recalibration (ResearchGate
+  rate-limiting); a second independent edge-contact dataset (Lee *et al.* 2022,
+  Wiley 403'd)
+
+**Automation health:** Device reachable at the **04:34 UTC** firing, the first
+of the day's three, so the redundancy was again not needed. Step 0's
+already-ran check was clean: neither repo had a 2026-09-30 entry or a commit
+since midnight. `git clone` of both repos completed normally; `user.name`/
+`user.email` again absent in the fresh clones and set per 09-24. `scipy` again
+absent and `pip install scipy` succeeded immediately (1.15.3 against numpy
+2.2.6). The `GIT_ASKPASS` recipe was placed in `$HOME/.sess/` per 09-28 and had
+no permission trouble; every commit was pushed as it was made, per 09-25. Live
+web search was not used: the session was an audit of material already in the
+repository and adds no external citation. **The 09-29 authoring rule was
+followed and it paid off twice:** every patch script parsed the modified source
+with `ast.parse` BEFORE writing it to disk, including the 14-site late-binding
+transformation, which was applied in two passes (signature edits, re-parse,
+then guard insertion against recomputed line numbers) precisely because the
+insertion invalidates the line numbers the first pass used.
+
+**Commits this run:** 4 (the arrival probe with its output; the `ALPHA_ABS`
+fix; the 14-site late-binding fix with the standing guard and the before/after
+`T_HOP` measurement; the study note). This AUTOMATION_LOG.md entry makes 5.
