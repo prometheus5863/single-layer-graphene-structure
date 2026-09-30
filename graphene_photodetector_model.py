@@ -74,6 +74,14 @@ ALPHA_ABS = np.pi / 137.036  # ~= 0.0229
 # graphene photodetectors, ~0.1-0.2% (notes Section 1); take the
 # midpoint. This already folds in the collection-bottleneck loss on top
 # of the absorption bottleneck.
+#
+# EQE_BARE stays a LITERATURE LITERAL and is deliberately NOT derived from
+# ALPHA_ABS, because the physical direction runs the other way: the measured
+# external efficiency is the datum, and the internal collection efficiency it
+# implies is the inference.  `internal_collection_efficiency()` below makes
+# that inference explicit.  (2026-09-30: verified that
+# (EQE_BARE/ALPHA_ABS)*ALPHA_ABS == EQE_BARE bitwise in IEEE-754 double, so the
+# decomposition is lossless and nothing here depends on rounding.)
 EQE_BARE = 0.0015
 
 # Bare-device carrier transit time: reuse the 200 nm channel length and
@@ -89,6 +97,47 @@ TAU_TRANSIT = L_channel / (mu * E_field)  # = L^2 / (mu * V_bias)
 
 # Representative visible wavelength for numeric examples
 LAMBDA_NM = 550.0
+
+
+def internal_collection_efficiency(eqe=None, alpha_abs=None):
+    """
+    The internal collection efficiency IMPLIED by the shipped numbers:
+    eta_int = EQE / alpha_abs, i.e. the fraction of ABSORBED photons whose
+    photocarriers are collected before they recombine.
+
+    Added 2026-09-30 by the mutation-arrival probe, which found that
+    `ALPHA_ABS` -- declared at the top of this module with a comment
+    attributing it to Chapters 2-3 -- was read by NO function and nowhere in
+    the module body either.  It was a decorative name.  Two consequences, both
+    real and neither previously visible:
+
+      1. The module docstring says this model "reuses the existing 2.3%
+         universal-absorption result".  Before this function it did not: the
+         only route absorption could have taken was ALPHA_ABS, and nothing
+         read it.  The provenance claim was false, in the same
+         prose-versus-code way as the 09-28 and 09-29 findings, and inverted:
+         here the PROSE asserts a dependency the CODE does not have.
+      2. The 09-29 provenance audit's null control "ALPHA_ABS x2 ->
+         MUST_NOT_CHANGE" was recorded as "a real finding if it holds: the
+         figure must not double-count absorption".  It held, and it could not
+         have done otherwise: the mutated name reached nothing.  The check
+         would have passed identically had the figure double-counted
+         absorption, counted it once, or -- as was the case -- not counted it
+         at all.  It is now a live null control, because ALPHA_ABS is read
+         here, so its zero carries information.
+
+    No shipped number moves: this quantity was previously unreported, and
+    EQE_BARE, ALPHA_ABS, R_bare and the gain-bandwidth product are untouched.
+    The 6.54% it returns is a substantive modelling assumption of Chapter 6
+    that was implicit until now -- roughly fifteen out of sixteen absorbed
+    photons are assumed lost, which is the quantitative content of the phrase
+    "collection bottleneck" the comment above uses without a number.
+    """
+    if eqe is None:
+        eqe = EQE_BARE
+    if alpha_abs is None:
+        alpha_abs = ALPHA_ABS
+    return eqe / alpha_abs
 
 
 def responsivity_bare(wavelength_nm, eqe=None):
@@ -224,6 +273,14 @@ def summary_numbers():
     print(f"tau_transit (200 nm channel, mu=0.4 m^2/Vs, Vds=0.1V) = {TAU_TRANSIT:.3e} s")
     print(f"R_bare at {LAMBDA_NM:.0f} nm (EQE={EQE_BARE*100:.2f}%)        = "
           f"{responsivity_bare(LAMBDA_NM)*1e3:.3f} mA/W")
+    # 2026-09-30: absorption now actually enters this module's reported
+    # numbers.  Appended rather than inserted so every line above is bitwise
+    # what it was before.
+    print(f"pi*alpha single-pass absorption              = "
+          f"{ALPHA_ABS*100:.4f}%")
+    print(f"IMPLIED internal collection efficiency       = "
+          f"{internal_collection_efficiency()*100:.4f}%  "
+          f"(= EQE_BARE / pi*alpha)")
     print(f"Model gain-bandwidth invariant GBP           = {gain_bandwidth_invariant():.3e} Hz "
           f"({gain_bandwidth_invariant()/1e9:.1f} GHz)")
     print()
