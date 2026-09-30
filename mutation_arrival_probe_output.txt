@@ -81,35 +81,39 @@ SECTION 4 -- identity re-assignments: the OTHER dead mutation
   [PASS] every identity re-assignment found is a null control, not a MUST_CHANGE  -- a MUST_CHANGE that re-assigns its own value would be a live bug
 
 SECTION 5 -- repository-wide delivery census
-  MIXED       graphene_band_structure_audit.py             A_CC                   1 frozen / 1 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_band_structure_audit.py             T_HOP                  3 frozen / 6 live <<< MIXED: oracle/measurement split
   MIXED       graphene_contact_doping_nonlinear_model.py   D0_SEPARATION          1 frozen / 1 live <<< MIXED: oracle/measurement split
   FROZEN      graphene_contact_doping_nonlinear_model.py   V_F                    1 frozen / 0 live
   MIXED       graphene_crossover_sensitivity_model.py      H_DIFF                 1 frozen / 1 live <<< MIXED: oracle/measurement split
   FROZEN      graphene_crossover_sensitivity_model.py      H_DIFF_CONVERGED       1 frozen / 0 live
   FROZEN      graphene_differential_crossover_model.py     U_SMALL                1 frozen / 0 live
-  MIXED       graphene_gds_quadrature_audit.py             DVDS_DEFAULT           1 frozen / 5 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_gds_quadrature_audit.py             N_SEGMENTS_DEFAULT     2 frozen / 4 live <<< MIXED: oracle/measurement split
-  FROZEN      graphene_gds_quadrature_audit.py             RTOL_ANCHORED          1 frozen / 0 live
-  MIXED       graphene_gds_quadrature_audit.py             VDS_DEFAULT            2 frozen / 9 live <<< MIXED: oracle/measurement split
   MIXED       graphene_per_metal_crossover_model.py        ELL_DEFAULT            4 frozen / 1 live <<< MIXED: oracle/measurement split
   MIXED       graphene_photodetector_collection_model.py   N_POINTS               3 frozen / 1 live <<< MIXED: oracle/measurement split
   MIXED       graphene_photodetector_signed_carrier_model.py N_POINTS               1 frozen / 1 live <<< MIXED: oracle/measurement split
   MIXED       graphene_photodetector_signed_carrier_model.py W_CROSS_CHEM           9 frozen / 2 live <<< MIXED: oracle/measurement split
   MIXED       graphene_photodetector_two_contact_model.py  N_POINTS               1 frozen / 1 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_rootfinder_audit.py                 HI_SHIPPED             1 frozen / 4 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_rootfinder_audit.py                 LO_SHIPPED             1 frozen / 4 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_rootfinder_audit.py                 TOL_SHIPPED            1 frozen / 3 live <<< MIXED: oracle/measurement split
-  FROZEN      graphene_sensitivity_audit.py                N_BULK_DEFAULT         1 frozen / 0 live
-  totals: {'MIXED': 15, 'FROZEN': 5}
+  totals: {'MIXED': 7, 'FROZEN': 3}
   [PASS] the census reports at least one name in every class it defines or says so  -- classes present: ['FROZEN', 'MIXED']
 
-  15 MIXED name(s).  MIXED is the worst class, not a middle one:
+  7 MIXED name(s).  MIXED is the worst class, not a middle one:
   a mutation of a MIXED name moves the live readers and freezes
   the captured ones, so where the live readers are an audit's
   expected values and the captured ones are its measurement, the
   audit reports a disagreement it manufactured itself.
 
+SECTION 6 -- the fix, MEASURED on T_HOP before and after
+  before verdict=MIXED  oracle 2*T_HOP 5.600 -> 11.200 (moved=True)
+         measurement bands()[0] -7.225687 -> -7.225687 (moved=False)
+  after  verdict=LIVE   oracle 2*T_HOP 5.600 -> 11.200 (moved=True)
+         measurement bands()[0] -7.225687 -> -14.451374 (moved=True)
+  [PASS] BEFORE: T_HOP was MIXED
+  [PASS] BEFORE: the mutation moved the ORACLE
+  [PASS] BEFORE: and FROZE the measurement -- a manufactured disagreement  -- bands() bitwise unchanged by a doubled hopping integral
+  [PASS] AFTER: T_HOP is LIVE
+  [PASS] AFTER: the mutation moves the oracle AND the measurement
+
+SECTION 7 -- standing guard: no audit module may capture a constant
+  [PASS] every *audit*.py module is free of captured module constants  -- 14 sites in 4 modules converted today, all four transcripts bitwise unchanged
+
 ==============================================================================
-TOTAL: 23 passed, 0 failed
+TOTAL: 29 passed, 0 failed
 ==============================================================================

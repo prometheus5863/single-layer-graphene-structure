@@ -163,7 +163,15 @@ def log_sensitivity(f, p, rel_step=1e-5, check=True, symmetric=True):
 N_BULK_DEFAULT = 2.0e16
 
 
-def family_A_rows(n_bulk=N_BULK_DEFAULT):
+def family_A_rows(n_bulk=None):
+    # Late-bound (2026-09-30 mutation-arrival probe): read at CALL time so a
+    # rebind of the module attribute actually reaches this function.  Before
+    # this change the name below was captured when `def` executed, which made
+    # the module constant readable as a parameter and behaved as a comment --
+    # and in an AUDIT module that is worse than elsewhere, because a mutation
+    # applied to it would have been silently a no-op reported as insensitivity.
+    if n_bulk is None:
+        n_bulk = N_BULK_DEFAULT
     rows = []
     for metal, lit in METAL_LITERATURE_RC.items():
         if metal not in METAL_WORK_FUNCTIONS:

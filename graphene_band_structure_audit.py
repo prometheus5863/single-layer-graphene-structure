@@ -88,14 +88,32 @@ def phi(k):
     return sum(np.exp(1j * np.dot(k, d)) for d in DELTA)
 
 
-def bands(k, t=T_HOP):
+def bands(k, t=None):
     """E = +/- t|phi(k)|, which is the eigenvalue problem of the 2x2 H."""
+    # Late-bound (2026-09-30 mutation-arrival probe): read at CALL time so a
+    # rebind of the module attribute actually reaches this function.  Before
+    # this change the name below was captured when `def` executed, which made
+    # the module constant readable as a parameter and behaved as a comment --
+    # and in an AUDIT module that is worse than elsewhere, because a mutation
+    # applied to it would have been silently a no-op reported as insensitivity.
+    if t is None:
+        t = T_HOP
     a = t * abs(phi(k))
     return -a, +a
 
 
-def fermi_velocity_analytic(t=T_HOP, a_cc=A_CC):
+def fermi_velocity_analytic(t=None, a_cc=None):
     """v_F = 3 t a_cc / (2 hbar), the standard closed form."""
+    # Late-bound (2026-09-30 mutation-arrival probe): read at CALL time so a
+    # rebind of the module attribute actually reaches this function.  Before
+    # this change the name below was captured when `def` executed, which made
+    # the module constant readable as a parameter and behaved as a comment --
+    # and in an AUDIT module that is worse than elsewhere, because a mutation
+    # applied to it would have been silently a no-op reported as insensitivity.
+    if a_cc is None:
+        a_cc = A_CC
+    if t is None:
+        t = T_HOP
     return 3.0 * (t * Q_E) * (a_cc * 1e-10) / (2.0 * HBAR)
 
 
@@ -318,9 +336,17 @@ def v5_shipped_path_reproduces_the_bug(verbose=True):
 
 
 # =====================================================================
-def dos_from_bands(n=420, t=T_HOP, n_bins=260):
+def dos_from_bands(n=420, t=None, n_bins=260):
     """DOS by uniform sampling of the k-plane over one reciprocal cell.
     Returns (E centres, g in states/(eV m^2), raw counts)."""
+    # Late-bound (2026-09-30 mutation-arrival probe): read at CALL time so a
+    # rebind of the module attribute actually reaches this function.  Before
+    # this change the name below was captured when `def` executed, which made
+    # the module constant readable as a parameter and behaved as a comment --
+    # and in an AUDIT module that is worse than elsewhere, because a mutation
+    # applied to it would have been silently a no-op reported as insensitivity.
+    if t is None:
+        t = T_HOP
     # THE FIRST FORM OF THESE WAS WRONG, and the error is recorded rather
     # than quietly fixed.  b = (4pi/3)(1,0) and (4pi/3)(1/2, sqrt3/2) have the
     # right MAGNITUDE (4pi/3) and span the right AREA, but they are not

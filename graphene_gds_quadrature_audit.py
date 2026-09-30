@@ -84,26 +84,54 @@ def Rbar_model(Vg, Vds, n_segments):
                   for V_ch in V_channel_profile]), axis=0)
 
 
-def Id_model(Vg, Vds, n_segments=N_SEGMENTS_DEFAULT):
+def Id_model(Vg, Vds, n_segments=None):
+    # Late-bound (2026-09-30 mutation-arrival probe): read at CALL time so a
+    # rebind of the module attribute actually reaches this function.  Before
+    # this change the name below was captured when `def` executed, which made
+    # the module constant readable as a parameter and behaved as a comment --
+    # and in an AUDIT module that is worse than elsewhere, because a mutation
+    # applied to it would have been silently a no-op reported as insensitivity.
+    if n_segments is None:
+        n_segments = N_SEGMENTS_DEFAULT
     return Vds / (Rbar_model(Vg, Vds, n_segments) + gfet.Rc_total)
 
 
-def gds_model(Vg, Vds=VDS_DEFAULT, dVds=DVDS_DEFAULT,
-              n_segments=N_SEGMENTS_DEFAULT, clamp=True):
+def gds_model(Vg, Vds=None, dVds=None,
+              n_segments=None, clamp=True):
     """Central difference in Vds.  clamp=True reproduces the shipped
     function's `max(Vds - dVds, 1e-4)` guard; clamp=False removes it."""
+    # Late-bound (2026-09-30 mutation-arrival probe): read at CALL time so a
+    # rebind of the module attribute actually reaches this function.  Before
+    # this change the name below was captured when `def` executed, which made
+    # the module constant readable as a parameter and behaved as a comment --
+    # and in an AUDIT module that is worse than elsewhere, because a mutation
+    # applied to it would have been silently a no-op reported as insensitivity.
+    if Vds is None:
+        Vds = VDS_DEFAULT
+    if dVds is None:
+        dVds = DVDS_DEFAULT
+    if n_segments is None:
+        n_segments = N_SEGMENTS_DEFAULT
     lo = max(Vds - dVds, 1e-4) if clamp else Vds - dVds
     Ip = Id_model(Vg, Vds + dVds, n_segments)
     Im = Id_model(Vg, lo, n_segments)
     return (Ip - Im) / (2 * dVds)
 
 
-def anchored_step(f, h_start=1e-2, h_min=1e-11, rtol=RTOL_ANCHORED):
+def anchored_step(f, h_start=1e-2, h_min=1e-11, rtol=None):
     """09-25's anchored criterion: accept h only if f(h) agrees with BOTH
     f(h/10) and f(h/100) to rtol.  Returns (h, value, r10, r100, trace).
     Self-consistency against a single doubling is NOT used: 09-25 measured
     it under-reporting a true 44% error by 190,000x at a stationary point
     of the error curve."""
+    # Late-bound (2026-09-30 mutation-arrival probe): read at CALL time so a
+    # rebind of the module attribute actually reaches this function.  Before
+    # this change the name below was captured when `def` executed, which made
+    # the module constant readable as a parameter and behaved as a comment --
+    # and in an AUDIT module that is worse than elsewhere, because a mutation
+    # applied to it would have been silently a no-op reported as insensitivity.
+    if rtol is None:
+        rtol = RTOL_ANCHORED
     trace = []
     h = h_start
     while h >= h_min * 100:
@@ -549,10 +577,18 @@ def _gds_at(Vg, Vds, dVds, n_segments):
     return float(((Ip - Im) / (2 * dVds))[0])
 
 
-def _fT_fmax_with_gds(Vg_range, gds, Vds=VDS_DEFAULT):
+def _fT_fmax_with_gds(Vg_range, gds, Vds=None):
     """rf._compute_fT_fmax_core with g_ds injected instead of recomputed,
     so the only thing that changes between the two f_max curves below is
     g_ds itself."""
+    # Late-bound (2026-09-30 mutation-arrival probe): read at CALL time so a
+    # rebind of the module attribute actually reaches this function.  Before
+    # this change the name below was captured when `def` executed, which made
+    # the module constant readable as a parameter and behaved as a comment --
+    # and in an AUDIT module that is worse than elsewhere, because a mutation
+    # applied to it would have been silently a no-op reported as insensitivity.
+    if Vds is None:
+        Vds = VDS_DEFAULT
     gm, _Id = rf.transconductance(Vg_range, Vds=Vds)
     Cgs = rf.gate_capacitance(Vg_range)
     Cgd = rf.Cgd_over_Cgs * Cgs

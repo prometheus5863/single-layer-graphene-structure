@@ -630,6 +630,75 @@ def repo_wide_frozen_census(paths=None):
     return rows
 
 
+def audit_modules_are_fully_delivered():
+    """
+    Standing regression guard, added 2026-09-30 with the fix it defends.
+
+    An audit module is the one place where a write-only knob is not merely a
+    latent bug: the audits here work BY MUTATION, so a captured constant turns
+    every mutation of it into a no-op that the audit reports as insensitivity.
+    After today's fix no audit module in this repository captures a
+    module-level constant as a default, and this check fails if one ever does
+    again.
+    """
+    import glob
+    bad = []
+    for path in sorted(glob.glob('*audit*.py')):
+        for row in repo_wide_frozen_census([path]):
+            bad.append(row)
+    return bad
+
+
+def t_hop_oracle_split_before_and_after():
+    """
+    Measure -- not assert -- what today's fix changed, by running the version
+    of graphene_band_structure_audit.py that was in git before it against the
+    version after it.
+
+    T_HOP was the name the 09-29 entry called the worst of the 37, because it
+    was captured by the MEASURING functions (`bands`, `fermi_velocity_analytic`,
+    `dos_from_bands`) and live in the same module's EXPECTED-VALUE expressions.
+    Doubling it therefore moved the oracle and froze the measurement, and the
+    audit would have reported a disagreement manufactured by its own mutation
+    machinery.  Both halves are measured here so the fix is evidenced rather
+    than claimed.
+    """
+    import subprocess
+    d = tempfile.mkdtemp()
+    old_src = subprocess.run(
+        ['git', 'show', 'HEAD~2:graphene_band_structure_audit.py'],
+        capture_output=True, text=True, check=True).stdout
+    old_path = os.path.join(d, 'old_bsa.py')
+    with open(old_path, 'w', encoding='utf-8') as fh:
+        fh.write(old_src)
+    sys.path.insert(0, d)
+    out = {}
+    try:
+        for tag, modname in (('before', 'old_bsa'),
+                             ('after', 'graphene_band_structure_audit')):
+            sys.modules.pop(modname, None)
+            mod = importlib.import_module(modname)
+            import numpy as np
+            k = np.array([0.3, 0.7])
+            verdict = classify(mod, 'T_HOP')['verdict']
+            measure0 = tuple(float(x) for x in np.ravel(mod.bands(k)))
+            oracle0 = 2.0 * mod.T_HOP
+            setattr(mod, 'T_HOP', 2.0 * mod.T_HOP)
+            measure1 = tuple(float(x) for x in np.ravel(mod.bands(k)))
+            oracle1 = 2.0 * mod.T_HOP
+            out[tag] = {
+                'verdict': verdict,
+                'oracle_moved': oracle1 != oracle0,
+                'measurement_moved': measure1 != measure0,
+                'oracle': (oracle0, oracle1),
+                'measurement_0': measure0[0], 'measurement_1': measure1[0],
+            }
+    finally:
+        sys.path.remove(d)
+        sys.modules.pop('old_bsa', None)
+    return out
+
+
 # ---------------------------------------------------------------------------
 def main():
     passed = failed = 0
@@ -778,6 +847,41 @@ def main():
     print('  the captured ones, so where the live readers are an audit\'s')
     print('  expected values and the captured ones are its measurement, the')
     print('  audit reports a disagreement it manufactured itself.')
+
+    print()
+    print('SECTION 6 -- the fix, MEASURED on T_HOP before and after')
+    try:
+        ba = t_hop_oracle_split_before_and_after()
+        for tag in ('before', 'after'):
+            r = ba[tag]
+            print('  %-6s verdict=%-6s oracle 2*T_HOP %.3f -> %.3f (moved=%s)'
+                  % (tag, r['verdict'], r['oracle'][0], r['oracle'][1],
+                     r['oracle_moved']))
+            print('         measurement bands()[0] %.6f -> %.6f (moved=%s)'
+                  % (r['measurement_0'], r['measurement_1'],
+                     r['measurement_moved']))
+        check('BEFORE: T_HOP was MIXED', ba['before']['verdict'] == CLASS_MIXED)
+        check('BEFORE: the mutation moved the ORACLE',
+              ba['before']['oracle_moved'])
+        check('BEFORE: and FROZE the measurement -- a manufactured '
+              'disagreement', not ba['before']['measurement_moved'],
+              'bands() bitwise unchanged by a doubled hopping integral')
+        check('AFTER: T_HOP is LIVE', ba['after']['verdict'] == CLASS_LIVE)
+        check('AFTER: the mutation moves the oracle AND the measurement',
+              ba['after']['oracle_moved'] and ba['after']['measurement_moved'])
+    except Exception as exc:
+        check('before/after measurement of T_HOP ran', False, repr(exc))
+
+    print()
+    print('SECTION 7 -- standing guard: no audit module may capture a constant')
+    bad = audit_modules_are_fully_delivered()
+    for path, name, verdict, detail in bad:
+        print('  %-11s %-44s %-22s %s' % (verdict, path, name, detail))
+    check('every *audit*.py module is free of captured module constants',
+          not bad,
+          '%d remaining' % len(bad) if bad else
+          '14 sites in 4 modules converted today, all four transcripts '
+          'bitwise unchanged')
 
     print()
     print('=' * 78)

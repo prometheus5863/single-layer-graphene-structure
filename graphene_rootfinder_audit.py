@@ -97,12 +97,24 @@ def worst_frac(ell):
     return w
 
 
-def unguarded_p2_threshold(tol=TOL_SHIPPED, lo=LO_SHIPPED, hi=HI_SHIPPED):
+def unguarded_p2_threshold(tol=None, lo=None, hi=None):
     """
     The pre-2026-09-24 body of `p2_threshold`, preserved verbatim so the
     audit can demonstrate the fault and so Validation 5 can compare the
     guarded result against it bitwise.  Do not call this for physics.
     """
+    # Late-bound (2026-09-30 mutation-arrival probe): read at CALL time so a
+    # rebind of the module attribute actually reaches this function.  Before
+    # this change the name below was captured when `def` executed, which made
+    # the module constant readable as a parameter and behaved as a comment --
+    # and in an AUDIT module that is worse than elsewhere, because a mutation
+    # applied to it would have been silently a no-op reported as insensitivity.
+    if hi is None:
+        hi = HI_SHIPPED
+    if lo is None:
+        lo = LO_SHIPPED
+    if tol is None:
+        tol = TOL_SHIPPED
     for _ in range(200):
         mid = 0.5 * (lo + hi)
         if worst_frac(mid) > tol:
