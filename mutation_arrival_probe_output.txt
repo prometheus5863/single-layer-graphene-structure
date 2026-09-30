@@ -1,0 +1,115 @@
+==============================================================================
+MUTATION ARRIVAL PROBE -- does the mutation reach the callee?
+2026-09-30.  Closes the top open item of 2026-09-29 from OUTSIDE
+every audit module, so that fixing an audit does not move the
+instrument and the measurement in the same step.
+==============================================================================
+
+SECTION 0 -- positive control on the probe itself (09-28 rule)
+  [PASS] all classes correct (LIVE/FROZEN/MIXED/DEAD/IMPORT_USED/ABSENT)  -- {'LIVE_CONST': 'LIVE', 'FROZEN_CONST': 'FROZEN', 'MIXED_CONST': 'MIXED', 'UNUSED_CONST': 'DEAD', 'DEAD_CONST': 'DEAD', 'PARENT_CONST': 'IMPORT_USED', 'DERIVED_CONST': 'LIVE', 'NO_SUCH_CONST': 'ABSENT'}
+  [PASS] IMPORT_USED prediction: rebinding the parent is inert  -- the child was derived once, at import
+  [PASS] IMPORT_USED prediction: rebinding the child arrives  -- so such a target is only sound when the child is patched too
+  [PASS] a literal default is not reported as a capture
+  [PASS] LIVE prediction holds: rebind arrives
+  [PASS] FROZEN prediction holds: rebind does not arrive
+  [PASS] MIXED prediction holds: oracle moves
+  [PASS] MIXED prediction holds: measurement frozen  -- oracle and measurement disagree by the mutation alone
+
+SECTION 1 -- THE THEOREM: a null control cannot be a positive
+             control on its own mutation
+  The 09-29 note asked for "a paired assertion that some quantity
+  the mutation must reach did in fact move".  A MUST_NOT_CHANGE
+  check has no such quantity by construction.  Four runs:
+    MUST_CHANGE  on LIVE   constant                -> PASS   detects the mutation
+  [PASS] run behaves as the classes predict: MUST_CHANGE  on LIVE   constant
+    MUST_CHANGE  on FROZEN constant                -> FAIL   fails, and SHOULD -- this is the 09-29 detector
+  [PASS] run behaves as the classes predict: MUST_CHANGE  on FROZEN constant
+    MUST_NOT_CHG on LIVE   constant, indep. output -> PASS   passes, and is informative
+  [PASS] run behaves as the classes predict: MUST_NOT_CHG on LIVE   constant, indep. output
+    MUST_NOT_CHG on FROZEN constant, DEPENDENT output -> PASS   PASSES -- and the output is 100% sensitive to the constant. The check is vacuous.
+  [PASS] run behaves as the classes predict: MUST_NOT_CHG on FROZEN constant, DEPENDENT output
+  [PASS] the vacuous null control DID pass (this is the finding)  -- a 100%-dependent output, a dead mutation, and a passing check
+
+SECTION 2 -- the same failure on the REAL instrument
+  figure quantum_capacitance.png, check 'v_F x2', patch key 'v_F'
+  real mutation      : identical=False  max|rel|=7.500000e-01  (n=2004)
+  one-character typo : identical=True  max|rel|=0.000000e+00
+  probe verdict on that key BEFORE the mutation : ABSENT
+  probe verdict on that key AFTER  the mutation : DEAD
+  [PASS] the real mutation does move the figure (MUST_CHANGE is alive)
+  [PASS] a MISSPELLED patch key is BITWISE identical to no mutation  -- setattr created the attribute and returned normally
+  [PASS] the probe classifies the misspelled target ABSENT, BEFOREHAND  -- decidable without running the model at all
+  [PASS] and NOT afterwards -- applying the typo destroys the evidence  -- verdict degrades to DEAD, because setattr created the name and importlib.reload does not clear the module dict.  The probe is order-dependent and that ordering is a requirement.
+
+SECTION 3 -- delivery census of every 09-29 mutation target
+  MUST_CHANGE v_F x2                             v_F              LIVE
+  MUST_CHANGE T -> 150 K                         T                LIVE
+  MUST_NOT_CHANGE mu x10                             mu               LIVE
+  MUST_NOT_CHANGE Rc x10                             Rc_per_width_ohm LIVE
+  MUST_CHANGE t_ox x2 (and C_ox)                 t_ox             IMPORT_USED
+  MUST_CHANGE t_ox x2 (and C_ox)                 C_ox             LIVE
+  MUST_CHANGE mu /2                              mu               LIVE
+  MUST_CHANGE n_puddle x4                        n_puddle         LIVE
+  MUST_NOT_CHANGE LAMBDA_NM (unused here)            T                LIVE
+  MUST_CHANGE gfet.L x2                          L                LIVE
+  MUST_CHANGE gfet.mu /2                         mu               LIVE
+  MUST_CHANGE N_FINGERS_RF x2                    N_FINGERS_RF     LIVE
+  MUST_NOT_CHANGE gfet.n_puddle -> same              n_puddle         LIVE
+  MUST_CHANGE t_liner_nm_default 3->4 nm         t_liner_nm_defau LIVE
+  MUST_CHANGE EQE_BARE x2                        EQE_BARE         LIVE
+  MUST_NOT_CHANGE ALPHA_ABS x2                       ALPHA_ABS        LIVE
+  MUST_CHANGE AU_FERMI_SHIFT_EDGE_EV 0.35->0.50  AU_FERMI_SHIFT_E LIVE
+  MUST_CHANGE N_BULK_ON_STATE x2                 N_BULK_ON_STATE  LIVE
+  MUST_NOT_CHANGE AU_FERMI_SHIFT_SURFACE_EV -> same  AU_FERMI_SHIFT_S LIVE
+  totals: {'LIVE': 18, 'IMPORT_USED': 1}
+  [PASS] no 09-29 mutation target is UNDELIVERED  -- the 9 late-binding fixes of 09-29 did hold
+  [PASS] no 09-29 mutation target is only PARTLY delivered (MIXED)
+  [PASS] no 09-29 mutation target is a DEAD name
+
+SECTION 3b -- IMPORT_USED targets, and whether the child was patched too
+  t_ox x2 (and C_ox)                 graphene_fet_model.t_ox consumed at import -> ['C_ox']
+       also patched in the same check: ['C_ox']  -> COVERED
+  [PASS] every IMPORT_USED target has its derived child patched alongside  -- confirms the 09-29 audit's stated handling of import-time derived constants, mechanically rather than from its comment
+
+SECTION 4 -- identity re-assignments: the OTHER dead mutation
+  MUST_NOT_CHANGE LAMBDA_NM (unused here)            graphene_fet_model.T already == 300.0
+  MUST_NOT_CHANGE gfet.n_puddle -> same              graphene_fet_model.n_puddle already == 5000000000000000.0
+  MUST_NOT_CHANGE AU_FERMI_SHIFT_SURFACE_EV -> same  graphene_edge_contact_model.AU_FERMI_SHIFT_SURFACE_EV already == 0.14
+  3 of the 09-29 checks assign a value the constant already holds.
+  Each passes with setattr replaced by `pass`.  They are not
+  evidence of specificity; they are evidence of nothing.
+  [PASS] every identity re-assignment found is a null control, not a MUST_CHANGE  -- a MUST_CHANGE that re-assigns its own value would be a live bug
+
+SECTION 5 -- repository-wide delivery census
+  MIXED       graphene_band_structure_audit.py             A_CC                   1 frozen / 1 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_band_structure_audit.py             T_HOP                  3 frozen / 6 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_contact_doping_nonlinear_model.py   D0_SEPARATION          1 frozen / 1 live <<< MIXED: oracle/measurement split
+  FROZEN      graphene_contact_doping_nonlinear_model.py   V_F                    1 frozen / 0 live
+  MIXED       graphene_crossover_sensitivity_model.py      H_DIFF                 1 frozen / 1 live <<< MIXED: oracle/measurement split
+  FROZEN      graphene_crossover_sensitivity_model.py      H_DIFF_CONVERGED       1 frozen / 0 live
+  FROZEN      graphene_differential_crossover_model.py     U_SMALL                1 frozen / 0 live
+  MIXED       graphene_gds_quadrature_audit.py             DVDS_DEFAULT           1 frozen / 5 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_gds_quadrature_audit.py             N_SEGMENTS_DEFAULT     2 frozen / 4 live <<< MIXED: oracle/measurement split
+  FROZEN      graphene_gds_quadrature_audit.py             RTOL_ANCHORED          1 frozen / 0 live
+  MIXED       graphene_gds_quadrature_audit.py             VDS_DEFAULT            2 frozen / 9 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_per_metal_crossover_model.py        ELL_DEFAULT            4 frozen / 1 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_photodetector_collection_model.py   N_POINTS               3 frozen / 1 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_photodetector_signed_carrier_model.py N_POINTS               1 frozen / 1 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_photodetector_signed_carrier_model.py W_CROSS_CHEM           9 frozen / 2 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_photodetector_two_contact_model.py  N_POINTS               1 frozen / 1 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_rootfinder_audit.py                 HI_SHIPPED             1 frozen / 4 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_rootfinder_audit.py                 LO_SHIPPED             1 frozen / 4 live <<< MIXED: oracle/measurement split
+  MIXED       graphene_rootfinder_audit.py                 TOL_SHIPPED            1 frozen / 3 live <<< MIXED: oracle/measurement split
+  FROZEN      graphene_sensitivity_audit.py                N_BULK_DEFAULT         1 frozen / 0 live
+  totals: {'MIXED': 15, 'FROZEN': 5}
+  [PASS] the census reports at least one name in every class it defines or says so  -- classes present: ['FROZEN', 'MIXED']
+
+  15 MIXED name(s).  MIXED is the worst class, not a middle one:
+  a mutation of a MIXED name moves the live readers and freezes
+  the captured ones, so where the live readers are an audit's
+  expected values and the captured ones are its measurement, the
+  audit reports a disagreement it manufactured itself.
+
+==============================================================================
+TOTAL: 23 passed, 0 failed
+==============================================================================
