@@ -301,8 +301,82 @@ def summary_numbers():
           "always pack more edge length per unit area in this idealization.")
 
 
+def gate_tunable_fraction_of_contact_resistance():
+    """
+    THE DIRAC-POINT COLUMN, created 2026-10-01, and the first code in this
+    repository to read `PASSI_RC_DIRAC_OHM_UM`.
+
+    The 2026-09-30 dead-name item asked whether other module-level constants
+    here are provenance claims with no code behind them.  This was one: the
+    comment above the two Passi arrays says the table is "on-state
+    (V_BG = -40 V) AND Dirac-point contact resistance vs. hole diameter", and
+    only the on-state column was ever read.  Six measured numbers were
+    ingested, cited, and never used -- the INVERTED form of 2026-09-28's
+    "prose is a detector", where the prose claims a dependency the code does
+    not have, which is the same shape as 09-30's ALPHA_ABS finding.
+
+    Reading it produces a quantity the module did not have, and the quantity
+    bears directly on the module's own stated failure.
+
+    Rc(Dirac)/Rc(on-state) is the GATE-TUNABLE multiple of the contact
+    resistance.  A ratio near 1 would mean contact resistance is set at the
+    metal-graphene interface and is indifferent to the carrier density
+    underneath it; a large ratio means it is dominated by the graphene's own
+    density of states in and near the contact, which the gate controls.  That
+    is the design question behind every number in Chapter 4: whether the lever
+    is contact metallurgy or channel doping.
+
+    Returns (D_nm, ratio, ratio_excluding_the_optimum, mean_of_rest).
+    """
+    on = PASSI_RC_ON_STATE_OHM_UM.astype(float)
+    dirac = PASSI_RC_DIRAC_OHM_UM.astype(float)
+    ratio = dirac / on
+    mask = PASSI_HOLE_DIAMETER_NM != 200
+    return PASSI_HOLE_DIAMETER_NM, ratio, ratio[mask], float(ratio[mask].mean())
+
+
+def dirac_point_summary():
+    """Appended to summary_numbers(); prints nothing that was there before."""
+    D, ratio, rest, mean_rest = gate_tunable_fraction_of_contact_resistance()
+    on = PASSI_RC_ON_STATE_OHM_UM.astype(float)
+    dirac = PASSI_RC_DIRAC_OHM_UM.astype(float)
+
+    print("\nThe Dirac-point column, read for the first time (2026-10-01).")
+    print("Rc(Dirac)/Rc(on-state) is the gate-tunable multiple of the "
+          "contact resistance:")
+    print(f"{'D (nm)':8s} {'on-state':>10s} {'Dirac':>10s} {'ratio':>8s}")
+    for d, o, dd, r in zip(D, on, dirac, ratio):
+        flag = "   <<< the reported optimum" if d == 200 else ""
+        print(f"{d:<8d} {o:>10.1f} {dd:>10.1f} {r:>8.2f}{flag}")
+    print(f"mean ratio excluding D=200nm: {mean_rest:.3f}  "
+          f"(spread {rest.min():.2f}-{rest.max():.2f})")
+    print(f"D=200nm ratio {ratio[D == 200][0]:.2f} is "
+          f"{ratio[D == 200][0]/mean_rest:.1f}x the mean of the other five.")
+
+    # The consequence, stated as the two improvement factors rather than as
+    # an adjective.  Both are measured from Passi et al.'s own columns.
+    i_on = on[D == 50][0] / on[D == 200][0]
+    i_dirac = dirac[D == 50][0] / dirac[D == 200][0]
+    print(f"\nD=200nm against D=50nm:  on-state {i_on:.2f}x better, "
+          f"at the Dirac point only {i_dirac:.2f}x better.")
+    print(f"So the famous D=200nm optimum is {i_on/i_dirac:.1f}x more of an "
+          "effect in the on state than at the Dirac point:")
+    print("IT IS A CARRIER-DENSITY EFFECT, NOT AN INTERFACE-AREA EFFECT.")
+    print("That is an independent explanation of this module's own 'NO' "
+          "above: the patterned-contact model")
+    print("here is built entirely from interface geometry (edge length per "
+          "unit area at fixed fill fraction),")
+    print("and a geometric model cannot reproduce a minimum whose size "
+          "depends on the gate. The small-D")
+    print("upturn was never going to come out of it. The failure was "
+          "already in the data the module cited")
+    print("and did not read.")
+    return ratio
+
+
 if __name__ == '__main__':
     print("Generating edge-vs-top contact geometry model...")
     summary_numbers()
+    dirac_point_summary()
     plot_edge_vs_top_and_patterned()
     print("\nDone. Saved: edge_vs_top_contact.png")

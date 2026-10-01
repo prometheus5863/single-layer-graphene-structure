@@ -119,6 +119,10 @@ PLASMONIC_DESIGNS = [
 # gain), not an isolated absorption/near-field enhancement factor
 # comparable to the two designs above.
 FANG_ANTENNA_RESONANCE_NM = 580.0
+# dead-name-exempt: descriptive-only literature point -- Fang et al.'s
+# figure is a device-to-device responsivity comparison and is deliberately
+# not fitted here (see the paragraph above).  Declared in 2026-10-01 rather
+# than left for graphene_dead_name_sweep.py to report as a fault.
 FANG_ANTENNA_TEST_WAVELENGTH_NM = 635.0
 
 

@@ -1,0 +1,45 @@
+==============================================================================
+DEAD-NAME SWEEP -- module-level constants no code reads
+2026-10-01.  Answers the 2026-09-30 item; ALPHA_ABS was found by
+accident, and nothing was looking for the class.
+==============================================================================
+
+SECTION 1 -- positive control on the sweep itself
+  planted BODY_ONE           expect BODY_ONLY     got BODY_ONLY
+  planted DEAD_ONE           expect DEAD          got DEAD
+  planted DERIVED            expect DEAD          got DEAD
+  planted EXEMPT_NO_REASON   expect DEAD          got DEAD
+  planted EXEMPT_ONE         expect EXEMPT        got EXEMPT
+  [PASS] all five planted non-live classes come back correctly
+  [PASS] a constant read by a function is NOT reported  -- LIVE is the common case and must not be noise
+  [PASS] an exemption with no reason is reported as DEAD, not EXEMPT  -- otherwise the marker is a way to silence the check for free
+  [PASS] every EXEMPT row carries a reason
+
+SECTION 2 -- the sweep over this repository
+  CROSS_MODULE  graphene_contact_doping_nonlinear_model.py     CHEMISORBED                      line 95    graphene_per_metal_crossover_model.py
+  CROSS_MODULE  graphene_contact_doping_nonlinear_model.py     D_CHEM_PHYS                      line 82    graphene_dead_name_sweep.py
+  BODY_ONLY     graphene_mutation_arrival_probe.py             CLASS_UNUSED                     line 101   
+  EXEMPT        graphene_plasmonic_photodetector_model.py      FANG_ANTENNA_TEST_WAVELENGTH_NM  line 126   descriptive-only literature point -- Fan
+  totals: {'BODY_ONLY': 1, 'CROSS_MODULE': 2, 'EXEMPT': 1, 'LIVE': 112}
+  [PASS] no module-level constant in this repository is DEAD  -- 4 found and dispositioned 2026-10-01: PASSI_RC_DIRAC_OHM_UM given a reader, DELIVERED given a reader, D_CHEM_PHYS given an agreement check, FANG_ANTENNA_TEST_WAVELENGTH_NM declared exempt
+
+SECTION 3 -- the inverted detector: prose names it, no code reads it
+  0 constant(s) named in prose and read by no function.
+  This is a REPORT, not an assertion: a docstring may mention a
+  constant it does not depend on.  What it must not do is cite one
+  as an input.  Every row here is read by SOMETHING (see Section 2)
+  or declared exempt, or Section 2 would have failed first.
+
+SECTION 4 -- one literature value, two definitions
+  graphene_contact_doping_nonlinear_model.D_CHEM_PHYS = 0.9000 eV
+  graphene_per_metal_crossover_model.DC_ANCHOR        = 0.9000 eV
+  [PASS] the two copies of the short-range chemical term agree  -- bitwise equal; the check exists because a revised extraction would otherwise move one copy silently
+  The physics is unaffected -- the term is applied through
+  w_cross_for_metal -> delta_c -> DC_ANCHOR -- so no committed
+  number depends on D_CHEM_PHYS.  That is exactly why it went
+  unread for ten sessions, and exactly why the duplication needs
+  a check rather than a comment.
+
+==============================================================================
+TOTAL: 6 passed, 0 failed
+==============================================================================

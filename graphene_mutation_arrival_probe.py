@@ -878,6 +878,18 @@ def main():
         print('               module body.  Check %r (%s) mutates a name that'
               % (label, verdict))
         print('               nothing in the module can observe.')
+    # DELIVERED was defined for symmetry with UNDELIVERED and PARTIAL and
+    # read by nothing until 2026-10-01, when graphene_dead_name_sweep.py
+    # found it.  Stating the census's conclusion through it is the use the
+    # constant was written for: the positive form of the same fact the two
+    # checks above state negatively, so a verdict class added to this module
+    # in future cannot slip past all three.
+    check('every 09-29 mutation target is in DELIVERED or IMPORT_CONSUMED',
+          all(r[3]['verdict'] in DELIVERED
+              or r[3]['verdict'] == CLASS_IMPORT_CONSUMED
+              for r in cen),
+          'DELIVERED = %s; IMPORT_CONSUMED is deliberately in neither list'
+          % (DELIVERED,))
     check('no 09-29 mutation target is a DEAD name', not dead,
           '%d dead' % len(dead) if dead else '')
 

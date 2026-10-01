@@ -64,6 +64,7 @@ SECTION 3 -- delivery census of every 09-29 mutation target
   totals: {'LIVE': 18, 'IMPORT_USED': 1}
   [PASS] no 09-29 mutation target is UNDELIVERED  -- the 9 late-binding fixes of 09-29 did hold
   [PASS] no 09-29 mutation target is only PARTLY delivered (MIXED)
+  [PASS] every 09-29 mutation target is in DELIVERED or IMPORT_CONSUMED  -- DELIVERED = ('LIVE',); IMPORT_CONSUMED is deliberately in neither list
   [PASS] no 09-29 mutation target is a DEAD name
 
 SECTION 3b -- IMPORT_USED targets, and whether the child was patched too
@@ -112,5 +113,5 @@ SECTION 8 -- standing guard: no RELATIVE git revision anywhere
   [PASS] no source file references HEAD, HEAD~n or HEAD^  -- the 09-30 HEAD~2 read is pinned to a blob hash; a position is not a state
 
 ==============================================================================
-TOTAL: 32 passed, 0 failed
+TOTAL: 33 passed, 0 failed
 ==============================================================================
