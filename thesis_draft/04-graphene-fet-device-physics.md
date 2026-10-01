@@ -430,6 +430,79 @@ limited mobility in very narrow graphene ligaments between closely packed
 small holes) outside this compact model's scope, and is reported as an
 open item rather than fitted away.
 
+### 4.8.2 Annotation (2026-10-01): the ~11x was compared against the wrong column, and the model is 14% off the right one
+
+**No number in 4.8 or 4.8.1 above is withdrawn.** What changes is which
+measured number the model's 2.59x should have been held against, and the
+reason is that Passi et al.'s table has two columns and this chapter had
+only ever read one.
+
+Their TLM table reports contact resistance at **two gate biases**: the
+on-state (V_BG = −40 V) and the **Dirac point**. The repository ingested
+both arrays in 2026-08 and read only the on-state one; the Dirac-point
+array was a cited, unread constant until `graphene_dead_name_sweep.py`
+found it (`PASSI_RC_DIRAC_OHM_UM`, dead for ten sessions). Reading it:
+
+| hole D (nm) | Rc on-state (Ω·µm) | Rc at Dirac (Ω·µm) | ratio |
+|---|---|---|---|
+| 0 (unpatterned) | 519 | 1372 | 2.64 |
+| 50 | 212 | 620 | 2.92 |
+| 100 | 352 | 732 | 2.08 |
+| **200** | **45** | **456** | **10.13** |
+| 500 | 410 | 1354 | 3.30 |
+| 1000 | 560 | 1590 | 2.84 |
+
+The ratio is the **gate-tunable multiple** of the contact resistance. It
+sits between 2.08 and 3.30 at five of the six diameters and jumps to
+**10.13** at D = 200 nm — the one diameter whose 11x this chapter quotes,
+and **3.7x the mean of the other five**.
+
+**So the headline reduction is a gate-bias statement, not a geometry
+statement.** D = 0 → D = 200 nm is a **11.53x** reduction in the on state
+and a **3.01x** reduction at the Dirac point, for the same two devices and
+the same etched geometry.
+
+**And 3.01x is the comparison this model's own physics selects.**
+`R_extra` is computed from the *contact-induced* carrier density alone:
+the metal's Fermi-level shift sets it, and the gate does not enter. At the
+Dirac point the gate contributes no channel carriers, so the measured
+access resistance is dominated by exactly the contact-doping-limited term
+the model isolates; in the on state a −40 V back gate floods the channel
+with holes and the measured Rc reflects a different balance entirely.
+Holding a gate-independent model against an on-state measurement is a
+category error, and it is the error 4.8 above makes.
+
+Against the right column the model's **2.59x** (982.1 → 379.0 Ω·µm) is
+within **14%** of the measured **3.01x**, where against the on-state
+column it was short by a factor of **4.5**.
+
+**Two caveats, stated rather than absorbed.** (i) The model's 2.59x is a
+*pure-mode* ratio — fully top-mode against fully edge-mode — while the
+D = 200 nm device is a mixture at a fill fraction Passi et al. do not
+report (4.8.1). Treating the two as comparable assumes the patterned
+contact is essentially edge-dominated at that diameter, which the
+ligament-overlap criterion of 4.8.1 supports but does not measure.
+(ii) The agreement is a *ratio* agreement; Section 4.7's finding that
+`R_extra` runs higher than measured Rc in absolute terms is untouched by
+this and still open.
+
+**Consequence for 4.8.1's open item.** The small-D upturn the geometry
+model fails to reproduce was attributed above to a fabrication effect
+"outside this compact model's scope". That attribution is now much better
+supported, and more specifically: whatever produces the D = 200 nm optimum
+is **3.5x more of an effect in the on state than at the Dirac point**
+(4.71x against 1.36x, taking D = 50 nm as the reference), so it scales with
+*carrier density*, not with interface area. A model built entirely from
+interface geometry — which 4.8.1's is, edge length per unit area at fixed
+fill fraction — cannot produce a minimum whose depth depends on the gate.
+Its failure was not a missing refinement; it was the wrong class of model
+for that feature, and the evidence was in the column the chapter cited and
+did not read.
+
+Source: `graphene_edge_contact_model.py`,
+`gate_tunable_fraction_of_contact_resistance()` and `dirac_point_summary()`;
+sweep `graphene_dead_name_sweep.py`, log `dead_name_sweep_output.txt`.
+
 ## 4.9 Summary and open items
 
 | Sub-topic | Status |
@@ -441,7 +514,7 @@ open item rather than fitted away.
 | Spatially-resolved, work-function-dependent contact doping | Complete, diagnostic model (`graphene_contact_doping_model.py`) — see Section 4.5 for known limitations |
 | RF figures of merit (f_T, f_max) | Complete, incl. access resistance + extrinsic pad-capacitance estimate (`rf_small_signal_model.py`, Section 4.6); numerical provenance of g_ds audited 2026-09-26 and both entangled defaults exonerated to <10⁻⁶ (Section 4.6.1) |
 | Using the doping-profile model to *recalibrate* Rc per metal (vs. using it only diagnostically) | Attempted (Section 4.7) — additive decomposition found NOT to hold for 3 of 4 metals (Cu, Ni, Au); only Pd gives a physically plausible residual. Root cause (TLM double-counting vs. `lambda_decay` mismatch) not yet isolated; Ti and Cr not recalibrated (no literature Rc sourced this session) |
-| Contact-geometry dependence (edge vs. top, patterned contacts) | Complete, DFT-Fermi-shift-derived model (Section 4.8, `graphene_edge_contact_model.py`) — reproduces the qualitative direction (edge lower than top) and the large-hole-diameter branch of Passi et al.'s patterned-contact data; does not reproduce their small-diameter upturn or the full ~11x measured device-level reduction (only ~2.6x from the isolated doping-density effect) |
+| Contact-geometry dependence (edge vs. top, patterned contacts) | Complete, DFT-Fermi-shift-derived model (Section 4.8, `graphene_edge_contact_model.py`) — reproduces the qualitative direction (edge lower than top) and the large-hole-diameter branch of Passi et al.'s patterned-contact data; does not reproduce their small-diameter upturn or the full ~11x measured device-level reduction (only ~2.6x from the isolated doping-density effect)**— annotated 2026-10-01 (Section 4.8.2): the ~11x is an ON-STATE figure, and the model is gate-independent. Against Passi et al.'s Dirac-point column — read for the first time this session, having been a cited but dead constant for ten sessions — the same geometry gives 3.01x and the model's 2.59x is within 14% of it. The small-D upturn is confirmed to be a carrier-density effect (3.5x larger in the on state than at the Dirac point), so a purely geometric model cannot produce it** |
 
 Cross-references: Chapter 5 (interconnects) and Chapter 6 (photodetectors)
 both trace performance-limiting effects to the same underlying physical
