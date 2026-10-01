@@ -81,20 +81,10 @@ SECTION 4 -- identity re-assignments: the OTHER dead mutation
   [PASS] every identity re-assignment found is a null control, not a MUST_CHANGE  -- a MUST_CHANGE that re-assigns its own value would be a live bug
 
 SECTION 5 -- repository-wide delivery census
-  MIXED       graphene_contact_doping_nonlinear_model.py   D0_SEPARATION          1 frozen / 1 live <<< MIXED: oracle/measurement split
-  FROZEN      graphene_contact_doping_nonlinear_model.py   V_F                    1 frozen / 0 live
-  MIXED       graphene_crossover_sensitivity_model.py      H_DIFF                 1 frozen / 1 live <<< MIXED: oracle/measurement split
-  FROZEN      graphene_crossover_sensitivity_model.py      H_DIFF_CONVERGED       1 frozen / 0 live
-  FROZEN      graphene_differential_crossover_model.py     U_SMALL                1 frozen / 0 live
-  MIXED       graphene_per_metal_crossover_model.py        ELL_DEFAULT            4 frozen / 1 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_photodetector_collection_model.py   N_POINTS               3 frozen / 1 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_photodetector_signed_carrier_model.py N_POINTS               1 frozen / 1 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_photodetector_signed_carrier_model.py W_CROSS_CHEM           9 frozen / 2 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_photodetector_two_contact_model.py  N_POINTS               1 frozen / 1 live <<< MIXED: oracle/measurement split
-  totals: {'MIXED': 7, 'FROZEN': 3}
-  [PASS] the census reports at least one name in every class it defines or says so  -- classes present: ['FROZEN', 'MIXED']
+  totals: {}
+  [PASS] the census reports at least one name in every class it defines or says so  -- classes present: []
 
-  7 MIXED name(s).  MIXED is the worst class, not a middle one:
+  0 MIXED name(s).  MIXED is the worst class, not a middle one:
   a mutation of a MIXED name moves the live readers and freezes
   the captured ones, so where the live readers are an audit's
   expected values and the captured ones are its measurement, the
@@ -112,8 +102,15 @@ SECTION 6 -- the fix, MEASURED on T_HOP before and after
   [PASS] AFTER: the mutation moves the oracle AND the measurement
 
 SECTION 7 -- standing guard: no audit module may capture a constant
-  [PASS] every *audit*.py module is free of captured module constants  -- 14 sites in 4 modules converted today, all four transcripts bitwise unchanged
+  [PASS] every *audit*.py module is free of captured module constants  -- 14 sites in 4 modules converted 2026-09-30, all four transcripts bitwise unchanged
+
+SECTION 7b -- the same guard over the MODEL modules (2026-10-01)
+  [PASS] no module-level constant is captured as a default anywhere  -- 23 sites in 7 model modules converted 2026-10-01, all seven transcripts bitwise unchanged
+  [PASS] and in particular none is MIXED  -- MIXED was the majority class on 09-30 (7 of 10 names)
+
+SECTION 8 -- standing guard: no RELATIVE git revision anywhere
+  [PASS] no source file references HEAD, HEAD~n or HEAD^  -- the 09-30 HEAD~2 read is pinned to a blob hash; a position is not a state
 
 ==============================================================================
-TOTAL: 29 passed, 0 failed
+TOTAL: 32 passed, 0 failed
 ==============================================================================

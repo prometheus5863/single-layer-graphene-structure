@@ -81,6 +81,7 @@ the numbers a null control produces.
 """
 
 import ast
+import glob
 import importlib
 import inspect
 import os
@@ -90,6 +91,12 @@ import types
 
 CLASS_LIVE = 'LIVE'
 CLASS_FROZEN = 'FROZEN'
+# The pre-fix blob of graphene_band_structure_audit.py, as it stood at
+# 8af4537~1 -- the parent of the commit that converted its 14 captured
+# defaults.  A blob hash rather than a revision expression, deliberately:
+# see t_hop_oracle_split_before_and_after() for what the relative form cost.
+BLOB_PREFIX_BSA = '21a7e2ad96dd07f79d56807ca1f42eaccb8ecc29'
+
 CLASS_MIXED = 'MIXED'
 CLASS_UNUSED = 'UNUSED'
 CLASS_ABSENT = 'ABSENT'
@@ -665,9 +672,45 @@ def t_hop_oracle_split_before_and_after():
     """
     import subprocess
     d = tempfile.mkdtemp()
+    # THE REFERENCE IS PINNED BY CONTENT, AND THAT IS A CORRECTION OF
+    # 2026-10-01.  This read was written on 09-30 as
+    #     git show HEAD~2:graphene_band_structure_audit.py
+    # which is not a reference to a STATE, it is a reference to a POSITION,
+    # and positions move.  On 09-30 it resolved to the pre-fix file because
+    # the fix was still in the working tree.  The moment the fix was
+    # committed, HEAD~2 came to name the POST-fix file, so `before` and
+    # `after` became the same source, the two checks below could no longer
+    # fire, and the committed repository has reported 27/29 rather than the
+    # 29/29 the 09-30 log states ever since that commit.  A blob hash is
+    # content-addressed: BLOB_PREFIX_BSA cannot come to mean a different
+    # file, which is the whole property the reference needed and did not
+    # have.  Verified below rather than trusted.
     old_src = subprocess.run(
-        ['git', 'show', 'HEAD~2:graphene_band_structure_audit.py'],
+        ['git', 'cat-file', 'blob', BLOB_PREFIX_BSA],
         capture_output=True, text=True, check=True).stdout
+    # POSITIVE CONTROL ON THE REFERENCE ITSELF, which is the 09-30 rule
+    # applied one level out: a before/after measurement whose `before` is
+    # silently the `after` produces two passing-looking zeros.  So require
+    # the fetched source to actually BE the pre-fix one -- it must still
+    # contain the captured-default signature the fix removed -- and to
+    # differ from the file on disk.
+    with open('graphene_band_structure_audit.py', encoding='utf-8') as fh:
+        cur_src = fh.read()
+    # `def bands(k, t=T_HOP)` is the capture the fix removed, so its absence
+    # means the blob is not the pre-fix file.  THE FIRST FORM OF THIS CONTROL
+    # LOOKED FOR 'T_HOP=T_HOP' AND FIRED, correctly: the signature is
+    # `t=T_HOP`, the parameter is not named after the constant, and the
+    # control caught a guess of mine rather than letting the comparison
+    # through.  Recorded rather than quietly re-tuned -- it is the first
+    # evidence that this control is not itself vacuous.
+    if 'def bands(k, t=T_HOP)' not in old_src:
+        raise AssertionError(
+            'the pinned pre-fix blob does not capture T_HOP as a default: '
+            'the reference is wrong, and every number below it would be a '
+            'comparison of the fixed file with itself')
+    if old_src == cur_src:
+        raise AssertionError(
+            'the pinned pre-fix blob is identical to the working file')
     old_path = os.path.join(d, 'old_bsa.py')
     with open(old_path, 'w', encoding='utf-8') as fh:
         fh.write(old_src)
@@ -700,6 +743,47 @@ def t_hop_oracle_split_before_and_after():
 
 
 # ---------------------------------------------------------------------------
+def no_relative_git_revisions(paths=None):
+    """
+    STANDING GUARD, created 2026-10-01.  No source file in this repository
+    may reference a RELATIVE git revision.
+
+    `HEAD`, `HEAD~n`, `HEAD^`, `@~n` and `ORIG_HEAD` all name a position in
+    history rather than a state of the repository, so a check anchored to one
+    measures a different thing after every subsequent commit.  The concrete
+    cost is recorded in t_hop_oracle_split_before_and_after(): a before/after
+    measurement written against HEAD~2 passed in the run that created it and
+    has been comparing the fixed file against itself ever since.
+
+    The permitted form is a pinned object name -- a commit SHA or, better, a
+    blob SHA, which is content-addressed and so cannot come to mean a
+    different file.  This guard exists because the fix to that one site does
+    not stop the next site being written the same way.
+    """
+    import re
+    if paths is None:
+        paths = sorted(glob.glob(os.path.join(os.path.dirname(
+            os.path.abspath(__file__)), '*.py')))
+    # a relative revision used as a git argument: the quoted forms are what a
+    # subprocess call looks like.  The guard is deliberately textual: an AST
+    # pass would have to model every way a revision string can be built.
+    pat = re.compile(r"""['"]\s*(HEAD|ORIG_HEAD|@)(~\d*|\^+)?\s*(:|['"])""")
+    hits = []
+    for path in paths:
+        with open(path, encoding='utf-8') as fh:
+            for lineno, line in enumerate(fh, 1):
+                if 'no_relative_git_revisions' in line:
+                    continue
+                stripped = line.strip()
+                if stripped.startswith('#'):
+                    continue
+                m = pat.search(line)
+                if m:
+                    hits.append((os.path.basename(path), lineno,
+                                 m.group(0).strip()))
+    return hits
+
+
 def main():
     passed = failed = 0
 
@@ -880,8 +964,36 @@ def main():
     check('every *audit*.py module is free of captured module constants',
           not bad,
           '%d remaining' % len(bad) if bad else
-          '14 sites in 4 modules converted today, all four transcripts '
+          '14 sites in 4 modules converted 2026-09-30, all four transcripts '
           'bitwise unchanged')
+
+    print()
+    print('SECTION 7b -- the same guard over the MODEL modules (2026-10-01)')
+    rows = repo_wide_frozen_census()
+    partial = [r for r in rows if r[2] in PARTIAL]
+    frozen = [r for r in rows if r[2] == CLASS_FROZEN]
+    for path, name, verdict, nf, nl in [(r[0], r[1], r[2], r[3], r[4])
+                                        for r in rows]:
+        print('  %-11s %-46s %-22s %d frozen / %d live'
+              % (verdict, path, name, nf, nl))
+    check('no module-level constant is captured as a default anywhere',
+          not rows,
+          '%d site-groups remaining' % len(rows) if rows else
+          '23 sites in 7 model modules converted 2026-10-01, all seven '
+          'transcripts bitwise unchanged')
+    check('and in particular none is MIXED', not partial,
+          '%d MIXED' % len(partial) if partial else
+          'MIXED was the majority class on 09-30 (7 of 10 names)')
+
+    print()
+    print('SECTION 8 -- standing guard: no RELATIVE git revision anywhere')
+    rel = no_relative_git_revisions()
+    for base, lineno, txt in rel:
+        print('  %-50s line %-5d %s' % (base, lineno, txt))
+    check('no source file references HEAD, HEAD~n or HEAD^', not rel,
+          '%d site(s)' % len(rel) if rel else
+          'the 09-30 HEAD~2 read is pinned to a blob hash; a position is '
+          'not a state')
 
     print()
     print('=' * 78)
