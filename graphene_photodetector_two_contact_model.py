@@ -134,7 +134,7 @@ def signed_field(x, W_A, W_B, E_bias=E_BIAS, L=L_channel):
     return E_bias + _g(x, W_A) - _g(L - x, W_B)
 
 
-def net_response(W_A, W_B, E_bias=E_BIAS, L=L_channel, n_points=N_POINTS,
+def net_response(W_A, W_B, E_bias=E_BIAS, L=L_channel, n_points=None,
                  return_profiles=False):
     """
     Signed, channel-averaged net collection N(A,B) as defined in the
@@ -142,6 +142,8 @@ def net_response(W_A, W_B, E_bias=E_BIAS, L=L_channel, n_points=N_POINTS,
 
     Returns N, or (N, dict of profiles) if return_profiles.
     """
+    if n_points is None:
+        n_points = N_POINTS
     x = np.linspace(0.0, L, n_points)
     F = signed_field(x, W_A, W_B, E_bias=E_bias, L=L)
 

@@ -128,7 +128,7 @@ def mean_abs_dW(pair, delta=0.0):
                   + abs(signed_offset(METAL_WORK_FUNCTIONS[b], wc)))
 
 
-def sensitivity(pair, h=H_DIFF):
+def sensitivity(pair, h=None):
     """
     THE DEFAULT STEP IS KNOWN TOO COARSE -- see H_DIFF above and
     `sensitivity_converged()`.  Kept at 1e-3 deliberately: this function's
@@ -140,6 +140,8 @@ def sensitivity(pair, h=H_DIFF):
 
     Central difference at delta = 0.  Returns (S, A, N0).
     """
+    if h is None:
+        h = H_DIFF
     Np, Nm = N_of(pair, +h), N_of(pair, -h)
     N0 = N_of(pair, 0.0)
     dlnN = (abs(Np) - abs(Nm)) / (2.0 * h) / abs(N0)
@@ -149,7 +151,7 @@ def sensitivity(pair, h=H_DIFF):
     return dlnN, A, N0
 
 
-def sensitivity_converged(pair, h=H_DIFF_CONVERGED, rtol=1e-3, decades=2):
+def sensitivity_converged(pair, h=None, rtol=1e-3, decades=2):
     """
     The same quantities as `sensitivity()`, at a step inside the measured
     plateau, with TWO convergence diagnostics returned alongside -- and only
@@ -201,6 +203,8 @@ def sensitivity_converged(pair, h=H_DIFF_CONVERGED, rtol=1e-3, decades=2):
     Raises rather than returning a flag, so an unconverged derivative cannot
     be received silently.
     """
+    if h is None:
+        h = H_DIFF_CONVERGED
     def _S(hh):
         Np, Nm = N_of(pair, +hh), N_of(pair, -hh)
         return (abs(Np) - abs(Nm)) / (2.0 * hh) / abs(N_of(pair, 0.0))

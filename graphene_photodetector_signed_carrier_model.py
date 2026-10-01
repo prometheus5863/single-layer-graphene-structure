@@ -170,13 +170,15 @@ Q_HOLE = +1.0
 Q_ELECTRON = -1.0
 
 
-def signed_offset(W_metal, w_cross=W_CROSS_CHEM):
+def signed_offset(W_metal, w_cross=None):
     """dW = W_metal - w_cross, in volts. >0 p-dopes graphene, <0 n-dopes."""
+    if w_cross is None:
+        w_cross = W_CROSS_CHEM
     return W_metal - w_cross
 
 
 def total_field(x, W_A, W_B, e_applied=E_BIAS, L=L_channel,
-                w_cross=W_CROSS_CHEM, lam=lambda_decay, use_magnitude=False):
+                w_cross=None, lam=lambda_decay, use_magnitude=False):
     """
     Electrostatic field E(x) in V/m, positive = pointing along +x.
     `e_applied` is signed so that positive sweeps HOLES toward contact A,
@@ -185,6 +187,8 @@ def total_field(x, W_A, W_B, e_applied=E_BIAS, L=L_channel,
     use_magnitude=True forces |dW| for both contacts, reproducing the
     2026-09-17 convention; used only by the reduction test.
     """
+    if w_cross is None:
+        w_cross = W_CROSS_CHEM
     dW_A = signed_offset(W_A, w_cross)
     dW_B = signed_offset(W_B, w_cross)
     if use_magnitude:
@@ -250,8 +254,8 @@ def _transport(v, x, tau=TAU_CARRIER):
     return s, p
 
 
-def net_response(W_A, W_B, e_applied=E_BIAS, L=L_channel, n_points=N_POINTS,
-                 w_cross=W_CROSS_CHEM, use_magnitude=False,
+def net_response(W_A, W_B, e_applied=E_BIAS, L=L_channel, n_points=None,
+                 w_cross=None, use_magnitude=False,
                  carriers=("hole", "electron"), return_profiles=False):
     """
     Signed net charge delivered to contact A per absorbed photon, averaged
@@ -260,6 +264,10 @@ def net_response(W_A, W_B, e_applied=E_BIAS, L=L_channel, n_points=N_POINTS,
     carriers: restrict to ("hole",) to reproduce the single-species
     magnitude convention exactly (see validate_reduction_to_magnitude).
     """
+    if n_points is None:
+        n_points = N_POINTS
+    if w_cross is None:
+        w_cross = W_CROSS_CHEM
     x = np.linspace(0.0, L, n_points)
     E = total_field(x, W_A, W_B, e_applied=e_applied, L=L,
                     w_cross=w_cross, use_magnitude=use_magnitude)
@@ -333,7 +341,7 @@ def validate_reduction_to_magnitude(verbose=True):
     return rows, worst
 
 
-def validate_symmetric_cancellation(w_cross=W_CROSS_CHEM, verbose=True):
+def validate_symmetric_cancellation(w_cross=None, verbose=True):
     """
     EXACT check #2. Identical contacts at zero bias: E(x) is antisymmetric
     about x = L/2 for any dW, so holes and electrons each split evenly and
@@ -341,6 +349,8 @@ def validate_symmetric_cancellation(w_cross=W_CROSS_CHEM, verbose=True):
     for symmetric metal-graphene-metal devices, and it must survive the
     move to a signed, two-carrier treatment.
     """
+    if w_cross is None:
+        w_cross = W_CROSS_CHEM
     rows = []
     for metal, W in sorted(METAL_WORK_FUNCTIONS.items(), key=lambda kv: kv[1]):
         rows.append((metal, W, net_response(W, W, e_applied=0.0, w_cross=w_cross)))
@@ -354,7 +364,7 @@ def validate_symmetric_cancellation(w_cross=W_CROSS_CHEM, verbose=True):
     return rows, worst
 
 
-def validate_charge_conjugation(w_cross=W_CROSS_CHEM, verbose=True):
+def validate_charge_conjugation(w_cross=None, verbose=True):
     """
     EXACT check #3, and the one that is only meaningful once the model is
     signed -- the magnitude convention could not even state it.
@@ -371,6 +381,8 @@ def validate_charge_conjugation(w_cross=W_CROSS_CHEM, verbose=True):
     mixed carriers incorrectly, or that leaked a magnitude anywhere, would
     fail this even though it passes Validation 2.
     """
+    if w_cross is None:
+        w_cross = W_CROSS_CHEM
     rows, worst = [], 0.0
     metals = sorted(METAL_WORK_FUNCTIONS.items(), key=lambda kv: kv[1])
     for mA, WA in metals:
@@ -413,11 +425,13 @@ def doping_type_table(verbose=True):
     return rows
 
 
-def symmetric_pair_table(w_cross=W_CROSS_CHEM, verbose=True):
+def symmetric_pair_table(w_cross=None, verbose=True):
     """
     RESULT 1. Symmetric device at the working bias: magnitude convention
     (holes only) vs. this model (both carriers).
     """
+    if w_cross is None:
+        w_cross = W_CROSS_CHEM
     rows = []
     for metal, W in sorted(METAL_WORK_FUNCTIONS.items(), key=lambda kv: kv[1]):
         mag = magnitude_net_response(W, W)
@@ -434,10 +448,12 @@ def symmetric_pair_table(w_cross=W_CROSS_CHEM, verbose=True):
     return rows
 
 
-def asymmetric_pair_table(w_cross=W_CROSS_CHEM, e_applied=0.0, verbose=True):
+def asymmetric_pair_table(w_cross=None, e_applied=0.0, verbose=True):
     """
     RESULT 2. Zero-bias net response for every ordered pair, signed model.
     """
+    if w_cross is None:
+        w_cross = W_CROSS_CHEM
     metals = sorted(METAL_WORK_FUNCTIONS.items(), key=lambda kv: kv[1])
     out = {}
     for mA, WA in metals:
@@ -464,12 +480,14 @@ def asymmetric_pair_table(w_cross=W_CROSS_CHEM, e_applied=0.0, verbose=True):
     return out
 
 
-def stagnation_audit(w_cross=W_CROSS_CHEM, verbose=True):
+def stagnation_audit(w_cross=None, verbose=True):
     """
     RESULT 3. The mechanism behind Result 2: an n/p pair builds two fields
     that point the SAME way, so the interior stagnation point disappears
     and both carrier species are collected, at opposite ends.
     """
+    if w_cross is None:
+        w_cross = W_CROSS_CHEM
     cases = [("Pt", "Pt"), ("Pd", "Pd"), ("Ti", "Pd"), ("Ti", "Pt"), ("Cr", "Pt")]
     rows = []
     for mA, mB in cases:
@@ -493,7 +511,9 @@ def stagnation_audit(w_cross=W_CROSS_CHEM, verbose=True):
 
 
 def make_plots(fname="photodetector_signed_carrier_response.png",
-               w_cross=W_CROSS_CHEM):
+               w_cross=None):
+    if w_cross is None:
+        w_cross = W_CROSS_CHEM
     metals = sorted(METAL_WORK_FUNCTIONS.items(), key=lambda kv: kv[1])
     names = [m for m, _ in metals]
     x = np.linspace(0.0, L_channel, N_POINTS)

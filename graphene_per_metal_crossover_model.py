@@ -77,15 +77,17 @@ W_MAX_ELEMENTAL = 5.9
 DEF_MAX_OBSERVED = 0.5
 
 
-def delta_c(d, ell=ELL_DEFAULT):
+def delta_c(d, ell=None):
     """
     Eq. (N1).  Exactly DC_ANCHOR at d == D_ANCHOR, for any ell.
     ell = np.inf returns DC_ANCHOR for every d, bitwise.
     """
+    if ell is None:
+        ell = ELL_DEFAULT
     return DC_ANCHOR * np.exp(-(np.asarray(d, dtype=float) - D_ANCHOR) / ell)
 
 
-def w_cross_for_metal(metal, ell=ELL_DEFAULT):
+def w_cross_for_metal(metal, ell=None):
     """
     (w_cross_eV, status) for one metal.
 
@@ -96,6 +98,8 @@ def w_cross_for_metal(metal, ell=ELL_DEFAULT):
       "no-separation"  -- Cr: Khomyakov et al. tabulate no d_eq and it was not
                           guessed (same stance as 2026-09-20)
     """
+    if ell is None:
+        ell = ELL_DEFAULT
     d = D_EQ.get(metal)
     if d is None:
         return None, "no-separation"
@@ -113,8 +117,10 @@ def usable_metals():
     return sorted(out, key=lambda m: METAL_WORK_FUNCTIONS[m])
 
 
-def dw_for_metal(metal, ell=ELL_DEFAULT):
+def dw_for_metal(metal, ell=None):
     """Signed offset dW = W_metal - w_cross(metal), or None if out of regime."""
+    if ell is None:
+        ell = ELL_DEFAULT
     wc, st = w_cross_for_metal(metal, ell)
     if st != "ok":
         return None
@@ -151,8 +157,10 @@ def net_response_dw(dW_A, dW_B, e_applied=E_BIAS, L=L_channel,
     return float(np.trapezoid(integrand, x) / L)
 
 
-def net_response_per_metal(mA, mB, ell=ELL_DEFAULT, e_applied=0.0):
+def net_response_per_metal(mA, mB, ell=None, e_applied=0.0):
     """Zero-bias net response for an ordered pair under the per-metal crossover."""
+    if ell is None:
+        ell = ELL_DEFAULT
     dA, dB = dw_for_metal(mA, ell), dw_for_metal(mB, ell)
     if dA is None or dB is None:
         return None

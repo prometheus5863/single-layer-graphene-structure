@@ -100,11 +100,15 @@ ALPHA_PHYS = None    # filled in below by alpha_from_separation(3.3 A)
 # =====================================================================
 # The relation itself
 # =====================================================================
-def alpha_from_separation(d, v_f=V_F, d0=D0_SEPARATION):
+def alpha_from_separation(d, v_f=None, d0=None):
     """
     alpha in eV^-1 from Eq. (2). Returns a NEGATIVE value for d < d0; callers
     must not silently use that -- see alpha_for_metal().
     """
+    if v_f is None:
+        v_f = V_F
+    if d0 is None:
+        d0 = D0_SEPARATION
     return 2.0 * e**3 * (d - d0) / (epsilon_0 * np.pi * hbar**2 * v_f**2)
 
 

@@ -402,10 +402,12 @@ def result_1_margin_table(verbose=True):
     return rows
 
 
-def result_2_asymmetry(u=U_SMALL, verbose=True):
+def result_2_asymmetry(u=None, verbose=True):
     """
     RESULT 2.  Is |N| symmetric about the flip?  Scores P2 and P4.
     """
+    if u is None:
+        u = U_SMALL
     rows = []
     for pair in all_asymmetric_pairs():
         t = tau_star(pair)

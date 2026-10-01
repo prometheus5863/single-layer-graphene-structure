@@ -116,26 +116,30 @@ def collection_probability_profile(x, work_function_metal=None, include_doping=T
 
 
 def mean_collection_efficiency(work_function_metal=None, include_doping=True,
-                                L=L_channel, n_points=N_POINTS):
+                                L=L_channel, n_points=None):
     """Channel-averaged collection probability, <p(x)> over x in [0, L]."""
+    if n_points is None:
+        n_points = N_POINTS
     x = np.linspace(0.0, L, n_points)
     p, _ = collection_probability_profile(x, work_function_metal, include_doping)
     return np.trapezoid(p, x) / L
 
 
-def collection_enhancement_factor(work_function_metal, L=L_channel, n_points=N_POINTS):
+def collection_enhancement_factor(work_function_metal, L=L_channel, n_points=None):
     """
     eta_collect(metal) / eta_collect(bias-only baseline). >1 means the
     contact-doping field measurably speeds up collection relative to a
     work-function-matched (zero-doping) contact.
     """
+    if n_points is None:
+        n_points = N_POINTS
     eta_metal = mean_collection_efficiency(work_function_metal, include_doping=True,
                                             L=L, n_points=n_points)
     eta_baseline = mean_collection_efficiency(include_doping=False, L=L, n_points=n_points)
     return eta_metal / eta_baseline
 
 
-def modeled_eqe_by_metal(L=L_channel, n_points=N_POINTS):
+def modeled_eqe_by_metal(L=L_channel, n_points=None):
     """
     Dict: metal -> (work_function, enhancement_factor, EQE_model).
     EQE_model = EQE_BARE * enhancement_factor -- see module docstring and
@@ -144,6 +148,8 @@ def modeled_eqe_by_metal(L=L_channel, n_points=N_POINTS):
     absolute EQE_bare = 0.15% this is scaled from is not attributed to
     any specific metal in the literature reviewed for Section 6.2).
     """
+    if n_points is None:
+        n_points = N_POINTS
     results = {}
     for metal, wf in METAL_WORK_FUNCTIONS.items():
         enh = collection_enhancement_factor(wf, L=L, n_points=n_points)
