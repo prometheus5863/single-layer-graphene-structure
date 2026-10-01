@@ -4553,3 +4553,318 @@ insertion invalidates the line numbers the first pass used.
 **Commits this run:** 4 (the arrival probe with its output; the `ALPHA_ABS`
 fix; the 14-site late-binding fix with the standing guard and the before/after
 `T_HOP` measurement; the study note). This AUTOMATION_LOG.md entry makes 5.
+
+## 2026-10-01 — The 09-30 fix's own before/after check could only pass in the run that wrote it, and a cited table column had been dead for ten sessions
+
+**Status:** Automated session. **The 04:30 UTC firing did not reach the
+machine; this run is the 06:59 one.** Step 0's already-ran check was clean:
+neither repository had a 2026-10-01 entry or a commit since midnight. Live web
+search **not used** — the session is an audit of material already in the
+repository plus one unread column of an already-cited table, and it adds no
+external citation. `scipy` was present without installing (1.17.1 against
+numpy 2.4.4), for the first time in these sessions. See **Automation health**
+for the one real operational problem, which was the device's network.
+
+**The 09-30 top item closes, with two corrections to how it stated itself.**
+That item was "the 10 remaining knobs in 6 MODEL modules, 7 of them MIXED".
+It is **seven** modules — `graphene_differential_crossover_model`'s `U_SMALL`
+was in the census listing and not in the module count — and **23 sites**, not
+10. Ten was the number of *names*: `W_CROSS_CHEM` alone is captured at 8 sites
+in one module and `ELL_DEFAULT` at 4 in another, which is exactly why 09-30
+called those two the worst, since the 9-frozen-against-2-live and
+4-against-1 ratios it quoted were **site** counts. The fix is per site.
+
+### 1. All 23 sites converted, under a bitwise no-change requirement
+
+| module | transcript |
+|---|---|
+| `graphene_contact_doping_nonlinear_model.py` | 7376 bytes IDENTICAL |
+| `graphene_crossover_sensitivity_model.py` | 5909 bytes IDENTICAL |
+| `graphene_differential_crossover_model.py` | 7153 bytes IDENTICAL |
+| `graphene_per_metal_crossover_model.py` | 3434 bytes IDENTICAL |
+| `graphene_photodetector_collection_model.py` | 1206 bytes IDENTICAL |
+| `graphene_photodetector_signed_carrier_model.py` | 3728 bytes IDENTICAL |
+| `graphene_photodetector_two_contact_model.py` | 2728 bytes IDENTICAL |
+
+The probe's repository-wide census (Section 5) now reports `totals: {}`, down
+from 7 MIXED and 3 FROZEN. **The hazard was prospective, not live** — nothing
+currently mutates these names, so no committed number was wrong. What they
+would have done is start the *next* mutation-based result built on any of them
+at measuring nothing, which is why the item outranked the physics. Section 7b
+extends 09-30's audit-module guard over the model modules so they cannot come
+back. Authored to the 09-29 rule as extended on 09-30: `ast.parse` **and**
+`compile` before writing, in two passes, with guard insertion against
+**recomputed** line numbers.
+
+### 2. THE 09-30 FIX'S OWN BEFORE/AFTER CHECK HAS BEEN FAILING SINCE IT WAS COMMITTED
+
+Re-running the probe after the model-module fix reported **two failures** in
+Section 6 — the before/after measurement of `T_HOP`'s manufactured
+disagreement, which is the centrepiece of 09-30's §9. It read its `before`
+source with `git show HEAD~2:graphene_band_structure_audit.py`.
+
+**`HEAD~2` names a POSITION in history, not a state, and positions move.** On
+09-30 it resolved to the pre-fix file because the fix was still in the working
+tree and two commits had landed since the 09-29 log. The moment the fix was
+itself committed, `HEAD~2` came to name the **post-fix** file — so `before`
+and `after` became the same source, the oracle/measurement split collapsed to
+two equal numbers, and both checks have failed ever since.
+
+**Verified rather than argued:** a pristine clone checked out at `c99c48d`,
+the 09-30 state exactly as committed, runs the probe to **27 passed, 2
+failed**. **The 09-30 entry's "Validations: 29/29" is true of a working tree
+that was never committed and false of every clone of this repository since.**
+
+Fixed by pinning the reference to **content**: blob
+`21a7e2ad96dd07f79d56807ca1f42eaccb8ecc29`, the pre-fix file as it stood at
+`8af4537~1`. A blob hash is content-addressed, so it cannot come to mean a
+different file. **Section 8** is the standing guard — no source file here may
+reference `HEAD`, `HEAD~n`, `HEAD^` or `ORIG_HEAD` — because fixing one site
+does not stop the next being written the same way.
+
+Plus a **positive control on the reference**, 09-30's rule one level out: the
+fetched blob must contain the capture the fix removed and must differ from the
+file on disk. **Its first form fired, on me** — it looked for `'T_HOP=T_HOP'`
+when the signature is `def bands(k, t=T_HOP)`, the parameter not being named
+after the constant. Recorded rather than quietly re-tuned, because a control
+that has never fired is a control with no evidence that it can.
+
+**The test that matters is whether the fix survives its own commit.** A
+pristine clone of the new HEAD runs the probe to **32 passed, 0 failed** —
+the test the 09-30 version failed.
+
+### 3. `graphene_dead_name_sweep.py`: a citation is a claim, and nothing was checking it
+
+09-30 asked whether there are **other** dead names, because `ALPHA_ABS` was
+found only because a mutation happened to point at it. 113 module-level
+constants classified: **112 LIVE, 1 BODY_ONLY, 2 CROSS_MODULE, 1 EXEMPT, 0
+DEAD** after four dispositions, 6/6 checks.
+
+A dead constant is worse than an unused variable because each carries a
+**citation**, so writing the name claims a result depends on the number — and
+a false claim in the direction that flatters the work, since a reader counts
+the citation as a dependency honoured.
+
+- **`PASSI_RC_DIRAC_OHM_UM`** — six measured numbers whose own comment says
+  the table is "on-state (V_BG = −40 V) **and** Dirac-point contact
+  resistance". Only the on-state column was ever read. This is §4 below.
+- **`D_CHEM_PHYS` = 0.9 eV** is a **second definition** of `DC_ANCHOR` =
+  0.9 eV — one literature value, two copies, one unread. The physics is
+  unaffected (the term is applied through `w_cross_for_metal` → `delta_c` →
+  `DC_ANCHOR`), which is why it sat unread for ten sessions and why a revised
+  extraction would move one copy silently. The modules cannot import each
+  other, so the agreement check lives in the sweep.
+- **`DELIVERED`** in the probe, defined for symmetry and read by nothing,
+  given a reader: the census's conclusion stated positively.
+- **`FANG_ANTENNA_TEST_WAVELENGTH_NM`** is **deliberately** unread. So the
+  exemption is a source-level `# dead-name-exempt: <reason>` marker with the
+  reason **required** — a reasonless marker reports as DEAD. It lives in the
+  source and not the checker, because a checker that reports a documented
+  decision as a fault is one that gets ignored, and that failure is silent.
+
+**Two findings against the sweep itself, both from running it.** (i) **Its
+cross-module check was a text search and its own docstring exercised the
+loophole:** `re.search` cannot tell a *use* from a *mention*, so the paragraph
+explaining the Fang exemption made that constant look alive — and this
+module's own `CLASS_LIVE` came back CROSS_MODULE purely because the probe
+defines a constant with the same spelling. **It was DEAD in here and the
+loophole hid it**: a dead-name detector whose own dead name is concealed by
+its own mechanism, one run from being committed. Now an AST pass over `Name`
+loads, `Attribute` names and `ImportFrom` aliases. (ii) **Its exemption scope
+was three lines** and the only real exemption here needs a four-line reason,
+so it reported a declared exemption as DEAD.
+
+Section 3 of the sweep is 09-28's "prose is a detector" **inverted**, as the
+09-30 list asked: constants a module's own docstring or comments NAME while no
+function reads them. It reports 0, and is deliberately a report rather than an
+assertion — prose may mention a constant it does not depend on; what it may
+not do is cite one as an input.
+
+### 4. The physics: Chapter 4's ~11x was compared against the wrong column
+
+**Rc(Dirac)/Rc(on-state)** is the *gate-tunable multiple* of the contact
+resistance — near 1 means the interface sets it and the carrier density
+beneath does not; large means graphene's own density of states in and near the
+contact dominates, which the gate controls.
+
+| hole D (nm) | on-state | Dirac | ratio |
+|---|---|---|---|
+| 0 | 519 | 1372 | 2.64 |
+| 50 | 212 | 620 | 2.92 |
+| 100 | 352 | 732 | 2.08 |
+| **200** | **45** | **456** | **10.13** |
+| 500 | 410 | 1354 | 3.30 |
+| 1000 | 560 | 1590 | 2.84 |
+
+2.08–3.30 at five of six diameters and **10.13** at D = 200 nm — the one
+diameter whose 11x Chapter 4 quotes, and **3.7x the mean of the other five**.
+
+**So the headline reduction is a gate-bias statement, not a geometry
+statement.** D = 0 → D = 200 nm is **11.53x** in the on state and **3.01x** at
+the Dirac point, for the same two devices and the same etched geometry.
+
+**And 3.01x is the comparison the model's own physics selects.** `R_extra` is
+computed from the *contact-induced* carrier density alone and the gate does not
+enter it; at the Dirac point the gate contributes no channel carriers, so the
+measured access resistance is dominated by exactly the term the model
+isolates. **Against that column the model's 2.59x (982.1 → 379.0 Ω·µm) is
+within 14% of measured, where against the on-state column it was short by a
+factor of 4.5.** Chapter 4 §4.8 held a gate-independent model against an
+on-state measurement, which is a category error; **§4.8.2 annotates it in
+place and withdraws no number**, and the §4.9 status row is annotated to
+match. Two caveats kept rather than absorbed: the 2.59x is a *pure-mode* ratio
+against a device that is a mixture at a fill fraction Passi et al. do not
+report, and §4.7's absolute-magnitude discrepancy is untouched and still open.
+
+**And §4.8.1's open item is sharpened rather than closed.** Whatever produces
+the D = 200 nm optimum is **3.5x more of an effect in the on state than at the
+Dirac point** (4.71x against 1.36x, taking D = 50 nm as reference), so it
+scales with **carrier density**, not interface area. A model built entirely
+from interface geometry — which §4.8.1's is, edge length per unit area at
+fixed fill fraction — cannot produce a minimum whose depth depends on the
+gate. **Its failure was the wrong class of model, not a missing refinement,
+and the evidence was in the column the chapter cited and did not read.**
+
+**Methodological note, continuing the series.** 09-25: a procedure asked
+whether it has converged can answer yes and be 44% wrong. 09-26: an anchored
+comparison is anchored in one variable. 09-27: an instrument can be
+systematically smallest where the answer is worst. 09-28: prose is a detector,
+and a check that cannot fail is worse than no check. 09-29: a mutation that
+does not arrive is indistinguishable from a system that does not respond.
+09-30: a control has to sit where the failure enters, not where it shows.
+**10-01: AND IT HAS TO NAME WHAT IT COMPARES AGAINST IN A WAY THAT CANNOT COME
+TO MEAN SOMETHING ELSE.** Three instruments failed today and **not one had a
+wrong comparison**. The before/after measurement compared correctly, against a
+revision expression that came to denote a different file. The cross-module
+check compared correctly, against a name resolved by text so a mention counted
+as a use. The exemption check compared correctly, against a marker whose scope
+was three lines and whose reason was four. **Every one is a naming failure,
+and a naming failure is invisible at the comparison, because the comparison is
+doing exactly what it says.** 09-30 put the control where the failure enters;
+*where* turns out to be half of it, and the other half is that the thing being
+pointed at has to stay the thing being pointed at.
+**The uncomfortable corollary:** the one that mattered most was in the
+instrument 09-30 built *to enforce* this series' own rules, and it broke **by
+being committed** — working in the run that wrote it and in no run afterwards,
+which is the worst possible failure schedule, since it passes under scrutiny
+and fails only once nobody is looking. **A check validated only in the session
+that wrote it has not been validated**, and the cheapest test for it — run the
+suite from a pristine clone of the commit — is one this repository had never
+run. It ran twice today and found the fault immediately both times.
+
+**Validations:** probe 33/33 (was 29 checks reporting 27/2 as committed),
+including the new positive control on the reference, Section 7b over the model
+modules and Section 8's relative-revision guard; sweep 6/6, including a
+five-class positive control on a synthetic module, a check that a reasonless
+exemption reports as DEAD, and the two-copy agreement check on the chemical
+term; seven module transcripts compared bitwise identical; `graphene_edge_
+contact_model.py`'s existing output bitwise identical with the new block
+appended; and two pristine-clone runs, one at `c99c48d` to establish the
+regression and one at the new HEAD to establish that the fix survives commit.
+**Three faults of my own were found and are recorded rather than quietly
+corrected:** the reference control's first form looked for the wrong text, the
+sweep's cross-module check hid its own dead constant, and the sweep's
+exemption scope was shorter than its only real exemption's reason.
+
+**Not yet covered (candidates for future runs):**
+- **Run every suite in this repository from a pristine clone of HEAD, not from
+  the working tree** — created today and **the new top item**, because today's
+  worst finding is that the difference between those two is where a check goes
+  to die, and nothing here has ever checked it. The probe was validated this
+  way twice today; the other audits never have been
+- **`require_delivery` is still not CALLED by any audit** — created 09-30,
+  untouched. The probe proves the rule and the audits do not obey it; wiring it
+  into the 09-29 provenance audit and the four fixed audits is the obvious next
+  step and must not move their transcripts
+- **Do the four existing audits have references that are not content-pinned?** —
+  created today by §2. Section 8 guards against relative *git* revisions; a
+  reference to "the current value of X" or to a file by path is the same class
+  of hazard and is not guarded
+- **Is `D_CHEM_PHYS` the only duplicated literature value?** — created today by
+  §3. One sweep found one duplicate pair by accident, which is exactly the
+  position `ALPHA_ABS` put us in a session ago. A census of numerically equal
+  module-level constants across modules is the general check
+- **Whether the three identity re-assignments should be replaced by real
+  mutations** — created 09-30, untouched
+- **Whether Chapter 4's `n_puddle` actually reproduces Section 3.3's measured
+  6.45 kΩ/sq floor** — created 09-29, untouched, a one-line calculation, and
+  the only place Chapter 3's central negative result touches Chapter 4's numbers
+- **The Section 3.6 Pauli edge is absent from Chapter 6's model** — created
+  09-29, untouched; the third leg of the Chapter 4 / Chapter 6 contact-metal
+  contradiction and the only one that is a physical mechanism
+- **Where does the 6.5430% internal collection efficiency come from?** —
+  created 09-30, untouched; a transit-time-versus-recombination-lifetime
+  estimate would either support it or put `EQE_BARE` in tension with Chapter 6
+- **Chapters 2 and 3 are drafted but §4.8.2's form of error is not audited for
+  elsewhere** — created today: the fault was comparing a gate-independent model
+  against a gate-biased measurement, and Chapters 5 and 6 contain several
+  model-against-literature comparisons whose bias conditions are not stated
+- **A finite-temperature optical conductivity** (09-29); **the remote-polar-
+  phonon cap on SiO2 is asserted, not computed** (09-29); **angular trigonal
+  warping** (09-28); **finite-temperature carrier density `n(E_F, T)`**
+  (09-28, wanted twice); whether other `== 0.0` exactness checks are
+  round-trip tautologies (09-28); whether RESULT 2's other convictions are
+  read from the saturated branch (09-28); a probe reporting both directions of
+  lambda (09-28); whether `t'` can be EXCLUDED quantitatively as the source of
+  Chapter 4's electron-hole asymmetry (09-28); whether any other
+  near-cancellation shows the `c2`/`c4` sign flip if differentiated (09-27);
+  migrating every remaining validation to measured-value-beside-derived-bound
+  form (09-27); whether Chapter 4 or 5 contains a RANKING that is a step
+  artefact (09-23/09-25); `n_segments = 50` at a bias with more curvature
+  (09-26)
+- **A second anchor for `Delta_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, now **untouched for eleven
+  consecutive sessions**. Today's §3 touched `DC_ANCHOR` without adding an
+  anchor, which is worth saying plainly
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural weakness
+- **Whether Chapter 7's Section 7.3 differential-interconnect prediction
+  holds** (09-27); which of Chapters 4 and 5's design rules could be restated
+  as parities or bounds (09-23); whether the parity survives a
+  photo-thermoelectric term (09-23); re-check whether other "for every ..."
+  claims rest on small samples (09-20); whether Chapter 4's contact-resistance
+  results should be re-run at the 5.4 eV crossover (09-18); reconciling Mueller
+  *et al.*'s 0.12 eV step (arXiv:0902.1479) with the 0.25–1.07 eV offsets
+  `METAL_WORK_FUNCTIONS` assumes (09-18); a photo-thermoelectric term (Kasirga
+  review); Shimomura *et al.*'s comb-electrode design; integrating 6.5's
+  plasmonic near-field picture with the spatially-resolved contact-doping
+  machinery; isolating the root cause of the Section 4.7 negative residual
+  (08-31); Ti and Cr per-metal `Rc` recalibration (ResearchGate rate-limiting);
+  a second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health.** Device reachable and folder connected, but **the real
+problem today was the DEVICE'S NETWORK, not the toolchain.** `git clone` of
+either repository from inside `device_bash` **could not complete**: raw
+throughput to GitHub measured **~13 KB/s** (1.3 MB of tarball in 97 s), so a
+full clone exceeded the 180 s per-call shell limit repeatedly, and `nohup`'d
+background clones **do not survive between `device_bash` calls** — each call
+is a fresh shell and the children were reaped. A blobless `--no-checkout`
+clone finished in **3 seconds**, which locates the fault precisely: git
+protocol negotiation is fine, bulk packfile transfer is throttled. The session
+was restructured rather than abandoned, and the recipe is recorded because it
+will be needed again:
+1. Clone and do all work in the **cloud sandbox** (2 s for both repositories).
+2. `git bundle create <f> <old_origin_main>..main`.
+3. Ship the bundle to the device with `device_commit_files` into
+   `C:\scheduled harsh\_transfer\`.
+4. On the device, `git clone --depth 1 --filter=blob:none --no-checkout` (3 s),
+   `git fetch <bundle> refs/heads/main:refs/remotes/incoming/main`, then
+   `git push origin refs/remotes/incoming/main:refs/heads/main`.
+**Pushing from a shallow, blobless, no-checkout clone WORKS**, and this was
+tested on the other repository's first commit **before** the rest of the
+session's work was done, precisely so a broken push path would be found early
+rather than at the end. A push is a few KB, so 13 KB/s is no obstacle to it;
+only the clone was. The `GIT_ASKPASS` recipe ran from `$HOME/.sess/` per 09-28
+and the 09-29 correction (**`/tmp` may carry another session's files**), and
+the temp token copy was shredded. **Deviation from the 09-25 push-as-you-go
+rule, stated deliberately:** each push now costs a bundle, a file transfer and
+a device round-trip, so commits were made locally and pushed in one batch per
+repository, then verified against the GitHub API rather than against git's own
+output. `user.name`/`user.email` were again absent in the fresh clone and set
+per 09-24. `scipy` was already present (1.17.1), so no install was needed.
+
+**Commits this run:** 5 (the 23-site late-binding fix; the pinned reference
+with its positive control and the relative-revision guard; the dead-name sweep
+with its four dispositions; Chapter 4 §4.8.2; the study note). This
+AUTOMATION_LOG.md entry makes 6. The Design-Verification-Roadmap repository
+took 5.
