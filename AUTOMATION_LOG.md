@@ -4868,3 +4868,295 @@ with its positive control and the relative-revision guard; the dead-name sweep
 with its four dispositions; Chapter 4 §4.8.2; the study note). This
 AUTOMATION_LOG.md entry makes 6. The Design-Verification-Roadmap repository
 took 5.
+
+## 2026-10-02 — The 10-01 top item closes, and the day's worst finding was inside the one suite that agreed with its transcript perfectly
+
+**Status:** Automated session, the 04:30 UTC firing. Step 0's already-ran check
+was clean: neither repository had a 2026-10-02 entry or a commit since
+midnight. Live web search **not used** — the session is an audit of material
+already in the repository and adds no external citation. `scipy` present
+without installing (1.18.1 against numpy 2.5.3). See **Automation health**: the
+device's network was again unusable for cloning, as on 10-01, and the recorded
+workaround was used unchanged.
+
+**The 10-01 top item closes.** That item was "run every suite in this
+repository from a pristine clone of HEAD, not from the working tree", created
+because 10-01's worst finding was that the difference between those two is
+where a check goes to die. `graphene_pristine_transcript_audit.py` does it for
+every suite and asks one step more than 10-01 asked — not "does it still pass"
+but **does the committed code still produce the committed transcript.** The
+transcripts here are captured stdout written by a shell redirect, so a session
+that changes a module is free to forget it, and **`git status` cannot see the
+result** because the transcript is unmodified and it is the code that moved.
+
+Opening state at `2d51dd8`: **4 STALE, 1 NUMERIC_DRIFT**, and one of the new
+instrument's own controls failing on a premise of its own. Closing: **0 STALE**.
+
+### 1. THE STRONGEST VERDICT WAS WRONG, AND THAT IS THE DAY'S FINDING
+
+`graphene_band_structure_audit.py` classified **IDENTICAL** — code and
+transcript agreeing byte for byte — and the transcript said, under a heading
+reading `RESULT 1 -- the shipped band structure has NO DIRAC POINT`:
+
+```
+  minimum gap over the whole shipped path = 0.0000 eV
+  gap at the index labelled K             = 0.0000 eV
+  ... The shipped figure shows a 0.0 eV gap at its own K label.
+```
+
+**A 0.0 eV gap at K *is* the Dirac point.** The sentence offers the absence of
+the bug as the evidence for the bug. `RESULT 1` reports the *superseded*
+spectrum and was reading the *corrected* path, so **this repository's own bug
+report has been quoting the fixed value as the fault for five weeks.** Now
+prints superseded beside corrected: **14.4019 eV** and **2.487e-15 eV** at K,
+both on the record, neither deleted.
+
+The instrument built today could not have found this. It asks whether two
+artefacts agree; these agreed perfectly, on something false.
+
+### 2. V5 could only FAIL, and the oracle it needed was built in the same commit as the fix
+
+| commit | date | V5 | tally |
+|---|---|---|---|
+| `64c6347` | 09-28 | **PASS** | 5/5 |
+| `fef532d9` | 09-28 | **FAIL** | 4/5 — and in every clone since |
+
+Same mechanism as §1. `legacy=True`, which preserves the superseded path
+exactly, **was added in `64c6347`, the fix's own commit**, explicitly under the
+09-24 rule that a deleted implementation destroys the only oracle for judging
+its replacement — and the one validation whose purpose is to exercise that
+oracle was never pointed at it. **The oracle was preserved and then not used.**
+
+It survived because the suite prints FAIL on a summary line and exits 0. **A
+standing FAIL in a tally is worse than a missing check**: it teaches a reader
+that 4/5 is this suite's normal state, which is the exact condition under which
+a real regression here would be invisible. 09-28's "a check that cannot fail is
+worse than no check" has a mirror, and the mirror is louder and therefore
+easier to stop hearing. V5 now reads the legacy path; new **V5b** asserts the
+default path *has* a Dirac point. Before, V5 could only fail; now V5 fails if
+the oracle is lost and V5b fails if the fix is reverted. **4/5 → 8/8.**
+
+### 3. The third site: the 09-28 missing π was still live in the repository
+
+`plot_fermi_surface()` carried its own inline copy of the wrong zone corner,
+`k_K = 4.0/(3*np.sqrt(3))` = 0.76980, π times too small — so *"Fermi Surface of
+Single-Layer Graphene (Around K Point)"* was centred where the gap is **14.40
+eV**: a figure of the Dirac cone with no Dirac cone in it.
+
+| centre | value | gap there |
+|---|---|---|
+| superseded (inline literal) | 0.7698003589195 | **14.401937 eV** |
+| corrected | 2.4183991523123 | 2.487e-15 eV |
+
+**Nothing could have caught it:** the function is called by no suite and
+`fermi_surface.png` is not committed, so the only artefact that could have
+disagreed with the code does not exist. **A literal is not fixed by fixing the
+constant it duplicates** — the dead-name sweep guards unread *names*, and this
+is the mirror, a read *value* that is not a name and so is invisible to every
+name-based instrument here. Now reads `fermi_surface_grid_centre()`; **V6**
+requires the gap at that centre to sit on the floor, **V6b** forbids an inline
+copy outside `HIGH_SYMMETRY_LEGACY`. V6b mutation-tested: reinjecting the
+literal takes the suite 8/8 → 7/8 and names the line.
+
+### 4. A ranked table of 21 equal keys
+
+The audit's first run reported `graphene_differential_crossover_model.py` STALE
+on a *structural* difference: the committed transcript named `Ti/Pd` in a table
+and a pristine run of the **same commit** named `Cr/Cu`, with every printed
+number identical. The cause is printed four lines below the table by the
+function's own prose — `asym` is zero for all 21 pairs to machine precision
+(Validation 6: N is exactly odd in s) — so `sort(key=-asym)` sorted 21 equal
+keys and `rows[:6]` took an arbitrary six, chosen by the last bits of a
+quantity already proved zero. Measured spread **5.574e-15**. No number and no
+verdict moves; P2 and P4 are still falsified by the identity. What was wrong is
+that **a reader counts a ranked table as a claim that the top row differs from
+the bottom one.** Tie-broken lexicographically and the degeneracy printed. This
+answers the 09-23 "is there a RANKING that is a step artefact" item in its
+**noise** form; the step form stays open.
+
+### 5. CROSS_MODULE resolved on SPELLING, and this session's own module walked into it
+
+The new module defined `SELF` and never read it, and the sweep did **not**
+report it DEAD — it reported CROSS_MODULE, resolved against a **function-local
+variable of the same spelling** in `graphene_log_sensitivity_step_audit.py`, a
+module that does not import the new one. 10-01 recorded this exact fault in the
+sweep and **fixed half of it**: the mention-vs-use half, `re.search` → AST. The
+half left standing is that an AST reference in another module is a liveness
+claim *only if that module can reach this one*. New **Section 2b** checks every
+resolution against a real import, with a positive control: 3 rows, **1
+unsupported**. The two supported are real and untouched (`per_metal` imports
+`CHEMISORBED`; the sweep imports `nl.D_CHEM_PHYS`). `SELF` was given a *reader*
+rather than a deletion — a runtime assertion that the module is not in `SUITES`,
+since the exclusion had been carried by a comment and a comment is not
+checkable. Verified by adding it to `SUITES` in a copy: the assertion fires.
+
+### 6. Two transcripts that were already stale, neither visible to `git status`
+
+- **`figure_provenance_audit_output.txt`** — stale since 10-01. Still reported
+  **37 frozen default-capture sites across 11 files** (the sites 10-01
+  converted; the census now reads 0 of 36) and still showed the `T_HOP`
+  mutation **frozen** at `8.379013 -> 8.379013` where it now **arrives** at
+  `-> 16.758026`. The transcript was a session out of date on exactly the fault
+  10-01 fixed, which is the sharpest possible demonstration that regenerating
+  transcripts by hand is partial by nature.
+- **`log_sensitivity_step_audit_output.txt`** — stale since 09-28, when the
+  covariance probe audit landed: **11 call sites → 18**, and
+  discarded-convergence-flag comparisons **1 → 3**. A reader of the committed
+  transcript would have concluded the repository was cleaner than it is.
+
+### 7. One fault of my own, recorded rather than quietly re-tuned
+
+Control **C2** bumped the last printed digit of a `%.6f` number and asserted
+`NUMERIC_DRIFT`. For `7.500000 → 7.500001` that is a relative change of
+**1.3e-7**, a hundred times *outside* `NUMERIC_RTOL = 1e-9`, so `STALE` was the
+correct verdict and the control's premise was false. **"The last digit" is a
+fact about a format string; the tolerance is a fact about the number.** The
+classifier was right about the real data — the drift it exists to catch is
+2.6e-16 — and only the synthetic control was wrong. C2 now perturbs by
+`NUMERIC_RTOL/100`, and **C2b** asserts the perturbation is genuinely inside
+the tolerance so the fault cannot return.
+
+### 8. The FAIL that is kept deliberately
+
+`graphene_rootfinder_audit.py` classifies NUMERIC_DRIFT at **2.586e-16**: the
+root agrees to a few ULP but the last three printed digits differ by
+environment (`4.99733219460098000e-11` committed against `...97870e-11` here;
+residuals identical). So *"every transcript is exactly reproducible"* is **false
+for this repository and should keep saying so.** These are reproducible
+**results**, not reproducible **artefacts**, and byte comparison cannot certify
+them across library versions. Lowering the bar to make the suite green would
+delete the only statement of that limitation.
+
+**Methodological note, continuing the series.** 09-25: a procedure asked
+whether it has converged can answer yes and be 44% wrong. 09-26: an anchored
+comparison is anchored in one variable. 09-27: an instrument can be
+systematically smallest where the answer is worst. 09-28: prose is a detector,
+and a check that cannot fail is worse than no check. 09-29: a mutation that
+does not arrive is indistinguishable from a system that does not respond.
+09-30: a control has to sit where the failure enters, not where it shows.
+10-01: and it has to name what it compares against in a way that cannot come to
+mean something else. **10-02: AND WHEN IT AGREES, THAT IS A FACT ABOUT TWO
+ARTEFACTS, NOT ABOUT THE WORLD.** Today's instrument asks whether code and
+transcript agree, and the day's worst finding sat inside the one suite that
+agreed **perfectly** — `RESULT 1` was reproducible, pinned, byte-identical and
+false. 10-01 established that a reference must name its target in a way that
+cannot drift; 10-02 adds that **a reference that cannot drift can still point
+at the wrong thing from the day it was written**, and agreement between two
+artefacts is silent about which.
+**The second thread, and the more useful one:** §2, §3 and §5 are all the same
+shape — **a repair that was built and then not connected.** 09-28 preserved the
+legacy path and left the validation pointed elsewhere. 09-28 fixed the
+zone-corner constant and left a duplicate of its *value* three functions away.
+10-01 diagnosed the spelling loophole and fixed one of its two halves. In every
+case the session understood the fault correctly, wrote the right mechanism, and
+**stopped one wiring step short** — and in every case what remained was
+invisible *because the fix's own write-up read as complete*. The remedy is not
+more care. It is that **the last step of a repair is a check that the repair is
+reachable from where the fault was**, and none of these three had one.
+
+**Validations:** pristine transcript audit 9/10 as committed (9 IDENTICAL, 0
+STALE, 1 NUMERIC_DRIFT deliberately left failing per §8), with all six
+controls firing correctly including C6's end-to-end injected defect; band
+structure audit **8/8**, up from 5 checks reporting 4/5, with V5 repointed,
+V5b, V6 and V6b added and V6b mutation-tested 8/8 → 7/8; dead-name sweep
+**8/8**, up from 6/6, with Section 2b and its positive control, and
+unsupported CROSS_MODULE resolutions 1 → 0; differential crossover reproducible
+across two consecutive runs with every number and both verdicts unchanged;
+mutation-arrival probe 33/33 unchanged with the new file present, so Section 8's
+relative-revision guard stays green — the new module reads `.git/HEAD` as a file
+and speaks only in 40-hex ids rather than naming the revision. **Two faults of
+my own are recorded rather than quietly corrected:** control C2's first form was
+mis-specified (§7), and the new module's own `SELF` was a dead name that the
+sweep mis-classified, which is what exposed §5.
+
+**Not yet covered (candidates for future runs):**
+- **`require_delivery` is still not CALLED by any audit** — created 09-30,
+  untouched for three sessions and **now the top item**. The probe proves the
+  rule and the audits do not obey it. Today's second thread makes it sharper
+  than it looked: this is itself a repair built and not connected, which is
+  the exact failure shape §2, §3 and §5 all share
+- **Audit every REMAINING check for the §1 fault: does it read the artefact its
+  own prose names?** — created today, and the direct successor to the top item
+  that just closed. V5 and RESULT 1 both read the corrected path while
+  describing the superseded one, and both were found by eye, not by instrument.
+  The general form is mechanisable: a function whose docstring says "shipped",
+  "superseded", "legacy" or "pre-<date>" must not call the default path
+- **Do the four existing audits have references that are not content-pinned?** —
+  created 10-01, untouched. Section 8 guards relative *git* revisions; a
+  reference to "the current value of X" or to a file by path is the same class
+- **Is `D_CHEM_PHYS` the only duplicated literature value?** — created 10-01,
+  untouched, and today's §3 raises it from a name question to a **value**
+  question: a census of numerically equal module-level constants would not have
+  found the Fermi-surface literal, because that one is not a constant at all.
+  The general check is duplicated literal VALUES, not duplicated names
+- **Is `plot_fermi_surface` the only uncommitted figure?** — created today. The
+  reason §3 hid for five weeks is that no artefact existed to disagree with the
+  code. Every plotting function whose output is not committed is in that
+  position, and the count is not known
+- **Whether Chapter 4's `n_puddle` actually reproduces Section 3.3's measured
+  6.45 kΩ/sq floor** — created 09-29, untouched for four sessions, a one-line
+  calculation, and the only place Chapter 3's central negative result touches
+  Chapter 4's numbers
+- **Whether the three identity re-assignments should be replaced by real
+  mutations** — created 09-30, untouched
+- **The Section 3.6 Pauli edge is absent from Chapter 6's model** — created
+  09-29; the third leg of the Chapter 4 / Chapter 6 contact-metal contradiction
+  and the only one that is a physical mechanism
+- **Where does the 6.5430% internal collection efficiency come from?** —
+  created 09-30, untouched
+- **Chapters 2 and 3 are drafted but §4.8.2's form of error is not audited for
+  elsewhere** — created 10-01; Chapters 5 and 6 contain several
+  model-against-literature comparisons whose bias conditions are not stated
+- **Whether Chapter 4 or 5 contains a RANKING that is a step artefact** —
+  created 09-23/09-25, and today's §4 closes only its *noise* form. The step
+  form is untouched, and §4 is evidence the class is real here
+- **A finite-temperature optical conductivity** (09-29); **the remote-polar-
+  phonon cap on SiO2 is asserted, not computed** (09-29); **angular trigonal
+  warping** (09-28); **finite-temperature carrier density `n(E_F, T)`** (09-28,
+  wanted twice); whether other `== 0.0` exactness checks are round-trip
+  tautologies (09-28); whether RESULT 2's other convictions are read from the
+  saturated branch (09-28); a probe reporting both directions of lambda
+  (09-28); whether `t'` can be EXCLUDED quantitatively as the source of
+  Chapter 4's electron-hole asymmetry (09-28); whether any other
+  near-cancellation shows the `c2`/`c4` sign flip if differentiated (09-27);
+  migrating every remaining validation to measured-value-beside-derived-bound
+  form (09-27); `n_segments = 50` at a bias with more curvature (09-26)
+- **A second anchor for `Delta_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, now **untouched for twelve
+  consecutive sessions**. Today was again an audit session and did not touch
+  it, which is worth saying plainly rather than letting the streak go unnamed
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural weakness
+- **Whether Chapter 7's Section 7.3 differential-interconnect prediction
+  holds** (09-27); which of Chapters 4 and 5's design rules could be restated
+  as parities or bounds (09-23); whether the parity survives a
+  photo-thermoelectric term (09-23); re-check whether other "for every ..."
+  claims rest on small samples (09-20); whether Chapter 4's contact-resistance
+  results should be re-run at the 5.4 eV crossover (09-18); reconciling Mueller
+  *et al.*'s 0.12 eV step (arXiv:0902.1479) with the 0.25–1.07 eV offsets
+  `METAL_WORK_FUNCTIONS` assumes (09-18); a photo-thermoelectric term (Kasirga
+  review); Shimomura *et al.*'s comb-electrode design; integrating 6.5's
+  plasmonic near-field picture with the spatially-resolved contact-doping
+  machinery; isolating the root cause of the Section 4.7 negative residual
+  (08-31); Ti and Cr per-metal `Rc` recalibration (ResearchGate rate-limiting);
+  a second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health.** Device reachable and folder connected. **The device's
+network was again the only real operational problem, and worse than on 10-01.**
+Measured throughput to GitHub from inside `device_bash`: **9.3 KB/s** (1.34 MB
+of tarball in 143 s), against 13 KB/s on 10-01, and a bare `api.github.com`
+request took **11.5 s**. `git clone` could not complete inside the 180 s shell
+limit at either full or `--depth 20`, and `nohup`'d background clones were
+confirmed again **not to survive between `device_bash` calls** — each call is a
+fresh shell and the children are reaped, which was re-tested rather than
+assumed. The 10-01 recipe was used unchanged: clone and work in the cloud
+sandbox, ship an incremental bundle to the device with `device_commit_files`,
+then clone `--depth 1 --filter=blob:none --no-checkout` on the device (3 s) and
+push from there. Push payload is a few hundred KB, so 9.3 KB/s is survivable
+for the push even though it is not for the clone. The `GIT_ASKPASS` recipe ran
+from the session VM's own temp space and the token copy was shredded; the token
+was never written into `.git/config`, a remote URL, any repository file, or the
+connected folder. **One deviation worth stating:** `pushed_at` from the GitHub
+API was used as a cheap cross-check on Step 0's "has today's work already run"
+question before the clones finished, which is a second, independent source for
+that decision rather than a replacement for the AUTOMATION_LOG check.
