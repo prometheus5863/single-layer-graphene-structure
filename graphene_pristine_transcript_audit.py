@@ -307,23 +307,48 @@ def main():
             check("C1 unperturbed output classifies IDENTICAL", v == "IDENTICAL",
                   "got %s" % v)
 
-            # C2: a last-digit perturbation must be NUMERIC_DRIFT, not IDENTICAL
+            # C2: a WITHIN-TOLERANCE perturbation must be NUMERIC_DRIFT.
+            #
+            # THE FIRST FORM OF THIS CONTROL WAS WRONG AND IT FIRED ON ME, so
+            # it is recorded rather than quietly re-tuned (09-30 rule).  It
+            # bumped the LAST PRINTED DIGIT of a %.6f number and asserted the
+            # verdict would be NUMERIC_DRIFT.  For 7.500000 -> 7.500001 that is
+            # a relative change of 1.3e-7, which is a hundred times OUTSIDE
+            # NUMERIC_RTOL, so STALE was the correct verdict and the control's
+            # premise was false.  The lesson is that "the last digit" is a fact
+            # about a FORMAT STRING and the tolerance is a fact about the
+            # NUMBER, and a control must be built from the quantity it is
+            # testing: this form perturbs by a known fraction of NUMERIC_RTOL,
+            # so it tests the tolerance rather than the formatting.  The real
+            # drift this detector was built to classify is ~2.6e-16, which is
+            # seven orders of magnitude inside the tolerance -- the detector was
+            # right about the real data and the synthetic control was wrong.
             m = None
             for line in real.split("\n"):
                 mm = re.search(r"\d+\.\d{6,}", line)
-                if mm:
+                if mm and float(mm.group(0)) != 0.0:
                     m = (line, mm)
                     break
             if m is None:
-                check("C2 a high-precision number exists to perturb", False)
+                check("C2 a high-precision nonzero number exists to perturb", False)
             else:
                 line, mm = m
                 tok = mm.group(0)
-                bumped = tok[:-1] + ("1" if tok[-1] != "1" else "2")
+                val = float(tok)
+                nudged = val * (1.0 + NUMERIC_RTOL / 100.0)
+                bumped = repr(nudged)
+                rel = abs(nudged - val) / abs(val)
                 perturbed = real.replace(line, line.replace(tok, bumped, 1), 1)
                 v, ev = classify(perturbed, real)
-                check("C2 a last-digit change classifies NUMERIC_DRIFT",
-                      v == "NUMERIC_DRIFT", "got %s  (%s -> %s)" % (v, tok, bumped))
+                check("C2 a within-tolerance change classifies NUMERIC_DRIFT",
+                      v == "NUMERIC_DRIFT",
+                      "relative perturbation %.3e against rtol %.3e -> %s"
+                      % (rel, NUMERIC_RTOL, v))
+                check("C2b that perturbation is genuinely inside the tolerance",
+                      rel < NUMERIC_RTOL,
+                      "a control that perturbs OUTSIDE the tolerance is not "
+                      "testing the tolerance;\nthis is the fault the first "
+                      "form of C2 had, asserted here so it cannot return")
 
             # C3: a changed WORD must be STALE, never NUMERIC_DRIFT
             wline = None
