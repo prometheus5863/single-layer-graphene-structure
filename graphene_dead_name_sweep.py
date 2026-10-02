@@ -292,6 +292,54 @@ def prose_claims_without_code(paths=None):
 # A finding with a number in it: the chemical term exists twice
 # ---------------------------------------------------------------------------
 
+def modules_imported_by(tree):
+    """Basenames of repository modules this module actually imports.
+
+    Added 2026-10-02.  The CROSS_MODULE disposition says a constant is alive
+    because ANOTHER module in this repository references its NAME.  That is
+    only a liveness claim if the other module can actually reach this one --
+    i.e. if it imports it.  Without that, CROSS_MODULE resolves on SPELLING,
+    which is the same-spelling half of the loophole 10-01 found in this very
+    module and fixed only the mention-vs-use half of.
+    """
+    out = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for a in node.names:
+                out.add(a.name.split('.')[0] + '.py')
+        elif isinstance(node, ast.ImportFrom):
+            if node.module and node.level == 0:
+                out.add(node.module.split('.')[0] + '.py')
+    return out
+
+
+def unsupported_cross_module_rows(rows, paths=None):
+    """CROSS_MODULE rows whose resolving module does NOT import the definer.
+
+    Each one is a hidden DEAD: the constant is read by nothing that can see it,
+    and the sweep calls it alive because some unrelated module happens to use
+    the same identifier -- including, as found on 2026-10-02, a FUNCTION-LOCAL
+    variable in an unrelated audit.  Returns (row, resolver, reason) triples.
+    """
+    if paths is None:
+        paths = sorted(glob.glob(os.path.join(HERE, '*.py')))
+    imports = {}
+    for q in paths:
+        with open(q, encoding='utf-8') as fh:
+            imports[os.path.basename(q)] = modules_imported_by(ast.parse(fh.read()))
+    bad = []
+    for row in rows:
+        path, name, lineno, cls, detail = row
+        if cls != CLASS_CROSS_MODULE:
+            continue
+        definer = os.path.basename(path)
+        for resolver in [d for d in detail.split(',') if d]:
+            if definer not in imports.get(resolver, set()):
+                bad.append((row, resolver,
+                            '%s does not import %s' % (resolver, definer)))
+    return bad
+
+
 def chemical_term_copies():
     """
     `D_CHEM_PHYS` in graphene_contact_doping_nonlinear_model.py and
@@ -371,6 +419,37 @@ def main():
           'agreement check, FANG_ANTENNA_TEST_WAVELENGTH_NM declared exempt')
 
     print()
+    print('SECTION 2b -- is every CROSS_MODULE resolution supported by an IMPORT?')
+    print("-" * 70)
+    print('  CROSS_MODULE says a constant is alive because another module here')
+    print('  references its NAME.  That is a liveness claim only if the other')
+    print('  module can reach this one.  10-01 fixed the mention-vs-use half of')
+    print('  this loophole (text search -> AST) and left the same-spelling half.')
+    bad = unsupported_cross_module_rows(rows)
+    for (path, name, lineno, cls, detail), resolver, reason in bad:
+        print('    UNSUPPORTED  %-46s %-24s line %-5d  %s'
+              % (os.path.basename(path), name, lineno, reason))
+    n_cm = sum(1 for r in rows if r[3] == CLASS_CROSS_MODULE)
+    print('  CROSS_MODULE rows: %d   unsupported: %d' % (n_cm, len(bad)))
+    # positive control: a synthetic unsupported resolution MUST be reported,
+    # because a check that has never fired has no evidence that it can.
+    synth_rows = [('/x/definer_mod.py', 'ONLY_SPELLING', 7,
+                   CLASS_CROSS_MODULE, 'resolver_mod.py')]
+    synth_bad = unsupported_cross_module_rows(synth_rows)
+    check('2b positive control: a resolution with no import is reported',
+          len(synth_bad) == 1,
+          'a synthetic CROSS_MODULE row naming a module that does not exist '
+          'and\ntherefore imports nothing must be flagged; got %d'
+          % len(synth_bad))
+    check('every CROSS_MODULE resolution is supported by a real import',
+          not bad,
+          'an unsupported resolution is a HIDDEN DEAD name: nothing that can\n'
+          'see the constant reads it, and the sweep calls it alive because an\n'
+          'unrelated module spells something the same way.\n'
+          + '\n'.join('  %s.%s <- %s' % (os.path.basename(r[0][0]), r[0][1], r[2])
+                       for r in bad))
+    print()
+    print("-" * 70)
     print('SECTION 3 -- the inverted detector: prose names it, no code reads it')
     claims = prose_claims_without_code()
     for base, name, lineno in claims:

@@ -87,6 +87,16 @@ SUITES = [
 # This module is deliberately absent from SUITES.  It would have to run itself
 # inside its own pristine clone, and its transcript would then be a claim that
 # only it can check -- the self-certification 09-30 ruled out.
+#
+# SELF IS ASSERTED ON, NOT MERELY DEFINED.  Its first form was written and
+# never read, and graphene_dead_name_sweep.py did not report it DEAD -- it
+# reported CROSS_MODULE, resolved against a FUNCTION-LOCAL variable of the same
+# spelling in graphene_log_sensitivity_step_audit.py, a module that does not
+# import this one.  That is the same-spelling half of the loophole 10-01 found
+# in the sweep and fixed only the mention-vs-use half of, and the sweep's new
+# Section 2b exists because this module walked straight into it.  The comment
+# above is the REASON this module is excluded; the assertion below is what
+# makes the exclusion checkable, which a comment is not.
 SELF = os.path.basename(__file__)
 
 _PASS = []
@@ -223,6 +233,10 @@ def run_suite(clone, module):
 
 def main():
     repo = os.path.dirname(os.path.abspath(__file__))
+    # Runtime assertion, not a comment: this module must not audit itself.
+    assert SELF not in [m for m, _ in SUITES], (
+        "%s is listed in SUITES: it would run inside its own pristine clone "
+        "and its transcript would be a claim only it can check" % SELF)
     print("=" * 74)
     print("PRISTINE TRANSCRIPT AUDIT -- 2026-10-02")
     print("Does the COMMITTED code still produce the COMMITTED transcripts?")
