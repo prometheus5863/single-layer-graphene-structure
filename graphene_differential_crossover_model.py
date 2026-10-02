@@ -68,6 +68,10 @@ from bracketed_root import bracketed_bisect
 
 METALS = sorted(METAL_WORK_FUNCTIONS, key=lambda m: METAL_WORK_FUNCTIONS[m])
 U_SMALL = 0.05          # eV -- offset from the flip used in the asymmetry test
+# Below this spread, a ranking over `asym` carries no information: the
+# quantity is exactly zero analytically (Validation 6) and what survives
+# is rounding.  Read at call time, so a mutation reaches it.
+ASYM_DEGENERACY_FLOOR = 1e-12
 ELL_GRID = np.linspace(*ELL_RANGE, 25)
 
 
@@ -419,12 +423,44 @@ def result_2_asymmetry(u=None, verbose=True):
         strad = ((METAL_WORK_FUNCTIONS[a] - W_CROSS_CHEM) *
                  (METAL_WORK_FUNCTIONS[b] - W_CROSS_CHEM)) < 0.0
         rows.append((pair, strad, lo, hi, asym))
-    rows.sort(key=lambda r: -r[4])
+    # THE RANKING KEY HERE IS DEGENERATE, AND THE TABLE BELOW USED TO HIDE IT.
+    #
+    # Found 2026-10-02 by graphene_pristine_transcript_audit.py: the committed
+    # transcript named Ti/Pd in this table and a pristine run of the SAME commit
+    # named Cr/Cu, with every printed number identical.  The reason is stated
+    # four lines further down by this function's own prose -- `asym` is zero for
+    # all 21 pairs to machine precision, because N is exactly odd in s (see
+    # Validation 6).  So `sort(key=-asym)` sorts 21 EQUAL keys, `rows[:6]` takes
+    # an arbitrary six, and WHICH six is decided by the last bits of a quantity
+    # the module has already proved is zero.  The table was reporting
+    # floating-point noise in the typographic form of a ranking.
+    #
+    # Nothing numerical was wrong and no result moves: P2 and P4 are falsified
+    # by the identity, not by the ordering.  What was wrong is that a reader
+    # counts a ranked table as a claim that the top row differs from the bottom
+    # one.  Fixed by (i) a deterministic lexicographic tie-break, so the
+    # transcript is reproducible at all, and (ii) saying the key is degenerate
+    # in the output, so the ordering is not read as information.  This is the
+    # 09-23 "is there a RANKING that is a step artefact" item, answered here in
+    # its noise form.
+    key_spread = max(r[4] for r in rows) - min(r[4] for r in rows)
+    degenerate = key_spread <= ASYM_DEGENERACY_FLOOR
+    rows.sort(key=lambda r: (-r[4], r[0][0], r[0][1]))
+    if degenerate:
+        # Order by the only non-degenerate thing available, and say so.
+        rows.sort(key=lambda r: (r[0][0], r[0][1]))
     st = [r[4] for r in rows if r[1]]
     ss = [r[4] for r in rows if not r[1]]
     if verbose:
         print(f"\nRESULT 2: is |N| symmetric about the flip?  "
               f"(u = {u} eV either side of tau*)")
+        print(f"  ranking key `asym` spread over all {len(rows)} pairs: "
+              f"{key_spread:.3e}  (floor {ASYM_DEGENERACY_FLOOR:.3e})")
+        if degenerate:
+            print("  THE RANKING KEY IS DEGENERATE: all pairs tie to machine")
+            print("  precision, so the rows below are ordered LEXICOGRAPHICALLY")
+            print("  and no pair in the table is distinguished from any other.")
+            print("  A ranked order here would have been floating-point noise.")
         print(f"  {'pair':<10}{'sign':>11}{'|N(t*-u)|':>12}{'|N(t*+u)|':>12}"
               f"{'asym':>9}")
         for (a, b), s, lo, hi, asym in rows[:6]:
