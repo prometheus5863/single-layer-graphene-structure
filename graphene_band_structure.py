@@ -196,6 +196,16 @@ def plot_band_structure():
     plt.savefig('band_structure.png', dpi=300, bbox_inches='tight')
     plt.show()
 
+def fermi_surface_grid_centre():
+    """x-coordinate of the zone corner that plot_fermi_surface() centres on.
+
+    Exists so that the choice is assertable from outside: before 2026-10-02 it
+    was an inline literal inside a plotting function, which is the one place a
+    numerical error is invisible to every suite in the repository.
+    """
+    return float(HIGH_SYMMETRY["K"][0])
+
+
 def plot_fermi_surface():
     """
     Plot the Fermi surface of graphene around the Dirac points
@@ -205,8 +215,31 @@ def plot_fermi_surface():
     ky_range = np.linspace(-0.5, 0.5, 200)
     K_x, K_y = np.meshgrid(kx_range, ky_range)
     
-    # Shift to center around K point (approximately)
-    k_K = 4.0/(3*np.sqrt(3))  # x-coordinate of K point
+    # Shift to center around K point
+    #
+    # THIS WAS THE THIRD SITE OF THE 2026-09-28 BUG AND IT SURVIVED THE FIX.
+    # Found 2026-10-02.  The 09-28 commit corrected HIGH_SYMMETRY and the
+    # k-path and kept the old values as HIGH_SYMMETRY_LEGACY, but this function
+    # carried its own inline copy of the wrong zone corner,
+    #
+    #     k_K = 4.0/(3*np.sqrt(3))        # = 0.76980, pi times too small
+    #
+    # so "Fermi Surface of Single-Layer Graphene (Around K Point)" was a
+    # contour plot centred on a point where the gap is 14.40 eV -- a figure
+    # with no Dirac cone in it, titled as a figure of the Dirac cone.  The
+    # superseded number is kept above rather than deleted (09-24 rule) and is
+    # reachable as HIGH_SYMMETRY_LEGACY["K"][0].
+    #
+    # Why no check caught it: this function is called by nothing in any suite
+    # and fermi_surface.png is not committed, so the only artefact that could
+    # have disagreed with the code does not exist.  The 09-28 fix was verified
+    # against the k-path and the DOS, which were the two sites it knew about.
+    # A literal is not fixed by fixing the constant it duplicates --
+    # graphene_dead_name_sweep.py exists because an unread NAME is a hazard,
+    # and this is the mirror case: a read VALUE that is not a name at all.
+    # fermi_surface_grid_centre() exposes the centre so the audit can assert
+    # on it, which is what now covers this.
+    k_K = fermi_surface_grid_centre()
     K_x_shifted = K_x + k_K
     
     # Calculate energy at each k-point

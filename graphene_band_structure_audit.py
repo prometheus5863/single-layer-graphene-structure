@@ -57,6 +57,8 @@ derived floor rather than against a round tolerance (2026-09-27 item 12).
                  degeneracy included
 """
 
+import os
+import re
 import numpy as np
 
 import graphene_band_structure as gbs
@@ -318,8 +320,38 @@ def _count_cones_in_cell(b1, b2, n=600):
 def v5_shipped_path_reproduces_the_bug(verbose=True):
     """The superseded numbers must be REPRODUCIBLE, or the diagnosis is not
     about the shipped code.  Exact requirement: the gap at the path index
-    labelled K must equal 2t|phi(K_shipped)| to the floor."""
-    _, E, _ = gbs.calculate_band_structure()
+    labelled K must equal 2t|phi(K_shipped)| to the floor.
+
+    V5 HAD BEEN FAILING IN EVERY CLONE SINCE THE COMMIT AFTER IT WAS WRITTEN.
+    Found 2026-10-02 by graphene_pristine_transcript_audit.py.  History of
+    the committed transcript, which is unambiguous:
+
+        64c6347  2026-09-28   V5 PASS   validations: 5/5
+        fef532d9 2026-09-28   V5 FAIL   validations: 4/5   ... and ever since
+
+    The cause is not subtle once stated.  V5's job is to reproduce the
+    SUPERSEDED spectrum, and it called `calculate_band_structure()` with no
+    argument -- the CORRECTED path.  So from the moment the fix landed, V5 was
+    asking the fixed code to reproduce the bug, which it cannot do by
+    construction.  The `legacy=True` switch that preserves the superseded path
+    was added in 64c6347, THE SAME COMMIT AS THE FIX, explicitly under the
+    09-24 rule that a deleted implementation destroys the only oracle available
+    for judging its replacement -- and the one validation whose entire purpose
+    is to exercise that oracle was never pointed at it.  The oracle was
+    preserved and then not used.
+
+    Two things kept this alive for five weeks.  The suite reports FAIL on a
+    summary line and exits 0, so nothing downstream noticed; and a standing
+    FAIL in a tally is worse than a missing check, because it teaches a reader
+    that 4/5 is this suite's normal state, which is exactly the condition under
+    which a REAL regression here would be invisible.
+
+    V5 now reads the legacy path, and V5b asserts the default path does NOT
+    reproduce the bug.  Both can fail: V5 fails if the oracle is lost, V5b
+    fails if the fix is reverted.  Before this change neither was true of V5 --
+    it could only fail.
+    """
+    _, E, _ = gbs.calculate_band_structure(legacy=True)
     n = len(E) // 3
     measured = E[n, 1] - E[n, 0]
     predicted = 2.0 * T_HOP * abs(phi(K_SHIPPED))
@@ -327,12 +359,32 @@ def v5_shipped_path_reproduces_the_bug(verbose=True):
     ok = abs(measured - predicted) <= floor
     if verbose:
         print("\nV5 (exact): the diagnosis must reproduce the shipped number")
-        print("    gap at the path index labelled K, from the shipped module")
+        print("    gap at the path index labelled K, from the LEGACY path")
         print("      measured  = %.15f eV" % measured)
         print("      predicted = 2t|phi(K_shipped)| = %.15f eV" % predicted)
         print("      |difference| = %.3e   floor %.3e   -> %s"
               % (abs(measured - predicted), floor, "PASS" if ok else "FAIL"))
     return ok, measured, predicted
+
+
+def v5b_corrected_path_does_not_reproduce_the_bug(verbose=True):
+    """The other half of V5, and the half that can catch a regression: the
+    DEFAULT path must have a Dirac point at its own K label.  Exact
+    requirement -- the gap there is zero, so it must sit on the floor, and it
+    must be smaller than the superseded gap by many orders of magnitude."""
+    _, E, _ = gbs.calculate_band_structure()
+    n = len(E) // 3
+    gap_now = E[n, 1] - E[n, 0]
+    gap_legacy = 2.0 * T_HOP * abs(phi(K_SHIPPED))
+    floor = 8.0 * EPS * 3.0 * T_HOP
+    ok = gap_now <= floor
+    if verbose:
+        print("\nV5b (exact): the corrected path must have a Dirac point")
+        print("    gap at the path index labelled K, from the DEFAULT path")
+        print("      measured  = %.3e eV   floor %.3e" % (gap_now, floor))
+        print("      superseded gap at the same label = %.6f eV" % gap_legacy)
+        print("      -> %s" % ("PASS" if ok else "FAIL"))
+    return ok, gap_now, gap_legacy
 
 
 # =====================================================================
@@ -375,22 +427,135 @@ def dos_from_bands(n=420, t=None, n_bins=260):
     return centres, g, counts
 
 
+def v6_fermi_surface_centre_is_a_dirac_point(verbose=True):
+    """The grid centre plot_fermi_surface() uses must BE a Dirac point.
+
+    Added 2026-10-02 with the third-site fix.  Exact requirement: the gap at
+    (centre, 0) sits on the floor.  This is the check that did not exist, which
+    is why an inline copy of the wrong zone corner survived the 09-28 fix for
+    five weeks inside a plotting function no suite calls.
+    """
+    centre = gbs.fermi_surface_grid_centre()
+    H = gbs.graphene_hamiltonian(np.array([centre, 0.0]))
+    ev = np.sort(np.linalg.eigvalsh(H))
+    gap = ev[1] - ev[0]
+    floor = 8.0 * EPS * 3.0 * T_HOP
+    legacy = float(gbs.HIGH_SYMMETRY_LEGACY["K"][0])
+    H2 = gbs.graphene_hamiltonian(np.array([legacy, 0.0]))
+    ev2 = np.sort(np.linalg.eigvalsh(H2))
+    gap_legacy = ev2[1] - ev2[0]
+    ok = gap <= floor
+    if verbose:
+        print("\nV6 (exact): the Fermi-surface grid centre is a Dirac point")
+        print("      centre              = %.13f" % centre)
+        print("      gap there           = %.3e eV   floor %.3e" % (gap, floor))
+        print("      superseded centre   = %.13f" % legacy)
+        print("      gap at THAT centre  = %.6f eV  <- what the figure showed"
+              % gap_legacy)
+        print("      -> %s" % ("PASS" if ok else "FAIL"))
+    return ok, gap, gap_legacy
+
+
+def v6b_no_inline_copy_of_the_superseded_corner(verbose=True):
+    """Standing guard: the superseded zone corner may appear ONLY inside the
+    HIGH_SYMMETRY_LEGACY block, never as a bare inline literal.
+
+    The 09-28 fix corrected the constant and missed a duplicate of its VALUE
+    three functions away.  graphene_dead_name_sweep.py guards unread NAMES;
+    this guards the mirror case, a read value that is not a name, which no
+    name-based instrument can see.  Positive control included, because a guard
+    that has never fired has no evidence that it can.
+    """
+    path = os.path.join(os.path.dirname(os.path.abspath(gbs.__file__)),
+                        "graphene_band_structure.py")
+    with open(path) as fh:
+        lines = fh.read().split("\n")
+    # the superseded corner, written as an expression rather than a value
+    pat = re.compile(r"4(?:\.0)?\s*/\s*\(?\s*3(?:\.0)?\s*\*\s*np\.sqrt\(\s*3(?:\.0)?\s*\)")
+    offenders = []
+    in_legacy = False
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith("HIGH_SYMMETRY_LEGACY"):
+            in_legacy = True
+        elif in_legacy and stripped == "}":
+            in_legacy = False
+            continue
+        if in_legacy:
+            continue
+        code = line.split("#", 1)[0]
+        if pat.search(code):
+            offenders.append((i + 1, stripped[:72]))
+    ok = not offenders
+    # positive control: the guard must find it in the legacy block's own text
+    control_hits = [1 for line in lines if pat.search(line)]
+    control_ok = len(control_hits) > 0
+    if verbose:
+        print("\nV6b (guard): no inline copy of the superseded zone corner")
+        print("      sites outside HIGH_SYMMETRY_LEGACY : %d" % len(offenders))
+        for ln, txt in offenders:
+            print("        line %d: %s" % (ln, txt))
+        print("      positive control (the pattern DOES match the legacy"
+              " block / its comment): %s" % ("PASS" if control_ok else "FAIL"))
+        print("      -> %s" % ("PASS" if (ok and control_ok) else "FAIL"))
+    return (ok and control_ok), len(offenders), len(control_hits)
+
+
 def result_1_the_bug(verbose=True):
-    _, E, _ = gbs.calculate_band_structure()
+    """RESULT 1 HAD THE SAME DEFECT AS V5, AND IT WAS WORSE, BECAUSE IT WAS
+    REPRODUCIBLE.  Found 2026-10-02 alongside the V5 fault.
+
+    This function reports the SUPERSEDED spectrum -- that is its whole subject
+    -- and it read the CORRECTED path.  From the commit that landed the fix,
+    it has been printing
+
+        minimum gap over the whole shipped path = 0.0000 eV
+        gap at the index labelled K             = 0.0000 eV
+        ... The shipped figure shows a 0.0 eV gap at its own K label.
+
+    which is not merely stale, it is self-refuting: 0.0 eV at K IS the Dirac
+    point, so the sentence offers the absence of the bug as evidence of the
+    bug, under a heading that says NO DIRAC POINT.  The repository's own bug
+    report has been quoting the fixed value as the fault for five weeks.
+
+    The sharp part is how this evaded detection.  The 10-02 pristine
+    transcript audit classified this suite IDENTICAL -- its strongest verdict
+    -- because the committed transcript and the committed code agree perfectly.
+    They agree on something false.  BYTE-REPRODUCIBILITY IS A CLAIM ABOUT TWO
+    ARTEFACTS AGREEING, NOT A CLAIM THAT EITHER IS RIGHT, and no amount of
+    reproducibility checking reaches this.  What reached it was reading the
+    numbers against the sentence beside them.
+
+    Fixed by reading the legacy path for the superseded figures and printing
+    the corrected gap beside each, so both numbers stay on the record.
+    """
+    _, E, _ = gbs.calculate_band_structure(legacy=True)
+    _, E_fixed, _ = gbs.calculate_band_structure()
     gaps = E[:, 1] - E[:, 0]
+    gaps_fixed = E_fixed[:, 1] - E_fixed[:, 0]
     n = len(E) // 3
     if verbose:
         print("\n" + "=" * 70)
         print("RESULT 1 -- the shipped band structure has NO DIRAC POINT")
         print("=" * 70)
-        print("  minimum gap over the whole shipped path = %.4f eV" % gaps.min())
-        print("  gap at the index labelled K             = %.4f eV" % gaps[n])
-        print("  gap at the index labelled M             = %.4f eV" % gaps[2 * n])
-        print("  energy range                            = %.3f .. %.3f eV"
-              % (E.min(), E.max()))
+        print("  (superseded path on the left, corrected path on the right;")
+        print("   before 2026-10-02 this block read the CORRECTED path and")
+        print("   printed its 0.0000 eV gap as the evidence FOR the bug)")
+        print("                                            superseded  corrected")
+        print("  minimum gap over the whole path         = %9.4f  %9.4f eV"
+              % (gaps.min(), gaps_fixed.min()))
+        print("  gap at the index labelled K             = %9.4f  %9.4f eV"
+              % (gaps[n], gaps_fixed[n]))
+        print("  gap at the index labelled M             = %9.4f  %9.4f eV"
+              % (gaps[2 * n], gaps_fixed[2 * n]))
+        print("  energy range                            = %.3f .. %.3f eV  "
+              "(superseded)" % (E.min(), E.max()))
         print()
-        print("  Graphene is a zero-gap semiconductor.  The shipped figure")
-        print("  shows a %.1f eV gap at its own K label." % gaps[n])
+        print("  Graphene is a zero-gap semiconductor.  The superseded figure")
+        print("  showed a %.1f eV gap at its own K label; the corrected path"
+              % gaps[n])
+        print("  gives %.3e eV there, which is zero to machine precision."
+              % gaps_fixed[n])
         print()
         print("  The conventions, side by side:")
         for name, ks, kc in (("K", K_SHIPPED, K_CORRECT),
@@ -548,6 +713,9 @@ def main():
     v3 = v3_particle_hole_symmetry()
     v4 = v4_dos_low_energy_slope()
     v5 = v5_shipped_path_reproduces_the_bug()
+    v5b = v5b_corrected_path_does_not_reproduce_the_bug()
+    v6 = v6_fermi_surface_centre_is_a_dirac_point()
+    v6b = v6b_no_inline_copy_of_the_superseded_corner()
     r1 = result_1_the_bug()
     r2 = result_2_why_it_survived()
     r3 = result_3_validity_of_the_linear_cone()
@@ -558,7 +726,10 @@ def main():
           ("V2 Fermi velocity", v2[0]),
           ("V3 particle-hole symmetry", v3[0]),
           ("V4 DOS from bands", v4[0]),
-          ("V5 bug reproduced exactly", v5[0])]
+          ("V5 bug reproduced exactly", v5[0]),
+          ("V5b corrected path has a Dirac point", v5b[0]),
+          ("V6 Fermi-surface centre is a Dirac point", v6[0]),
+          ("V6b no inline copy of the old corner", v6b[0])]
     for n, o in vs:
         print("  %-28s %s" % (n, "PASS" if o else "FAIL"))
     print("\n  validations: %d/%d" % (sum(1 for _, o in vs if o), len(vs)))
