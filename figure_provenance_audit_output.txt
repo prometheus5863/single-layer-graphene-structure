@@ -135,8 +135,8 @@ that keeps them from coming back
   module and this repository audits BY MUTATION:
   graphene_band_structure_audit.T_HOP ("the hopping used throughout
   the repo"), doubled from 2.8 to 5.6 eV:
-    MEASURED  bands(k)[+] : 8.379013 -> 8.379013 eV   (frozen)
-    MEASURED  v_F         : 9.0627e+05 -> 9.0627e+05 m/s  (frozen)
+    MEASURED  bands(k)[+] : 8.379013 -> 16.758026 eV   (frozen)
+    MEASURED  v_F         : 9.0627e+05 -> 1.8125e+06 m/s  (frozen)
               v_F if t passed explicitly = 1.8125e+06 m/s  (responds)
     ORACLE    2*T_HOP     : 5.600 -> 11.200 eV     (MOVED)
     -> mutating T_HOP moves the EXPECTED value and freezes the
@@ -158,35 +158,10 @@ SECTION C -- repository-wide census of the inert-knob pattern
     must NOT report g(y=1.0), a literal default: PASS
     reported from the control snippet: [('f', 'y', 'FOO_DEFAULT'), ('f', 'z', 'BAR')]
 
-  37 occurrences across 11 of 32 Python files in the repository:
-    graphene_photodetector_signed_carrier_model.py       10
-    graphene_gds_quadrature_audit.py                      6
-    graphene_band_structure_audit.py                      4
-    graphene_per_metal_crossover_model.py                 4
-    graphene_photodetector_collection_model.py            3
-    graphene_rootfinder_audit.py                          3
-    graphene_contact_doping_nonlinear_model.py            2
-    graphene_crossover_sensitivity_model.py               2
-    graphene_differential_crossover_model.py              1
-    graphene_photodetector_two_contact_model.py           1
-    graphene_sensitivity_audit.py                         1
+  0 occurrences across 0 of 36 Python files in the repository:
 
   Ranked by consequence, the ones that matter most are the ones in
   AUDIT modules, because this repository audits by mutation:
-    graphene_band_structure_audit.py               bands                              t=T_HOP
-    graphene_band_structure_audit.py               fermi_velocity_analytic            t=T_HOP
-    graphene_band_structure_audit.py               fermi_velocity_analytic            a_cc=A_CC
-    graphene_band_structure_audit.py               dos_from_bands                     t=T_HOP
-    graphene_gds_quadrature_audit.py               Id_model                           n_segments=N_SEGMENTS_DEFAULT
-    graphene_gds_quadrature_audit.py               gds_model                          Vds=VDS_DEFAULT
-    graphene_gds_quadrature_audit.py               gds_model                          dVds=DVDS_DEFAULT
-    graphene_gds_quadrature_audit.py               gds_model                          n_segments=N_SEGMENTS_DEFAULT
-    graphene_gds_quadrature_audit.py               anchored_step                      rtol=RTOL_ANCHORED
-    graphene_gds_quadrature_audit.py               _fT_fmax_with_gds                  Vds=VDS_DEFAULT
-    graphene_rootfinder_audit.py                   unguarded_p2_threshold             tol=TOL_SHIPPED
-    graphene_rootfinder_audit.py                   unguarded_p2_threshold             lo=LO_SHIPPED
-    graphene_rootfinder_audit.py                   unguarded_p2_threshold             hi=HI_SHIPPED
-    graphene_sensitivity_audit.py                  family_A_rows                      n_bulk=N_BULK_DEFAULT
 
 ==============================================================================
 EXACT VALIDATIONS (against closed forms, not against "it moved")

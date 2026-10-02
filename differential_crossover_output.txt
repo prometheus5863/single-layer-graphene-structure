@@ -65,13 +65,18 @@ RESULT 1: the sign-flip threshold of all 21 pairs (tau* = W_B - W_A, EXACT)
   exactly the pairs the model cannot reach.
 
 RESULT 2: is |N| symmetric about the flip?  (u = 0.05 eV either side of tau*)
+  ranking key `asym` spread over all 21 pairs: 5.574e-15  (floor 1.000e-12)
+  THE RANKING KEY IS DEGENERATE: all pairs tie to machine
+  precision, so the rows below are ordered LEXICOGRAPHICALLY
+  and no pair in the table is distinguished from any other.
+  A ranked order here would have been floating-point noise.
   pair             sign   |N(t*-u)|   |N(t*+u)|     asym
+  Au/Pd       same-sign     0.11191     0.11191    0.00%
+  Au/Pt        straddle     0.42219     0.42219    0.00%
+  Cr/Au       same-sign     0.06230     0.06230    0.00%
+  Cr/Cu       same-sign     0.04720     0.04720    0.00%
   Cr/Ni       same-sign     0.05975     0.05975    0.00%
-  Ti/Cr       same-sign     0.04019     0.04019    0.00%
-  Ti/Ni       same-sign     0.05354     0.05354    0.00%
-  Ti/Pd       same-sign     0.05628     0.05628    0.00%
-  Cu/Ni       same-sign     0.06658     0.06658    0.00%
-  Ti/Cu       same-sign     0.04325     0.04325    0.00%
+  Cr/Pd       same-sign     0.06323     0.06323    0.00%
   ... 15 more
   largest asymmetry over all 21 pairs: 5.574e-15 (relative) -- machine precision, not 'small'
   P2 (some pair > 1%): FAIL -- FALSIFIED, and by an identity rather than by a margin

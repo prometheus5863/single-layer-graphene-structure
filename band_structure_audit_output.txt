@@ -49,21 +49,44 @@ V4 (exact constant): low-energy DOS slope computed from the BANDS
     -> PASS
 
 V5 (exact): the diagnosis must reproduce the shipped number
-    gap at the path index labelled K, from the shipped module
-      measured  = 0.000000000000002 eV
+    gap at the path index labelled K, from the LEGACY path
+      measured  = 14.401937320701817 eV
       predicted = 2t|phi(K_shipped)| = 14.401937320701817 eV
-      |difference| = 1.440e+01   floor 1.492e-14   -> FAIL
+      |difference| = 0.000e+00   floor 1.492e-14   -> PASS
+
+V5b (exact): the corrected path must have a Dirac point
+    gap at the path index labelled K, from the DEFAULT path
+      measured  = 2.487e-15 eV   floor 1.492e-14
+      superseded gap at the same label = 14.401937 eV
+      -> PASS
+
+V6 (exact): the Fermi-surface grid centre is a Dirac point
+      centre              = 2.4183991523123
+      gap there           = 2.487e-15 eV   floor 1.492e-14
+      superseded centre   = 0.7698003589195
+      gap at THAT centre  = 14.401937 eV  <- what the figure showed
+      -> PASS
+
+V6b (guard): no inline copy of the superseded zone corner
+      sites outside HIGH_SYMMETRY_LEGACY : 0
+      positive control (the pattern DOES match the legacy block / its comment): PASS
+      -> PASS
 
 ======================================================================
 RESULT 1 -- the shipped band structure has NO DIRAC POINT
 ======================================================================
-  minimum gap over the whole shipped path = 0.0000 eV
-  gap at the index labelled K             = 0.0000 eV
-  gap at the index labelled M             = 5.6000 eV
-  energy range                            = -8.400 .. 8.400 eV
+  (superseded path on the left, corrected path on the right;
+   before 2026-10-02 this block read the CORRECTED path and
+   printed its 0.0000 eV gap as the evidence FOR the bug)
+                                            superseded  corrected
+  minimum gap over the whole path         =   11.2000     0.0000 eV
+  gap at the index labelled K             =   14.4019     0.0000 eV
+  gap at the index labelled M             =   11.2000     5.6000 eV
+  energy range                            = -8.400 .. 8.400 eV  (superseded)
 
-  Graphene is a zero-gap semiconductor.  The shipped figure
-  shows a 0.0 eV gap at its own K label.
+  Graphene is a zero-gap semiconductor.  The superseded figure
+  showed a 14.4 eV gap at its own K label; the corrected path
+  gives 2.487e-15 eV there, which is zero to machine precision.
 
   The conventions, side by side:
     K shipped = ( 0.76980,  0.00000)  |phi| = 2.571775  ->  E = +/- 7.2010 eV
@@ -146,12 +169,15 @@ SUMMARY
   V2 Fermi velocity            PASS
   V3 particle-hole symmetry    PASS
   V4 DOS from bands            PASS
-  V5 bug reproduced exactly    FAIL
+  V5 bug reproduced exactly    PASS
+  V5b corrected path has a Dirac point PASS
+  V6 Fermi-surface centre is a Dirac point PASS
+  V6b no inline copy of the old corner PASS
 
-  validations: 4/5
+  validations: 8/8
 
   A PUBLISHED FIGURE IS WRONG AND IS BEING CORRECTED.  The gap at
-  K goes from 0.0 eV to 0.  No number in Chapters 4-7 depends on
+  K goes from 14.4 eV to 0.  No number in Chapters 4-7 depends on
   it: those chapters use the LINEAR dispersion and v_F directly,
   never this k-path, which is why the error was survivable for five
   weeks and why nothing else moves.  v_F itself is confirmed exact

@@ -1,0 +1,90 @@
+==========================================================================
+PRISTINE TRANSCRIPT AUDIT -- 2026-10-02
+Does the COMMITTED code still produce the COMMITTED transcripts?
+==========================================================================
+
+--------------------------------------------------------------------------
+SECTION 1 -- the committed state, resolved to a content-addressed id
+--------------------------------------------------------------------------
+  pointer file      : .git/HEAD
+  resolved commit   : 5544d5ebec2b597453cc336c72e3a4dbcacae5be
+  tracked files modified in the WORKING TREE : 0
+  pristine clone    : built and detached at the id above
+
+--------------------------------------------------------------------------
+SECTION 2 -- every suite, run from the pristine clone
+--------------------------------------------------------------------------
+  graphene_mutation_arrival_probe.py           IDENTICAL         1.5s
+  graphene_dead_name_sweep.py                  STALE             1.1s
+        line count 46 -> 47
+  graphene_band_structure_audit.py             IDENTICAL         1.1s
+  graphene_default_scale_audit.py              IDENTICAL         4.4s
+  graphene_figure_provenance_audit.py          STALE            11.3s
+        line count 220 -> 195
+  graphene_gds_quadrature_audit.py             IDENTICAL         6.0s
+  graphene_log_sensitivity_step_audit.py       STALE             2.4s
+        line count 354 -> 363
+  graphene_rootfinder_audit.py                 NUMERIC_DRIFT     0.7s
+        worst relative difference 2.586e-16
+  graphene_transport_optical_audit.py          IDENTICAL         0.6s
+  graphene_covariance_probe_audit.py           RAN         0.7s  (no transcript)
+  graphene_differential_crossover_model.py     STALE             7.2s
+        line 70 is not a numeric difference:
+          committed: Ti/Cr       same-sign     0.04019     0.04019    0.00%
+          pristine : Ti/Ni       same-sign     0.05354     0.05354    0.00%
+
+--------------------------------------------------------------------------
+SECTION 3 -- positive controls on the detector itself
+09-30's rule: a control that has never fired is a control with
+no evidence that it can.  These run against REAL captured output.
+--------------------------------------------------------------------------
+  donor: graphene_mutation_arrival_probe.py
+  [PASS] C1 unperturbed output classifies IDENTICAL
+        got IDENTICAL
+  [FAIL] C2 a last-digit change classifies NUMERIC_DRIFT
+        got STALE  (7.500000 -> 7.500001)
+  [PASS] C3 a changed word classifies STALE
+        got STALE  (MUTATION -> zzzzzz)
+  [PASS] C4 a deleted line classifies STALE
+        got STALE
+  [PASS] C5 a number changed beyond rtol classifies STALE
+        got STALE  (7.500000 -> 16.000000)
+  [PASS] C6 an injected defect stops the verdict being IDENTICAL
+        mutated donor classifies STALE (was IDENTICAL clean)
+
+--------------------------------------------------------------------------
+SECTION 4 -- the standing requirement
+--------------------------------------------------------------------------
+  IDENTICAL       5   graphene_band_structure_audit.py, graphene_default_scale_audit.py, graphene_gds_quadrature_audit.py, graphene_mutation_arrival_probe.py, graphene_transport_optical_audit.p
+  NUMERIC_DRIFT   1   graphene_rootfinder_audit.py
+  STALE           4   graphene_dead_name_sweep.py, graphene_differential_crossover_model.py, graphene_figure_provenance_audit.py, graphene_log_sensitivity_step_audit.py
+  ERROR/MISSING   0   
+  [PASS] no suite fails to complete in a pristine clone
+  [FAIL] no committed transcript is STALE
+        a STALE transcript is a claim about code that is no longer here;
+        it cannot be seen by `git status`, because the transcript is
+        unmodified and it is the CODE that moved:
+          graphene_dead_name_sweep.py -> line count 46 -> 47
+          graphene_differential_crossover_model.py -> line 70 is not a numeric difference:
+          graphene_figure_provenance_audit.py -> line count 220 -> 195
+          graphene_log_sensitivity_step_audit.py -> line count 354 -> 363
+  [FAIL] every transcript is exactly reproducible (no numeric drift)
+        NUMERIC_DRIFT means the numbers agree to 1e-09 but the bytes differ,
+        so these transcripts are reproducible RESULTS and not reproducible
+        ARTEFACTS.  Byte comparison cannot certify them across environments.
+
+==========================================================================
+SUMMARY
+==========================================================================
+  commit audited : 5544d5ebec2b597453cc336c72e3a4dbcacae5be
+  PASS  C1 unperturbed output classifies IDENTICAL
+  PASS  C3 a changed word classifies STALE
+  PASS  C4 a deleted line classifies STALE
+  PASS  C5 a number changed beyond rtol classifies STALE
+  PASS  C6 an injected defect stops the verdict being IDENTICAL
+  PASS  no suite fails to complete in a pristine clone
+  FAIL  C2 a last-digit change classifies NUMERIC_DRIFT
+  FAIL  no committed transcript is STALE
+  FAIL  every transcript is exactly reproducible (no numeric drift)
+
+TOTAL: 6 passed, 3 failed
