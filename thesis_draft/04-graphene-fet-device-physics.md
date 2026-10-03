@@ -190,6 +190,53 @@ hundreds of GHz for aggressively scaled record devices).
 > the ≈20 GHz figure quoted throughout this chapter is the V_ds = 0.1 V
 > one.
 
+> **Correction, 2026-10-03: the literature-scale f_max numbers are revised
+> downward; the normalized-device numbers above are NOT.** The
+> distributed gate resistance `gate_resistance()` took its channel length and
+> gate width as *function-parameter defaults* read out of
+> `graphene_fet_model` at definition time. `compute_fT_fmax`'s
+> literature-scale option rescales the device to the 40 µm / 8-finger
+> geometry by *rebinding* `graphene_fet_model.W`, and R_g kept the 1 µm it
+> had captured — so the gate resistance entering both f_max denominators at
+> that geometry was too small by exactly W_RF/W = 40 (0.208 Ω instead of
+> 8.33 Ω). The three numbers that change, with the superseded values kept:
+>
+> | quantity, 40 µm / 8 fingers, V_ds = 0.1 V | superseded | corrected |
+> |---|---|---|
+> | intrinsic peak f_max | 18.786 GHz | **13.094 GHz** |
+> | extrinsic peak f_max (+15 fF/pad) | 3.1885 GHz | **2.2196 GHz** |
+> | f_max / f_T at that geometry | 0.928 | **0.647** |
+>
+> Peak f_T is **bitwise** unchanged at every bias and both geometries,
+> because R_g does not enter f_T = g_m/(2π C_gs) at all; and the
+> **normalized 1 µm device** — the path behind the ≈20 GHz and 18.731 GHz
+> figures quoted above and behind panels 1 and 2 of
+> `rf_figures_of_merit.png` — is bitwise unchanged too, verified against the
+> pinned pre-correction source rather than assumed. Only the literature-scale
+> comparison moves.
+>
+> **Two consequences for the argument of this section, in opposite
+> directions.** First, the extrinsic *degradation* claim below (f_T and f_max
+> falling to roughly 15–20 % of their intrinsic values) survives unchanged:
+> measured, it moves from 0.1697 to 0.1695. So does the intrinsic/extrinsic
+> peak-f_max ratio, 5.892 → 5.899, a 0.13 % change. The error was
+> multiplicative in both terms of every *ratio* this section uses, and
+> divided out of all of them — which is exactly why it survived five weeks of
+> audits that compare ratios against the literature. Second, and less
+> comfortably, the corrected model puts **f_max/f_T = 0.65 rather than 0.93**
+> at the literature-scale device, i.e. *further* from the f_max/f_T = 1.3–1.4
+> that Feijoo *et al.* report for de-embedded devices, not closer. The
+> discussion immediately below reads as though the model and that literature
+> had been brought into rough agreement; with R_g correct, they have not
+> been. The gap is now attributable rather than hidden: at 8 fingers this
+> model's R_g = 8.33 Ω is already in the engineered-low range Feijoo *et al.*
+> describe, so the remaining shortfall sits in g_ds and in the R_g·C_gd
+> feedback term, not in the gate resistance. Quantifying that split is left
+> open and is recorded as such in `AUTOMATION_LOG.md`.
+>
+> See `graphene_cross_module_delivery_audit.py` (Sections 3, 4 and 7) and
+> `notes/2026-10-03-a-frozen-default-in-another-module.md`.
+
 The earlier version of this model (through 2026-08-22) omitted the
 source/drain access resistance R_s from the f_max denominator and had no
 way to separate an intrinsic (de-embedded-equivalent) estimate from an
