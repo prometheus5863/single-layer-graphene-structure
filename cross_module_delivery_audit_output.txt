@@ -1,0 +1,128 @@
+==============================================================================
+CROSS-MODULE DELIVERY AUDIT -- the 09-30 delivery rule, called at last,
+and the cross-module case it cannot answer by itself   (2026-10-03)
+==============================================================================
+
+------------------------------------------------------------------------------
+SECTION 1 -- require_delivery over every mutation target the
+             figure-provenance audit actually applies
+------------------------------------------------------------------------------
+  15 distinct (module, name) targets, 19 mutation applications
+
+    verdict      module.name                                          current value
+    LIVE         graphene_edge_contact_model.AU_FERMI_SHIFT_EDGE_EV   0.35
+    LIVE         graphene_edge_contact_model.AU_FERMI_SHIFT_SURFACE_EV 0.14
+    LIVE         graphene_edge_contact_model.N_BULK_ON_STATE          2e+16
+    LIVE         graphene_fet_model.C_ox                              0.000383681472148
+    LIVE         graphene_fet_model.L                                 2e-07
+    LIVE         graphene_fet_model.Rc_per_width_ohm_um               300.0
+    LIVE         graphene_fet_model.T                                 300.0
+    LIVE         graphene_fet_model.mu                                0.4
+    LIVE         graphene_fet_model.n_puddle                          5000000000000000.0
+    IMPORT_USED  graphene_fet_model.t_ox                              9e-08
+    LIVE         graphene_fet_model.v_F                               1000000.0
+    LIVE         graphene_interconnect_model.t_liner_nm_default       3.0
+    LIVE         graphene_photodetector_model.ALPHA_ABS               0.02292530906907523
+    LIVE         graphene_photodetector_model.EQE_BARE                0.0015
+    LIVE         rf_small_signal_model.N_FINGERS_RF                   8
+
+  verdict counts: {'LIVE': 14, 'IMPORT_USED': 1}
+  [PASS] require_delivery: no target is FROZEN, UNUSED, ABSENT, DEAD or MIXED
+  [PASS] IMPORT_USED graphene_fet_model.t_ox: derived child co-patched in the same patch dict ['C_ox']
+
+------------------------------------------------------------------------------
+SECTION 2 -- and why that pass could not have been a clean bill
+------------------------------------------------------------------------------
+  cross-module mutation applications (patch key contains a module):
+    rf_figures_of_merit                gfet.L x2                      graphene_fet_model.L
+    rf_figures_of_merit                gfet.mu /2                     graphene_fet_model.mu
+    rf_figures_of_merit                gfet.n_puddle -> same          graphene_fet_model.n_puddle
+
+  cross-module captured defaults found in the repository: 8
+  of which, targets the provenance audit actually rebinds: 0
+  [PASS] the docstring's claim about HISTORY holds of the pinned pre-fix blob c0c620acd113   [pre-fix blob contains the frozen signature: True; working tree contains it: False; working tree is late-bound: True]
+  [PASS] the cross-module question is now asked at all (it was not before)
+  [PASS] no remaining cross-module patch target is captured as a frozen default (was 1: rf_small_signal_model.gate_resistance)
+  NOTE: 2 setattr call(s) with a computed name -- the census cannot be complete by construction: [('graphene_figure_provenance_audit.py', 173), ('graphene_figure_provenance_audit.py', 175)]
+
+------------------------------------------------------------------------------
+SECTION 3 -- the measured consequence
+------------------------------------------------------------------------------
+  gfet.W = 1e-06   W_RF = 4e-05   N_FINGERS_RF = 8
+  R_g from the frozen default : 0.208333 Ohm
+  R_g with W = W_RF           : 8.333333 Ohm
+  ratio                       : 40.000000   (W_RF / gfet.W = 40.000000)
+
+    peak, at W_RF            as committed      corrected    factor
+    f_T  intrinsic (GHz)          20.2365        20.2365    1.0000
+    f_max intrinsic (GHz)         18.7860        13.0942    1.4347
+    f_T  extrinsic (GHz)           3.4350         3.4350    1.0000
+    f_max extrinsic (GHz)          3.1885         2.2196    1.4365
+
+  intrinsic/extrinsic peak f_max: 5.8918 (as committed) -> 5.8994 (corrected), a 0.13 % change
+  Both f_max numbers were wrong by ~44 % and the RATIO -- the only
+  quantity this module checks against the literature -- moved by 0.13 %.
+  [PASS] MUST_NOT_CHANGE: f_T is bitwise unaffected -- R_g does not enter f_T = |g_m|/(2 pi C_gs)
+  [PASS] MUST_CHANGE: f_max moves in BOTH the intrinsic and extrinsic W-override paths -- R_g enters both f_max denominators
+
+------------------------------------------------------------------------------
+SECTION 4 -- exact validations (no tolerances)
+------------------------------------------------------------------------------
+  [PASS] E1  R_g(frozen default) / R_g(W=W_RF) == gfet.W / W_RF exactly   [0.024999999999999998 vs 0.024999999999999998]
+  [PASS] E2  no-W-override path: late-bound output is BITWISE identical to the frozen one   [all five returned arrays equal]
+  [PASS] E3  explicit W=W_RF: late-bound == frozen exactly   [8.333333333333334 vs 8.333333333333334]
+  [PASS] E4  identity rebind gfet.W = gfet.W moves R_g by exactly 0   [delta = 0.0]
+  [PASS] E5  after the fix, the rebind ARRIVES: default path == explicit-argument path, bitwise   [8.333333333333332 vs 8.333333333333332]
+  [PASS] E5b  and R_g(rebound) differs from R_g(before)*40 by at most 1 ULP -- the first form of E5 asserted exact equality here and was wrong   [gap = 1.7763568394002505e-15, 1 ULP = np.float64(1.7763568394002505e-15)]
+  [PASS] E6  CONTROL: the frozen replica does NOT respond to the same rebind (inert, bitwise)   [delta = 0.0]
+
+------------------------------------------------------------------------------
+SECTION 5 -- controls on the Section 2 detector, and its mutation test
+------------------------------------------------------------------------------
+  [PASS] C1  direct cross-module capture is found
+  [PASS] C2  capture inside an expression is found (direct=False)
+  [PASS] C3  a LIVE cross-module read is not reported as a capture
+  [PASS] C4  a literal default is not reported as a capture
+  [PASS] C5  rebind census sees the attribute-assignment form
+  [PASS] C6  rebind census sees the setattr(mod, 'name', v) form
+  [PASS] C7  a never-rebound captured name is NOT in the census
+  [PASS] M1  MUTATION TEST: with the capture converted to a live read, C1 no longer fires
+
+------------------------------------------------------------------------------
+SECTION 6 -- census: every cross-module captured default, split by
+             whether anything in the repository rebinds the name
+------------------------------------------------------------------------------
+    file                               function                   line   captures                                       status
+    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.W_calibration_nm   dormant
+    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.lambda_bulk_nm     dormant
+    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.p_default          dormant
+    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.rho_bulk_uohm_cm   dormant
+    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.rho_calibration_uohm_cm dormant
+    graphene_sensitivity_audit.py      _rho_terms                 274    graphene_interconnect_model.lambda_bulk_nm     dormant
+    graphene_sensitivity_audit.py      _rho_terms                 274    graphene_interconnect_model.p_default          dormant
+    graphene_sensitivity_audit.py      _rho_terms                 274    graphene_interconnect_model.rho_bulk_uohm_cm   dormant
+
+  8 captures, 0 live faults, 8 dormant
+  Dormant is not "safe": it means no call site rebinds the name TODAY.
+  Eight of these are graphene_sensitivity_audit.py, which perturbs by
+  passing keywords explicitly; a single future setattr converts all of
+  them at once, which is why they are enumerated rather than dismissed.
+  [PASS] no cross-module captured default is currently defeated by a rebind in this repository
+
+------------------------------------------------------------------------------
+SECTION 7 -- what the frozen default did to the DETECTOR
+------------------------------------------------------------------------------
+  figure-provenance MUST_CHANGE "N_FINGERS_RF x2", max rel change in
+  the harvested f_max curve:
+      with R_g frozen (as committed) : 0.010334
+      with R_g late-bound (corrected): 0.286195
+      suppression factor             : 27.69x
+  BOTH are PASSes.  MUST_CHANGE is a test against zero, so a knob that
+  had lost 96 % of its authority still read as alive.
+  [PASS] the N_FINGERS_RF knob is MORE sensitive after the fix, i.e. the frozen R_g was suppressing the detector as well as the model
+  [PASS] EXACT: R_g(N=16) == R_g(N=8)/4 -- the 1/N^2 law the mutation exercises   [2.0833333333333335 vs 2.0833333333333335]
+  wrote cross_module_delivery_audit.png
+
+==============================================================================
+RESULT: 25 passed, 0 failed
+==============================================================================
