@@ -5160,3 +5160,288 @@ connected folder. **One deviation worth stating:** `pushed_at` from the GitHub
 API was used as a cheap cross-check on Step 0's "has today's work already run"
 question before the clones finished, which is a second, independent source for
 that decision rather than a replacement for the AUTOMATION_LOG check.
+
+---
+
+## 2026-10-03
+
+**Status:** Audit + correction session. The top open item of 09-30, 10-01 and
+10-02 closes, and the day's real finding is a **device-physics number that was
+wrong by 44 %**, not an audit-hygiene point. Live web search was not used: this
+was an internal-consistency session on code and numbers already in the
+repository, and nothing below rests on a literature fetch.
+
+**Top open item closed:** *"`require_delivery` is still not CALLED by any audit
+— created 09-30, untouched for three sessions. The probe proves the rule and
+the audits do not obey it."*
+
+### 1. The rule, obeyed. It passes, and that is the honest headline of Section 1
+
+`graphene_cross_module_delivery_audit.py` (new, 25/25) runs `require_delivery`
+over every mutation target `graphene_figure_provenance_audit.py` actually
+applies — the only audit here that rebinds attributes and then interprets
+numbers. **19 mutation applications, 15 distinct `(module, name)` targets: 18
+`LIVE`, 1 `IMPORT_USED`** (`graphene_fet_model.t_ox`, whose derived child
+`C_ox` is co-patched in the same patch dict, and the proviso is now checked
+mechanically rather than trusted). **None of the figure-provenance verdicts
+were manufactured by a mutation that failed to arrive.** Three sessions of the
+rule going uncalled hid nothing in the audit it was written for.
+
+### 2. And it could not have. A single-module instrument, a cross-module question
+
+`classify(M, N)` asks whether the readers of `N` **inside `M`** read it at call
+time. Three of the nineteen applications patch `graphene_fet_model.L`, `.mu`
+and `.n_puddle` while harvesting a figure drawn by `rf_small_signal_model`. For
+those, a `LIVE` verdict in the **defining** module is silent about a frozen
+capture in the **consuming** one. One existed:
+
+```python
+def gate_resistance(L=gfet.L, W=gfet.W, N_fingers=1):   # until today
+```
+
+`classify(graphene_fet_model, 'W')` returns `LIVE` — **correctly**; every
+reader of `W` inside that module is live. The frozen reader is a reader of a
+*value copied out of the module before the audit existed*, not a reader of the
+name. **No amount of care applying the 09-30 rule as written would have found
+it.**
+
+### 3. It was not latent. It defeated the model's own override, and Chapter 4's numbers
+
+`compute_fT_fmax(..., W=W_RF)` exists to rescale the device from this repo's
+1 µm per-width convention to a 40 µm / 8-finger geometry, and does it by
+**rebinding `gfet.W`**. `R_g` kept the 1 µm it had captured, so the gate
+resistance entering both `f_max` denominators was too small by **exactly
+`W_RF/W = 40`** — 0.208 Ω where it should be 8.333 Ω.
+
+| peak, 40 µm / 8 fingers, V_ds = 0.1 V | superseded | corrected | factor |
+|---|---|---|---|
+| f_max intrinsic | 18.786 GHz | **13.094 GHz** | 1.4347 |
+| f_max extrinsic (+15 fF/pad) | 3.1885 GHz | **2.2196 GHz** | 1.4365 |
+| f_max / f_T there | 0.928 | **0.647** | — |
+| f_T, every bias, both geometries | — | — | **bitwise identical** |
+
+`f_T` is untouched because `R_g` does not appear in `f_T = |g_m|/(2π C_gs)`.
+The **normalized 1 µm path** — panels 1–2 of `rf_figures_of_merit.png` and the
+≈20 GHz / 18.731 GHz figures §4.6 quotes — is **bitwise unchanged, verified
+against the pinned pre-fix blob** rather than assumed. §4.6 is annotated in
+place with the superseded numbers kept.
+
+**The uncomfortable half:** the corrected model sits at f_max/f_T = 0.65, i.e.
+**further** from Feijoo *et al.*'s de-embedded 1.3–1.4, not closer. §4.6 read
+as though model and literature had been brought into rough agreement; they have
+not been. The gap is at least attributable now: at 8 fingers the corrected
+`R_g = 8.33 Ω` is already in that paper's engineered-low range, so the
+shortfall is in `g_ds` and the `R_g·C_gd` feedback term, not the gate
+resistance. **Not quantified — now an open item.**
+
+### 4. Why it survived five weeks, and the third reason is the general one
+
+**(a) The transcript printed the RIGHT `R_g` beside an `f_max` computed from
+the wrong one.** `summary_numbers()` calls `gate_resistance(W=W_RF, ...)` with
+`W` **explicit** and printed `R_g (8-finger) = 8.33 Ohm`.
+`_compute_fT_fmax_core` called the same function with the default and got
+0.208 Ω. The printed diagnostic and the number it was supposed to diagnose came
+from two different values of the same quantity, two lines apart.
+
+**(b) Every check in reach was a RATIO, and the defect was multiplicative in
+both terms.** intrinsic/extrinsic peak f_max **5.8918 → 5.8994 (0.13 %)**;
+extrinsic/intrinsic degradation **0.1697 → 0.1695 (0.1 %)**; both f_max values
+individually **≈44 %**. The module's cited sanity check against Feijoo *et al.*
+is a ratio. **A ratio cannot see a defect it shares.**
+
+**(c) `MUST_CHANGE` is a test against ZERO.** The figure-provenance audit's
+`N_FINGERS_RF x2` mutation acts through `R_g` alone (`R_g ∝ 1/N²`). With `R_g`
+frozen 40× too small it barely mattered in the denominator:
+
+```
+  max rel change, as committed : 0.01033
+  max rel change, corrected    : 0.28620     suppression 27.7x
+```
+
+**Both are PASSes.** The knob had lost **96 %** of its authority and still read
+as alive. The frozen default corrupted *the audit's measurement of its own
+sensitivity*, and the audit had no way to say so.
+
+### 5. Three faults of my own, recorded rather than quietly re-tuned
+
+- **E5's exactness premise was false.** It asserted
+  `R_g(after) == R_g(before) * 40.0` exactly because 40 is representable; it
+  failed at the last bit (`...332` vs `...334`). Representability of the
+  *factor* says nothing about the *rounding sequence*: scaling `W` rounds in
+  the numerator, `r0*40` rounds an already-rounded quotient. **An exactness
+  claim must name the operation it is exact under.** E5 is now an identity
+  about *delivery* (default path == explicit path, bitwise) and **E5b** keeps
+  the 1-ULP measurement that exposed it.
+- **Section 3's first assertion was simply false** — it claimed `f_T` was
+  affected too, and failed on its own false premise. Now a **paired**
+  `MUST_NOT_CHANGE`/`MUST_CHANGE`, making the defect's scope an assertion
+  instead of prose.
+- **`BLOB_PREFIX_RF` was a dead name in the new module**, and
+  `graphene_dead_name_sweep.py` reported it `DEAD` on the first run — the same
+  fault 10-02 hit with its own `SELF`, caught by the same sweep, in the session
+  that created the name. It now has a real reader:
+  `historical_claim_is_checkable()` reads the **pinned pre-fix blob**
+  (`c0c620ac…`, a blob hash, not a revision expression) out of the object store
+  and requires this module's claim *about history* to hold of it, reporting
+  `SKIP` rather than `PASS` when the object store cannot answer. **A pinned
+  reference with no reader is decoration.**
+
+### 6. Census, and what "dormant" does not mean
+
+**10 cross-module captured defaults this morning, 8 now.** The remaining eight
+are `graphene_sensitivity_audit.py`'s `_calib_terms` / `_rho_terms` capturing
+`graphene_interconnect_model` constants, and they are **dormant, not faults**:
+that audit perturbs by explicit keyword and never rebinds `icm.*`. Calling them
+faults would be the 10-01 error of letting a classifier's name drift from what
+it measures. **Dormant means no call site rebinds the name *today*** — one
+future `setattr` converts all eight at once, so they are enumerated rather than
+dismissed. The census also reports that **two `setattr` calls use a computed
+name**, so it cannot be complete by construction: said out loud, so that
+"0 faults" does not come to mean "none possible".
+
+### 7. The same-session wiring step, done on purpose
+
+10-02's second thread was *a repair that was built and then not connected*, and
+its remedy: the last step of a repair is a check that the repair is reachable
+from where the fault was. So both new `(code, transcript)` pairs were
+registered in `graphene_pristine_transcript_audit.py`'s `SUITES` **in the same
+session that created them** —
+`graphene_cross_module_delivery_audit.py → cross_module_delivery_audit_output.txt`
+and `rf_small_signal_model.py → rf_small_signal_output.txt`. The second is not
+an audit, but its transcript carries the `f_T`/`f_max` numbers Chapter 4 quotes
+and this session changed them, which is exactly the condition the pristine
+audit exists to detect. An unregistered transcript is a claim on disk that
+nothing checks.
+
+**Methodological note, continuing the series.** 09-28: prose is a detector, and
+a check that cannot fail is worse than no check. 09-29: a mutation that does not
+arrive is indistinguishable from a system that does not respond. 09-30: a
+control has to sit where the failure enters. 10-01: and it has to name what it
+compares against in a way that cannot drift. 10-02: and when it agrees, that is
+a fact about two artefacts, not about the world. **10-03: AND A PASS/FAIL AT
+ZERO IS SILENT ABOUT MAGNITUDE.** Every `MUST_CHANGE` here measures a response
+size, prints it, and throws it away; the verdict retains only the sign, so a
+knob can lose 96 % of its authority — or, in a limit this session did not test,
+99.9 % — without one check changing colour. **The second strand is narrower and
+sharper:** a single-module instrument was asked a cross-module question and
+returned *the right answer to the wrong question*. The only reason that was
+discoverable is that somebody asked what the instrument's **scope** was rather
+than what its **verdict** said. 10-02 said agreement between two artefacts is
+silent about the world; 10-03 adds that **agreement between an instrument and
+its own specification is silent about whether the specification covers the
+case**.
+
+**Validations:** new cross-module delivery audit **25/25**, including six
+tolerance-free exact checks (E1 the frozen/live `R_g` ratio is `W_RF/W`
+exactly; E2 the no-override path is bitwise unchanged by the fix; E3 explicit
+arguments bitwise unchanged; E4 an identity rebind moves `R_g` by exactly 0;
+E5 the rebind now arrives, bitwise; E6 the frozen replica is inert under the
+same rebind, which is what makes E5 a test of the fix rather than of
+arithmetic), seven controls on the new AST detector, a mutation test that
+converts the synthetic capture to a live read and requires C1 to stop firing,
+and the exact `R_g(N=16) == R_g(N=8)/4` 1/N² law. Dead-name sweep **8/8** (7/8
+intermediate, the FAIL real and mine). Figure-provenance audit re-run and
+green, with its `N_FINGERS_RF` sensitivity up 27.7× for the reason in §4(c).
+`rf_figures_of_merit.png` regenerated; the normalized-device panels verified
+bitwise identical to the pre-fix blob.
+
+**Not yet covered (candidates for future runs):**
+
+- **Record the MAGNITUDE of every `MUST_CHANGE`, not just its sign** —
+  created today and **the top item**, because §4(c) shows the current form
+  passed a knob that was 96 % dead. The mechanisable version is a committed
+  per-mutation sensitivity baseline, with a check that fires when a response
+  shrinks by more than some factor, not merely when it reaches zero. Note the
+  trap this session walked into: the obvious threshold is a magic number, so
+  the baseline has to be *measured and committed*, which makes it a transcript
+  and puts it under the 10-02 rule
+- **Which other checks in this repository are RATIOS of two quantities the same
+  defect would scale?** — created today, the direct successor to §4(b). Three
+  were found by eye in one module; Chapters 4–6 compare model to literature by
+  ratio in several places, and a ratio is blind to any factor common to both
+  terms. The general census is mechanisable: every comparison whose two sides
+  share a module-level constant in their dependency closure
+- **Audit every REMAINING check for the 10-02 §1 fault: does it read the
+  artefact its own prose names?** — created 10-02, untouched
+- **Do the four existing audits have references that are not content-pinned?**
+  — created 10-01, untouched. Today added one correctly-pinned reference
+  (`BLOB_PREFIX_RF`) and no census
+- **Is `D_CHEM_PHYS` the only duplicated literature VALUE?** — created 10-01,
+  untouched; the check is duplicated literal values, not duplicated names
+- **Is `plot_fermi_surface` the only uncommitted figure?** — created 10-02,
+  untouched
+- **Quantify the `g_ds` vs `R_g·C_gd` split in the remaining f_max shortfall**
+  — created today, and the first *device-physics* item this series has produced
+  in a while: with `R_g` corrected, this model is at f_max/f_T = 0.647 against
+  Feijoo *et al.*'s 1.3–1.4, and the two candidate causes are separable by
+  zeroing each term in turn
+- **Whether Chapter 4's `n_puddle` actually reproduces Section 3.3's measured
+  6.45 kΩ/sq floor** — created 09-29, **untouched for five sessions**, still a
+  one-line calculation, and still the only place Chapter 3's central negative
+  result touches Chapter 4's numbers
+- **Whether the three identity re-assignments should be replaced by real
+  mutations** — created 09-30, untouched. Today's E4 shows the identity form
+  does have one legitimate use (an exact zero-by-symmetry control), which
+  narrows the item rather than closing it
+- **The Section 3.6 Pauli edge is absent from Chapter 6's model** — created
+  09-29; the third leg of the Chapter 4 / Chapter 6 contact-metal contradiction
+  and the only one that is a physical mechanism
+- **Where does the 6.5430 % internal collection efficiency come from?** —
+  created 09-30, untouched
+- **Chapters 2 and 3 are drafted but §4.8.2's form of error is not audited for
+  elsewhere** — created 10-01; Chapters 5 and 6 contain several
+  model-against-literature comparisons whose bias conditions are not stated
+- **Whether Chapter 4 or 5 contains a RANKING that is a step artefact** —
+  created 09-23/09-25; the noise form closed 10-02, the step form is untouched
+- **A finite-temperature optical conductivity** (09-29); **the
+  remote-polar-phonon cap on SiO₂ is asserted, not computed** (09-29);
+  **angular trigonal warping** (09-28); **finite-temperature carrier density
+  `n(E_F, T)`** (09-28, wanted twice); whether other `== 0.0` exactness checks
+  are round-trip tautologies (09-28) — **sharpened today**, since E5's first
+  form was an exactness claim with a false premise, so the census should ask
+  what operation each `== 0.0` is exact *under*; whether RESULT 2's other
+  convictions are read from the saturated branch (09-28); a probe reporting
+  both directions of lambda (09-28); whether `t'` can be EXCLUDED
+  quantitatively as the source of Chapter 4's electron-hole asymmetry (09-28);
+  whether any other near-cancellation shows the `c2`/`c4` sign flip if
+  differentiated (09-27); migrating every remaining validation to
+  measured-value-beside-derived-bound form (09-27); `n_segments = 50` at a bias
+  with more curvature (09-26)
+- **A second anchor for `Delta_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, now **untouched for thirteen
+  consecutive sessions**. Today was again an audit session and did not touch
+  it, which is worth saying plainly rather than letting the streak go unnamed
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural weakness
+- **Whether Chapter 7's Section 7.3 differential-interconnect prediction
+  holds** (09-27); which of Chapters 4 and 5's design rules could be restated
+  as parities or bounds (09-23); whether the parity survives a
+  photo-thermoelectric term (09-23); re-check whether other "for every …"
+  claims rest on small samples (09-20); whether Chapter 4's contact-resistance
+  results should be re-run at the 5.4 eV crossover (09-18); reconciling Mueller
+  *et al.*'s 0.12 eV step (arXiv:0902.1479) with the 0.25–1.07 eV offsets
+  `METAL_WORK_FUNCTIONS` assumes (09-18); a photo-thermoelectric term (Kasirga
+  review); Shimomura *et al.*'s comb-electrode design; integrating 6.5's
+  plasmonic near-field picture with the spatially-resolved contact-doping
+  machinery; isolating the root cause of the Section 4.7 negative residual
+  (08-31); Ti and Cr per-metal `Rc` recalibration (ResearchGate rate-limiting);
+  a second independent edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health.** Device reachable and folder connected at the 04:30
+firing. **The device network problem that dominated 10-01 and 10-02 was absent
+today:** both repositories cloned fully in under 15 s from inside
+`device_bash`, against 10-02's measured 9.3 KB/s and a `git clone` that could
+not finish inside the 180 s shell limit at all. The 10-01/10-02 workaround
+(clone in the cloud sandbox, ship a bundle to the device, push from a
+blobless partial clone) was therefore **not needed and not used**; work was
+done entirely in the device VM's scratch space at `$HOME/work`, outside the
+connected folder, because git still cannot create its lock files inside a
+connected folder. `scipy` was absent from the device VM as expected and
+`pip install`ed in 20 s. The `GIT_ASKPASS` recipe ran from the session VM's
+own temp space and the token copy was shredded; the token was never written
+into `.git/config`, a remote URL, any repository file, or the connected
+folder. **One deviation worth stating:** Step 0's "has today's work already
+run" check was answered from the freshly cloned `AUTOMATION_LOG.md` and
+`git log --since=midnight` only, with no GitHub-API `pushed_at` cross-check,
+because the clones finished fast enough that the cheap pre-check 10-02 added
+had no latency to hide.
