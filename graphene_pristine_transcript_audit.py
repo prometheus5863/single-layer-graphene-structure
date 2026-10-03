@@ -82,6 +82,17 @@ SUITES = [
     ("graphene_transport_optical_audit.py",   "transport_optical_audit_output.txt"),
     ("graphene_covariance_probe_audit.py",    None),
     ("graphene_differential_crossover_model.py", "differential_crossover_output.txt"),
+    # Added 2026-10-03, in the same session that created the suite and the
+    # transcript.  Registering a new (code, transcript) pair in the SAME
+    # commit series that creates it is the one step the 10-02 session named
+    # as the repository's recurring failure -- a repair built and then not
+    # connected.  An unregistered transcript is precisely a claim on disk
+    # that nothing checks.
+    ("graphene_cross_module_delivery_audit.py",
+     "cross_module_delivery_audit_output.txt"),
+    # rf_small_signal_model.py is not an audit, but its transcript carries
+    # the f_T / f_max numbers Chapter 4 quotes, and 2026-10-03 changed them.
+    ("rf_small_signal_model.py",               "rf_small_signal_output.txt"),
 ]
 
 # This module is deliberately absent from SUITES.  It would have to run itself
