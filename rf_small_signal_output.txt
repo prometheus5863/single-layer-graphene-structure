@@ -1,0 +1,39 @@
+Computing GFET RF figures of merit (fT, fmax)...
+Gate resistance R_g (L=200 nm, W=1 um) = 13.33 Ohm
+Source access resistance R_s (= Rc_total/2)       = 300.0 Ohm
+
+INTRINSIC (per-um convention used throughout this repo, Rs
+included, no pad capacitance):
+  Peak f_T   = 20.3 GHz at Vg = -1.11 V
+       f_max at same Vg = 18.6 GHz (f_max/f_T = 0.92)
+       C_gs at same Vg  = 0.08 fF
+       g_m at same Vg   = -0.010 mS
+       g_ds at same Vg  = 0.953 mS
+
+LITERATURE-SCALE DEVICE (40 um total width, 8 fingers, L=200 nm):
+  R_g (8-finger) = 8.33 Ohm  (vs. 533.3 Ohm single-finger -- the N_fingers^2 reduction from Section 4 of the notes)
+  Intrinsic: f_T = 20.3 GHz, f_max = 13.0 GHz (f_max/f_T = 0.64), C_gs = 3.07 fF
+  Extrinsic (+15 fF/pad): f_T = 3.4 GHz, f_max = 2.2 GHz (f_max/f_T = 0.64)
+  Degradation vs. intrinsic: f_T x0.17, f_max x0.17 (cf. Feijoo et al. raw/de-embedded ratio ~0.6-0.7x)
+
+Literature context (notes/2026-08-22-*.md, notes/2026-08-26-*.md):
+  - Record intrinsic fT: ~300-427 GHz (exotic short/scaled devices)
+  - Record fmax (60 nm T-gate, de-embedded): ~200 GHz
+  - Feijoo et al. 2016 (200 nm gate, de-embedded): fT/fmax = 
+    35.4/50 GHz (fmax/fT = 1.41); raw (pre-de-embedding): 21.3/42 GHz
+  - Foundry-style 0.5-2 um gates, extrinsic: fT ~34 GHz, fmax ~37 GHz;
+    extrapolated to Lg=50nm: ~100 GHz
+  - This 200 nm-channel analytic estimate falls in the expected
+    intermediate range between those regimes, which is a reasonable
+    sanity check for a compact analytic (non-TCAD) model.
+
+NOTE (revised 2026-08-26 -- see notes/2026-08-26-*.md, Section 1):
+  f_max > f_T is NOT inherently unphysical for graphene FETs -- the
+  earlier (2026-08-22) caveat treating it as a red flag was too broad.
+  Feijoo et al. 2016 report f_max > f_T at every gate length they
+  measured (low, engineered R_g ~ 15 Ohm). What matters is whether
+  gds*(Rg+Rs) and the Rg*Cgd feedback term are realistic, which is
+  why this model now includes Rs (previously missing) and reports
+  an explicit extrinsic (+pad capacitance) estimate alongside the
+  intrinsic one, rather than asserting a required sign for f_max-f_T.
+Done. Saved: rf_figures_of_merit.png

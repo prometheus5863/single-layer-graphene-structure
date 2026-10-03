@@ -93,7 +93,7 @@ C_pad_per_pad = 15e-15         # F, assumed GSG pad capacitance (extrinsic
                                 # value for this exact device geometry.
 
 
-def gate_resistance(L=gfet.L, W=gfet.W, N_fingers=1):
+def gate_resistance(L=None, W=None, N_fingers=1):
     """Distributed gate resistance for a single-side-fed metal gate finger.
     R_g = rho_sheet * W_gate / (3 * L_gate); the factor of 3 is the
     standard result for a transmission-line gate fed from one edge.
@@ -107,7 +107,32 @@ def gate_resistance(L=gfet.L, W=gfet.W, N_fingers=1):
     notes/2026-08-26-fmax-parasitics-and-fT-fmax-ratio.md). Default
     N_fingers=1 reproduces the original single-finger formula exactly,
     so this is backward-compatible with the per-um curves used
-    elsewhere in this module."""
+    elsewhere in this module.
+
+    LATE-BOUND as of 2026-10-03.  `L` and `W` previously defaulted to
+    `gfet.L` and `gfet.W` as function-parameter DEFAULTS, i.e. they were
+    read once, at `def` time, out of ANOTHER module.  That is the
+    2026-09-29 frozen-default fault in its cross-module form, and here it
+    was not a latent risk: it silently defeated `compute_fT_fmax`'s own W
+    override.  That override exists to rescale the device from this
+    repository's 1 um per-width convention up to `W_RF = 40 um`, and it
+    does so by REBINDING `gfet.W`; `R_g` kept the 1 um it had captured, so
+    the gate resistance entering `f_max` was too small by EXACTLY
+    `W_RF / gfet.W = 40`.  Measured consequence, peak f_max at W_RF with
+    N_FINGERS_RF = 8 and Vds = 0.1 V:
+
+        intrinsic   18.786 GHz  (superseded)  ->  13.094 GHz  (this code)
+        extrinsic    3.1885 GHz (superseded)  ->   2.2196 GHz (this code)
+
+    The superseded numbers are left stated rather than deleted.  Reading
+    both names at CALL time costs nothing and makes the override arrive;
+    explicit arguments behave exactly as before, so the `W=W_RF` call
+    sites in this module are unchanged in value, and every path that does
+    NOT pass W is bitwise unchanged.  See
+    notes/2026-10-03-a-frozen-default-in-another-module.md.
+    """
+    L = gfet.L if L is None else L
+    W = gfet.W if W is None else W
     return R_sheet_gate * W / (3.0 * L * N_fingers ** 2)
 
 
