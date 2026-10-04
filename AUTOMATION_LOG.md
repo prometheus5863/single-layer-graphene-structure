@@ -5758,8 +5758,15 @@ without differing in content, and was restored to its committed bytes rather
 than committed — the committed figure stays the pinned artefact instead of
 being churned by an unrelated run.
 
-**Commits this run:** 8 (the module with its figure and transcript; the
-late-binding fix with the SUITES registration; the §7b renderer fix with C7b;
-the four censuses the module's existence moved; the pristine-audit transcript;
-Chapters 4 and 7; the R5 label correction with its own transcript; the
-cross-module transcript). This AUTOMATION_LOG.md entry makes 9.
+**Commits this run:** ~~8~~ **9** (the module with its figure and transcript;
+the late-binding fix with the SUITES registration; the §7b renderer fix with
+C7b; the four censuses the module's existence moved; the pristine-audit
+transcript; Chapters 4 and 7; **the notes file**; the R5 label correction with
+its own transcript; the cross-module transcript). This AUTOMATION_LOG.md entry
+makes **10**. **Corrected in place after verifying against the GitHub API
+rather than against this list:** the first form said 8 and 9, having
+enumerated eight items and omitted the notes commit from its own list while
+counting the rest correctly. It is a trivial error and it is corrected rather
+than overwritten, because the whole content of the 10-01 entry is that a
+number quoted from memory and a number read from the artefact are different
+things, and the API answer was ten.
