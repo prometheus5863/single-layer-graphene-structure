@@ -20,7 +20,7 @@ SECTION 1.  The identity battery
   [PASS] R2   term A (g_ds) is above 99 % of the denominator  -- term A share = 99.7846 %
   [PASS] R3   term B stays below 5 % of the denominator at EVERY bias  -- largest B share = 1.9908 % at V_ds = 1.0 V
   [PASS] R4   g_ds is the channel conductance to within 5 % at every bias  -- g_ds*R_total in [1.0026, 1.0487]
-  [PASS] R5   intrinsic voltage gain g_m/g_ds is below 0.2 at every bias  -- g_m/g_ds in [0.00514, 0.09648]
+  [PASS] R5   g_m/g_ds below 0.2 at every bias (DRIFT detector: the 0.2 is this model's own range, not literature)  -- g_m/g_ds in [0.00514, 0.09648]
   [PASS] C4   MAGNITUDE: deleting C_gd moves f_max/f_T by under 0.5 % (band)  -- response = +0.10788 % -- the C_gd knob is ALIVE but its authority is negligible
   [PASS] C5   MAGNITUDE: R_g = 0 entirely STILL falls short of f_max/f_T = 1.3  -- R_g = 0 limit gives 0.935276, 28.06 % below the bottom of the Feijoo band
   [PASS] C6   CONTROL: the C_gd and R_g responses are not aliased (>100x apart)  -- R_g response / C_gd response = 421.32x

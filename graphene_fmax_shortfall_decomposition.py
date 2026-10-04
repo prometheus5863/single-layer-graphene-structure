@@ -74,8 +74,18 @@ lever was not.
 
 WHAT THE SHORTFALL ACTUALLY IS, then: the absence of current saturation.
 The model's intrinsic voltage gain g_m/g_ds runs 0.005 to 0.096 across
-V_ds = 0.05-1 V, i.e. one to two orders of magnitude below the g_m/g_ds of
-order unity and above that real GFETs exhibit.  A device whose g_ds is its
+V_ds = 0.05-1 V.  MARKED AS AN ASSERTION, 2026-10-04: an earlier draft of
+this paragraph added "i.e. one to two orders of magnitude below the g_m/g_ds
+of order unity and above that real GFETs exhibit", and no sourced g_m/g_ds
+figure for a comparable device was found to support it.  What IS sourced is
+the mechanism, not the number -- the Chalmers GFET high-frequency thesis
+states that "f_max is mostly limited by the high drain conductance g_ds due
+to the lack of current saturation", and that graphene cannot pinch off
+because it has no bandgap, so the carrier type inverts along the channel
+instead.  R5's 0.2 threshold below is therefore set from THIS MODEL's own
+measured range, which makes R5 a drift detector and not a comparison against
+the world.  Citations in
+notes/2026-10-04-fmax-was-a-resistance-ratio.md, Section 5.  A device whose g_ds is its
 channel conductance has no output resistance to speak of, and f_max is
 primarily a measurement of output resistance.  This module reports the
 g_ds required for f_max/f_T = 1.41 at the model's own R_g, R_s and C_gd,
@@ -419,7 +429,8 @@ _LABELS = {
     'R2':  "term A (g_ds) is above 99 % of the denominator",
     'R3':  "term B stays below 5 % of the denominator at EVERY bias",
     'R4':  "g_ds is the channel conductance to within 5 % at every bias",
-    'R5':  "intrinsic voltage gain g_m/g_ds is below 0.2 at every bias",
+    'R5':  "g_m/g_ds below 0.2 at every bias (DRIFT detector: the 0.2 is "
+           "this model's own range, not literature)",
     'C4':  "MAGNITUDE: deleting C_gd moves f_max/f_T by under 0.5 % (band)",
     'C5':  "MAGNITUDE: R_g = 0 entirely STILL falls short of f_max/f_T = 1.3",
     'C6':  "CONTROL: the C_gd and R_g responses are not aliased (>100x apart)",
