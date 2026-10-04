@@ -637,6 +637,46 @@ def repo_wide_frozen_census(paths=None):
     return rows
 
 
+def _print_census(rows):
+    """Render the Section 7b census.
+
+    CORRECTED 2026-10-04, and the correction is the more interesting half of
+    the day.  This loop previously read
+
+        for path, name, verdict, nf, nl in [(r[0], r[1], r[2], r[3], r[4])
+                                            for r in rows]:
+
+    unpacking FIVE fields out of rows that `repo_wide_frozen_census` has
+    only ever built with FOUR -- `(path, name, verdict, detail)`, where
+    `detail` is the already-formatted '%d frozen / %d live' string, or
+    '<import failed>' / `repr(exc)` for a module that would not import.  So
+    any non-empty census raised IndexError on its first element and the
+    module exited 1 before reaching Sections 8 onward.
+
+    This had never fired, because the census has returned zero rows on every
+    run since the 23 sites in 7 model modules were converted on 2026-10-01.
+    **A REPORTING PATH THAT ONLY RUNS WHEN THE GUARD FIRES HAD NEVER RUN.**
+    It was exposed on 2026-10-04 by the first module since then to commit a
+    captured default -- `graphene_fmax_shortfall_decomposition.py`, whose
+    `decompose()` captured `VG_SWEEP`, `VDS_REF`, `rf.W_RF` and
+    `rf.N_FINGERS_RF`.  The guard detected the real defect correctly and then
+    could not say so: the operator saw `IndexError: tuple index out of range`
+    where the intended output was four named sites.
+
+    A crash is a detection, but a strictly weaker one than a failed check --
+    it carries no diagnosis, it loses every later section of the suite, and
+    it rests on an arithmetic accident rather than on an assertion.  Both the
+    unpacking and the untested-path problem are fixed here: the renderer is
+    now a function, and C7b below calls it on a SYNTHETIC non-empty census so
+    the fired-guard path is exercised on every run, including the runs --
+    i.e. all of them, once today's defect is fixed -- where the census is
+    empty.
+    """
+    for row in rows:
+        path, name, verdict, detail = row[0], row[1], row[2], row[3]
+        print('  %-11s %-46s %-22s %s' % (verdict, path, name, detail))
+
+
 def audit_modules_are_fully_delivered():
     """
     Standing regression guard, added 2026-09-30 with the fix it defends.
@@ -984,10 +1024,7 @@ def main():
     rows = repo_wide_frozen_census()
     partial = [r for r in rows if r[2] in PARTIAL]
     frozen = [r for r in rows if r[2] == CLASS_FROZEN]
-    for path, name, verdict, nf, nl in [(r[0], r[1], r[2], r[3], r[4])
-                                        for r in rows]:
-        print('  %-11s %-46s %-22s %d frozen / %d live'
-              % (verdict, path, name, nf, nl))
+    _print_census(rows)
     check('no module-level constant is captured as a default anywhere',
           not rows,
           '%d site-groups remaining' % len(rows) if rows else
@@ -996,6 +1033,33 @@ def main():
     check('and in particular none is MIXED', not partial,
           '%d MIXED' % len(partial) if partial else
           'MIXED was the majority class on 09-30 (7 of 10 names)')
+
+    # C7b (2026-10-04): exercise the FIRED-GUARD reporting path on every
+    # run.  The check above is green whenever the census is empty, and an
+    # empty census means the renderer below it never executes -- which is
+    # how a five-field unpack of a four-field row survived from 2026-10-01
+    # to 2026-10-04 and then turned a correct detection into an IndexError.
+    # A synthetic census with one row of each shape the real census can
+    # produce is rendered here, so that the path is covered by the suite
+    # rather than only by the day the guard fires.
+    print()
+    print('  C7b -- the fired-guard reporting path, on a SYNTHETIC census')
+    synthetic = [
+        ('example_model.py', 'SOME_CONSTANT', CLASS_FROZEN, '3 frozen / 0 live'),
+        ('example_mixed.py', 'OTHER_CONSTANT', CLASS_MIXED, '1 frozen / 2 live'),
+        ('example_broken.py', '<import failed>', 'IMPORT_FAILED',
+         "ImportError('synthetic')"),
+    ]
+    try:
+        _print_census(synthetic)
+        rendered_ok = True
+        rendered_detail = ('3 synthetic rows rendered, including the '
+                           'IMPORT_FAILED shape')
+    except Exception as exc:
+        rendered_ok = False
+        rendered_detail = repr(exc)
+    check('the census renderer survives a NON-EMPTY census '
+          '(the path that had never run)', rendered_ok, rendered_detail)
 
     print()
     print('SECTION 8 -- standing guard: no RELATIVE git revision anywhere')

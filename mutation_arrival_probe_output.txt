@@ -109,9 +109,15 @@ SECTION 7b -- the same guard over the MODEL modules (2026-10-01)
   [PASS] no module-level constant is captured as a default anywhere  -- 23 sites in 7 model modules converted 2026-10-01, all seven transcripts bitwise unchanged
   [PASS] and in particular none is MIXED  -- MIXED was the majority class on 09-30 (7 of 10 names)
 
+  C7b -- the fired-guard reporting path, on a SYNTHETIC census
+  FROZEN      example_model.py                               SOME_CONSTANT          3 frozen / 0 live
+  MIXED       example_mixed.py                               OTHER_CONSTANT         1 frozen / 2 live
+  IMPORT_FAILED example_broken.py                              <import failed>        ImportError('synthetic')
+  [PASS] the census renderer survives a NON-EMPTY census (the path that had never run)  -- 3 synthetic rows rendered, including the IMPORT_FAILED shape
+
 SECTION 8 -- standing guard: no RELATIVE git revision anywhere
   [PASS] no source file references HEAD, HEAD~n or HEAD^  -- the 09-30 HEAD~2 read is pinned to a blob hash; a position is not a state
 
 ==============================================================================
-TOTAL: 33 passed, 0 failed
+TOTAL: 34 passed, 0 failed
 ==============================================================================
