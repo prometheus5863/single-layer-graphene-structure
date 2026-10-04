@@ -1,0 +1,104 @@
+f_max shortfall decomposition: g_ds vs. R_g*C_gd
+(closes the open item created 2026-10-03; see the module docstring)
+
+==============================================================================
+SECTION 1.  The identity battery
+==============================================================================
+  [PASS] E1   reconstructed f_max is bitwise the model's f_max (400 pts)  -- max |diff| = 0.000e+00
+  [PASS] E1c  g_ds and C_gs bitwise identical to the core's
+  [PASS] E2   R_g = 0 zeroes term B and g_ds*R_g EXACTLY
+  [PASS] E2b  R_g = 0 leaves the denominator exactly equal to g_ds*R_s
+  [PASS] E2c  C_gd = 0 zeroes term B exactly, term A bitwise unchanged
+  [PASS] E2d  all parasitics deleted: denominator exactly 0.0, then clipped  -- every parasitic deleted: denominator exactly 0.0, clipped to 1e-30 by the model's own guard
+  [PASS] E3   fingers 8->16 divides g_ds*R_g by exactly 4 (1/N^2 law)  -- R_g: 8.333333 -> 2.083333 Ohm
+  [PASS] E3b  fingers 8->16 divides term B by exactly 4
+  [PASS] E3c  fingers 8->16 leaves g_ds*R_s exactly invariant
+  [PASS] E4   ratio -> required denominator -> ratio closes within 1 ULP  -- 0.000 ULP
+  [PASS] E5   default geometry: f_max bitwise equals rf.compute_fT_fmax
+  [PASS] E5b  default geometry: f_T bitwise equals rf.compute_fT_fmax
+  [PASS] R1   term B (R_g*C_gd feedback) is below 1 % of the denominator  -- term B share = 0.2154 %
+  [PASS] R2   term A (g_ds) is above 99 % of the denominator  -- term A share = 99.7846 %
+  [PASS] R3   term B stays below 5 % of the denominator at EVERY bias  -- largest B share = 1.9908 % at V_ds = 1.0 V
+  [PASS] R4   g_ds is the channel conductance to within 5 % at every bias  -- g_ds*R_total in [1.0026, 1.0487]
+  [PASS] R5   intrinsic voltage gain g_m/g_ds is below 0.2 at every bias  -- g_m/g_ds in [0.00514, 0.09648]
+  [PASS] C4   MAGNITUDE: deleting C_gd moves f_max/f_T by under 0.5 % (band)  -- response = +0.10788 % -- the C_gd knob is ALIVE but its authority is negligible
+  [PASS] C5   MAGNITUDE: R_g = 0 entirely STILL falls short of f_max/f_T = 1.3  -- R_g = 0 limit gives 0.935276, 28.06 % below the bottom of the Feijoo band
+  [PASS] C6   CONTROL: the C_gd and R_g responses are not aliased (>100x apart)  -- R_g response / C_gd response = 421.32x
+  [PASS] R6   the resistance-ratio identity reproduces f_max/f_T within 1 %  -- (1/2)sqrt(R_total/(R_g+R_s)) = 0.645352 vs exact 0.643007, rel. err 3.6459e-03
+  [PASS] R7   the required g_ds reduction is a factor between 3 and 10  -- required g_ds factor = 4.8483
+
+==============================================================================
+SECTION 2.  The split, measured
+==============================================================================
+
+Literature-scale device, V_ds = 0.1 V (40 um / 8 fingers)
+  bias / geometry : V_ds = 0.10 V, W = 40 um, R_g = 8.3333 Ohm, R_s = 7.5000 Ohm, R_c,total = 15.0000 Ohm
+  peak f_T        :   20.2787 GHz at V_g = -1.1115 V
+  f_max there     :   13.0393 GHz   f_max/f_T = 0.643007
+  A = g_ds*(R_g+R_s)       = 6.033531e-01   (99.7846 % of denominator)
+      of which g_ds*R_g    = 3.175543e-01   (52.5182 % of denominator)
+      of which g_ds*R_s    = 2.857988e-01   (47.2664 % of denominator)
+  B = 2*pi*f_T*C_gd*R_g    = 1.302534e-03   ( 0.2154 % of denominator)
+  denominator       = 6.046556e-01
+  required for f_max/f_T = 1.41: 1.257482e-01   (must shrink 4.8085x)
+
+  Bias dependence of the split (peak-f_T bias at each V_ds):
+    V_ds      peak f_T  f_max/f_T   A share   B share  g_m/g_ds  g_ds*R_total
+    0.05    10.140 GHz     0.6442  99.8919%   0.1081%   0.00514      1.002572
+    0.10    20.279 GHz     0.6430  99.7846%   0.2154%   0.01025      1.005135
+    0.30    60.779 GHz     0.6385  99.3635%   0.6365%   0.03043      1.015282
+    0.60   121.168 GHz     0.6312  98.7597%   1.2403%   0.05965      1.030056
+    1.00   200.440 GHz     0.6218  98.0092%   1.9908%   0.09648      1.048719
+  NOTE: peak f_T scales nearly LINEARLY with V_ds (x19.8 over a x20
+  bias range), which a saturating device would not do.  The ~20 GHz
+  this chapter quotes is therefore a fact about the chosen bias.
+
+==============================================================================
+SECTION 3.  Counterfactuals: can either named cause close the gap?
+==============================================================================
+  baseline f_max/f_T                                   = 0.643007
+  delete C_gd entirely (term B -> 0)                 = 0.643701   (  +0.1079 % vs baseline)
+  16 fingers instead of 8 (R_g / 4)                  = 0.827025   ( +28.6183 % vs baseline)
+  64 fingers instead of 8 (R_g / 64)                 = 0.927229   ( +44.2019 % vs baseline)
+  delete R_g entirely (perfect gate)                 = 0.935276   ( +45.4534 % vs baseline)
+  delete R_s entirely (perfect contacts)             = 0.885467   ( +37.7071 % vs baseline)
+  delete R_g AND R_s AND C_gd (not a device)         = denominator exactly 0.0, clipped to 1e-30 by the model's guard
+  divide g_ds by 4.8483 (saturation added)           = 1.410000   (+119.2821 % vs baseline)
+
+  g_ds required for f_max/f_T = 1.41: 7.859726e-03 S (0.1965 mS/um) vs model's 3.810651e-02 S (0.9527 mS/um)
+  => the missing physics (current saturation) is worth a factor of 4.8483 in g_ds
+
+  VERDICT on the open item.  Chapter 4 named two residual causes,
+  g_ds and the R_g*C_gd feedback term.  The split is 99.78 / 0.22.
+  The feedback term is not a contributing cause at any bias tested,
+  and R_g is not the binding constraint even in the R_g = 0 limit
+  (0.935 < 1.3).  The shortfall is the ABSENCE OF CURRENT
+  SATURATION in transfer_characteristic(), worth ~4.85x in g_ds.
+
+==============================================================================
+SECTION 4.  Mutation harness
+==============================================================================
+  [PASS] MA  CONTROL A: the unmutated battery is fully green  -- failures = []
+  [PASS]     M1 re-associate the denominator sum (same algebra)  -- killed by 2 check(s): E1,E5
+  [PASS]     M2 drop R_s from the denominator (pre-08-26 model)  -- killed by 2 check(s): C5,R7
+  [PASS]     M3 1/N instead of 1/N^2 finger law  -- killed by 3 check(s): E3,E3b,R7
+  [PASS]     M4 reinstate the 2026-10-03 frozen R_g default (40x small)  -- killed by 1 check(s): R7
+  [PASS]     M5 divide g_ds by 5 (fake saturation)  -- killed by 10 check(s): C4,C5,C6,R1,R2,R3,R4,R5,R6,R7
+  [PASS]     M6 C_gd/C_gs 0.4 -> 40 (100x feedback capacitance)  -- killed by 7 check(s): C4,C6,R1,R2,R3,R6,R7
+  [PASS] MB  CONTROL B: an identity rebind of R_sheet_gate is NOT caught  -- failures = []
+
+  Mutants killed: 6 of 6
+  WORTH READING OFF: M4 -- the 2026-10-03 frozen-default bug, 40x
+  in R_g -- is killed by exactly ONE check, R7, and R7 is a
+  MAGNITUDE check (how big a g_ds reduction the gap implies), not a
+  sign check.  Every PASS/FAIL-at-zero check in this battery is
+  blind to it, because shrinking R_g moves this module's conclusion
+  in the direction it already argues.  That is the 2026-10-03 top
+  open item reproduced from the other side: the only detector that
+  saw the historical bug is the one that retains a magnitude.
+
+==============================================================================
+SUMMARY: 30 passed, 0 failed; mutants killed 6/6
+==============================================================================
+
+Saved: fmax_shortfall_decomposition.png
