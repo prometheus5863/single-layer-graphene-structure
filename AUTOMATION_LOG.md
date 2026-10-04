@@ -5445,3 +5445,321 @@ run" check was answered from the freshly cloned `AUTOMATION_LOG.md` and
 `git log --since=midnight` only, with no GitHub-API `pushed_at` cross-check,
 because the clones finished fast enough that the cheap pre-check 10-02 added
 had no latency to hide.
+
+---
+
+## 2026-10-04 — f_max was computed correctly, under the wrong name
+
+**Status.** The device-physics item created 10-03 — *quantify the g_ds vs.
+R_g·C_gd split in the remaining f_max shortfall* — is **closed**, and the
+answer retires the thread that produced it. New module
+`graphene_fmax_shortfall_decomposition.py` (**30/30, 6 of 6 mutants
+killed**, five tolerance-free checks), new figure
+`fmax_shortfall_decomposition.png`, new note
+`notes/2026-10-04-fmax-was-a-resistance-ratio.md`, Chapter 4 **§4.6.2** and
+Chapter 7 **§7.8.1a** drafted, two defects of my own fixed, and one latent
+crash in a standing guard fixed that had been live since 10-01.
+
+### 1. The split: one of the two named causes carries 0.22 %
+
+The f_max denominator is a sum, so the split needs no perturbation theory.
+40 µm / 8 fingers, V_ds = 0.1 V, peak-f_T bias:
+
+| term | value | share |
+|---|---|---|
+| A = g_ds(R_g+R_s) | 6.033531e-01 | **99.7846 %** |
+| — g_ds·R_g | 3.175543e-01 | 52.5182 % |
+| — g_ds·R_s | 2.857988e-01 | 47.2664 % |
+| B = 2π f_T C_gd R_g | 1.302534e-03 | **0.2154 %** |
+
+Deleting C_gd **entirely** moves f_max/f_T from 0.643007 to 0.643701:
+**+0.108 %** against a shortfall of a factor of 2.2. Its share reaches only
+1.9908 % at V_ds = 1 V. Chapter 4's annotation named two residual causes and
+**one of them is not a cause**; the sentence is struck through in place with
+its numbers intact.
+
+### 2. R_g was never the lever, and that is a verdict on five weeks of work
+
+| counterfactual | f_max/f_T |
+|---|---|
+| as committed | 0.643007 |
+| C_gd = 0 | 0.643701 |
+| 16 fingers (R_g/4) | 0.827025 |
+| 64 fingers (R_g/64) | 0.927229 |
+| **R_g = 0 exactly** | **0.935276** |
+| R_s = 0 exactly | 0.885467 |
+| g_ds ÷ 4.8483 | 1.410000 |
+
+A **perfect gate** lands 28.06 % below the bottom of Feijoo *et al.*'s
+1.3–1.4 band, and 64 fingers is within 1 % of that ceiling, so the
+multi-finger mechanism is exhausted at about sixteen. The 10-03 session
+found a real 40× delivery bug in R_g and was right to. **The belief that
+R_g was the lever did not survive measurement**, and no check in this
+repository could have said so: every one asked whether R_g was computed
+correctly, none asked whether R_g mattered.
+
+### 3. Why, and the number the gap is now worth
+
+`transfer_characteristic()` computes `Id = Vds/(R_channel + Rc_total)` — a
+bias-dependent resistor, no velocity saturation, no pinch-off. So g_ds **is**
+the channel conductance: measured `g_ds·R_total` ∈ [1.0026, 1.0487] across
+V_ds = 0.05–1 V. Term A therefore collapses to a resistance ratio and
+`f_max/f_T ≈ ½√(R_total/(R_g+R_s))` reproduces the exact value to **0.36 %**
+(0.645352 vs 0.643007). Reaching 1.41 needs R_total/(R_g+R_s) ≥ 7.95; this
+device has 1.67. **f_max is primarily a measurement of output resistance and
+this model has none to measure.** The g_ds that would reach the band at the
+model's own R_g, R_s, C_gd is 0.1965 mS/µm against 0.9527 mS/µm — the missing
+physics is worth **×4.8483**, so "add saturation" is now a target with a
+tolerance rather than a direction.
+
+**Independent corroboration of the mechanism, found after the derivation.**
+The Chalmers doctoral thesis on GFETs for high-frequency applications states
+it outright: *"f_max is mostly limited by the high drain conductance g_ds due
+to the lack of current saturation"*, with the reason graphene cannot pinch
+off (no bandgap, so the carrier type inverts along the channel) and a second,
+non-intrinsic cause in interface-state emission at high fields. Saturation
+velocity there is 0.2–0.8 v_F theoretical, ≈1.4×10⁷ cm/s measured. **This
+corroborates the mechanism, not the number** — and the distinction is kept,
+because R5's 0.2 threshold is set from this model's own range, making it a
+drift detector rather than a comparison against the world (its label now
+says so).
+
+### 4. A withdrawn inference about f_T, costing more than it looks
+
+Peak f_T scales **×19.8 over a ×20 drain-bias range** (10.140 GHz at
+V_ds = 0.05 V to 200.440 GHz at 1 V), because g_m ∝ V_ds in a resistor model.
+So the ≈20 GHz that §4.6 called "consistent with the literature range for
+non-exotic gate lengths" is a fact about the bias `plot_fT_fmax()` passes;
+the same model matches the 200 GHz record devices at V_ds = 1 V. **No §4.6
+number is retracted. What is retracted is reading their proximity to the
+literature as corroboration.** A model with one knob worth ×20, compared
+against a literature range spanning ×20, will agree somewhere — and this is
+the 10-02 rule in its most expensive form yet, because the second artefact
+was the published literature rather than another file here. Free diagnostic
+from the same table: f_max/f_T **falls** with bias here (0.6442 → 0.6218)
+where a saturating device's rises, so the sign is wrong, not just the
+magnitude.
+
+### 5. Two faults of my own, both caught by this repository's own guards
+
+- **The module written about frozen defaults contained four.**
+  `decompose()`'s first committed form captured `VG_SWEEP`, `VDS_REF`,
+  `rf.W_RF` and `rf.N_FINGERS_RF` as function-parameter defaults; the last
+  two are the **exact cross-module shape of the 10-03 bug**, committed by the
+  session that had just read the whole note about it. Caught by
+  `graphene_mutation_arrival_probe.py` §7b on the first run after the module
+  landed — **the first time that census has had anything to report since
+  10-01**. All four late-bound; the sentinel is the builtin `Ellipsis`, not a
+  module-level `_DEFAULT = object()`, because a module-level sentinel is
+  itself a captured module-level name and §7b reports it correctly by its own
+  rule. The rule was left as written and the code moved (10-01: a
+  classifier's name must not drift from what it measures). Every transcript
+  number is **bitwise unchanged** by the fix, because nothing here rebinds
+  `rf.W_RF` between import and call — *latent*, which is what 09-29 said
+  about ten names, one of which became the 40× bug eleven sessions later.
+- **The guard detected it and then crashed.** §7b's renderer unpacked **five**
+  fields from rows the census has only ever built with **four**, so any
+  non-empty census raised `IndexError` on its first element and the module
+  exited 1 before Sections 8 onward. It had never fired, because the census
+  has returned zero rows every run since 10-01: **a reporting path that only
+  runs when the guard fires had never run.** The operator saw a stack trace
+  where four named sites were the intended output. A crash is a detection but
+  a strictly weaker one — no diagnosis, every later section lost, resting on
+  an arithmetic accident downstream rather than on an assertion. Fixed as
+  `_print_census()`, and **C7b now renders a synthetic three-row census
+  (FROZEN, MIXED, IMPORT_FAILED) on every run**, so the path is covered by the
+  suite rather than by the day the guard fires; without it the fix would be
+  untested until the next captured default, which on this week's evidence is
+  three days to never. Probe **33/33 → 34/34**, exit 1 → 0.
+
+### 6. Validations
+
+New module **30/30, 6/6 mutants killed**, with control A (unmutated battery
+green) and control B (an identity rebind is *not* caught, so "all mutants
+die" is a claim about the mutants and not about a battery that fails on
+anything). Five tolerance-free checks, each naming the operation it is exact
+under per 10-03: **E1** bitwise reconstruction of the model's own f_max,
+exact under *summation order* — re-associating the identical algebra breaks
+it, and **M1 confirms that** rather than leaving it asserted; **E2/E2b/E2c**
+multiplication by zero; **E2d** every parasitic deleted gives a denominator
+of exactly 0.0, then the model's own 1e-30 clip, reported as the guard
+constant it is rather than printed as a counterfactual f_max/f_T of 5e14;
+**E3/E3b/E3c** the 1/N² finger law at powers of two, with R_s exactly
+invariant; **E5/E5b** the **overlapping-limit validation** — this module's
+default-geometry path must agree with `rf.compute_fT_fmax` bitwise, which is
+the superseded-model comparison 10-03 required. **E4 is a round trip and is
+checked to 1 ULP rather than claimed exact**, because sqrt is involved.
+**Magnitude-form controls**, per the top 10-03 item: C4 asserts a *band*
+(deleting C_gd moves the answer by between 0 and 0.5 %, i.e. the knob is
+alive and its authority is negligible), C5 asserts the R_g = 0 limit still
+falls short, C6 requires the two responses not to be aliased (they differ
+421.32×). Repository-wide: pristine transcript audit **10/10** with the new
+transcript **IDENTICAL** in a pristine clone at 20.4 s; dead-name sweep 8/8;
+figure provenance 26/26; cross-module delivery 25/25.
+
+**Worth reading off the mutation report.** M4 — the 10-03 frozen-default bug
+itself, 40× in R_g, reinstated — is killed by **exactly one** check, R7, and
+R7 is the only check in the battery that retains a **magnitude**. Every
+PASS/FAIL-at-zero check is blind to it, because shrinking R_g moves this
+module's conclusion in the direction it already argues. **That is 10-03's top
+open item reproduced from the other side, on the very bug that created it.**
+
+### 7. What the top open item got, and did not get
+
+The 10-03 top item asks for a *committed repository-wide per-mutation
+sensitivity baseline*. It did **not** get one. What it got is one module
+written in the form it asks for — every MUST_CHANGE prints its response size,
+and the two checks whose point is a magnitude assert bands — plus the M4
+evidence above that the form is the right one. **Said plainly so the item is
+not quietly downgraded**: it remains the top methodological item, now with a
+worked example and an argument, which is less than a mechanism.
+
+**Methodological note, continuing the series.** 09-28: prose is a detector.
+09-29: a mutation that does not arrive is indistinguishable from a system
+that does not respond. 09-30: a control has to sit where the failure enters.
+10-01: and name what it compares against in a way that cannot drift. 10-02:
+when it agrees, that is a fact about two artefacts, not about the world.
+10-03: a PASS/FAIL at zero is silent about magnitude. **10-04: AND A QUANTITY
+CAN BE COMPUTED CORRECTLY UNDER THE WRONG NAME.** Every check here asked
+whether f_max was computed correctly from g_ds, R_g, R_s and C_gd. It was —
+bitwise, reproducibly, with the 40× bug found and fixed. None asked **what
+the number is a measurement of**, and the answer was the device's
+access-to-channel resistance ratio. There is no tolerance that detects this,
+no mutation that kills it, and no transcript that goes stale: the arithmetic
+was right the whole time. The only thing that found it was asking the
+denominator which of its terms mattered — a question about **attribution**,
+not about **correctness**. 10-03's corollary was that an instrument's
+agreement with its own specification is silent about whether the
+specification covers the case; **today's is that an instrument's correctness
+is silent about whether it measures the quantity its name claims** — and, in
+the form that is about effort rather than error, that the R_g thread was
+*correct work aimed at a non-binding constraint*, which auditing could never
+have told anyone, because auditing asks whether a number is right and never
+whether it is worth having.
+
+**Not yet covered (candidates for future runs):**
+
+- **A saturation term in `transfer_characteristic()`** — created today and
+  **the new top item**, and the first open item in this series that arrives
+  with a measured acceptance criterion: it must divide g_ds by ≈4.85 at the
+  peak-f_T bias AND reverse the sign of d(f_max/f_T)/dV_ds, which currently
+  runs the wrong way (0.6442 → 0.6218 over V_ds = 0.05–1 V). The literature
+  route is a saturation velocity v_sat in the 0.2–0.8 v_F range with the
+  I_d = W·q·n·v_sat ceiling, or the drain-field-dependent mobility of the
+  compact large-signal GFET models (arXiv:1605.08235). **Validate it against
+  the resistor model in the low-V_ds overlapping limit**, where the two must
+  agree, per the rule 10-03 set and E5 implements
+- **Record the MAGNITUDE of every `MUST_CHANGE`, not just its sign** —
+  created 10-03, **still the top methodological item**, advanced by one
+  worked example and not mechanised (§7 above). Today's M4 result is new
+  evidence for it: the only detector that caught a historical 40× bug is the
+  only one in its battery that keeps a magnitude
+- **Which other checks here are RATIOS of two quantities the same defect
+  would scale?** — created 10-03, untouched. Today adds a second form of the
+  same blindness worth folding in: not only ratios, but any check whose
+  *name* asserts more than its *arithmetic* tests
+- **Which other quantities in this repository are computed correctly under a
+  name that claims more than they measure?** — created today, the direct
+  successor to §Methodological note. The f_max case was found by asking a
+  denominator which term dominated; the mechanisable version is a census of
+  every reported figure of merit whose value is dominated (>95 %) by a single
+  term, since such a quantity is a restatement of that term. Candidates by
+  construction: Chapter 5's interconnect figures of merit, Chapter 6's
+  responsivity–gain tradeoff
+- **Audit every REMAINING check for the 10-02 §1 fault: does it read the
+  artefact its own prose names?** — created 10-02, untouched
+- **Do the four existing audits have references that are not content-pinned?**
+  — created 10-01, untouched
+- **Is `D_CHEM_PHYS` the only duplicated literature VALUE?** — created 10-01,
+  untouched
+- **Is `plot_fermi_surface` the only uncommitted figure?** — created 10-02,
+  untouched
+- **Whether Chapter 4's `n_puddle` actually reproduces Section 3.3's measured
+  6.45 kΩ/sq floor** — created 09-29, **untouched for six sessions**, still a
+  one-line calculation, and still the only place Chapter 3's central negative
+  result touches Chapter 4's numbers. Today's work makes it *more* relevant,
+  not less: `n_puddle` sets R_channel, and R_channel is now known to be half
+  of what f_max measures
+- **Whether the three identity re-assignments should be replaced by real
+  mutations** — created 09-30; narrowed 10-03, and narrowed again today,
+  since control B here is a deliberate identity rebind with a stated purpose
+- **The Section 3.6 Pauli edge is absent from Chapter 6's model** — created
+  09-29; the third leg of the Chapter 4 / Chapter 6 contact-metal
+  contradiction and the only one that is a physical mechanism
+- **Where does the 6.5430 % internal collection efficiency come from?** —
+  created 09-30, untouched
+- **Chapters 2 and 3 are drafted but §4.8.2's form of error is not audited
+  for elsewhere** — created 10-01, untouched
+- **Whether Chapter 4 or 5 contains a RANKING that is a step artefact** —
+  created 09-23/09-25; the noise form closed 10-02, the step form untouched
+- **A finite-temperature optical conductivity** (09-29); **the
+  remote-polar-phonon cap on SiO₂ is asserted, not computed** (09-29) —
+  **today makes this one sharper**, since a remote-polar-phonon-limited
+  velocity is one of the two standard sources of the saturation term the new
+  top item needs; **angular trigonal warping** (09-28); **finite-temperature
+  carrier density `n(E_F, T)`** (09-28, wanted twice); whether other `== 0.0`
+  exactness checks are round-trip tautologies (09-28, sharpened 10-03 to ask
+  what operation each is exact *under* — today's five exactness checks each
+  name theirs, so the form exists and the census does not); whether RESULT 2's
+  other convictions are read from the saturated branch (09-28); a probe
+  reporting both directions of lambda (09-28); whether `t'` can be EXCLUDED
+  quantitatively as the source of Chapter 4's electron-hole asymmetry
+  (09-28); whether any other near-cancellation shows the `c2`/`c4` sign flip
+  if differentiated (09-27); migrating every remaining validation to
+  measured-value-beside-derived-bound form (09-27); `n_segments = 50` at a
+  bias with more curvature (09-26) — **now load-bearing**, because g_ds is a
+  V_ds difference of that quadrature and g_ds is 99.78 % of the f_max
+  denominator
+- **A second anchor for `Delta_c`, at any separation other than 3.3 Å** —
+  open since 2026-09-21, still the top *physics* item, now **untouched for
+  fourteen consecutive sessions**. Today was a device-physics session rather
+  than an audit session and still did not touch it, which is the more
+  pointed version of the streak
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural
+  weakness
+- **Whether Chapter 7's Section 7.3 differential-interconnect prediction
+  holds** (09-27); which of Chapters 4 and 5's design rules could be restated
+  as parities or bounds (09-23); whether the parity survives a
+  photo-thermoelectric term (09-23); re-check whether other "for every …"
+  claims rest on small samples (09-20); whether Chapter 4's
+  contact-resistance results should be re-run at the 5.4 eV crossover
+  (09-18); reconciling Mueller *et al.*'s 0.12 eV step (arXiv:0902.1479) with
+  the 0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS` assumes (09-18); a
+  photo-thermoelectric term (Kasirga review); Shimomura *et al.*'s
+  comb-electrode design; integrating 6.5's plasmonic near-field picture with
+  the spatially-resolved contact-doping machinery; isolating the root cause of
+  the Section 4.7 negative residual (08-31); Ti and Cr per-metal `Rc`
+  recalibration (ResearchGate rate-limiting); a second independent
+  edge-contact dataset (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health.** Device reachable and folder connected at the first
+firing checked today; Step 0 found neither repository carrying a 2026-10-04
+entry and no commits since midnight, so this was a full session rather than
+10-03's one-repo branch. Both repositories cloned fully in well under 15 s,
+so the network problem of 10-01/10-02 remains absent for a second
+consecutive session — two clean sessions still do not establish it is gone,
+and the bundle-via-`_to_push` recipe stays documented. `scipy` was absent
+from the device VM as expected and `pip install`ed in ~20 s. Work was done in
+the device VM's scratch space at `$HOME/work`, outside the connected folder,
+because git still cannot create its lock files inside one. **Live web search
+was available and used**, from inside the device VM, and the Chalmers
+full-text PDF fetched successfully; no fetch failures to record, and PubMed/PMC
+were not attempted, per the standing note that they return reCAPTCHA here.
+The `GIT_ASKPASS` recipe ran from `$HOME/.sess/`, the token was never written
+into `.git/config`, a remote URL, any repository file or the connected
+folder, and the temp copy is shredded at the end of the session.
+`user.name`/`user.email` were again absent in the fresh clone and set per
+09-24. **Push-as-you-go was followed**: the first five commits were pushed and
+verified against the GitHub API before the thesis and log work began. **One
+deviation worth stating:** `log_sensitivity_step_audit.png` was re-rendered as
+a side effect of re-running that audit for its transcript, differing in bytes
+without differing in content, and was restored to its committed bytes rather
+than committed — the committed figure stays the pinned artefact instead of
+being churned by an unrelated run.
+
+**Commits this run:** 8 (the module with its figure and transcript; the
+late-binding fix with the SUITES registration; the §7b renderer fix with C7b;
+the four censuses the module's existence moved; the pristine-audit transcript;
+Chapters 4 and 7; the R5 label correction with its own transcript; the
+cross-module transcript). This AUTOMATION_LOG.md entry makes 9.

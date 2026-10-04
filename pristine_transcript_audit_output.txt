@@ -7,30 +7,29 @@ Does the COMMITTED code still produce the COMMITTED transcripts?
 SECTION 1 -- the committed state, resolved to a content-addressed id
 --------------------------------------------------------------------------
   pointer file      : .git/HEAD
-  resolved commit   : 3a1cdb02ef8208e67af79e86482a09b286b4e6ad
-  tracked files modified in the WORKING TREE : 2
+  resolved commit   : 142fdc6c47a1269e176e00242c806e125d95843e
+  tracked files modified in the WORKING TREE : 1
     (they are excluded by construction -- that is the point)
-      M log_sensitivity_step_audit.png
-       M pristine_transcript_audit_output.txt
+      M pristine_transcript_audit_output.txt
   pristine clone    : built and detached at the id above
 
 --------------------------------------------------------------------------
 SECTION 2 -- every suite, run from the pristine clone
 --------------------------------------------------------------------------
-  graphene_mutation_arrival_probe.py           IDENTICAL         1.3s
-  graphene_dead_name_sweep.py                  IDENTICAL         1.2s
-  graphene_band_structure_audit.py             IDENTICAL         1.0s
-  graphene_default_scale_audit.py              IDENTICAL         2.7s
-  graphene_figure_provenance_audit.py          IDENTICAL         9.2s
-  graphene_gds_quadrature_audit.py             IDENTICAL         4.3s
+  graphene_mutation_arrival_probe.py           IDENTICAL         1.4s
+  graphene_dead_name_sweep.py                  IDENTICAL         1.3s
+  graphene_band_structure_audit.py             IDENTICAL         1.1s
+  graphene_default_scale_audit.py              IDENTICAL         3.0s
+  graphene_figure_provenance_audit.py          IDENTICAL         9.6s
+  graphene_gds_quadrature_audit.py             IDENTICAL         4.1s
   graphene_log_sensitivity_step_audit.py       IDENTICAL         1.8s
   graphene_rootfinder_audit.py                 IDENTICAL         0.8s
   graphene_transport_optical_audit.py          IDENTICAL         0.8s
   graphene_covariance_probe_audit.py           RAN         0.8s  (no transcript)
-  graphene_differential_crossover_model.py     IDENTICAL         4.7s
-  graphene_cross_module_delivery_audit.py      IDENTICAL         2.9s
-  rf_small_signal_model.py                     IDENTICAL         3.2s
-  graphene_fmax_shortfall_decomposition.py     IDENTICAL        19.9s
+  graphene_differential_crossover_model.py     IDENTICAL         4.6s
+  graphene_cross_module_delivery_audit.py      IDENTICAL         2.6s
+  rf_small_signal_model.py                     IDENTICAL         2.9s
+  graphene_fmax_shortfall_decomposition.py     IDENTICAL        20.1s
 
 --------------------------------------------------------------------------
 SECTION 3 -- positive controls on the detector itself
@@ -74,7 +73,7 @@ SECTION 4 -- the standing requirement
 ==========================================================================
 SUMMARY
 ==========================================================================
-  commit audited : 3a1cdb02ef8208e67af79e86482a09b286b4e6ad
+  commit audited : 142fdc6c47a1269e176e00242c806e125d95843e
   PASS  C1 unperturbed output classifies IDENTICAL
   PASS  C2 a within-tolerance change classifies NUMERIC_DRIFT
   PASS  C2b that perturbation is genuinely inside the tolerance
