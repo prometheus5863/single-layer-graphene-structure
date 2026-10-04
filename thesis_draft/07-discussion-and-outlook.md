@@ -554,6 +554,83 @@ digital logic and this thesis offers no argument that it is.** Chapter 4's value
 is not a transistor recommendation; it is the contact physics (§7.8.2), which is
 a prerequisite for every other application here.
 
+### 7.8.1a RF/analog: the one application this thesis cannot speak to, and the reason is structural
+
+Section 7.8.1 rules out digital logic on the bandgap. The usual next
+sentence — and the one the GFET literature reaches for — is that graphene's
+mobility makes it a candidate for *analog and RF* rather than digital, where
+no off state is required and f_T and f_max are the figures of merit.
+Chapter 4 Section 4.6 computes both. **This thesis is nevertheless not
+entitled to an RF conclusion, and Section 4.6.2 is where that became
+clear.**
+
+The reason is not a tuning problem. Decomposing the f_max denominator
+(2026-10-04) showed that 99.78 % of it is the term g_ds(R_g+R_s), that
+g_ds ≈ 1/R_total to within 0.3–4.9 % across V_ds = 0.05–1 V, and therefore
+that
+
+```
+  f_max/f_T  ≈  (1/2) sqrt( R_total / (R_g + R_s) )
+```
+
+to 0.36 %. The model's f_max is a restatement of the ratio between its
+access resistance and its channel resistance. That is not a *bad estimate
+of* f_max; it is a different quantity wearing f_max's name. The underlying
+cause is that `transfer_characteristic()` is a resistor —
+I_d = V_ds/(R_channel + R_c) — with no saturation mechanism, so the device
+has no output resistance, and f_max is primarily a measurement of output
+resistance.
+
+**Three consequences, in increasing order of how much they cost this
+thesis.**
+
+First, the R_g work was aimed at a non-binding constraint. Multi-finger
+gate-resistance reduction, the N² scaling, and the 40× delivery bug found
+on 2026-10-03 all act on a term that cannot close the gap: with R_g = 0
+*exactly* — a perfect gate, not a better one — f_max/f_T is 0.935276, still
+28 % below the bottom of Feijoo *et al.*'s 1.3–1.4 band. Sixty-four fingers
+reaches 0.927229, within 1 % of that ceiling, so the mechanism is
+exhausted at about sixteen. This is a clean instance of Section 7.5's
+taxonomy applied to *effort* rather than to claims: the work was correct and
+the target was wrong, and nothing in the audit record could have said so,
+because every check asked whether R_g was computed correctly and none asked
+whether R_g mattered.
+
+Second, the apparent agreement in Section 4.6 was never evidence. Peak f_T
+scales ×19.8 over a ×20 drain-bias range (10.140 GHz at V_ds = 0.05 V to
+200.440 GHz at 1 V), because g_m ∝ V_ds in a resistor model. The ≈20 GHz
+that matched "the literature range for non-exotic gate lengths" is the value
+at the bias `plot_fT_fmax()` passes. Asked at V_ds = 1 V the same model
+matches record 200 GHz devices. **A model with a free parameter that moves
+the answer by ×20 and a literature range spanning ×20 will agree with that
+literature at some bias, and did.** This is the 2026-10-02 lesson —
+agreement between two artefacts is silent about the world — in its most
+expensive form so far, because here the second artefact was the published
+literature rather than another file in this repository.
+
+Third, and the only constructive part: the gap is now a number. The g_ds
+that would put this device in the Feijoo band at its own R_g, R_s and C_gd
+is 0.1965 mS/µm against the model's 0.9527 mS/µm — a factor of **4.8483**.
+So "add current saturation" is no longer a direction, it is a target with a
+tolerance, and a saturation-velocity term in `transfer_characteristic()`
+can be accepted or rejected against it. Equally, the *sign* of the trend is
+a free diagnostic: f_max/f_T falls with drain bias in this model
+(0.6442 → 0.6218) where a saturating device's rises, so the first thing any
+such term has to fix is a trend, not a magnitude.
+
+**The judgement, then, differs from the one Section 7.8.1 reached about
+logic, and the difference matters.** Digital logic is ruled out by physics
+graphene does not have — a bandgap — and no model improvement changes that.
+RF is not ruled out; it is *unaddressed*, because the instrument this thesis
+built for it measures something else. Those are not the same verdict, and
+the honest statement of the second is that **this thesis contributes nothing
+to the RF case for graphene, for or against.** The contact physics of
+§7.8.2 is a prerequisite for an RF device too — R_s enters the same
+denominator and is 47 % of it here — so the Chapter 4 work is not wasted on
+this application. But the figures of merit are not results, and Section
+4.6's numbers should be read as what they are: a resistance ratio, computed
+correctly, reported under the wrong name for five weeks.
+
 ### 7.8.2 Contacts: the real near-term contribution, and a negative result worth having
 
 Contact resistance is the binding constraint on every graphene device in this

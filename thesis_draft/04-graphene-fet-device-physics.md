@@ -231,8 +231,15 @@ hundreds of GHz for aggressively scaled record devices).
 > been. The gap is now attributable rather than hidden: at 8 fingers this
 > model's R_g = 8.33 Ω is already in the engineered-low range Feijoo *et al.*
 > describe, so the remaining shortfall sits in g_ds and in the R_g·C_gd
-> feedback term, not in the gate resistance. Quantifying that split is left
-> open and is recorded as such in `AUTOMATION_LOG.md`.
+> feedback term, not in the gate resistance. ~~Quantifying that split is
+> left open and is recorded as such in `AUTOMATION_LOG.md`.~~
+>
+> **Quantified 2026-10-04 in Section 4.6.2, and the sentence immediately
+> above is half wrong.** The R_g·C_gd feedback term carries **0.2154 %** of
+> the f_max denominator, so it is not a contributing cause at all; and R_g
+> is not the binding constraint either, since f_max/f_T is still 0.935276
+> in the limit R_g = 0 exactly. The shortfall is g_ds, and g_ds is large
+> because the DC model has no current saturation. See Section 4.6.2.
 >
 > See `graphene_cross_module_delivery_audit.py` (Sections 3, 4 and 7) and
 > `notes/2026-10-03-a-frozen-default-in-another-module.md`.
@@ -325,6 +332,127 @@ at the call site that actually produces this chapter's figures it is
 1 × 10⁻². **A default-scale census must read call sites, not signatures**;
 the discrepancy is the ratio between the two, here a factor of two and in
 general unbounded.
+
+### 4.6.2 The f_max shortfall, decomposed: one of the two named causes carries 0.22 %, and R_g was never the lever
+
+The annotation above left the residual f_max/f_T shortfall attributed to
+"g_ds and the R_g·C_gd feedback term". That attribution was written without
+measuring it. `graphene_fmax_shortfall_decomposition.py` measures it, and
+the measurement is separable exactly rather than perturbatively, because
+the f_max denominator is a **sum**:
+
+```
+  f_max/f_T = 1 / (2 sqrt(denom)),   denom = g_ds(R_g+R_s) + 2π f_T C_gd R_g
+                                             \_____ A ____/   \_____ B ____/
+```
+
+At the literature-scale 40 µm / 8-finger geometry and V_ds = 0.1 V:
+
+| term | value | share of denominator |
+|---|---|---|
+| A = g_ds(R_g + R_s) | 6.033531×10⁻¹ | **99.7846 %** |
+| — of which g_ds·R_g | 3.175543×10⁻¹ | 52.5182 % |
+| — of which g_ds·R_s | 2.857988×10⁻¹ | 47.2664 % |
+| B = 2π f_T C_gd R_g | 1.302534×10⁻³ | **0.2154 %** |
+
+**Result 1: the feedback term is not a cause.** Deleting C_gd *entirely* —
+not improving it, deleting it — moves f_max/f_T from 0.643007 to 0.643701,
+an improvement of **0.108 %** against a shortfall of a factor of 2.2. Its
+share rises with drain bias but only to 1.99 % at V_ds = 1 V. Section 4.6's
+annotation named two residual causes and one of them is not one. The
+superseded sentence is struck through in place above rather than rewritten,
+per this thesis's standing practice.
+
+**Result 2, which contradicts a thread this chapter has been pursuing for
+weeks: R_g is not the binding constraint, even in the limit R_g = 0.** The
+same module evaluates each counterfactual through the same code path with
+one input deleted:
+
+| counterfactual | f_max/f_T | vs. baseline |
+|---|---|---|
+| model as committed | 0.643007 | — |
+| C_gd = 0 | 0.643701 | +0.108 % |
+| 16 fingers (R_g/4) | 0.827025 | +28.618 % |
+| 64 fingers (R_g/64) | 0.927229 | +44.202 % |
+| **R_g = 0 (perfect gate)** | **0.935276** | +45.453 % |
+| R_s = 0 (perfect contacts) | 0.885467 | +37.707 % |
+| g_ds ÷ 4.8483 | 1.410000 | +119.282 % |
+
+A zero-resistance gate still lands **28.06 % below the bottom of the
+1.3–1.4 band**, and 64 fingers is already within 1 % of that limit, so the
+multi-finger mechanism is exhausted at about 16 fingers. The 2026-10-03
+session found a real 40× delivery bug in R_g and was right to; the belief
+that R_g was the lever on f_max did not survive being measured.
+
+**Why term A is so large: the DC model has no current saturation.**
+`transfer_characteristic()` computes I_d = V_ds/(R_channel(V_g,V_ds) + R_c),
+a bias-dependent *resistor* — no velocity saturation, no pinch-off, no
+drain-field cutoff. Its output conductance is therefore the channel
+conductance itself. Measured, g_ds·R_total lies in [1.0026, 1.0487] across
+V_ds = 0.05–1 V, i.e. g_ds ≈ 1/R_total to between 0.3 % and 4.9 %. Term A
+then collapses to a pure resistance ratio and
+
+```
+  f_max/f_T  ≈  (1/2) sqrt( R_total / (R_g + R_s) )
+```
+
+which reproduces the exact value to 0.36 % (0.645352 vs 0.643007). Reaching
+1.41 requires R_total/(R_g+R_s) ≥ 4·1.41² = 7.95; this device has
+26.38 Ω / 15.83 Ω = 1.67. **f_max is primarily a measurement of output
+resistance, and this model has none to measure.** The intrinsic voltage gain
+g_m/g_ds runs 0.00514–0.09648 over the same bias range, one to two orders of
+magnitude below a real GFET's. The g_ds that would put this device at
+f_max/f_T = 1.41 at its own R_g, R_s and C_gd is 7.859726×10⁻³ S
+(0.1965 mS/µm) against the model's 3.810651×10⁻² S (0.9527 mS/µm): **the
+missing physics is worth a factor of 4.8483.**
+
+**Result 3, a caution that applies to f_T and therefore to the ≈20 GHz
+figure quoted throughout this chapter.** Because g_m = d(V_ds/R)/dV_g is
+nearly proportional to V_ds in a resistor model, peak f_T here scales
+nearly linearly with drain bias:
+
+| V_ds (V) | 0.05 | 0.1 | 0.3 | 0.6 | 1.0 |
+|---|---|---|---|---|---|
+| peak f_T (GHz) | 10.140 | 20.279 | 60.779 | 121.168 | 200.440 |
+| f_max/f_T | 0.6442 | 0.6430 | 0.6385 | 0.6312 | 0.6218 |
+
+That is ×19.8 over a ×20 bias range. A saturating device's f_T does not do
+this. **So the agreement between this model's ≈20 GHz and the literature's
+tens of GHz is a fact about the bias point `plot_fT_fmax()` happens to pass,
+not independent corroboration** — the same model "agrees" with 200 GHz
+record devices if asked at V_ds = 1 V. None of the numbers in Section 4.6
+are withdrawn; what is withdrawn is reading their proximity to the
+literature as evidence. Note also that f_max/f_T *falls* slightly with
+drain bias here, where a real device's rises as it saturates: the sign of
+that trend is itself a saturation diagnostic, and this model has it
+backwards.
+
+**What this section does not claim.** It does not claim the model is wrong
+for the use Chapter 4 puts it to. A resistor-plus-contact model is the right
+instrument for the contact-resistance questions of Sections 4.3–4.5, 4.7 and
+4.8, which are its substantive results, and those are untouched. What it
+claims is narrower and, for an RF reader, more important: **f_max from this
+model is not a prediction of f_max.** It is a restatement of the device's
+access-resistance-to-channel-resistance ratio. Making it a prediction needs
+a saturation term in `transfer_characteristic()` — a drain-field-dependent
+velocity, or an explicit saturation velocity v_sat with the usual
+I_d = W·q·n·v_sat ceiling — and that is now the top open item for this
+chapter in `AUTOMATION_LOG.md`, with a measured target (4.85× in g_ds)
+rather than a direction.
+
+Validations: 30/30 and 6 of 6 mutants killed, with control A and control B.
+Five checks are tolerance-free, each naming the operation it is exact
+under: bitwise reconstruction of the model's own f_max (exact under
+summation *order* — re-associating the identical algebra breaks it, which
+mutant M1 confirms), multiplication by zero, the 1/N² finger law at powers
+of two, and the overlapping-limit identity where this module's
+default-geometry path must agree with `rf_small_signal_model` bitwise. One
+further result is worth reading off the mutation report: the 2026-10-03
+frozen-default bug itself, reinstated as mutant M4, is killed by **exactly
+one** check — and that check is the only one in the battery that retains a
+*magnitude* rather than a sign. See
+`notes/2026-10-04-fmax-was-a-resistance-ratio.md` and
+`fmax_shortfall_decomposition.png`.
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
