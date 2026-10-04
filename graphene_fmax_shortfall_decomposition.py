@@ -169,7 +169,7 @@ class Geometry:
         return False
 
 
-def decompose(Vg=VG_SWEEP, Vds=VDS_REF, W=rf.W_RF, N_fingers=rf.N_FINGERS_RF,
+def decompose(Vg=None, Vds=None, W=Ellipsis, N_fingers=None,
               Rg_override=None, Rs_override=None, Cgd_frac=None,
               gds_scale=1.0):
     """Term-by-term decomposition of the f_max denominator.
@@ -178,7 +178,42 @@ def decompose(Vg=VG_SWEEP, Vds=VDS_REF, W=rf.W_RF, N_fingers=rf.N_FINGERS_RF,
     optional overrides exist so that each counterfactual is produced by
     the SAME code path as the baseline -- a counterfactual computed by a
     second, parallel expression would be testing that expression.
+
+    EVERY DEFAULT HERE IS LATE-BOUND, and that is not a style choice.
+    The first committed version of this function read
+
+        def decompose(Vg=VG_SWEEP, Vds=VDS_REF, W=rf.W_RF,
+                      N_fingers=rf.N_FINGERS_RF, ...)
+
+    i.e. it captured two of this module's own module-level constants and
+    two of rf_small_signal_model's as function-parameter DEFAULTS, read
+    once at def time.  That is precisely the fault this module exists to
+    quantify the consequences of, and for rf.W_RF / rf.N_FINGERS_RF it is
+    the exact cross-module shape of the 2026-10-03 R_g bug.  It was caught
+    by this repository's own standing guard
+    (graphene_mutation_arrival_probe.py, Section 7b) on the first run
+    after the module was committed -- the guard doing exactly its job, on
+    a module written by someone who had just spent a session reading about
+    the fault.  Knowing a failure mode is not the same as not committing
+    it; a standing guard is.
+
+    W needs a distinguishable sentinel rather than None, because W=None
+    is a MEANINGFUL request here (use graphene_fet_model's own width, the
+    normalized 1 um device, which is what E5's overlapping-limit check
+    needs) and must not be confused with 'argument not supplied'.  The
+    sentinel is the BUILTIN Ellipsis rather than a module-level
+    `_DEFAULT = object()`, because a module-level sentinel is itself a
+    module-level name captured as a default, and the Section 7b guard --
+    correctly, by its own stated rule -- reports it.  A sentinel that is
+    never rebound is harmless in fact but indistinguishable from a
+    harmful capture by AST, and 2026-10-01's lesson is that a
+    classifier's name must not drift from what it measures.  Using a
+    builtin keeps the guard's rule exactly as written.
     """
+    Vg = VG_SWEEP if Vg is None else Vg
+    Vds = VDS_REF if Vds is None else Vds
+    W = rf.W_RF if W is Ellipsis else W
+    N_fingers = rf.N_FINGERS_RF if N_fingers is None else N_fingers
     with Geometry(W, N_fingers):
         gm, Id = rf.transconductance(Vg, Vds=Vds)
         gds = rf.output_conductance(Vg, Vds=Vds) * gds_scale
@@ -215,14 +250,17 @@ def denom_required(ratio):
     return 1.0 / (4.0 * ratio ** 2)
 
 
-def required_gds(d, ratio_target=FEIJOO_RATIO_REF):
+def required_gds(d, ratio_target=None):
     """The g_ds that would put this device at `ratio_target`, holding R_g,
     R_s and C_gd fixed.  f_T does not depend on g_ds, so term B is a
     constant of this inversion and the solve is linear:
         g_ds_req = (denom_req - term_B) / (R_g + R_s)
+    `ratio_target` is late-bound to FEIJOO_RATIO_REF, per the note in
+    decompose().
     Returns (g_ds_req, factor) at the peak-f_T bias, or (nan, nan) when
     term B alone already exceeds the required denominator (i.e. the target
     is unreachable at any g_ds, including zero)."""
+    ratio_target = FEIJOO_RATIO_REF if ratio_target is None else ratio_target
     i = d['i_peak']
     need = denom_required(ratio_target)
     num = need - d['term_B'][i]
@@ -509,7 +547,7 @@ def mutation_report():
     # M1: break the summation ORDER that E1's exactness premise names.
     # Same algebra, different association: gds*Rg + gds*Rs + B instead of
     # gds*(Rg+Rs) + B.  This must break E1 and nothing about the physics.
-    def _assoc(Vg=VG_SWEEP, **kw):
+    def _assoc(Vg=None, **kw):
         d = _orig_decompose(Vg=Vg, **kw)
         d['denom_raw'] = d['term_gds_Rg'] + d['term_gds_Rs'] + d['term_B']
         d['denom'] = np.clip(d['denom_raw'], 1e-30, None)

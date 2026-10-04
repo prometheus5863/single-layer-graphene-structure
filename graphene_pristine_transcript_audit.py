@@ -93,6 +93,14 @@ SUITES = [
     # rf_small_signal_model.py is not an audit, but its transcript carries
     # the f_T / f_max numbers Chapter 4 quotes, and 2026-10-03 changed them.
     ("rf_small_signal_model.py",               "rf_small_signal_output.txt"),
+    # Added 2026-10-04, in the same session that created the suite and the
+    # transcript, per the 2026-10-03 wiring rule.  This one matters more
+    # than most: its transcript is the EVIDENCE for a claim that
+    # contradicts Chapter 4's prose (that R_g is not the binding constraint
+    # on f_max), and a transcript carrying a contradiction that nothing
+    # checks is the worst case of the 10-02 rule, not the mildest.
+    ("graphene_fmax_shortfall_decomposition.py",
+     "fmax_shortfall_decomposition_output.txt"),
 ]
 
 # This module is deliberately absent from SUITES.  It would have to run itself
