@@ -43,7 +43,7 @@ SECTION 2 -- and why that pass could not have been a clean bill
   [PASS] the docstring's claim about HISTORY holds of the pinned pre-fix blob c0c620acd113   [pre-fix blob contains the frozen signature: True; working tree contains it: False; working tree is late-bound: True]
   [PASS] the cross-module question is now asked at all (it was not before)
   [PASS] no remaining cross-module patch target is captured as a frozen default (was 1: rf_small_signal_model.gate_resistance)
-  NOTE: 2 setattr call(s) with a computed name -- the census cannot be complete by construction: [('graphene_figure_provenance_audit.py', 173), ('graphene_figure_provenance_audit.py', 175)]
+  NOTE: 4 setattr call(s) with a computed name -- the census cannot be complete by construction: [('graphene_figure_provenance_audit.py', 173), ('graphene_figure_provenance_audit.py', 175), ('graphene_fmax_shortfall_decomposition.py', 522), ('graphene_fmax_shortfall_decomposition.py', 526)]
 
 ------------------------------------------------------------------------------
 SECTION 3 -- the measured consequence

@@ -159,21 +159,21 @@ Q4 (ORACLE-FREE) -- does conv have a zero at any real call site?
   B lambda_imp/p_default            11           0           1.67e-05     5.36e-09      10.2
   B lambda_imp/W_calibration         7           1           4.64e-06     2.26e-07     431.4
   B lambda_imp/lambda_bulk           8           1           4.64e-06     1.78e-07     339.6
-  C rho(18)/rho_calibration         12           0           5.99e-05     1.58e-11       0.1
-  C rho(18)/rho_bulk                12           0           7.74e-05     9.37e-13       0.0
-  C rho(18)/p_default               13           0           1.29e-04     3.70e-12       0.0
-  C rho(18)/W_calibration           10           0           2.78e-05     1.96e-10       1.6
-  C rho(18)/lambda_bulk             10           0           7.74e-05     6.49e-12       0.1
-  C rho(30)/rho_calibration          9           0           4.64e-05     4.69e-11       0.5
+  C rho(18)/rho_calibration         12           0           5.99e-05     2.69e-11       0.2
+  C rho(18)/rho_bulk                12           0           7.74e-05     1.20e-11       0.1
+  C rho(18)/p_default               13           0           1.29e-04     7.41e-12       0.1
+  C rho(18)/W_calibration           10           0           2.78e-05     2.01e-10       1.6
+  C rho(18)/lambda_bulk             10           0           7.74e-05     9.37e-13       0.0
+  C rho(30)/rho_calibration          9           0           4.64e-05     5.80e-11       0.6
   C rho(30)/rho_bulk                15           0           5.99e-05     2.52e-11       0.3
-  C rho(30)/p_default                6           0           1.00e-04     1.16e-11       0.1
-  C rho(30)/W_calibration           12           0           2.15e-05     3.59e-10       3.7
+  C rho(30)/p_default                6           0           1.00e-04     4.81e-13       0.0
+  C rho(30)/W_calibration           12           0           2.15e-05     3.54e-10       3.6
   C rho(30)/lambda_bulk             14           0           5.99e-05     3.08e-11       0.3
-  C rho(52)/rho_calibration          7           0           2.78e-05     2.20e-10       2.9
-  C rho(52)/rho_bulk                12           0           4.64e-05     4.68e-11       0.6
+  C rho(52)/rho_calibration          7           0           2.78e-05     2.14e-10       2.9
+  C rho(52)/rho_bulk                12           0           4.64e-05     5.79e-11       0.8
   C rho(52)/p_default               14           0           5.99e-05     2.80e-11       0.4
-  C rho(52)/W_calibration            8           0           1.67e-05     5.54e-10       7.4
-  C rho(52)/lambda_bulk             14           0           4.64e-05     4.96e-11       0.7
+  C rho(52)/W_calibration            8           0           1.67e-05     5.48e-10       7.3
+  C rho(52)/lambda_bulk             14           0           4.64e-05     4.68e-11       0.6
   D rho_Cu(18)/t_liner              10           0           4.64e-05     8.89e-11       0.6
   D rho_Cu(30)/t_liner              11           0           4.64e-05     5.50e-11       0.5
   D rho_Cu(52)/t_liner              13           0           4.64e-05     4.15e-11       0.5
@@ -189,7 +189,7 @@ Q4 (ORACLE-FREE) -- does conv have a zero at any real call site?
   IS conv AT THE SHIPPED STEP A TRUNCATION ESTIMATE AT ALL?
   conv(1e-5) divided by the derived cancellation floor 4*EPS*|g|/h :
     Family B: min 10.2  median 431.4  max 1460.8
-    Family C: min 0.0  median 0.4  max 7.4
+    Family C: min 0.0  median 0.4  max 7.3
     Family D: min 0.5  median 0.5  max 0.6
   Family B's conv is three decades above its own rounding floor and
   is a real truncation estimate.  Families C and D sit AT the floor:
@@ -209,21 +209,21 @@ Q1 magnitude + Q5 + Q6 -- at the shipped h = 1e-5
   B lambda_imp/p_default       -3.72670808   -3.72670808     1.45e-10    5.75e-10       4.93e-10
   B lambda_imp/W_calibration  -12.14285722  -12.14285721     6.69e-10    6.05e-09       6.20e-09
   B lambda_imp/lambda_bulk     13.14285720   13.14285721     5.91e-10    4.47e-09       4.52e-09
-  C rho(18)/rho_calibration     0.87960340    0.87960340     4.53e-12    6.78e-11       1.55e-11
-  C rho(18)/rho_bulk            0.12039660    0.12039660     2.18e-10    4.02e-10       1.19e-10
-  C rho(18)/p_default          -0.03695036   -0.03695036     3.33e-11    3.64e-09       1.17e-11
-  C rho(18)/W_calibration       0.54178470    0.54178470     8.96e-11    2.83e-11       1.45e-10
-  C rho(18)/lambda_bulk         0.12039660    0.12039660     2.18e-10    1.07e-09       1.30e-10
-  C rho(30)/rho_calibration     1.19653179    1.19653179     2.23e-11    9.82e-11       1.85e-11
-  C rho(30)/rho_bulk           -0.19653179   -0.19653179     3.33e-11    3.32e-11       3.33e-11
-  C rho(30)/p_default           0.06031666    0.06031666     1.51e-10    1.07e-09       9.86e-11
-  C rho(30)/W_calibration       0.73699422    0.73699422     8.72e-11    2.08e-10       1.45e-10
+  C rho(18)/rho_calibration     0.87960340    0.87960340     1.72e-11    1.22e-10       1.15e-12
+  C rho(18)/rho_bulk            0.12039660    0.12039660     1.26e-10    2.64e-09       2.72e-11
+  C rho(18)/p_default          -0.03695036   -0.03695036     3.33e-11    3.94e-09       2.89e-10
+  C rho(18)/W_calibration       0.54178470    0.54178470     1.10e-10    2.83e-11       1.42e-10
+  C rho(18)/lambda_bulk         0.12039660    0.12039660     2.18e-10    1.07e-09       1.33e-10
+  C rho(30)/rho_calibration     1.19653179    1.19653179     2.23e-11    4.10e-11       8.11e-12
+  C rho(30)/rho_bulk           -0.19653179   -0.19653179     3.33e-11    3.32e-11       3.43e-11
+  C rho(30)/p_default           0.06031666    0.06031666     3.33e-11    8.87e-10       8.55e-11
+  C rho(30)/W_calibration       0.73699422    0.73699422     8.72e-11    3.32e-11       1.46e-10
   C rho(30)/lambda_bulk        -0.19653179   -0.19653179     2.32e-11    2.33e-11       2.22e-11
-  C rho(52)/rho_calibration     1.55123217    1.55123217     3.11e-11    1.10e-10       4.50e-11
-  C rho(52)/rho_bulk           -0.55123217   -0.55123217     8.37e-11    2.49e-10       2.21e-11
-  C rho(52)/p_default           0.16917611    0.16917611     6.51e-11    3.94e-10       4.65e-11
-  C rho(52)/W_calibration       0.95546909    0.95546909     1.18e-10    1.06e-10       1.94e-10
-  C rho(52)/lambda_bulk        -0.55123217   -0.55123217     4.34e-11    2.69e-10       2.28e-12
+  C rho(52)/rho_calibration     1.55123217    1.55123217     3.82e-11    1.10e-10       4.52e-11
+  C rho(52)/rho_bulk           -0.55123217   -0.55123217     6.35e-11    4.30e-10       2.28e-12
+  C rho(52)/p_default           0.16917611    0.16917611     5.21e-13    3.94e-10       4.65e-11
+  C rho(52)/W_calibration       0.95546909    0.95546909     1.06e-10    7.97e-11       1.95e-10
+  C rho(52)/lambda_bulk        -0.55123217   -0.55123217     4.34e-11    2.69e-10       2.62e-12
   D rho_Cu(18)/t_liner          1.16666667    1.16666667     7.14e-11    7.15e-11       1.64e-11
   D rho_Cu(30)/t_liner          0.55000000    0.55000000     5.35e-11    5.52e-10       3.10e-11
   D rho_Cu(52)/t_liner          0.27591973    0.27591973     4.71e-11    4.70e-10       1.56e-11
@@ -275,27 +275,27 @@ Q8 (UNPREDICTED) -- which step does conv choose, and is it a good one?
   B lambda_imp/p_default           4.62e-09      2.62e-06    566.5               5.85e-01
   B lambda_imp/W_calibration       9.86e-08      2.36e-07      2.4               3.94e-02
   B lambda_imp/lambda_bulk         1.71e-08      2.65e-08      1.5               3.25e-01
-  C rho(18)/rho_calibration        1.24e-09      9.71e-06   7805.6               2.63e+03
-  C rho(18)/rho_bulk               1.24e-09      4.05e-06   3255.8               4.06e+01
-  C rho(18)/p_default              1.55e-09      9.71e-06   6272.9               3.01e+04
-  C rho(18)/W_calibration          1.93e-09      4.05e-06   2102.7               2.22e+02
-  C rho(18)/lambda_bulk            2.40e-09      4.05e-06   1689.8               5.81e+02
-  C rho(30)/rho_calibration        2.65e-08      5.66e-07     21.3               1.41e+01
-  C rho(30)/rho_bulk               1.93e-09      1.50e-05   7805.6               8.92e+02
-  C rho(30)/p_default              1.24e-09      1.50e-05  12085.9               8.93e+03
-  C rho(30)/W_calibration          2.98e-09      1.09e-06    365.8               7.86e+01
+  C rho(18)/rho_calibration        1.24e-09      2.62e-06   2102.7               3.54e+04
+  C rho(18)/rho_bulk               1.24e-09      4.05e-06   3255.8               1.78e+02
+  C rho(18)/p_default              1.55e-09      9.71e-06   6272.9               1.22e+03
+  C rho(18)/W_calibration          1.93e-09      4.05e-06   2102.7               2.26e+02
+  C rho(18)/lambda_bulk            2.40e-09      4.05e-06   1689.8               5.67e+02
+  C rho(30)/rho_calibration        2.65e-08      5.66e-07     21.3               3.21e+01
+  C rho(30)/rho_bulk               1.93e-09      1.50e-05   7805.6               8.68e+02
+  C rho(30)/p_default              1.24e-09      1.50e-05  12085.9               1.03e+04
+  C rho(30)/W_calibration          2.98e-09      1.09e-06    365.8               7.76e+01
   C rho(30)/lambda_bulk            8.90e-09      7.81e-06    877.1               1.10e+03
-  C rho(52)/rho_calibration        1.00e-09      5.04e-06   5041.2               4.61e+02
-  C rho(52)/rho_bulk               1.11e-08      5.04e-06    455.2               6.37e+01
+  C rho(52)/rho_calibration        1.00e-09      5.04e-06   5041.2               4.60e+02
+  C rho(52)/rho_bulk               1.11e-08      5.04e-06    455.2               6.16e+02
   C rho(52)/p_default              2.13e-08      1.36e-06     63.6               1.84e+02
-  C rho(52)/W_calibration          3.30e-08      2.94e-07      8.9               7.56e+00
-  C rho(52)/lambda_bulk            1.24e-09      6.27e-06   5041.2               1.84e+04
+  C rho(52)/W_calibration          3.30e-08      2.62e-06     79.2               7.49e+00
+  C rho(52)/lambda_bulk            1.24e-09      6.27e-06   5041.2               1.60e+04
   D rho_Cu(18)/t_liner             1.24e-09      3.26e-06   2616.5               2.45e+03
   D rho_Cu(30)/t_liner             1.00e-09      1.09e-06   1091.4               2.67e+03
   D rho_Cu(52)/t_liner             3.30e-08      2.10e-06     63.6               3.24e+02
   median h_err / h_conv : 877.1
   call sites at which minimising conv gives a WORSE answer than the
-  shipped h = 1e-5 : 18/23, worst penalty 3.0e+04x
+  shipped h = 1e-5 : 18/23, worst penalty 3.5e+04x
   conv is minimised DEEP IN THE CANCELLATION REGIME, two to three
   decades below the step that actually minimises the error, because
   there the two estimates it differences are both noise and their
@@ -346,7 +346,7 @@ SCORING
                   the shipped step at 2927.95 x 1e-5.
   Q8 UNPREDICTED: minimising conv chooses a step 877x below the one
                   that minimises the error, and gives a worse answer than
-                  the shipped h at 18/23 call sites (worst 3.0e+04x).
+                  the shipped h at 18/23 call sites (worst 3.5e+04x).
 
   V1 (non-discriminating, retained as such) : affine 1/7 bitwise, geom 2/7, conv==0.0 1/7
   V2 (discriminating)  : worst relative deviation 5.10e-08, worst measured/derived-bound 2.08

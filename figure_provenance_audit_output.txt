@@ -158,7 +158,7 @@ SECTION C -- repository-wide census of the inert-knob pattern
     must NOT report g(y=1.0), a literal default: PASS
     reported from the control snippet: [('f', 'y', 'FOO_DEFAULT'), ('f', 'z', 'BAR')]
 
-  0 occurrences across 0 of 37 Python files in the repository:
+  0 occurrences across 0 of 38 Python files in the repository:
 
   Ranked by consequence, the ones that matter most are the ones in
   AUDIT modules, because this repository audits by mutation:

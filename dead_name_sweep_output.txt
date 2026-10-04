@@ -20,7 +20,7 @@ SECTION 2 -- the sweep over this repository
   CROSS_MODULE  graphene_contact_doping_nonlinear_model.py     D_CHEM_PHYS                      line 82    graphene_dead_name_sweep.py
   CROSS_MODULE  graphene_mutation_arrival_probe.py             CLASS_UNUSED                     line 101   graphene_cross_module_delivery_audit.py
   EXEMPT        graphene_plasmonic_photodetector_model.py      FANG_ANTENNA_TEST_WAVELENGTH_NM  line 126   descriptive-only literature point -- Fan
-  totals: {'CROSS_MODULE': 3, 'EXEMPT': 1, 'LIVE': 124}
+  totals: {'CROSS_MODULE': 3, 'EXEMPT': 1, 'LIVE': 129}
   [PASS] no module-level constant in this repository is DEAD  -- 4 found and dispositioned 2026-10-01: PASSI_RC_DIRAC_OHM_UM given a reader, DELIVERED given a reader, D_CHEM_PHYS given an agreement check, FANG_ANTENNA_TEST_WAVELENGTH_NM declared exempt
 
 SECTION 2b -- is every CROSS_MODULE resolution supported by an IMPORT?
