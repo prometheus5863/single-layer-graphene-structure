@@ -1,0 +1,207 @@
+velocity saturation in transfer_characteristic(): the 2026-10-04 top item
+(acceptance criteria A, B and C are quoted in the module docstring)
+
+==============================================================================
+SECTION 1.  The exactness battery
+==============================================================================
+  [PASS] X1   V_ds = 0 gives I_d exactly 0.0  (exact under mult. by zero)  -- I_d = np.float64(0.0)
+  [PASS] X2   constant n, no saturation: solver == closed form (ULP, not 'exact')  -- 47.0 ULP; I_d = 8.761759482738e-05 vs 8.761759482739e-05
+  [PASS] X3   L = 0: I_d == W*e*n*v_sat to 1 ULP, independent of mu and V_ds (exact under cancellation, up to the one rounding of mu*V/v_sat)  -- 3 (mu, V_ds) pairs, all 1 ULP from 2.770987463506e-04 A
+  [PASS] X3b  finite L: I_d/(W*e*n*v_sat) == 1/(1 + L*v_sat/(mu*V_ds)) exactly  -- 1.0 ULP; ratio = 0.571428571429 vs 0.571428571429
+  [PASS] X4   L = 0: doubling v_sat doubles I_d BITWISE (exact under mult. by 2)  -- ratio = np.float64(2.0)
+  [PASS] X5   constant n: Q == n*V_ds,ch  (exact under the trapezoid weights)  -- 0.0 ULP
+
+==============================================================================
+SECTION 2.  Does the channel hit the physical ceiling of Eq. (3)?
+==============================================================================
+  u(V)/v_sat(V) >= 1 would mean the channel cannot deliver I_d at all.
+    V_ds   max u/v_sat    at V_g   verdict
+    0.05      0.064011    -0.256   OK
+    0.10      0.124057    -0.556   OK
+    0.20      0.233081    -1.023   OK
+    0.50      0.484242     4.000   OK
+    1.00      0.721014    -2.000   OK
+  [PASS] X6   the ceiling is never reached on the committed V_ds ladder  -- largest u/v_sat = 0.721014
+
+==============================================================================
+SECTION 3.  The OVERLAPPING-LIMIT validation (criterion C), and the
+            TWO mechanisms it separates
+==============================================================================
+  FOUR artefacts must converge as V_ds -> 0:
+    A   committed resistor model: mean of 1/n over 50 SAMPLES,
+        profiled over the FULL V_ds
+    B   the same harmonic average by TRAPEZOID on 201 points
+    B'  harmonic average profiled over the INTRINSIC drop V_ds,ch
+    C   this module with S = 0: ARITHMETIC average over V_ds,ch
+  A -> B  isolates the QUADRATURE RULE
+  B -> B' isolates the PROFILE DOMAIN (what the contacts drop)
+  B' -> C isolates the JENSEN gap (<1/n> vs 1/<n>)
+     V_ds    B/A-1 [%]   B'/B-1 [%]   C/B'-1 [%]    C/A-1 [%]
+   0.0010    -0.000000     0.002578     0.000000     0.002578
+   0.0030    -0.000000     0.007730     0.000000     0.007730
+   0.0100    -0.000000     0.025740     0.000004     0.025743
+   0.0300    -0.000003     0.076976     0.000034     0.077007
+   0.0500    -0.000010     0.127877     0.000095     0.127962
+   0.1000    -0.000043     0.253555     0.000376     0.253889
+  [PASS] C1   every artefact converges as V_ds -> 0 (total gap under 0.01 % at 1 mV)  -- C/A - 1 = 2.578e-03 % at V_ds = 1 mV
+  [PASS] C2   the JENSEN gap grows with V_ds, as Cauchy-Schwarz requires  -- 3.796e-08 % at 1 mV -> 3.763e-04 % at 0.1 V
+  [PASS] C3   SIGN: the harmonic average UNDER-states I_d (<1/n> >= 1/<n>), always  -- C/B' - 1 = +0.000376 % at V_ds = 0.1 V
+
+  fitted order in V_ds:  quadrature rule 2.042,  profile domain 0.996,  Jensen gap 1.998
+  size at V_ds = 0.1 V:     quadrature -0.000043 %,  profile +0.253555 %,  Jensen +0.000376 %
+  [PASS] C4   the QUADRATURE RULE is second order in V_ds, so `np.mean` over 50 samples is NOT the O(1/N) bias I predicted  -- order 2.042, size -4.33e-05 % at 0.1 V -- numerically negligible
+  [PASS] C5   MAGNITUDE: the dominant discrepancy is the PROFILE DOMAIN, not the Jensen gap this check was written to find  -- profile +0.253555 % vs Jensen +0.000376 % (673.86x) vs quadrature -4.33e-05 %
+  [PASS] C6   and the two have DIFFERENT orders in V_ds (1 vs 2), so they are separable and not one effect double-counted  -- profile ~ V_ds^1.00, Jensen ~ V_ds^2.00
+
+  TWO PREDICTIONS OF MINE WERE WRONG HERE AND THE DECOMPOSITION IS
+  WHAT SAID SO.  Both are recorded rather than edited out.
+
+  (i) I predicted the committed `np.mean` over `np.linspace(0, Vds,
+      50)` carried an O(1/N) sample-mean bias.  It does not: a mean
+      of equally spaced samples including both endpoints is exact for
+      a linear integrand and second order for a smooth one, so it is
+      4.33e-05 %  at V_ds = 0.1 V -- order 2.04, negligible.
+      `n_segments = 50`, open since 2026-09-26 and called
+      load-bearing on 2026-10-04, is hereby measured and is NOT a
+      problem at the committed biases.  That closes a nine-day item
+      with a negative result.
+
+  (ii) I predicted the residual was the Jensen gap.  It is mostly
+      not.  The committed model profiles the local channel
+      resistance over the FULL V_ds, but a fraction of V_ds is
+      dropped across the CONTACTS and never appears across the
+      channel at all.  At W = 1 um, Rc_total = 600 Ohm carries over
+      half of V_ds, so the committed model evaluates n(V_ch) over a
+      potential range about twice too wide.  That error is FIRST
+      order in V_ds (order 1.00), is 673.9x the Jensen gap at
+      V_ds = 0.1 V, and is the real content of criterion C's check.
+
+  **No committed number is withdrawn.**  The total is one-signed and
+  0.2539 % at V_ds = 0.1 V -- far below anything Chapter 4
+  concludes from -- and both directions make I_d LARGER, so every
+  shortfall against literature in Chapter 4 is if anything
+  understated rather than overstated.  What changes is that the bound
+  is measured, its two mechanisms are separated and ordered, and the
+  larger one was not the one anybody here was looking for.
+
+==============================================================================
+SECTION 4.  Criterion A: what does saturation do to g_ds?
+==============================================================================
+  peak-f_T bias, resistor model : V_g = -1.1128 V (f_T = 2.0279e+10 Hz)
+  peak-f_T bias, saturated model: V_g = +2.8571 V (f_T = 2.0740e+10 Hz)
+  The peak MOVES BRANCH -- hole side to electron side -- so "at the
+  peak-f_T bias" is ambiguous between the two models and both
+  readings are reported below rather than one being chosen.
+
+  quantity                                resistor     saturated    factor
+  g_ds at the resistor peak  [S]      3.811141e-02  3.354728e-02    1.1361
+  g_m  at the resistor peak  [S]     -3.907586e-04 -3.966691e-04    0.9851
+  f_T  at the resistor peak [Hz]      2.027859e+10  2.058532e+10    0.9851
+  f_max at the resistor peak [Hz]     1.303845e+10  1.410499e+10    0.9244
+  f_max/f_T at that bias              6.429662e-01  6.851967e-01    0.9384
+
+  g_ds at the SATURATED peak [S]      3.789399e-02  3.374491e-02    1.1230
+
+  REQUIRED by criterion (A)         : divide g_ds by 4.8483
+  DELIVERED at the resistor peak    : divide g_ds by 1.1361
+  DELIVERED at the saturated peak   : divide g_ds by 1.1230
+  fraction of the requirement met   : 23.43 % (resistor peak), 23.16 % (saturated peak)
+
+  WHY so little, when the channel integral says more.  mu*S/L = 0.3036 at this
+  bias, which alone would divide the CHANNEL conductance by 1.699.
+  It is diluted because saturation acts only on the channel and the
+  contacts are in series with it: at the 40 um geometry Rc_total is
+  15.0 Ohm of a ~26 Ohm device, so roughly half the output
+  conductance is a contact resistance that no saturation mechanism
+  can touch.  **The contacts, not the channel, now cap g_ds** -- which
+  points criterion A back at Chapter 4's contact-resistance work
+  rather than at the saturation law.
+  [PASS] G1   MAGNITUDE: the saturation knob is ALIVE (factor > 1) and is NOT sufficient (factor < 4.85)  -- factor = 1.1361, i.e. 23.43 % of the requirement -- criterion A is NOT met
+  NOTE ON G1's OWN BOUND.  G1 was first written as 1.5 < factor < 4.8483,
+  because I expected the channel-integral estimate (1.699) to survive
+  into g_ds.  It does not -- the contacts eat it -- so the check FAILED
+  on its own lower bound, and the bound was the thing that was wrong.
+  It is recorded here rather than quietly relaxed: the band now asserts
+  only what the mechanism guarantees (the knob is alive, and it is not
+  enough), and 1.5 was a prior, not a prediction of this model.
+
+==============================================================================
+SECTION 5.  Criterion B: the SIGN of d(f_max/f_T)/dV_ds
+==============================================================================
+    V_ds   ratio resistor   ratio saturated   <v_sat> [cm/s]
+    0.05         0.644461          0.663187       6.5694e+07
+    0.10         0.642966          0.683186       6.5536e+07
+    0.20         0.640511          0.728061       6.4988e+07
+    0.50         0.633440          0.911727       6.3155e+07
+    1.00         0.621775          1.384374       6.0853e+07
+  [PASS] G2a  the resistor model's f_max/f_T FALLS with V_ds (the wrong sign)  -- 0.644461 -> 0.621775, delta = -0.022686
+  [PASS] G2b  the saturated model's f_max/f_T RISES with V_ds -- criterion B MET  -- 0.663187 -> 1.384374, delta = +0.721188 (magnitude 31.79x the resistor model's)
+
+
+  THE RATIO REACHES THE FEIJOO BAND AT V_ds = 1 V, AND THAT IS NOT
+  CORROBORATION.  2026-10-04 recorded exactly this trap: peak f_T here
+  scales ~x20 over a x20 drain-bias range, and the literature band
+  spans a comparable factor, so a model with a knob that size will
+  agree with it somewhere.  The table above is reported because the
+  SIGN of the slope is the claim; the fact that one row of it lands
+  in [1.3, 1.4] is a coincidence of where the ladder was stopped and
+  is explicitly NOT offered as agreement with Feijoo et al.
+
+  Reported for audit (criterion A's one knob): v_sat from Eq. (6) at
+  this device's own density is 6.5536e+07 cm/s at V_ds = 0.1 V,
+  against 3e7 cm/s measured on SiO2 at low density by Dorgan et al.
+
+==============================================================================
+SECTION 6.  Inverting criterion A, and bounding the beta = 1 choice
+==============================================================================
+  bracket over v_sat in [1e2, 1e9] m/s gives g_ds factors [69367.7548, 1.0059]
+  [PASS] G5a  criterion A's required g_ds factor of 4.8483 is REACHABLE by v_sat alone  -- factor spans 1.0059 (v_sat -> inf) to 69367.7548 (v_sat -> 0): 4.8483 is inside that span
+  v_sat that satisfies criterion A exactly : 6.4970e+06 cm/s
+  v_sat Eq. (6) gives at this bias         : 6.6279e+07 cm/s
+  Dorgan et al. measured band on SiO2      : ~1e7 - 3e7 cm/s
+  [PASS] G5b  Eq. (6) with Feijoo's 0.10 eV sits ABOVE the measured SiO2 band, so it is the GENEROUS end of the physics, not a tuned value  -- Eq. (6) gives 6.628e+07 cm/s vs ~3e7 cm/s measured
+
+  hbar*Omega SENSITIVITY -- the open item of 2026-09-29 ("the
+  remote-polar-phonon cap on SiO2 is asserted, not computed"), which
+  2026-10-04 said this work would sharpen.  Eq. (6) is linear in
+  Omega, so the phonon energy IS the v_sat scale:
+   hbar*Omega [eV] source                              v_sat [cm/s]  g_ds factor
+             0.100 Feijoo et al. 2019 fit (used above)    6.6279e+07       1.1361
+             0.059 SiO2 surface polar phonon, low mode    3.9105e+07       1.2491
+             0.149 SiO2 surface polar phonon, high mode    9.8756e+07       1.0893
+             0.196 graphene intrinsic optical phonon     1.2991e+08       1.0679
+  [PASS] G5c  NO phonon energy in the physical range reaches criterion A's 4.85  -- the largest factor any of the four gives is 1.2491, at hbar*Omega = 0.059 eV
+
+  Cost of the beta = 1 choice (Dorgan et al. fit beta = 2).  At the
+  largest field this device reaches, the two laws differ by:
+    v_sat = 6.628e+07 cm/s:  beta=1 gives 1.53639e+05 m/s, beta=2 gives 1.91473e+05 m/s  (+24.63 %)
+    v_sat = 6.497e+06 cm/s:  beta=1 gives 4.90396e+04 m/s, beta=2 gives 6.17915e+04 m/s  (+26.00 %)
+  beta = 2 saturates LESS hard at a given field, so it moves the
+  answer AWAY from criterion A, not toward it: the beta = 1 choice
+  is the GENEROUS one and the shortfall in Section 4 is a bound.
+
+==============================================================================
+SECTION 7.  Controls
+==============================================================================
+  [PASS] G3   CONTROL: halving v_sat and halving mu are NOT aliased responses  -- v_sat response 1.1474x, mu response 1.4146x, ratio 0.8112
+  [PASS] G4a  the resistor model is reproducible after this module has run
+  [PASS] G4b  gfet.mu / L / W and rf's f_max are restored to committed values  -- mu = 0.4, L = 2e-07, W = 1e-06
+  [PASS] G6   CONTROL: the two models' f_max/f_T have different monotonicity, so saturation is not a relabelled mobility  -- sign sums +4 vs -4
+
+==============================================================================
+SECTION 8.  Figure
+==============================================================================
+  wrote velocity_saturation_model.png
+
+==============================================================================
+RESULT: 196 lines, 23 passed, 0 failed
+==============================================================================
+  Criterion A (g_ds / 4.85)        : NOT MET -- delivered /1.1361, 23.4 % of it
+  Criterion B (sign of the slope)  : MET
+  Criterion C (overlapping limit)  : MET, and it found a one-signed
+                                     PROFILE-DOMAIN error in the model
+                                     it supersedes -- 674x the Jensen
+                                     gap it was written to find, and
+                                     it closes `n_segments = 50`
+                                     (2026-09-26) with a negative
+                                     result (Section 3)
