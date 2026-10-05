@@ -631,6 +631,68 @@ this application. But the figures of merit are not results, and Section
 4.6's numbers should be read as what they are: a resistance ratio, computed
 correctly, reported under the wrong name for five weeks.
 
+#### 7.8.1b Annotation (2026-10-05): the saturation term was built, and it did not change the verdict — it sharpened the reason
+
+Section 7.8.1a left the RF case *unaddressed* rather than refuted, and named
+the one repair that could change that: a saturation term worth ×4.8483 in
+g_ds. **That term has now been built and the verdict stands — but the reason
+it stands is no longer "the model has no output resistance".**
+
+What changed. With velocity saturation present and v_sat taken from
+optical-phonon physics rather than fitted, the trend §7.8.1a called "the first
+thing any such term has to fix" **is fixed**: f_max/f_T now rises with drain
+bias (0.6632 → 1.3844 over V_ds = 0.05–1 V) where it previously fell. The
+model is no longer a pure resistor, and the sign of its central RF diagnostic
+is now right.
+
+What did not change, and why it is a sharper statement than before. The same
+term delivers only **1.1361** of the required 4.8483 — 23.4 % — and the
+shortfall is not a weakness in the saturation law. At the literature-scale
+geometry, R_c,total is 15.0 Ω of a ≈ 26 Ω device, so **roughly half of g_ds is
+a contact resistance that no channel mechanism can reach.** Inverting the
+question: criterion A would need v_sat = 6.50 × 10⁶ cm/s, *below* Dorgan
+*et al.*'s measured 1–3 × 10⁷ cm/s band on SiO₂, and no phonon energy in the
+physically available range (0.059–0.196 eV) gets past a factor of 1.2491.
+
+**Three levers, three non-binding results.** The gate resistance is exhausted
+(R_g = 0 exactly still falls 28 % short). The feedback capacitance is
+negligible (C_gd deleted entirely moves the answer 0.11 %). Velocity
+saturation is diluted by the contacts. Each was proposed in turn as the
+missing piece of the f_max shortfall, each was built or bounded, and **all
+three point at the access resistance.**
+
+This converts §7.8.1a's verdict from a confession into a finding. The earlier
+statement was that this thesis contributes nothing to the RF case because its
+instrument measured the wrong quantity — a fact about the instrument. The
+statement now available is a fact about the device: **in this model, at this
+geometry, the RF figures of merit are contact-limited, and the channel physics
+that the GFET literature treats as the interesting part is not where the
+constraint sits.** That is a claim this thesis is entitled to make, because
+it was reached by building the mechanism and measuring it rather than by
+assuming it.
+
+It also makes Section 7.8.2 load-bearing for an application it did not
+previously claim. §7.8.1a already noted that R_s enters the f_max denominator
+and carries 47 % of it, so the contact work was "not wasted" on RF. The
+stronger version is now available: the contact work is the *only* lever left
+standing for RF in this model, which means §7.8.2's negative result — that
+work function alone does not describe Ti, Ni and Pd — is a limitation on the
+RF case as much as on the contact case.
+
+**What would overturn this annotation.** A single counterfactual, and it has
+not been run: f_max/f_T at R_c = 0 *exactly*, in the saturated model, in the
+way §4.6.2 ran R_g = 0 and R_s = 0. If a perfect contact also falls short of
+1.3, then all four levers are exhausted and §7.8.1a's structural verdict
+becomes final rather than provisional. If a perfect contact reaches the band,
+then the RF case for graphene in this model is a contact-engineering problem
+with a quantified target, which is a far more useful conclusion than either
+of the two this chapter currently carries. **That counterfactual is the top
+open item created by this annotation**, and it is deliberately not asserted
+either way here.
+
+See Chapter 4 §4.6.3 and
+`notes/2026-10-05-saturation-arrived-and-the-contacts-ate-it.md`.
+
 ### 7.8.2 Contacts: the real near-term contribution, and a negative result worth having
 
 Contact resistance is the binding constraint on every graphene device in this

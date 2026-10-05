@@ -454,6 +454,154 @@ one** check — and that check is the only one in the battery that retains a
 `notes/2026-10-04-fmax-was-a-resistance-ratio.md` and
 `fmax_shortfall_decomposition.png`.
 
+### 4.6.3 A saturation term, and the third exhausted lever: the contacts now cap g_ds
+
+Section 4.6.2 ended with a target that had a tolerance rather than a
+direction: the missing physics was worth **×4.8483** in g_ds, and velocity
+saturation was the named route. That term has now been built
+(`graphene_velocity_saturation_model.py`, 26/26; mutation report 7 of 7 with
+control A and control B) and evaluated against all three of the acceptance
+criteria §4.6.2 set. **Two are met. The third is missed by 4.3×, and the
+reason it is missed is the result of this section.**
+
+#### The model
+
+Soft-saturation (Caughey–Thomas) local drift velocity at β = 1 — the γ = 1
+form of Feijoo *et al.* (2019) — with current continuity fixing I_d along the
+channel. The channel-length integral then separates, so the drain current
+stays closed-form even though v_sat varies with position:
+
+```
+  I_d = μWe·Q / (L + μ·S),     Q = ∫ n dV,     S = ∫ dV/v_sat
+```
+
+closed on the contacts by V_ds,ch = V_ds − I_d·R_c. Setting S = 0 recovers
+drift-diffusion with no saturation along the *same code path*, which is what
+makes the overlapping-limit comparison below a comparison and not a second
+implementation. The model is added **alongside** `transfer_characteristic()`,
+which is left bitwise unchanged; rewiring the repository onto it is a
+deliberate act under the 2026-10-02 rule and is not performed here.
+
+#### v_sat is not fitted, and that is load-bearing
+
+Criterion A names a number and v_sat is the only knob that moves it, so
+choosing v_sat to satisfy the criterion would be fitting the model to its own
+acceptance test. v_sat is therefore taken from optical-phonon emission,
+v_sat(n) = (2/π)Ω/√(πn), with ħΩ = 0.10 eV as published by Feijoo *et al.*
+(2019). At this device's density that gives 6.63 × 10⁷ cm/s — **above**
+Dorgan *et al.*'s measured 1–3 × 10⁷ cm/s band on SiO₂, i.e. the generous
+end of the physics.
+
+Inverting the question makes the gap falsifiable rather than rhetorical:
+**criterion A requires v_sat = 6.50 × 10⁶ cm/s, below the measured band.** A
+sweep across the available phonon energies (0.059 eV and 0.149 eV, the SiO₂
+surface polar modes; 0.100 eV, Feijoo's fit; 0.196 eV, graphene's intrinsic
+optical phonon) reaches a g_ds factor of **1.2491 at best**. No phonon energy
+in the physical range satisfies criterion A. This also discharges the standing
+question of whether the remote-polar-phonon cap on SiO₂ matters here: it is
+now a measured 1.07–1.25 in g_ds rather than an assertion.
+
+Dorgan *et al.*'s own best fit is β = 2, which saturates *less* hard at these
+fields (24.6–26.0 % higher velocity at the largest field reached), so the
+β = 1 choice is generous in that direction too and the shortfall is bounded
+from both sides.
+
+#### Criterion B — met
+
+| V_ds (V) | f_max/f_T, resistor | f_max/f_T, saturated |
+|---|---|---|
+| 0.05 | 0.644461 | 0.663187 |
+| 0.10 | 0.642966 | 0.683186 |
+| 0.20 | 0.640511 | 0.728061 |
+| 0.50 | 0.633440 | 0.911727 |
+| 1.00 | 0.621775 | 1.384374 |
+
+The slope reverses from −0.0227 to **+0.7212**, 31.8× the magnitude of the
+wrong-signed behaviour it replaces. A saturating device's f_max/f_T rises
+with drain bias; this one now does, which was the part of §4.6.2's diagnosis
+that made a claim about mechanism.
+
+**What this table is not.** The V_ds = 1 V row lands inside Feijoo *et al.*'s
+1.3–1.4 band, and that is **explicitly not offered as corroboration**. §4.6.2
+recorded why: peak f_T here scales ×19.8 over a ×20 drain-bias range, and a
+model with a knob that size will meet a comparably wide literature band
+somewhere. The claim is the sign, which is bias-independent; where the ladder
+crosses 1.3 is a fact about where the ladder was stopped.
+
+#### Criterion A — missed, and the miss is the finding
+
+| | resistor | saturated | factor |
+|---|---|---|---|
+| g_ds at the resistor's peak-f_T bias | 3.811e-2 S | 3.355e-2 S | **1.1361** |
+| g_ds at the saturated model's peak | 3.767e-2 S | 3.354e-2 S | 1.1230 |
+| **required** | | | **4.8483** |
+
+23.4 % of the requirement. The saturation term is not weak: μS/L = 0.3036 at
+this bias, which alone would divide the **channel** conductance by 1.699. It
+is diluted because saturation acts only on the channel while the contacts sit
+in series with it. At the 40 µm / 8-finger geometry R_c,total = 15.0 Ω of a
+≈ 26 Ω device, so:
+
+> **Roughly half of g_ds is a contact resistance that no saturation mechanism
+> can reach. The contacts, not the channel, now cap g_ds.**
+
+This is the third candidate lever on the f_max shortfall to come back
+non-binding. §4.6.2 exhausted the gate resistance (R_g = 0 *exactly* still
+falls 28 % short) and the feedback capacitance (C_gd deleted entirely moves
+the answer 0.11 %). Velocity saturation now joins them. **All three point at
+the access resistance** — which is §4.5, §4.7 and §4.8 of this chapter, the
+part of this work with the most content and the one place it carries a
+negative result worth having. The RF thread does not end in a tuning problem;
+it ends in the contact.
+
+#### Criterion C — met, and it corrects this chapter's own model
+
+The overlapping limit cannot be checked as bitwise agreement, because the
+saturated model's S → 0 limit takes the *arithmetic* average of n along the
+channel while `transfer_characteristic()` takes a *harmonic* one. Making four
+artefacts converge as V_ds → 0 separates three mechanisms, which are
+separable precisely because their orders in V_ds differ:
+
+| mechanism | size at V_ds = 0.1 V | order in V_ds |
+|---|---|---|
+| quadrature rule (50-sample mean vs. trapezoid) | −4.3 × 10⁻⁵ % | 2.04 |
+| **profile domain** | **+0.253555 %** | **1.00** |
+| Jensen gap (⟨1/n⟩ vs. 1/⟨n⟩) | +3.8 × 10⁻⁴ % | 2.00 |
+
+Two things follow, and both were predicted wrongly before being measured.
+
+First, the `n_segments = 50` discretisation that §4.6.1 flagged and that
+§4.6.2 called load-bearing — because g_ds is a V_ds difference of exactly that
+quadrature — is **measured at 4.3 × 10⁻⁵ % and is not a problem at the
+committed biases.** A long-standing caution closes with a negative result.
+
+Second, the dominant discrepancy is one nobody here was looking for.
+`transfer_characteristic()` profiles the local channel resistance over the
+**full V_ds**, but over half of V_ds is dropped across the contacts and never
+appears across the channel at all, so the model evaluates n(V_ch) over a
+potential range about twice too wide. The error is first order in V_ds and
+674× the Jensen gap the check was written to find.
+
+**No number in this chapter is withdrawn.** The total is one-signed,
+0.2539 % at V_ds = 0.1 V, far below anything §4.6 concludes from, and in the
+direction that makes I_d *larger* — so every shortfall against literature
+reported in this chapter is, if anything, understated rather than overstated.
+What has changed is that the bound is measured, its mechanisms are separated
+and ordered, and the larger one was not the one that had been suspected.
+
+#### One unexplained observation, recorded rather than resolved
+
+The peak-f_T bias **moves branch** between the two models: V_g = −1.1128 V
+(hole side) for the resistor model, +2.8571 V (electron side) for the
+saturated one. Both readings are reported above rather than one being chosen.
+A figure of merit whose optimum jumps 4 V between two models of the same
+device is either a real electron–hole asymmetry — which this chapter has
+independent reason to expect — or an artefact of where g_m peaks, and this
+section does not distinguish them.
+
+See `notes/2026-10-05-saturation-arrived-and-the-contacts-ate-it.md`,
+`velocity_saturation_model.png` and `velocity_saturation_output.txt`.
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent
