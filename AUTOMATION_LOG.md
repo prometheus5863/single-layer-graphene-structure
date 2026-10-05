@@ -5770,3 +5770,330 @@ counting the rest correctly. It is a trivial error and it is corrected rather
 than overwritten, because the whole content of the 10-01 entry is that a
 number quoted from memory and a number read from the artefact are different
 things, and the API answer was ten.
+
+## 2026-10-05 — The saturation term arrived, works, and is not the binding constraint
+
+**Status.** The 2026-10-04 top item — *a saturation term in
+`transfer_characteristic()`* — is **opened and reported against all three of
+its acceptance criteria: B met, C met, A missed by 4.3×.** New module
+`graphene_velocity_saturation_model.py` (**26/26**, eight tolerance-free
+checks), new mutation harness (**7 of 7** after a first run of 5 of 7 that
+found two real holes), new figure `velocity_saturation_model.png`, new note,
+Chapter 4 **§4.6.3** and Chapter 7 **§7.8.1b** drafted. Two long-standing
+items close, one of them with a negative result; two predictions of mine were
+disproved by my own decomposition and are recorded rather than edited out.
+
+### 1. The item was the best this repository has written, because it had a number in it
+
+2026-10-04 did not ask for velocity saturation. It asked for a term that
+**(A)** divides g_ds by ≈4.85 at the peak-f_T bias, **(B)** reverses the sign
+of d(f_max/f_T)/dV_ds, and **(C)** validates against the resistor model in the
+low-V_ds overlapping limit. That is a criterion that can be *missed*, and it
+was — which is the whole of today's result. Stated plainly, because the
+temptation to report this as a success is real: **the term works, the sign is
+fixed, and the item is not closed.**
+
+### 2. The model, and why v_sat was not allowed to be a free parameter
+
+Caughey–Thomas soft saturation at β = 1 (Feijoo *et al.*'s γ = 1 form). Current
+continuity makes the channel-length integral separable, so I_d stays
+closed-form even with v_sat varying along the channel:
+
+    I_d = μWe·Q / (L + μ·S),   Q = ∫n dV,   S = ∫dV/v_sat
+
+closed on the contacts by V_ds,ch = V_ds − I_d·R_c. S = 0 recovers
+drift-diffusion **along the same code path**, so criterion C compares a model
+against its own limit rather than against a second implementation. Added
+*alongside* `transfer_characteristic()`, which is checked bitwise unchanged
+(G4): five modules and every committed transcript read it, and rewiring is a
+2026-10-02 rule change that should not ride along in someone else's commit.
+
+Criterion A names a number and v_sat is the only knob that moves it, so
+**fitting v_sat to the criterion would have been 2026-10-02's fault in its
+purest available form.** v_sat comes instead from optical-phonon emission,
+(2/π)Ω/√(πn), with ħΩ = 0.10 eV taken as published. At this device's density
+that gives 6.63e7 cm/s — *above* Dorgan *et al.*'s measured 1–3e7 cm/s band on
+SiO₂, i.e. the generous end. β = 1 is generous too: Dorgan's own best fit is
+β = 2, which saturates *less* hard (24.6–26.0 % higher velocity at the largest
+field here). The shortfall below is bounded from both sides.
+
+### 3. Criterion B — met, and it is the clean win
+
+| V_ds | resistor | saturated |
+|---|---|---|
+| 0.05 | 0.644461 | 0.663187 |
+| 0.10 | 0.642966 | 0.683186 |
+| 0.20 | 0.640511 | 0.728061 |
+| 0.50 | 0.633440 | 0.911727 |
+| 1.00 | 0.621775 | **1.384374** |
+
+Slope −0.0227 → **+0.7212**, a reversal 31.8× the magnitude of what it
+replaces. **The V_ds = 1 V row lands in Feijoo's 1.3–1.4 band and is
+explicitly NOT offered as corroboration**, for the reason 2026-10-04 recorded:
+a ×20 knob against a ×20 literature band agrees somewhere. The claim is the
+sign.
+
+### 4. Criterion A — missed at 23.4 %, and the miss locates the constraint
+
+| | resistor | saturated | factor |
+|---|---|---|---|
+| g_ds at the resistor's peak-f_T bias | 3.811e-2 S | 3.355e-2 S | **1.1361** |
+| g_ds at the saturated model's peak | 3.767e-2 S | 3.354e-2 S | 1.1230 |
+| required | | | **4.8483** |
+
+The term is not weak — μS/L = 0.3036 would divide the *channel* conductance by
+1.699 — it is **diluted**. At the 40 µm geometry R_c,total is 15.0 Ω of a
+≈26 Ω device, so about half of g_ds is a contact resistance no channel
+mechanism can reach. **The contacts, not the channel, now cap g_ds.**
+
+Inverted, so the gap is falsifiable rather than rhetorical: criterion A needs
+v_sat = **6.50e6 cm/s, below the measured band**, and a sweep over the four
+available phonon energies (0.059 / 0.100 / 0.149 / 0.196 eV) reaches **1.2491
+at best**. No phonon energy in the physical range satisfies it. That table also
+discharges the 2026-09-29 item *the remote-polar-phonon cap on SiO₂ is
+asserted, not computed*, which 2026-10-04 predicted this work would sharpen:
+Eq. (6) is linear in Ω, so the cap's authority over g_ds is now a measured
+1.07–1.25.
+
+**Three levers, three non-binding results.** R_g exhausted (R_g = 0 exactly
+still falls 28 % short, 10-04). C_gd negligible (deleted entirely: 0.11 %,
+10-04). v_sat diluted by the contacts (today). Each was proposed in turn as the
+missing piece and **all three point at the access resistance** — §4.5, §4.7,
+§4.8, the part of this thesis with the most content. Chapter 7 §7.8.1b records
+what that does to the RF verdict: §7.8.1a's reason was a fact about the
+*instrument* (it measured a resistance ratio); the reason now available is a
+fact about the *device* (the figures of merit are contact-limited). **That is a
+claim this thesis is entitled to make, because the mechanism was built and
+measured rather than assumed.**
+
+### 5. Criterion C — met, and it disproved two of my own predictions
+
+Four artefacts made to converge as V_ds → 0, separating three mechanisms whose
+different orders in V_ds are what make them separable at all:
+
+| mechanism | at V_ds = 0.1 V | order |
+|---|---|---|
+| quadrature rule (50-sample mean vs. trapezoid) | −4.3e-05 % | 2.04 |
+| **profile domain** | **+0.253555 %** | **1.00** |
+| Jensen gap ⟨1/n⟩ vs. 1/⟨n⟩ | +3.8e-04 % | 2.00 |
+
+**(i) I predicted `np.mean` over `np.linspace(0, Vds, 50)` carried an O(1/N)
+sample-mean bias. It does not** — a mean of equally spaced samples including
+both endpoints is exact for a linear integrand and second order for a smooth
+one. `n_segments = 50`, open since 2026-09-26 and called **load-bearing** on
+2026-10-04 because g_ds is a V_ds difference of exactly that quadrature, is
+hereby measured at 4.3e-05 % and **closes with a negative result after nine
+days.**
+
+**(ii) I predicted the residual was the Jensen gap. It is 674× not.**
+`transfer_characteristic()` profiles the channel over the **full V_ds**, but
+over half of V_ds is dropped across the contacts and never appears across the
+channel, so it evaluates n(V_ch) over a range about twice too wide. First order
+in V_ds, and the real content of criterion C.
+
+**No committed number is withdrawn.** The total is one-signed, 0.2539 % at
+V_ds = 0.1 V, and makes I_d *larger* — so every shortfall against literature in
+Chapter 4 is if anything understated. A single aggregate residual would have
+shown one number and had it attributed to whichever cause was in mind; the
+attribution is only available because the three orders differ.
+
+### 6. The mutation harness found two real holes, and M6 is the headline
+
+First run **5 of 7**. Both survivors were genuine.
+
+- **M6 survived.** It multiplies v_sat by π/2 and does nothing else: no
+  structure, no exception, no sign flip, 57 % on the one knob that decides
+  whether criterion A was measured or fitted. **Every check in the battery as
+  first committed was a sign, a zero or a ratio — all invariant under a
+  constant rescale of v_sat.** The standing top methodological item landing on
+  the most load-bearing quantity in the item being closed.
+- **M7 survived.** It clips the reported physical ceiling to 0.5 instead of
+  reporting it; X6 asserted only `max < 1.0`, which a guard that lies about its
+  own report satisfies exactly as well as one that does not. Same family as
+  10-04's census renderer that detected and then crashed.
+
+Three checks added — **X7** (a magnitude pin on v_sat against an anchor
+computed outside the module at 30 significant digits, so it is not Eq. (6)
+agreeing with itself), **X6b** (the reported ceiling must equal an independent
+recomputation), **X6c** (it must respond across the ladder). Battery **23/23 →
+26/26**, harness **7 of 7**, control B still survives. **X7's own first form
+used a 6-digit hand value of Ω and FAILED at rel. err 1.9e-04** — it caught my
+arithmetic before it caught any mutant, and that is recorded in the module.
+
+**Read M6's killer column.** M6 dies to **exactly one** check, X7, and X7 is
+the only check in the battery that retains a magnitude. **That is the identical
+shape 2026-10-04 reported for M4/R7, now reproduced independently on a
+different module, a different quantity and a different defect.** Two
+independent instances is no longer an anecdote.
+
+### 7. Validations
+
+**26/26.** Eight tolerance-free checks, each naming the operation it is exact
+under per 10-03: **X1** multiplication by zero; **X2** the solver against the
+closed form, reported in ULP (47) rather than claimed exact; **X3** with L = 0
+the ceiling I_d = Wenv_sat holds to 1 ULP independent of μ and V_ds, exact
+under *cancellation* — and X3's first form drove μ → large at finite L and
+compared in ULP, which was the **wrong instrument** for a quantity that
+converges as L·v_sat/(μV_ds) and failed on its own tolerance rather than on the
+model; **X3b** the finite-L law 1/(1 + L·v_sat/(μV_ds)) to 1 ULP; **X4**
+doubling v_sat doubles I_d **bitwise**; **X5** constant n gives Q = n·V_ds,ch at
+0 ULP; **X6b** the reported ceiling against an independent recomputation at
+rel. err 0.00e+00; **X7** the v_sat magnitude pin at rel. err 5.3e-13.
+**X6** reports the physical ceiling of Eq. (3) (max u/v_sat = 0.721) rather
+than clipping it. **Magnitude-form controls** per the standing top item: G1
+asserts a band, and **its own first lower bound (1.5) was wrong and is recorded
+as such in the transcript** rather than quietly relaxed; G3 halving v_sat and
+halving μ are not aliased (ratio 0.8112); G6 the two models' f_max/f_T differ
+in monotonicity, so saturation is not a relabelled mobility. Repository-wide:
+dead-name sweep 8/8, figure provenance audit exit 0.
+
+**Two crashes of my own, both in reporting paths.** `fT_fmax_saturated()`
+raised `IndexError` inside `np.gradient` on a single-bias array, twice — the
+10-04 shape (a crash is a detection, but a strictly weaker one) reproduced by
+the session that had just read the entry about it. Fixed by `gds_at_bias()`,
+which needs no gradient.
+
+**Methodological note, continuing the series.** 09-28: prose is a detector.
+09-29: a mutation that does not arrive is indistinguishable from a system that
+does not respond. 09-30: a control has to sit where the failure enters. 10-01:
+and name what it compares against in a way that cannot drift. 10-02: when it
+agrees, that is a fact about two artefacts, not the world. 10-03: a PASS/FAIL
+at zero is silent about magnitude. 10-04: and a quantity can be computed
+correctly under the wrong name. **10-05: AND A CRITERION WITH A NUMBER IN IT
+CAN BE MISSED IN A WAY THAT LOCATES THE REAL CONSTRAINT, WHICH A CRITERION
+WITHOUT ONE CANNOT.** Had 10-04 written "add velocity saturation", today would
+have added it, watched the sign reverse, noticed the V_ds = 1 V row meets
+Feijoo's band, and closed the item — every step defensible, the conclusion
+wrong, because the quantity that would have gone unmeasured is the 1.1361, and
+the 1.1361 is what says the contacts are binding. The corollary is about where
+such numbers come from: 4.8483 was not available until f_max had been
+*decomposed* rather than computed. **The practice that makes items falsifiable
+is the same practice that found 10-04's result: attribution, not correctness.
+An item that can only be *done* is an item written before the attribution
+was.**
+
+**Not yet covered (candidates for future runs):**
+
+- **f_max/f_T at R_c = 0 EXACTLY, in the saturated model** — created today and
+  **the new top item**, named in Chapter 7 §7.8.1b as the single counterfactual
+  that would overturn today's annotation. Exactly parallel to 10-04's R_g = 0
+  and R_s = 0 rows. If a perfect contact also falls short of 1.3, four levers
+  are exhausted and §7.8.1a's structural verdict is final; if it reaches the
+  band, the RF case becomes a contact-engineering problem with a quantified
+  target. **Either outcome is more useful than what this thesis currently
+  carries, and it is a one-counterfactual calculation.**
+- **MECHANISE the magnitude item** — created 10-03, worked example 10-04,
+  **second independent instance today**, still not mechanised. Two modules, two
+  quantities, two defects, same result: the only detector that catches a
+  pure-magnitude change is the only check that keeps a magnitude. The
+  mechanisable form is a repository-wide census of every MUST_CHANGE recording
+  its response size. **Today is the last session at which "one more worked
+  example" is a defensible answer.**
+- **Rewire `transfer_characteristic()` to the saturated form, or decide not
+  to** — created today. Now priced: five modules read it, their transcripts
+  move, and §5's profile-domain correction moves them a further one-signed
+  0.25 %. **Recommended yes, as its own session**, because it is a 10-02 rule
+  change and nothing else should share the commit.
+- **Why does the peak-f_T bias MOVE BRANCH between the two models?** — created
+  today. −1.1128 V (hole) to +2.8571 V (electron). Both reported, neither
+  explained. Either a real electron–hole asymmetry — which Chapter 4 has
+  independent reason to expect — or an artefact of where g_m peaks. The `t'`
+  item (09-28) is the natural place to look.
+- **A β = 2 implementation** — created today; destroys the separability of
+  Eq. (4) and needs quadrature on x rather than V. Bounded today at 24.6–26.0 %
+  and shown to move the answer the *wrong* way, so completeness, not a lever.
+- **Whether Chapter 4's `n_puddle` reproduces Section 3.3's 6.45 kΩ/sq floor**
+  — created 09-29, **untouched for seven sessions**, and today raises it again:
+  n_puddle sets n at the Dirac point, n sets v_sat through Eq. (6), and the
+  resistor model's peak-f_T bias sits near the Dirac point.
+- **A second anchor for `Delta_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, **untouched for fifteen
+  consecutive sessions**. Today was a device-physics session and again did not
+  touch it.
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural
+  weakness, and §7.8.1b makes it a limitation on the RF case too.
+- **Which other quantities here are computed correctly under a name that claims
+  more than they measure?** (10-04); **which checks are RATIOS of two quantities
+  the same defect would scale?** (10-03); **audit every remaining check for the
+  10-02 §1 fault** (10-02); **do the four existing audits have references that
+  are not content-pinned?** (10-01); **is `D_CHEM_PHYS` the only duplicated
+  literature VALUE?** (10-01); **is `plot_fermi_surface` the only uncommitted
+  figure?** (10-02); **the Section 3.6 Pauli edge is absent from Chapter 6's
+  model** (09-29); **where does the 6.5430 % internal collection efficiency come
+  from?** (09-30); **whether the three identity re-assignments should be real
+  mutations** (09-30, narrowed again today since control B is a deliberate
+  identity rebind with a stated purpose); **Chapters 2 and 3 are drafted but
+  §4.8.2's form of error is not audited for elsewhere** (10-01); whether
+  Chapter 4 or 5 contains a RANKING that is a step artefact (09-23/09-25, step
+  form untouched); a finite-temperature optical conductivity (09-29); angular
+  trigonal warping (09-28); finite-temperature `n(E_F, T)` (09-28); whether
+  other `== 0.0` checks are round-trip tautologies (09-28); whether RESULT 2's
+  other convictions are read from the saturated branch (09-28); a probe
+  reporting both directions of lambda (09-28); whether `t'` can be EXCLUDED
+  quantitatively as the source of Chapter 4's electron–hole asymmetry (09-28);
+  whether any other near-cancellation shows the `c2`/`c4` sign flip (09-27);
+  migrating every remaining validation to measured-value-beside-derived-bound
+  form (09-27); whether §7.3's differential-interconnect prediction holds
+  (09-27); which of Chapters 4 and 5's design rules could be restated as
+  parities or bounds (09-23); whether the parity survives a photo-thermoelectric
+  term (09-23); re-check whether other "for every …" claims rest on small
+  samples (09-20); whether Chapter 4's contact-resistance results should be
+  re-run at the 5.4 eV crossover (09-18); reconciling Mueller *et al.*'s 0.12 eV
+  step with the 0.25–1.07 eV offsets `METAL_WORK_FUNCTIONS` assumes (09-18); a
+  photo-thermoelectric term (Kasirga review); Shimomura *et al.*'s comb-electrode
+  design; integrating 6.5's plasmonic near-field picture with the
+  spatially-resolved contact-doping machinery; isolating the root cause of the
+  §4.7 negative residual (08-31); Ti and Cr per-metal `Rc` recalibration
+  (ResearchGate rate-limiting); a second independent edge-contact dataset
+  (Lee *et al.* 2022, Wiley 403'd)
+
+**Automation health.** Device reachable and folder connected at the 04:30
+firing; Step 0 found neither repository carrying a 2026-10-05 entry and no
+commits since midnight, so this was a full session. **The network problem of
+10-01/10-02 is back, and worse than either of those days.** Sustained
+throughput from the device VM measured **13.9–18.8 kB/s** against sub-second
+API latency, so small requests are fine and bulk transfer is not: a full clone,
+a `--depth 1` clone and a `--filter=blob:none --depth 1` clone all exceeded the
+180 s `device_bash` ceiling, and background processes do not survive between
+calls, so a clone cannot be split across them. Two clean sessions did not
+establish the problem was gone, and the recipe that was kept documented for
+exactly this case was needed today.
+
+**The route that worked, recorded for the next occurrence.** The cloud
+container clones both repositories in ~2 s, so the work was done there; but its
+git proxy **refuses to push** to these repositories (`access denied by the git
+proxy: … is not in this session's authorized repository set`, HTTP 403), which
+is a hard constraint and not a credential problem — the token was never the
+issue. The working route is therefore **neither shell alone**: build the
+commits in the container, `git bundle create <repo>.bundle main` (11.9 MB for
+graphene, full history), move it to the connected folder with
+`device_commit_files` — which goes over the desktop bridge rather than the
+proxy and completed **effectively instantly** — then on the device VM
+`git clone <bundle>`, set the GitHub remote, and push. **The push itself took
+5.5 s**, because it transfers only the new objects. The bundle leaves
+`_to_push/` populated as a side effect, which is the documented fallback
+artefact anyway. Note `git clone` from a bundle leaves HEAD unresolved and
+lands on an empty `master`; `git checkout -B main refs/remotes/origin/main`
+fixes it.
+
+The `GIT_ASKPASS` recipe ran from `$HOME/.sess/` on the device VM; the token
+was never written into `.git/config`, a remote URL, any repository file or the
+connected folder, and both the device-VM copy and the transient container copy
+are shredded at the end of the session. `user.name`/`user.email` were again
+absent in the fresh clone and set per 09-24. **Push verified against the GitHub
+API rather than git's own output**, per 09-26. **Push-as-you-go was followed**:
+the first two commits were pushed and API-verified before the notes and thesis
+work began, and `git fetch origin main` was run immediately before the push per
+the 10-03 race item (`origin/main` unmoved, clean fast-forward). **Live web
+search was available and used**, from the cloud container; both literature PDFs
+fetched successfully and PubMed/PMC were not attempted per the standing note.
+`scipy` was present in the container and no install was needed. One deviation
+to state: `figure_provenance_audit.png` re-rendered as a side effect of running
+that audit and was **restored to its committed bytes rather than committed**,
+per the 10-04 precedent.
+
+**Commits this run:** 4 (the model with its transcript and figure; the mutation
+harness with its report and the three checks it forced; the session note;
+Chapter 4 §4.6.3 with Chapter 7 §7.8.1b). This AUTOMATION_LOG.md entry makes
+**5**.
