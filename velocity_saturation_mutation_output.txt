@@ -1,0 +1,51 @@
+mutation report: graphene_velocity_saturation_model.py
+==============================================================================
+  every run below uses VSAT_FAST=1 (gate grid 80 pts instead of 400).
+  Control A asserts the battery is green AT THAT RESOLUTION, so a
+  check that only passes at full resolution would show up here as a
+  control-A failure rather than as a silently weaker harness.
+  [PASS] CONTROL A  the unmutated battery is green  -- exit 0, 0 failed checks
+
+  tag  verdict   killed by                         description
+  --------------------------------------------------------------------------------------------
+  M1   KILLED    X3,X3b,X6                         delete the saturation term entirely (S -> 0 in Eq. 4)
+  M2   KILLED    C2,C3,C6                          integrate 1/n instead of n (the superseded model's average)
+  M3   KILLED    X2,C1,C2                          ignore the contacts: profile over V_ds, not V_ds,ch
+  M4   KILLED    X7,G1,G5b                         v_sat density exponent: sqrt(pi*n) -> pi*n
+  M5   KILLED    X3,X3b,X6c                        sign of the saturation term: L + mu*S -> L - mu*S
+  M6   KILLED    X7                                MAGNITUDE ONLY: the 2/pi prefactor in v_sat becomes 1
+  M7   KILLED    X6b                               the physical ceiling u/v_sat is clipped instead of reported
+  B    SURVIVED  -                                 CONTROL B: trapezoid written as its own explicit sum (different code, identical arithmetic)
+
+==============================================================================
+  7 of 7 mutants killed; control A green; control B survived as required
+
+  WHAT THIS HARNESS CHANGED.  Its FIRST run killed 5 of 7: M6 and M7
+  both SURVIVED the battery as first committed.  M6 is a pure
+  magnitude change to v_sat and every check in the battery was a
+  sign, a zero or a ratio -- all invariant under a constant rescale
+  of the one knob that decides whether criterion A was measured or
+  fitted.  M7 clips the physical ceiling instead of reporting it, and
+  X6 asserted only an upper bound, which a clipped report satisfies
+  exactly as well as an honest one.  Three checks were added in
+  response -- X7 (a magnitude pin on v_sat against an externally
+  computed anchor), X6b (the reported ceiling must equal an
+  independent recomputation) and X6c (it must respond across the
+  V_ds ladder) -- and the battery went 23/23 -> 26/26.  The harness
+  did not merely confirm the suite; it improved it, which is now the
+  third time in three sessions across the two repositories.
+
+  READ M6's KILLER COLUMN.  M6 is killed by EXACTLY ONE check, X7,
+  and X7 is the only check in the battery that retains a MAGNITUDE.
+  That is the same shape 2026-10-04 reported for M4/R7 in the f_max
+  decomposition, reproduced independently here, and it is the
+  strongest evidence yet for the standing top methodological item.
+
+  ON M6 (the magnitude-only mutant).  M6 changes no structure, raises
+  no exception and flips no sign: it multiplies v_sat by pi/2 and
+  nothing else.  A battery made only of PASS/FAIL-at-zero checks
+  cannot see it.  This suite's verdict on M6 is the measurement of
+  whether the standing top methodological item -- record the
+  MAGNITUDE of every MUST_CHANGE, not just its sign, created
+  2026-10-03 and still open -- has been answered for this module or
+  only restated.

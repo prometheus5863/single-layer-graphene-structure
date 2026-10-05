@@ -9,6 +9,7 @@ SECTION 1.  The exactness battery
   [PASS] X3   L = 0: I_d == W*e*n*v_sat to 1 ULP, independent of mu and V_ds (exact under cancellation, up to the one rounding of mu*V/v_sat)  -- 3 (mu, V_ds) pairs, all 1 ULP from 2.770987463506e-04 A
   [PASS] X3b  finite L: I_d/(W*e*n*v_sat) == 1/(1 + L*v_sat/(mu*V_ds)) exactly  -- 1.0 ULP; ratio = 0.571428571429 vs 0.571428571429
   [PASS] X4   L = 0: doubling v_sat doubles I_d BITWISE (exact under mult. by 2)  -- ratio = np.float64(2.0)
+  [PASS] X7   MAGNITUDE: v_sat(1e12 cm^-2) == 5.4568173774e5 m/s, the external anchor (kills any constant rescale of v_sat)  -- model gives 5.456817e+05 m/s, anchor 5.456817e+05 m/s, rel. err 5.271e-13
   [PASS] X5   constant n: Q == n*V_ds,ch  (exact under the trapezoid weights)  -- 0.0 ULP
 
 ==============================================================================
@@ -22,6 +23,8 @@ SECTION 2.  Does the channel hit the physical ceiling of Eq. (3)?
     0.50      0.484242     4.000   OK
     1.00      0.721014    -2.000   OK
   [PASS] X6   the ceiling is never reached on the committed V_ds ladder  -- largest u/v_sat = 0.721014
+  [PASS] X6b  the REPORTED ceiling equals an independent recomputation (kills a guard that clips its own report)  -- reported 0.72101426, recomputed 0.72101426, rel. err 0.00e+00
+  [PASS] X6c  and the ceiling RESPONDS: strictly increasing across the V_ds ladder  -- 0.064011 -> 0.721014
 
 ==============================================================================
 SECTION 3.  The OVERLAPPING-LIMIT validation (criterion C), and the
@@ -194,7 +197,7 @@ SECTION 8.  Figure
   wrote velocity_saturation_model.png
 
 ==============================================================================
-RESULT: 196 lines, 23 passed, 0 failed
+RESULT: 199 lines, 26 passed, 0 failed
 ==============================================================================
   Criterion A (g_ds / 4.85)        : NOT MET -- delivered /1.1361, 23.4 % of it
   Criterion B (sign of the slope)  : MET

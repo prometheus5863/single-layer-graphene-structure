@@ -162,6 +162,7 @@ Run:  python3 graphene_velocity_saturation_model.py
 Writes: velocity_saturation_model.png, velocity_saturation_output.txt
 """
 
+import os
 import sys
 import numpy as np
 import matplotlib
@@ -186,6 +187,17 @@ OMEGA_OP = HBAR_OMEGA_EV * E_CHARGE / HBAR   # rad/s
 VDS_REF = 0.1
 VDS_LADDER = (0.05, 0.1, 0.2, 0.5, 1.0)
 N_QUAD = 201     # trapezoid points for Q and S along the channel
+
+# FAST MODE.  Set VSAT_FAST=1 to shrink the gate grid and the Section-6
+# bisection.  Used ONLY by graphene_velocity_saturation_mutation.py, which
+# must run this battery nine times; every check still runs, and the committed
+# transcript is always produced at full resolution.  The mutation harness
+# asserts (control A) that fast mode is green, so a mutant that only shows up
+# at full resolution would make control A disagree with the committed
+# transcript and be visible rather than silent.
+_FAST = os.environ.get("VSAT_FAST") == "1"
+N_VG = 80 if _FAST else 400
+N_INVERT = 24 if _FAST else 80
 
 _FAIL = []
 _LINES = []
@@ -371,7 +383,10 @@ def ulps(a, b):
 
 # ===========================================================================
 def main():
-    Vg = np.linspace(-2.0, 4.0, 400)
+    Vg = np.linspace(-2.0, 4.0, N_VG)
+    if _FAST:
+        say("  [VSAT_FAST=1: gate grid %d pts, inversion %d iters -- "
+            "mutation-harness mode]" % (N_VG, N_INVERT))
 
     say("velocity saturation in transfer_characteristic(): the 2026-10-04 top item")
     say("(acceptance criteria A, B and C are quoted in the module docstring)")
@@ -458,6 +473,39 @@ def main():
           "L = 0: doubling v_sat doubles I_d BITWISE (exact under mult. by 2)",
           f"ratio = {b / a!r}")
 
+    # X7 -- MAGNITUDE PIN on v_sat, added 2026-10-05 after the mutation
+    # harness found M6 (prefactor 2/pi -> 1) SURVIVING the first committed
+    # form of this battery.  Every other check here is a sign, a zero or a
+    # ratio, and every one of them is invariant under a constant rescale of
+    # v_sat -- which is the standing top methodological item of this
+    # repository (a PASS/FAIL at zero is silent about magnitude, created
+    # 2026-10-03) landing on the ONE knob that decides whether criterion A
+    # was measured or fitted.  The anchor is computed OUTSIDE this module
+    # and committed as a literal, so the check is not Eq. (6) agreeing with
+    # itself:
+    #
+    #   n_ref    = 1.0e16 m^-2  (= 1e12 cm^-2, mid-range for this device)
+    #   hbarOm   = 0.10 eV  =>  Omega = 1.5192674488e14 rad/s
+    #   sqrt(pi*n_ref)       = 1.7724538509e8 m^-1
+    #   v_sat    = (2/pi)*Omega/sqrt(pi*n_ref) = 5.4568173774e5 m/s
+    #
+    # (computed at 30 significant digits with decimal.Decimal, not with this
+    # module's own float path; the first committed form of X7 used a 6-digit
+    # hand value of Omega and FAILED at rel. err 1.9e-04 -- recorded here
+    # because the check caught my arithmetic, not the model's)
+    #
+    # Any change to the prefactor, to Omega, or to the density exponent
+    # moves this number and the check fails.
+    N_REF = 1.0e16
+    V_SAT_ANCHOR = 5.4568173774e5   # m/s, derived from the lines above
+    v_here = float(v_sat_of_n(N_REF))
+    rel7 = abs(v_here / V_SAT_ANCHOR - 1.0)
+    check("X7", rel7 < 1e-9,
+          "MAGNITUDE: v_sat(1e12 cm^-2) == 5.4568173774e5 m/s, the external "
+          "anchor (kills any constant rescale of v_sat)",
+          f"model gives {v_here:.6e} m/s, anchor {V_SAT_ANCHOR:.6e} m/s, "
+          f"rel. err {rel7:.3e}")
+
     # X5 -- the quadrature is a partition: constant n => Q == n*Vds_ch
     Q5, S5, _, _ = _channel_integrals(2.0, VDS_REF, constant_n=True)
     check("X5", ulps(Q5, n0 * VDS_REF) <= 64.0,
@@ -482,6 +530,37 @@ def main():
     check("X6", all(c < 1.0 for _, c, _ in ceil_table),
           "the ceiling is never reached on the committed V_ds ladder",
           f"largest u/v_sat = {max(c for _, c, _ in ceil_table):.6f}")
+
+    # X6b -- added 2026-10-05 after the mutation harness found M7 (clip the
+    # reported ceiling instead of reporting it) SURVIVING.  X6 alone asserts
+    # only an upper bound, so a guard that CLIPS its own report satisfies it
+    # exactly as well as a guard that reports -- the 2026-10-04 family again
+    # (a weaker detection that looks identical from outside).  X6b recomputes
+    # the ceiling by an independent route, from the model's own I_d and the
+    # channel integrals, and requires agreement, so a clipped report fails.
+    Vds_hi = VDS_LADDER[-1]
+    Id_hi, ceil_hi = transfer_characteristic_saturated(
+        Vg, Vds=Vds_hi, report_ceiling=True)
+    j = int(np.argmax(ceil_hi))
+    lo_j, hi_j = 0.0, Vds_hi
+    for _ in range(200):
+        m = 0.5 * (lo_j + hi_j)
+        Idm = _Id_given_Vds_ch(Vg[j], m)[0]
+        if Vds_hi - Idm * gfet.Rc_total - m > 0.0:
+            lo_j = m
+        else:
+            hi_j = m
+    _, _, n_j, vs_j = _channel_integrals(Vg[j], 0.5 * (lo_j + hi_j))
+    ceil_indep = float(np.max((Id_hi[j] / (gfet.W * E_CHARGE * n_j)) / vs_j))
+    check("X6b", abs(ceil_hi[j] / ceil_indep - 1.0) < 1e-6,
+          "the REPORTED ceiling equals an independent recomputation (kills a "
+          "guard that clips its own report)",
+          f"reported {ceil_hi[j]:.8f}, recomputed {ceil_indep:.8f}, "
+          f"rel. err {abs(ceil_hi[j] / ceil_indep - 1):.2e}")
+    check("X6c", all(ceil_table[i][1] < ceil_table[i + 1][1]
+                     for i in range(len(ceil_table) - 1)),
+          "and the ceiling RESPONDS: strictly increasing across the V_ds ladder",
+          f"{ceil_table[0][1]:.6f} -> {ceil_table[-1][1]:.6f}")
 
     # ------------------------------------------------------------------
     say()
@@ -763,7 +842,7 @@ def main():
     f_hi = gds_r[k_r] / _g_at(hi)
     bracketed = (f_lo - 4.8483) * (f_hi - 4.8483) < 0.0
     if bracketed:
-        for _ in range(80):
+        for _ in range(N_INVERT):
             mid = np.sqrt(lo * hi)
             if gds_r[k_r] / _g_at(mid) < 4.8483:
                 hi = mid
@@ -943,8 +1022,11 @@ def main():
                  "(2026-10-05; closes criteria B and C, misses A)",
                  fontsize=11)
     fig.tight_layout()
-    fig.savefig("velocity_saturation_model.png", dpi=150)
-    say("  wrote velocity_saturation_model.png")
+    if not _FAST:
+        fig.savefig("velocity_saturation_model.png", dpi=150)
+        say("  wrote velocity_saturation_model.png")
+    else:
+        say("  (fast mode: figure not written)")
 
     # ------------------------------------------------------------------
     say()
@@ -964,8 +1046,9 @@ def main():
     say("                                     result (Section 3)")
     if _FAIL:
         say(f"  FAILED CHECKS: {', '.join(_FAIL)}")
-    with open("velocity_saturation_output.txt", "w") as fh:
-        fh.write("\n".join(_LINES) + "\n")
+    if not _FAST:
+        with open("velocity_saturation_output.txt", "w") as fh:
+            fh.write("\n".join(_LINES) + "\n")
     return 1 if _FAIL else 0
 
 
