@@ -693,6 +693,109 @@ either way here.
 See Chapter 4 §4.6.3 and
 `notes/2026-10-05-saturation-arrived-and-the-contacts-ate-it.md`.
 
+#### 7.8.1c Annotation (2026-10-06): the counterfactual was run, and it answered both branches at once
+
+§7.8.1b closed by naming one counterfactual as the thing that would overturn
+it — `f_max/f_T` at `R_c = 0` *exactly*, in the saturated model — and stated
+its two branches in advance. **It has now been run, and the answer is not
+either branch. It is both, because the question was asked about a ratio.**
+
+At the 40 µm / 8-finger geometry and `V_ds = 0.1 V`, with the contact removed
+exactly and coherently:
+
+| quantity | baseline | `R_c = 0` | change |
+|---|---|---|---|
+| `f_max/f_T` | 0.683186 | 0.759363 | +11.15 % — **58.4 % of the 1.3 floor** |
+| `f_T` | 20.740 GHz | 74.650 GHz | **×3.5994** |
+| `f_max` | 14.169 GHz | 56.687 GHz | **×4.0007** |
+
+**On the ratio, §7.8.1b's first branch holds and the verdict is now final.** A
+*perfect* contact — not a better one — leaves `f_max/f_T` 41.6 % below the
+bottom of Feijoo *et al.*'s band. Four levers have now been built or bounded
+and all four are non-binding: `R_g = 0` exactly gives 0.935276, deleting `C_gd`
+entirely moves the answer 0.11 %, velocity saturation from optical-phonon
+physics delivers ×1.1361 of a required ×4.8483, and `R_c = 0` exactly gives
+0.759363. §7.8.1a's structural verdict on the *ratio* is no longer
+provisional. A residual `g_ds` requirement of **×2.9955** survives the perfect
+contact, and §7.8.1b already showed no phonon energy in the physically
+available 0.059–0.196 eV reaches even ×1.2491 of it.
+
+**On `f_max` itself, §7.8.1b's second branch also holds, and this is the part
+an industrial reader acts on.** The same counterfactual is worth a factor of
+**four** in `f_max`, and most of it is reachable: at the lowest contact
+resistance reported in the literature (65 Ω·µm per contact, against this
+model's 300) `f_max` rises ×2.79, which is **59.6 %** of the perfect-contact
+gain. So the RF case in this model *is* a contact-engineering problem with a
+quantified target — ×4.0 available, ×2.8 reachable — and that statement
+coexists with the final verdict on the ratio rather than replacing it.
+
+**Why both branches could be true, and it is not a drafting failure.**
+`f_max/f_T` divides out exactly the quantity the contact dominates: the
+contact limits `I_d`, `I_d` sets `g_m`, `g_m` sets `f_T`, and the same contact
+sets `R_s` in the `f_max` denominator. Removing it moves numerator and
+denominator together and the ratio keeps only the residue. **A criterion
+written on a ratio is silent about any mechanism that scales both of its
+arguments.** This is checkable rather than rhetorical: `f_max/f_T` is
+**non-monotonic** in `R_c`, bottoming at 0.680047 at 470 Ω·µm and rising again
+to 0.698615 at 4000 Ω·µm, while `f_max` falls **37×** across those same two
+rows. There is a region of this design space where satisfying a ratio
+criterion means losing on the figure of merit.
+
+**One objection is now closed.** This model's contact is 300 Ω·µm per contact,
+**1.8× the 165 Ω·µm** Feijoo *et al.* report for the very devices whose
+1.3–1.4 band Chapter 4 is measured against. The whole `f_max` thread could
+therefore have been nothing but a worse contact. Given Feijoo's own contact
+resistance, this model reaches **0.695514**, not 1.3.
+
+**Two findings consolidate, and one claim is narrowed.** §7.8.1b's dilution
+*explanation* — that the contacts absorb the saturation — made an untested
+prediction, that the `g_ds` saturation factor at `R_c = 0` must be the
+undiluted 1.699. Measured: **1.70661**, i.e. 100.45 %, from a derivative of a
+solved terminal current rather than from the channel integral that produced
+the 1.699. And §7.8.1a's resistance-ratio identity acquires a sign test: the
+*superseded* resistor model is made **worse** by the same perfect contact
+(0.642901 → 0.581707), because that identity carries `R_total` in the
+numerator and therefore rewards a worse contact. A figure of merit that
+improves when the device gets worse is not measuring the device, which is what
+§7.8.1a asserted and now has evidence for.
+
+**What this annotation does NOT claim, and the reason is a literature result
+that cuts against §7.8.1b's framing.** Feijoo, Pasadas, Bonmann *et al.*,
+*Nanoscale Advances* **2** (2020) — a paper whose title asks "Does carrier
+velocity saturation help to enhance `f_max` in graphene field-effect
+transistors?" — answer their own question in the negative: "the largest
+`f_max` are located at biases close to the onset of bipolar conduction and
+**far from the saturated velocity regime**", with drift at only ~45 % of
+`v_sat` and the **diffusion** contribution to the current comparable to drift
+at the peak-`f_max` bias, concluding that "our results do not support that
+operating in the regime of velocity saturation results in the highest
+`f_max`". Three things follow, and none of them is comfortable:
+
+1. **§7.8.1b's criterion A was constructed from this model's algebra, not from
+   device physics.** Its arithmetic stands — ×4.8483 required, ×1.1361
+   delivered — but it licenses a statement about *this model* and not about
+   real GFETs, and that narrowing is recorded here rather than left implied.
+2. **This model has no diffusion current at all.** Eq. (4) of the saturated
+   model is drift-only. If diffusion is ~40 % of the current near the drain at
+   the peak-`f_max` bias in a measured device, a drift-only model cannot be
+   asked about that bias, and the `V_ds` ladders of §7.8.1b and of this
+   annotation are a drift-only slice of a two-mechanism problem. **This is now
+   the top open item for the RF thread**, ahead of anything else in it.
+3. **This model has no self-heating**, a mechanism the same paper measures at
+   65 → 40 GHz in `f_max`. Today's ×4.0007 is a ratio between two runs of one
+   model and is largely insulated from this; the absolute 56.687 GHz is not.
+
+So the RF verdict of §7.8.1a — *unaddressed*, not refuted — survives in a
+third form. The ratio is settled and contact-limited only mildly; `f_max`
+itself is contact-limited by a factor of four; and the reason this thesis
+still cannot speak to the RF case is no longer the absence of saturation, but
+the absence of diffusion and of self-heating in the model that was built to
+replace the resistor.
+
+See `graphene_perfect_contact_counterfactual.py`,
+`perfect_contact_counterfactual_output.txt` and
+`notes/2026-10-06-the-perfect-contact-and-the-ratio-that-divided-out-the-prize.md`.
+
 ### 7.8.2 Contacts: the real near-term contribution, and a negative result worth having
 
 Contact resistance is the binding constraint on every graphene device in this
@@ -778,7 +881,7 @@ response are also the pairs whose reversal margins the model cannot compute.
 | application | verdict | binding constraint |
 |---|---|---|
 | Digital logic | **no** | no bandgap; not fixable without losing the mobility |
-| RF / analogue | **conditional** | `f_T ≈ 20 GHz` at a stated operating point; contact-limited |
+| RF / analogue | **unaddressed** (§7.8.1a–c) | the ratio `f_max/f_T` is settled below the literature band at `R_c = 0` *exactly*; `f_max` itself is contact-limited ×4.0, of which ×2.8 is reachable; the model lacks diffusion current and self-heating |
 | Interconnect | **conditional on the copper baseline** | liner choice decides whether a crossover exists |
 | Photodetector | **strongest near-term case** | 2.3 % absorption, addressable; polarity risk from contact chemistry |
 | Contacts (as a topic) | **the enabling contribution** | the two-term decomposition is incomplete |
@@ -815,6 +918,18 @@ Stated as falsifiable items, in order of how much they would move:
 5. **Asking the differential question of Chapter 5** (§7.3's prediction).
 6. **Re-running Chapter 4's contact-resistance results at the 5.4 eV
    crossover** rather than at graphene's 4.5 eV, for consistency with Chapter 6.
+7. **A diffusion term in the saturated transport model** (added 2026-10-06,
+   §7.8.1c). Feijoo *et al.* (Nanoscale Adv. **2**, 2020) measure the diffusion
+   contribution as comparable to drift at the bias where `f_max` peaks, in
+   devices operating at ~45 % of `v_sat`. Equation (4) of this thesis's
+   saturated model is drift-only. Every `V_ds` ladder in §7.8.1b and §7.8.1c is
+   therefore a drift-only slice, and this is the one item that would let the RF
+   thread say anything about a real device rather than about this model. It
+   displaces velocity saturation as the RF thread's binding question.
+8. **A self-heating term.** The same paper measures 65 → 40 GHz in `f_max` from
+   self-heating alone. This bounds every absolute frequency in Chapter 4; the
+   *ratios* between model runs, which is what §7.8.1c reports, are much less
+   exposed.
 
 ---
 

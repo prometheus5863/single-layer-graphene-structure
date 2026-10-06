@@ -602,6 +602,104 @@ section does not distinguish them.
 See `notes/2026-10-05-saturation-arrived-and-the-contacts-ate-it.md`,
 `velocity_saturation_model.png` and `velocity_saturation_output.txt`.
 
+### 4.6.4 The perfect contact: the fourth exhausted lever, and a factor of four the ratio hid
+
+§4.6.3 ended by naming the contacts as what caps `g_ds` and left one
+counterfactual unrun: `f_max/f_T` at `R_c = 0` *exactly*, in the saturated
+model, in the way §4.6.2 ran `R_g = 0` and `R_s = 0`. This section runs it.
+
+`R_c` has to be removed from **both** places it enters, and that is not a
+formality. It is a series resistance inside the self-consistent solve for the
+intrinsic channel drop, *and* it is `R_s = R_c/2` in the `f_max` denominator,
+reached through a different module that reads `gfet.Rc_total` as a global.
+Zeroing only the first — which is what the natural keyword-argument route
+does — gives `f_max/f_T` = 0.552349, a **19 % degradation**. Zeroing both
+gives 0.759363, an **11 % improvement**. The two answers have opposite signs,
+and the misleading one is the plausible one, since a 19 % degradation is what
+"the contacts are binding" predicts if read without care. Check C3 of
+`graphene_perfect_contact_counterfactual.py` asserts the sign inversion so
+that it is a recorded measurement rather than a caveat.
+
+**The result, at the 40 µm / 8-finger geometry and `V_ds` = 0.1 V, at a fixed
+gate bias:**
+
+| quantity | baseline | `R_c = 0` coherent | change |
+|---|---|---|---|
+| `g_ds` [S] | 3.374491e-02 | 5.145076e-02 | ×1.5248 |
+| `f_T` [Hz] | 2.07398e+10 | 7.46504e+10 | ×3.5994 |
+| `f_max` [Hz] | 1.41692e+10 | 5.66868e+10 | **×4.0007** |
+| `f_max/f_T` | 0.683186 | 0.759363 | +11.15 % |
+
+Note that the comparison has to be at a **fixed** bias. With `R_c = 0` the
+peak of `f_T(V_g)` leaves the sweep entirely and sits at the grid edge in both
+models, because the contact is what produced the turn-over: `I_d` is capped by
+`R_c` at large `|V_g − V_dirac|` while `C_gs` keeps growing, so
+`f_T = g_m/2πC_gs` turns over. Remove the cap and it does not. Widening the
+sweep moves the edge, not the physics. "At the peak-`f_T` bias" is therefore
+not an available convention for this counterfactual, and check P1 asserts the
+interior/boundary distinction rather than leaving it as a remark.
+
+**The fourth lever is exhausted on the ratio.** 0.759363 is 58.4 % of the
+bottom of Feijoo *et al.*'s 1.3–1.4 band. A residual `g_ds` requirement of
+**×2.9955** survives the perfect contact, and §4.6.3 bounded what `v_sat` can
+supply at ×1.2491 across the whole physically available phonon range. So all
+four quantities that have been proposed as the `f_max` shortfall's cause —
+`R_g`, `C_gd`, `v_sat`, `R_c` — have now been set to their most favourable
+value and none closes the gap.
+
+**And the ratio hid a factor of four.** The same counterfactual is worth
+×4.0007 in `f_max` itself. Section 6b of the module sweeps contact resistances
+that have been measured rather than assumed:
+
+| `R_c` per contact [Ω·µm] | `f_max` [GHz] | `f_max/f_T` | share of the `R_c = 0` gain |
+|---|---|---|---|
+| 0 | 56.687 | 0.759363 | 100.0 % |
+| 65 (lowest reported) | 39.526 | 0.722202 | 59.6 % |
+| 165 (Feijoo *et al.*) | 24.308 | 0.695514 | 23.8 % |
+| **300 (this model)** | **14.169** | **0.683186** | 0.0 % |
+| 470 (practical Ni flow) | 8.268 | 0.680047 | −13.9 % |
+| 4000 (typical literature) | 0.222 | 0.698615 | −32.8 % |
+
+Two readings, and the second was not anticipated.
+
+First, **this model's contact is 1.8× worse than that of the devices its
+`f_max/f_T` is compared against**, which was not known before this section and
+which closes an obvious objection: give this model Feijoo's own 165 Ω·µm and
+it reaches 0.695514, not 1.3. The shortfall is not a contact-quality artefact.
+
+Second, **`f_max/f_T` is non-monotonic in `R_c`.** It bottoms out at 0.680047
+at 470 Ω·µm and rises again to 0.698615 at 4000 Ω·µm, while `f_max` falls
+**37×** across those same two rows. This is §4.6.2's resistance-ratio identity
+reasserting itself inside the *saturated* model: once `R_c` dominates
+`R_total` faster than it dominates `R_g + R_s`, the ratio is rewarded for a
+worse contact. There is a region of this design space where the ratio and the
+figure of merit it is supposed to summarise **move in opposite directions**,
+and no `f_max/f_T` criterion can be trusted inside it. §7.8.1c draws the
+methodological consequence.
+
+**One prediction of §4.6.3 is confirmed, from the other side.** That section
+attributed the ×1.1361 `g_ds` factor to dilution by the contacts, computing
+from a channel integral that the undiluted factor would be 1.699. That is a
+testable prediction at `R_c = 0`, and the measured factor there is
+**1.70661** — 100.45 % of it — obtained from a finite difference of a solved
+terminal current rather than from the integral that produced the 1.699
+(check D1).
+
+**One claim is narrowed, by literature rather than by computation.** Feijoo,
+Pasadas, Bonmann *et al.*, *Nanoscale Advances* **2** (2020), report that the
+largest `f_max` in their measured GFETs occur "far from the saturated velocity
+regime", at ~45 % of `v_sat`, with the **diffusion** contribution to the
+current comparable to drift. Equation (4) of §4.6.3 is drift-only. §4.6.3's
+criterion A therefore remains correct arithmetic about *this model* and is not
+a statement about real devices, and the absence of a diffusion term — not the
+absence of saturation — is now the RF thread's binding question. See §7.8.1c
+and §7.9 item 7.
+
+See `graphene_perfect_contact_counterfactual.py`,
+`perfect_contact_counterfactual.png`,
+`perfect_contact_counterfactual_output.txt` and
+`notes/2026-10-06-the-perfect-contact-and-the-ratio-that-divided-out-the-prize.md`.
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent
