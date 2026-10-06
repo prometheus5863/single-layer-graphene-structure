@@ -123,6 +123,55 @@ SECTION 6.  What is left to ask of g_ds after a perfect contact
   [PASS] R1   MAGNITUDE: a residual g_ds requirement survives the perfect contact, and it is finite -- so the shortfall is still a g_ds shortfall and not a parasitic one  -- residual factor 2.9955 after R_c = 0; term B is only 1.11 % of the denominator, so term A is still what has to move
 
 ==============================================================================
+SECTION 6b.  How much of the perfect contact is REACHABLE
+==============================================================================
+  Section 4 prices a perfect contact at x4.0007 in f_max.  A perfect
+  contact does not exist, so the sweep below asks the same question
+  at contact resistances that have been MEASURED.  Each row sets the
+  per-contact Ohm*um figure coherently -- the drain-current solve and
+  R_s together -- and the sources are in RC_PER_WIDTH_LADDER's
+  comment.  The fraction captured is measured against the R_c = 0
+  row of this same sweep, not against Section 4's counterfactual, so
+  the comparison is within one code path.
+
+     Rc [O*um]  R_c,tot [O]      g_ds [S]     f_T [Hz]   f_max/f_T   f_max [GHz]
+             0       0.0000  5.145076e-02  7.46504e+10    0.759363       56.6868
+            65       3.2500  4.777921e-02  5.47298e+10    0.722202       39.5260
+           165       8.2500  4.130257e-02  3.49501e+10    0.695514       24.3083
+           300      15.0000  3.374491e-02  2.07398e+10    0.683186       14.1692
+           470      23.5000  2.687808e-02  1.21582e+10    0.680047        8.2681
+          4000     200.0000  4.728076e-03  3.17202e+08    0.698615        0.2216
+
+     Rc [O*um] f_max/f_max(300) fraction of the R_c=0 gain captured
+             0         4.0007                 100.0 %
+            65         2.7896                  59.6 %
+           165         1.7156                  23.8 %
+           300         1.0000                   0.0 %
+           470         0.5835                 -13.9 %
+          4000         0.0156                 -32.8 %
+  [PASS] Q1   MAGNITUDE: the LOWEST reported graphene contact resistance (65 Ohm*um) captures a measurable share of the perfect contact  -- f_max x2.7896 against this model's 300 Ohm*um, i.e. 59.6 % of the R_c = 0 gain; f_max/f_T 0.683186 -> 0.722202, still 55.55 % of 1.3
+  [PASS] Q2   and at the contact resistance of the device family whose 1.3-1.4 band this thesis is measured against (165 Ohm*um), the model is STILL below that band  -- f_max/f_T = 0.695514, i.e. 53.50 % of 1.3 -- so the shortfall is not explained by this model having a worse contact than Feijoo et al.
+  [PASS] Q3   the ratio f_max/f_T is NON-MONOTONIC in R_c, with an INTERIOR minimum -- so beyond a point the saturated model is rewarded for a worse contact too  -- minimum 0.680047 at 470 Ohm*um, rising to 0.698615 at 4000 Ohm*um; this is C4's resistance-ratio reward reasserting itself in the SATURATED model once R_c dominates the channel again
+  Q3 is a NEW result and it sharpens C4 rather than contradicting
+  it.  C4 says the resistor model is rewarded for a bad contact
+  because its f_max/f_T is a resistance ratio.  Q3 says the
+  SATURATED model is too, beyond 470 Ohm*um: as R_c grows it
+  eventually dominates R_total faster than it dominates R_g+R_s, and
+  the ratio turns back up while f_max itself falls by 37x across
+  the same two rows.  The ratio and the figure of merit it is
+  supposed to summarise move in OPPOSITE directions over part of
+  the design space, which is the clearest statement available of
+  why 2026-10-05's item could be satisfied on the ratio and still
+  miss the finding.
+
+  READ Q2 CAREFULLY, because it is the load-bearing row.  This
+  model's 300 Ohm*um is 1.8x the 165 Ohm*um Feijoo et al. report for
+  the devices whose f_max/f_T band Chapter 4 is compared against.  A
+  natural objection to the whole f_max thread is therefore that the
+  shortfall is just a worse contact.  Q2 answers it: give this model
+  Feijoo's own contact and it reaches 0.695514, not 1.3.
+
+==============================================================================
 SECTION 7.  The V_ds ladder, with and without the contact
 ==============================================================================
       V_ds ratio baseline ratio R_c=0 coh.    f_max base     f_max R_c=0
@@ -152,7 +201,7 @@ SECTION 9.  Figure
   wrote perfect_contact_counterfactual.png
 
 ==============================================================================
-RESULT: 154 lines, 20 passed, 0 failed
+RESULT: 203 lines, 23 passed, 0 failed
 
   The 2026-10-05 item, answered     : f_max/f_T = 0.759363 at R_c = 0 exactly
   Verdict on the RATIO              : SHORT of 1.3 by 0.5406 (58.41 % of the band floor) -- FOURTH lever exhausted

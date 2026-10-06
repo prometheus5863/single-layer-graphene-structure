@@ -209,6 +209,18 @@ PINNED_SIGFIGS = {
     "gds_sat_at_saturated_peak": 7,
     "ratio_sat_at_saturated_peak": 6,
 }
+# Per-contact width-specific contact resistance, Ohm*um, for the
+# reachability sweep of Section 6b.  gfet.Rc_per_width_ohm_um is 300.0; the
+# others are literature values, each attached to its source in
+# notes/2026-10-06-the-perfect-contact-and-the-ratio-that-divided-out-the-prize.md:
+#   65   Liu et al. 2019, bottom-contact, e-beam -- the lowest reported
+#   165  Feijoo et al., Nanoscale Adv. 2, 2020 (Rc*Wg/2), the device family
+#        whose f_max/f_T = 1.3-1.4 band this thesis is measured against
+#   470  Khosravi Rad et al., Sci. Rep. 14, 9190 (2024), "two-in-one" Ni
+#        process -- a good result from a practical photolithographic flow
+#   4000 the same paper's statement of what most of the literature exceeds
+RC_PER_WIDTH_LADDER = (0.0, 65.0, 165.0, 300.0, 470.0, 4000.0)
+
 # The 2026-10-05 channel-integral estimate of the UNDILUTED g_ds factor.
 # Quoted from that transcript's Section 4 and used as a PREDICTION here.
 PREDICTED_UNDILUTED_FACTOR = 1.699
@@ -243,12 +255,19 @@ def ulps(a, b):
 # Geometry context.  Late binding only -- no module-level name is captured as
 # a default (the 2026-10-03 frozen-default fault and its 2026-10-04 repeat).
 # ---------------------------------------------------------------------------
-def at_literature_geometry(fn, W=None, N_fingers=None):
+def at_literature_geometry(fn, W=None, N_fingers=None, rc_per_width=None):
+    """rc_per_width overrides the per-contact Ohm*um figure COHERENTLY: it
+    sets gfet.Rc_total, which is read both by the drain-current solve and by
+    rf.source_access_resistance(), so R_s moves with it.  Section 4's whole
+    second result is that those two are separate paths and that moving one
+    alone inverts the answer, so the sweep in Section 6b moves both."""
     W = rf.W_RF if W is None else W
     N_fingers = rf.N_FINGERS_RF if N_fingers is None else N_fingers
+    rc_pw = (gfet.Rc_per_width_ohm_um if rc_per_width is None
+             else rc_per_width)
     W_saved, Rc_saved = gfet.W, gfet.Rc_total
     gfet.W = W
-    gfet.Rc_total = 2 * (gfet.Rc_per_width_ohm_um * 1e-6) / W
+    gfet.Rc_total = 2 * (rc_pw * 1e-6) / W
     try:
         return fn(N_fingers)
     finally:
@@ -710,6 +729,95 @@ def main():
           "residual factor %.4f after R_c = 0; term B is only %.2f %% of the "
           "denominator, so term A is still what has to move"
           % (res_factor, 100 * c["termB"] / c["denom"]))
+    say()
+
+    say("=" * 78)
+    say("SECTION 6b.  How much of the perfect contact is REACHABLE")
+    say("=" * 78)
+    say("  Section 4 prices a perfect contact at x%.4f in f_max.  A perfect"
+        % (coh["fmax"] / base["fmax"]))
+    say("  contact does not exist, so the sweep below asks the same question")
+    say("  at contact resistances that have been MEASURED.  Each row sets the")
+    say("  per-contact Ohm*um figure coherently -- the drain-current solve and")
+    say("  R_s together -- and the sources are in RC_PER_WIDTH_LADDER's")
+    say("  comment.  The fraction captured is measured against the R_c = 0")
+    say("  row of this same sweep, not against Section 4's counterfactual, so")
+    say("  the comparison is within one code path.")
+    say()
+
+    Vb_r = float(BIAS[1][1])
+    ladder = []
+    for rc_pw in RC_PER_WIDTH_LADDER:
+        r = at_literature_geometry(
+            lambda n: small_signal_at(Vb_r, n, saturate=True),
+            rc_per_width=rc_pw)
+        ladder.append((rc_pw, r))
+    fmax0 = ladder[0][1]["fmax"]
+    fmax_300 = [r for pw, r in ladder if pw == 300.0][0]["fmax"]
+    say("    %10s %12s %13s %12s %11s %13s"
+        % ("Rc [O*um]", "R_c,tot [O]", "g_ds [S]", "f_T [Hz]", "f_max/f_T",
+           "f_max [GHz]"))
+    for rc_pw, r in ladder:
+        say("    %10.0f %12.4f %13.6e %12.5e %11.6f %13.4f"
+            % (rc_pw, 2 * (rc_pw * 1e-6) / rf.W_RF, r["gds"], r["fT"],
+               r["ratio"], r["fmax"] / 1e9))
+    say()
+    say("    %10s %14s %22s" % ("Rc [O*um]", "f_max/f_max(300)",
+                                "fraction of the R_c=0 gain captured"))
+    for rc_pw, r in ladder:
+        gain = r["fmax"] / fmax_300
+        frac = ((r["fmax"] - fmax_300) / (fmax0 - fmax_300)
+                if fmax0 != fmax_300 else float("nan"))
+        say("    %10.0f %14.4f %21.1f %%" % (rc_pw, gain, 100 * frac))
+    r65 = [r for pw, r in ladder if pw == 65.0][0]
+    r165 = [r for pw, r in ladder if pw == 165.0][0]
+    check("Q1", r65["fmax"] > fmax_300 and r65["ratio"] > base["ratio"],
+          "MAGNITUDE: the LOWEST reported graphene contact resistance "
+          "(65 Ohm*um) captures a measurable share of the perfect contact",
+          "f_max x%.4f against this model's 300 Ohm*um, i.e. %.1f %% of the "
+          "R_c = 0 gain; f_max/f_T %.6f -> %.6f, still %.2f %% of 1.3"
+          % (r65["fmax"] / fmax_300,
+             100 * (r65["fmax"] - fmax_300) / (fmax0 - fmax_300),
+             base["ratio"], r65["ratio"], 100 * r65["ratio"] / FEIJOO_LO))
+    check("Q2", r165["ratio"] < FEIJOO_LO,
+          "and at the contact resistance of the device family whose "
+          "1.3-1.4 band this thesis is measured against (165 Ohm*um), the "
+          "model is STILL below that band",
+          "f_max/f_T = %.6f, i.e. %.2f %% of 1.3 -- so the shortfall is not "
+          "explained by this model having a worse contact than Feijoo et al."
+          % (r165["ratio"], 100 * r165["ratio"] / FEIJOO_LO))
+    ratios = [r["ratio"] for _, r in ladder]
+    imin = int(np.argmin(ratios))
+    interior_min = 0 < imin < len(ratios) - 1
+    check("Q3", interior_min,
+          "the ratio f_max/f_T is NON-MONOTONIC in R_c, with an INTERIOR "
+          "minimum -- so beyond a point the saturated model is rewarded for "
+          "a worse contact too",
+          "minimum %.6f at %.0f Ohm*um, rising to %.6f at %.0f Ohm*um; this "
+          "is C4's resistance-ratio reward reasserting itself in the "
+          "SATURATED model once R_c dominates the channel again"
+          % (ratios[imin], RC_PER_WIDTH_LADDER[imin], ratios[-1],
+             RC_PER_WIDTH_LADDER[-1]))
+    say("  Q3 is a NEW result and it sharpens C4 rather than contradicting")
+    say("  it.  C4 says the resistor model is rewarded for a bad contact")
+    say("  because its f_max/f_T is a resistance ratio.  Q3 says the")
+    say("  SATURATED model is too, beyond %.0f Ohm*um: as R_c grows it"
+        % RC_PER_WIDTH_LADDER[imin])
+    say("  eventually dominates R_total faster than it dominates R_g+R_s, and")
+    say("  the ratio turns back up while f_max itself falls by %.0fx across"
+        % (ladder[imin][1]["fmax"] / ladder[-1][1]["fmax"]))
+    say("  the same two rows.  The ratio and the figure of merit it is")
+    say("  supposed to summarise move in OPPOSITE directions over part of")
+    say("  the design space, which is the clearest statement available of")
+    say("  why 2026-10-05's item could be satisfied on the ratio and still")
+    say("  miss the finding.")
+    say()
+    say("  READ Q2 CAREFULLY, because it is the load-bearing row.  This")
+    say("  model's 300 Ohm*um is 1.8x the 165 Ohm*um Feijoo et al. report for")
+    say("  the devices whose f_max/f_T band Chapter 4 is compared against.  A")
+    say("  natural objection to the whole f_max thread is therefore that the")
+    say("  shortfall is just a worse contact.  Q2 answers it: give this model")
+    say("  Feijoo's own contact and it reaches %.6f, not 1.3." % r165["ratio"])
     say()
 
     say("=" * 78)

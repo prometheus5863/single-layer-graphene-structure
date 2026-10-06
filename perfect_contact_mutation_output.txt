@@ -61,7 +61,8 @@ mutation report: graphene_perfect_contact_counterfactual.py
     M3 made R_c = 1e-12 and nothing noticed, because X1a tested a
       LITERAL 0.0 -- an exactness check pointed at a value the
       counterfactual did not use.  X1a now reads RC_ZERO.
-  The battery went 17/17 -> 20/20.  This is the FIFTH consecutive
+  The battery went 17/17 -> 20/20, and Section 6b later took it to
+  23/23.  This is the FIFTH consecutive
   harness in this repository to improve the suite it was pointed at
   rather than bless it.  Two of the three holes are the standing top
   methodological item (a report with no magnitude pin on it) and the
