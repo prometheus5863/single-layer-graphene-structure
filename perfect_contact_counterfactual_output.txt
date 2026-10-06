@@ -1,0 +1,162 @@
+the perfect contact: f_max/f_T at R_c = 0 EXACTLY in the saturated model
+(the 2026-10-05 top item; its dichotomy is quoted in the module docstring)
+
+==============================================================================
+SECTION 1.  Why every comparison below is at a FIXED bias
+==============================================================================
+  peak of f_T(V_g) over the committed sweep V_g in [-2, +4] V:
+    R_c             model       V_g at peak       f_T [Hz] interior?
+    R_c = 0         resistor      +4.000000    1.32606e+11 NO (grid edge)
+    R_c = 0         saturated     +4.000000    8.56451e+10 NO (grid edge)
+    committed R_c   resistor      +2.781955    2.03396e+10 yes
+    committed R_c   saturated     +2.857143    2.07396e+10 yes
+  [PASS] P1   the peak-f_T bias is INTERIOR at committed R_c and AT THE GRID EDGE at R_c = 0  -- so 'at the peak-f_T bias' is not a well-defined comparison for the counterfactual; every table below is at a fixed bias
+  The peak exists at committed R_c BECAUSE of the contact: I_d is
+  capped by R_c at high |V_g - V_dirac| while C_gs keeps growing, so
+  f_T = g_m/(2 pi C_gs) turns over.  Remove the cap and it does not.
+  Widening the sweep moves the edge, not the physics.
+
+==============================================================================
+SECTION 2.  X2: the overlapping limit against the COMMITTED transcript
+==============================================================================
+  quantity                                    committed       this module
+  g_ds, saturated, at the resistor peak [S]   3.354728e-02  3.354728e-02
+  f_max/f_T, saturated, at the resistor peak  6.851967e-01  6.851967e-01
+  g_ds, saturated, at the saturated peak [S]  3.374491e-02  3.374491e-02
+  f_max/f_T, saturated, at the saturated peak  6.831860e-01  6.831859e-01
+  f_T, saturated, at the resistor peak [Hz]   2.058532e+10  2.058556e+10   (rel 1.152e-05, estimator difference)
+  f_T, saturated, at the saturated peak [Hz]  2.074000e+10  2.073984e+10   (rel 7.492e-06, estimator difference)
+  [PASS] X2   exact under IDENTITY OF CODE PATH: the four committed g_ds and f_max/f_T values reproduced at printed precision  -- pinned from velocity_saturation_output.txt, 2026-10-05, each at the figure count that transcript printed (see PINNED_SIGFIGS); worst relative deviation over all six pins 1.152e-05
+  [PASS] X2c  the committed f_T values are reproduced to within the ESTIMATOR difference, which is reported rather than asserted away  -- bound 1e-04; the committed numbers come from np.gradient on the 400-point gate grid and this module differences a 3-point stencil at dVg = 1e-4, so the ~1.4e-5 gap is the O(h^2) gate-grid error of np.gradient and is quantified here for the first time
+  Richardson ratio of this module's own g_m stencil, at dVg = 8e-3 / 4e-3 / 2e-3 V:
+    g_m = 3.9966945791e-04, 3.9967035402e-04, 3.9967057805e-04
+    (g8-g4)/(g4-g2) = 3.9999   [4 = central/O(h^2), 2 = one-sided/O(h)]
+  [PASS] X2b  ORDER: this module's g_m is a SECOND-order central difference, which is what a one-sided stencil would break  -- Richardson ratio 3.9999 against 4 for O(h^2) and 2 for O(h); distance to the one-sided value 1.9999
+
+==============================================================================
+SECTION 3.  X1/X3/X4: the R_c = 0 branch is exact, and anchored
+==============================================================================
+  [PASS] X1a  exact under ABSENCE OF A SOLVE: RC_ZERO (the constant the counterfactual actually uses) is bit-identical under tol 1e-15 -> 1e-3, max_iter 200 -> 3  -- 0.0 ULP; I_d = 6.808648663808780e-03 both ways
+  [PASS] X1b  MUST_CHANGE: the committed-R_c case DOES move under the same perturbation, so X1a is a fact about the branch and not about the perturbation  -- 3.493e+14 ULP, relative displacement 4.204e-02 (4.2045 %)
+  [PASS] X3   exact against a CLOSED FORM on the R_c = 0 path: I_d/(W e n v_sat) == 1/(1 + L v_sat/(mu V_ds))  -- 1.0 ULP; 0.285714285714 vs 0.285714285714
+  [PASS] X4   exact under MULTIPLICATION BY ZERO: R_s = 0 deletes its own addend bitwise, in the order the model sums them  -- 0.0 ULP; denom = 2.825398530634447e-01
+
+==============================================================================
+SECTION 4.  The counterfactual, and the sign that depends on coherence
+==============================================================================
+  --- fixed bias: resistor-peak, V_g = -1.112782 V, V_ds = 0.10 V
+    model      contact counterfactual          g_ds [S]     f_T [Hz]   f_max [Hz]  f_max/f_T
+    resistor   baseline                    3.789086e-02  2.02195e+10  1.30382e+10   0.644833
+    resistor   R_c=0 current path only     8.898268e-02  1.09047e+11  4.58215e+10   0.420198
+    resistor   R_c=0 COHERENT (R_s=0 too)  8.898268e-02  1.09047e+11  6.30204e+10   0.577918
+    resistor   R_s=0 only                  3.789086e-02  2.02195e+10  1.79545e+10   0.887978
+    saturated  baseline                    3.354728e-02  2.05856e+10  1.41052e+10   0.685197
+    saturated  R_c=0 current path only     5.245971e-02  7.39130e+10  4.04347e+10   0.547058
+    saturated  R_c=0 COHERENT (R_s=0 too)  5.245971e-02  7.39130e+10  5.55934e+10   0.752146
+    saturated  R_s=0 only                  3.354728e-02  2.05856e+10  1.94209e+10   0.943425
+
+  --- fixed bias: saturated-peak, V_g = +2.857143 V, V_ds = 0.10 V
+    model      contact counterfactual          g_ds [S]     f_T [Hz]   f_max [Hz]  f_max/f_T
+    resistor   baseline                    3.811896e-02  2.03218e+10  1.30649e+10   0.642901
+    resistor   R_c=0 current path only     8.780650e-02  1.10331e+11  4.66674e+10   0.422977
+    resistor   R_c=0 COHERENT (R_s=0 too)  8.780650e-02  1.10331e+11  6.41803e+10   0.581707
+    resistor   R_s=0 only                  3.811896e-02  2.03218e+10  1.79912e+10   0.885319
+    saturated  baseline                    3.374491e-02  2.07398e+10  1.41692e+10   0.683186
+    saturated  R_c=0 current path only     5.145076e-02  7.46504e+10  4.12331e+10   0.552349
+    saturated  R_c=0 COHERENT (R_s=0 too)  5.145076e-02  7.46504e+10  5.66868e+10   0.759363
+    saturated  R_s=0 only                  3.374491e-02  2.07398e+10  1.95090e+10   0.940655
+
+  THE ANSWER TO THE 2026-10-05 ITEM, at its own bias (saturated-peak):
+    f_max/f_T   0.683186 -> 0.759363   (+11.15 %)
+    f_T  [Hz]   2.07398e+10 -> 7.46504e+10   (x3.5994)
+    f_max[Hz]   1.41692e+10 -> 5.66868e+10   (x4.0007)
+    distance to the bottom of the Feijoo band (1.3): 0.6168 -> 0.5406
+    fraction of 1.3 reached              : 52.55 % -> 58.41 %
+
+  [PASS] C1   MAGNITUDE: a PERFECT contact still falls short of the Feijoo band, so the FOURTH lever is exhausted and Section 7.8.1a's verdict on the RATIO is final  -- ratio = 0.759363, i.e. 58.41 % of 1.3; short by 0.5406
+  [PASS] C2   MAGNITUDE: and the SAME counterfactual is worth more than x2 in f_max itself, so the item's dichotomy was not exhaustive  -- f_max x4.0007, f_T x3.5994, ratio only +11.15 % -- the prize is in the numerator the ratio divides out
+  [PASS] C3   MUST_CHANGE, SIGN: the half-removed contact (current path only, R_s left in place) answers the item with the OPPOSITE sign  -- coherent +11.15 %, half-removed -19.15 % -- removing R_c from one of the two places it enters inverts the verdict
+  [PASS] C4   MUST_CHANGE, SIGN: the two MODELS disagree on the sign of the contact lever -- the resistor model is made WORSE by a perfect contact  -- resistor 0.642901 -> 0.581707 (-9.52 %), saturated 0.683186 -> 0.759363 (+11.15 %)
+  WHY C4 IS A DIAGNOSTIC AND NOT A DISCREPANCY.  Section 7.8.1a's
+  identity f_max/f_T ~ (1/2) sqrt(R_total/(R_g+R_s)) carries R_total
+  in the NUMERATOR, so any model obeying it is REWARDED for a worse
+  contact.  The identity was established 2026-10-04 as a description;
+  C4 is its falsifiable consequence, and it holds.  A figure of merit
+  that improves when the device gets worse is not measuring the
+  device -- which is what 2026-10-04 claimed about this quantity, now
+  with a sign test behind it rather than an algebraic reading.
+
+==============================================================================
+SECTION 5.  The 2026-10-05 dilution mechanism, tested as a prediction
+==============================================================================
+  g_ds saturation factor = g_ds(no saturation) / g_ds(saturated)
+    bias             R_c                 no-sat [S]  saturated [S]    factor
+    resistor-peak    R_c = 0           8.898268e-02   5.245971e-02   1.69621
+    resistor-peak    committed R_c     3.789086e-02   3.354728e-02   1.12948
+    saturated-peak   R_c = 0           8.780650e-02   5.145076e-02   1.70661
+    saturated-peak   committed R_c     3.811896e-02   3.374491e-02   1.12962
+
+  2026-10-05 PREDICTED, from mu*S/L = 0.3036 and a channel integral:
+    the UNDILUTED factor is 1.699, and 1.1361 is that number diluted
+    by a contact resistance in series with the channel.
+  MEASURED here at R_c = 0, from a finite difference of a
+    self-consistent solve:                                 1.70661
+    agreement with the prediction:                         100.45 %
+    dilution actually attributable to the contact:         x1.51078
+  [PASS] D1   MAGNITUDE: the R_c = 0 saturation factor reproduces the 2026-10-05 channel-integral prediction of 1.699 to better than 2 %  -- measured 1.70661 vs predicted 1.699, ratio 1.00448 (0.45 % error) -- the mechanism was stated 2026-10-05 and is confirmed today from the other side of the dilution
+  [PASS] D2   MUST_CHANGE: removing the contact INCREASES the saturation factor, which is the direction the dilution explanation requires  -- 1.12962 -> 1.70661, i.e. the contacts were absorbing a factor of 1.51078 of the available saturation
+
+==============================================================================
+SECTION 6.  What is left to ask of g_ds after a perfect contact
+==============================================================================
+  at R_c = 0 COHERENT, at the saturated-peak bias:
+    term A = g_ds (R_g + R_s) = 4.287563e-01  (98.89 % of the denominator)
+    term B = 2 pi f_T C_gd R_g = 4.795213e-03  (1.11 %)
+    denominator now                  = 4.335516e-01
+    denominator needed for f_max/f_T = 1.3 : 1.479290e-01
+    so g_ds must come down a FURTHER factor of  2.9955
+    (and 2026-10-05 showed no phonon energy in 0.059-0.196 eV buys
+     more than 1.2491, so this residual is not available from v_sat)
+    same factor by BISECTION on f_max/f_T, sharing no algebra with the
+    closed form above                        :  2.9955
+  [PASS] R1b  ROUND TRIP: the residual factor from the closed form and from an independent bisection on f_max/f_T agree  -- closed form 2.9954936852, bisection 2.9954936852, relative difference 0.000e+00 -- a magnitude pin, which R1 alone was not
+  [PASS] R1   MAGNITUDE: a residual g_ds requirement survives the perfect contact, and it is finite -- so the shortfall is still a g_ds shortfall and not a parasitic one  -- residual factor 2.9955 after R_c = 0; term B is only 1.11 % of the denominator, so term A is still what has to move
+
+==============================================================================
+SECTION 7.  The V_ds ladder, with and without the contact
+==============================================================================
+      V_ds ratio baseline ratio R_c=0 coh.    f_max base     f_max R_c=0
+      0.05       0.661524         0.668378    6.7941e+09      3.0049e+10
+      0.10       0.683186         0.759363    1.4169e+10      5.6687e+10
+      0.20       0.734023         0.941899    3.0604e+10      1.0352e+11
+      0.50       0.950253         1.494365    9.0662e+10      2.1857e+11
+      1.00       1.495800         2.423880    2.0547e+11      3.6775e+11
+  [PASS] L1   the rising f_max/f_T trend that velocity saturation bought (2026-10-05 criterion B) SURVIVES the perfect contact  -- baseline +0.834275 over V_ds = 0.05-1 V, R_c = 0 coherent +1.755503
+    V_ds rows where the perfect contact enters the band and the
+    baseline does not: 0.50 V
+    NOT offered as agreement with Feijoo et al.: 2026-10-04 and
+    2026-10-05 both recorded that a x20 bias knob against a x20
+    literature band will coincide somewhere.  The ladder is here for
+    the SIGN and for whether the contact changes it.
+
+==============================================================================
+SECTION 8.  Controls
+==============================================================================
+  [PASS] K1   CONTROL: R_c = 0 and a 4x wider device are NOT aliased responses, so the counterfactual is a contact change and not a geometry change  -- R_c=0 response x1.11150, 4x-W response x0.33497, ratio 3.31824
+  [PASS] K2   CONTROL: gfet's module globals are restored to their committed values after every geometry context in this module  -- W = 1e-06, Rc_total = 600, mu = 0.4, L = 2e-07
+  [PASS] K3   CONTROL: the baseline is bitwise reproducible after every counterfactual in this module has run  -- 0.0 ULP
+
+==============================================================================
+SECTION 9.  Figure
+==============================================================================
+  wrote perfect_contact_counterfactual.png
+
+==============================================================================
+RESULT: 154 lines, 20 passed, 0 failed
+
+  The 2026-10-05 item, answered     : f_max/f_T = 0.759363 at R_c = 0 exactly
+  Verdict on the RATIO              : SHORT of 1.3 by 0.5406 (58.41 % of the band floor) -- FOURTH lever exhausted
+  Verdict on f_max ITSELF           : x4.0007 -- a contact-engineering target the ratio divided out
+  2026-10-05's dilution mechanism   : CONFIRMED to 0.45 % (1.70661 measured vs 1.699 predicted)
+  The coherence trap                : half-removal inverts the sign (-19.15 % vs +11.15 %)
+==============================================================================
