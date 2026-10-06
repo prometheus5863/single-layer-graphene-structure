@@ -6097,3 +6097,352 @@ per the 10-04 precedent.
 harness with its report and the three checks it forced; the session note;
 Chapter 4 §4.6.3 with Chapter 7 §7.8.1b). This AUTOMATION_LOG.md entry makes
 **5**.
+
+---
+
+## 2026-10-06 — The counterfactual answered both branches of its own dichotomy, because the question was a ratio
+
+**Status.** The 2026-10-05 top item — *`f_max/f_T` at `R_c = 0` exactly, in
+the saturated model* — is **closed, and its two-branch dichotomy turned out
+not to be exhaustive: both branches are true at once.** New module
+`graphene_perfect_contact_counterfactual.py` (**23/23**, five tolerance-free
+checks), new mutation harness (**7 of 7** after a first run of 3 of 7 that
+found three real holes, all the same fault), new figure, new note, Chapter 4
+**§4.6.4** and Chapter 7 **§7.8.1c** drafted. One prediction of 2026-10-05
+is confirmed to 0.45 % from the other side of the mechanism it explained.
+One literature paper **cuts against the premise of the whole 10-04/10-05
+thread** and is recorded in place rather than absorbed.
+
+### 1. The answer, and why the item could not see it
+
+The item was well-formed by every standard this series has accumulated — a
+named quantity, a number, both branches of the decision stated in advance:
+
+> If a perfect contact also falls short of 1.3, four levers are exhausted and
+> §7.8.1a's structural verdict is final; if it reaches the band, the RF case
+> becomes a contact-engineering problem with a quantified target.
+
+Measured, at the 40 µm / 8-finger geometry and `V_ds = 0.1 V`, fixed bias:
+
+| quantity | baseline | `R_c = 0` coherent | change |
+|---|---|---|---|
+| `f_max/f_T` | 0.683186 | 0.759363 | **+11.15 %** (58.41 % of 1.3) |
+| `f_T` [Hz] | 2.07398e+10 | 7.46504e+10 | **×3.5994** |
+| `f_max` [Hz] | 1.41692e+10 | 5.66868e+10 | **×4.0007** |
+
+Both branches hold. The ratio falls short, so the **fourth** lever is
+exhausted and §7.8.1a's verdict on `f_max/f_T` is final rather than
+provisional. And the same counterfactual is worth **a factor of four in
+`f_max` itself**, so the RF case is also a contact-engineering problem with a
+quantified target. The item could not see the second because **`f_max/f_T`
+divides out exactly the quantity the contact dominates**: the contact limits
+`I_d`, `I_d` sets `g_m`, `g_m` sets `f_T`, and the same contact sets `R_s` in
+the `f_max` denominator. Removing it moves numerator and denominator together.
+
+Residual after the perfect contact: `g_ds` must still come down **×2.9955**
+(R1, with R1b recomputing it by bisection sharing no algebra with the closed
+form), and 10-05 bounded what `v_sat` can supply at ×1.2491 over the whole
+physically available phonon range. Term B is 1.11 % of the denominator, so it
+is still term A that has to move.
+
+### 2. The coherence trap, which inverts the sign of the answer
+
+`R_c` enters this model in **two** places: the self-consistent solve for the
+intrinsic channel drop, and `R_s = R_c/2` in the `f_max` denominator, reached
+through another module that reads `gfet.Rc_total` as a **global**. Passing
+`Rc_total=0.0` through `**kw` — the obvious route, and the one
+`fT_fmax_saturated` would propagate — zeroes only the first:
+
+| counterfactual | `f_max/f_T` | change |
+|---|---|---|
+| `R_c = 0` current path only | 0.552349 | **−19.15 %** |
+| `R_c = 0` coherent | 0.759363 | **+11.15 %** |
+
+**The half-removed perfect contact answers the item with the opposite sign,
+and the half-removed answer is the plausible one** — a 19 % degradation is
+exactly what "the contacts are binding" predicts if read without care, and
+nothing about the number looks wrong. C3 asserts the sign inversion, so the
+trap sits in the transcript rather than in a comment. This is the 10-03
+two-names fault (a frozen cross-module default) in a new location: a
+counterfactual that arrives in one of the two places the quantity enters.
+
+### 3. The two models disagree on the SIGN of the contact lever
+
+The same coherent counterfactual in the superseded resistor model:
+**0.642901 → 0.581707, −9.52 %**, against the saturated model's +11.15 %
+(C4). Not a magnitude discrepancy — a sign disagreement, asserted and left
+unreconciled.
+
+It is 10-04's resistance-ratio identity acquiring a falsifiable consequence.
+`f_max/f_T ≈ (1/2)√(R_total/(R_g+R_s))` carries `R_total` in the
+**numerator**, so a model obeying it is *rewarded* for a worse contact.
+10-04 read that off the algebra; today it has a sign test. **A figure of merit
+that improves when the device gets worse is not measuring the device.**
+
+And Section 6b found the saturated model is not exempt, only better-behaved
+over a range: **`f_max/f_T` is NON-MONOTONIC in `R_c`** (Q3), bottoming at
+0.680047 at 470 Ω·µm and rising to 0.698615 at 4000 Ω·µm, while `f_max`
+falls **37×** across those same two rows. The ratio and the figure of merit it
+summarises move in **opposite directions** over part of this design space.
+
+### 4. What 10-05 predicted, measured from the other side
+
+10-05 explained its ×1.1361 against a required ×4.8483 by dilution:
+`µS/L = 0.3036` "alone would divide the CHANNEL conductance by 1.699", and
+the contacts absorb the rest. That is an untested quantitative prediction —
+at `R_c = 0` the factor must be 1.699. **Measured: 1.70661 (100.45 %)** at
+the item's own bias, 1.69621 (99.84 %) at the other, from a finite difference
+of a solved terminal current rather than from the channel integral that
+produced the 1.699 (D1). The prediction was recorded before the measurement
+existed and the two computations share no machinery, which is a stronger form
+of evidence than the agreement-between-two-artefacts 10-02 warned about.
+
+### 5. The reachability sweep, and the objection it closes
+
+Section 6b sweeps per-contact resistances that have been **measured**:
+
+| `R_c` [Ω·µm] | `f_max` [GHz] | `f_max/f_T` | share of the `R_c = 0` gain |
+|---|---|---|---|
+| 0 | 56.687 | 0.759363 | 100.0 % |
+| 65 | 39.526 | 0.722202 | 59.6 % |
+| 165 | 24.308 | 0.695514 | 23.8 % |
+| **300 (this model)** | **14.169** | **0.683186** | 0.0 % |
+| 470 | 8.268 | 0.680047 | −13.9 % |
+| 4000 | 0.222 | 0.698615 | −32.8 % |
+
+Q1: the lowest reported contact resistance captures **59.6 %** of the perfect
+contact's `f_max` gain, so most of the ×4 is reachable with contacts that
+exist. Q2 is the load-bearing row: **this model's 300 Ω·µm is 1.8× the
+165 Ω·µm Feijoo *et al.* report for the very devices whose 1.3–1.4 band
+Chapter 4 is measured against.** The whole `f_max` thread could therefore have
+been nothing but a worse contact. Given Feijoo's own contact, this model
+reaches 0.695514, not 1.3. That objection is now closed by measurement.
+
+### 6. The literature cuts against the premise of the 10-04/10-05 thread
+
+**Feijoo, Pasadas, Bonmann *et al.*, "Does carrier velocity saturation help to
+enhance f_max in graphene field-effect transistors?", *Nanoscale Advances* 2
+(2020), DOI 10.1039/c9na00733d** — a paper that asks today's question in its
+title — answers it in the negative: "the largest `f_max` are located at biases
+close to the onset of bipolar conduction and **far from the saturated velocity
+regime**", at ~45 % of `v_sat`, with the **diffusion** contribution to the
+current comparable to drift, concluding that "our results do not support that
+operating in the regime of velocity saturation results in the highest
+`f_max`". They also measure **self-heating alone degrading `f_max` from 65 to
+40 GHz**.
+
+Three consequences, all annotated in place rather than absorbed:
+
+1. **10-05's criterion A is narrowed, not retracted.** Its arithmetic stands
+   (×4.8483 required, ×1.1361 delivered). What it licenses does not: it was
+   constructed from this model's own algebra and is a statement about this
+   model, not about real GFETs.
+2. **This model has no diffusion current.** Eq. (4) is drift-only. If
+   diffusion is ~40 % of the current near the drain at the peak-`f_max` bias
+   in a measured device, a drift-only model cannot be asked about that bias at
+   all, and every `V_ds` ladder of 10-05 and today is a drift-only slice.
+   **This is the RF thread's new binding question, ahead of saturation.**
+3. **This model has no self-heating**, a mechanism worth 65 → 40 GHz. Today's
+   ×4.0007 is a ratio between two runs of one model and is largely insulated;
+   the absolute 56.687 GHz is not.
+
+**Fetch failures, recorded honestly.** `pubs.aip.org` **403'd** on *AIP
+Advances* 11, 045220 (not retried). PubMed/PMC **not attempted** per the
+standing reCAPTCHA note. `arxiv.org/pdf/1110.0978` fetched but is **unusable
+for this question** — it states it includes "not a model for contact
+resistance, but only a contact resistance parameter" — recorded so no future
+session re-fetches it for the same purpose. The 65 Ω·µm row of Section 6b is
+a **secondary citation** (Liu *et al.* 2019 via Khosravi Rad *et al.*,
+*Sci. Rep.* 14, 9190 (2024)) and is labelled as such. Publishers are now the
+fourth distinct 403 source for this repository, and **every literature number
+here that came from a 403'd source came from a secondary citation** — the
+10-01 fault in its most ordinary form.
+
+### 7. The mutation harness, and three holes that were one fault
+
+Final **7 of 7**, control A green, control B survived. First run **3 of 7**.
+A counterfactual is a claim about what was switched off, so the mutants attack
+**arrival and coherence** rather than arithmetic. The three survivors were one
+fault in three places — a quantity or a claim nothing in the battery read:
+
+- **M5** (one-sided `g_m` stencil) survived because `f_max/f_T` is nearly
+  **blind** to `f_T` here: term B is 1.11 % of the denominator, so a 1e-5
+  shift in `f_T` moves the ratio by ~5e-8. *That is the same fact as §1's.*
+  Pinning `f_T` against the committed transcript would **not** have worked —
+  the committed `f_T` is an `np.gradient` on a 0.015 V gate grid while this
+  module differences at 1e-4, a different **estimator**, differing 1.4e-5 on
+  the unmutated module. That gap is the committed `f_T`'s `O(h²)` gate-grid
+  discretisation and **had never been quantified**. Repairs: **X2b**, a
+  Richardson ratio on stencil order (3.9999 against 4 for central, 2 for
+  one-sided), and **X2c**, which reports the estimator gap instead of
+  asserting it away.
+- **M6** (term B dropped from the residual formula) survived because R1
+  asserted only finiteness. Repair: **R1b**, bisection on `f_max/f_T`.
+- **M3** (`RC_ZERO` → 1e-12) survived **two** runs because X1a was written
+  against a **literal** `0.0` while the counterfactual used `RC_ZERO` — an
+  exactness check pointed at a value the module under test did not use. The
+  09-30 arrival fault **inside an exactness check**, a new location for it.
+
+Each of M3–M6 is now killed by **exactly one** check, and in each case it is
+the only check that reads the quantity the mutant changed. Battery 17/17 →
+20/20 → 23/23. **Fifth consecutive harness to improve the suite it was
+pointed at rather than bless it.**
+
+### 8. Methodological note, continuing the series
+
+09-28: prose is a detector. 09-29: a mutation that does not arrive is
+indistinguishable from a system that does not respond. 09-30: a control has to
+sit where the failure enters. 10-01: and name what it compares against in a
+way that cannot drift. 10-02: when it agrees, that is a fact about two
+artefacts, not the world. 10-03: a PASS/FAIL at zero is silent about
+magnitude. 10-04: and a quantity can be computed correctly under the wrong
+name. 10-05: and a criterion with a number in it can be missed in a way that
+locates the real constraint. **10-06: AND A CRITERION CAN BE DECIDED
+CORRECTLY ON THE QUANTITY IT NAMES AND STILL MISS THE FINDING, IF THAT
+QUANTITY IS A RATIO AND THE MECHANISM SCALES BOTH ITS ARGUMENTS.**
+
+The 10-05 item did everything right. It was answered on exactly the quantity
+it named, in advance, with both branches stated. And the ×4.0007 — the only
+part of the result an industrial reader would act on — appears in neither
+branch. **The practical rule is checkable, not advisory:** for every criterion
+written on a ratio, ask what the mechanism does to numerator and denominator
+*separately*, and if it does the same thing to both, the criterion is the
+wrong instrument whatever number it carries. Q3 is the proof by construction —
+a region of this very design space where satisfying a ratio criterion means
+losing on the figure of merit.
+
+**Not yet covered (candidates for future runs):**
+
+- **A DIFFUSION TERM IN EQ. (4)** — created today and **the new top item**,
+  and it displaces velocity saturation as the RF thread's binding question.
+  Feijoo *et al.* 2020 measure diffusion as comparable to drift at the
+  peak-`f_max` bias, in devices at ~45 % of `v_sat`. Eq. (4) is drift-only, so
+  **every `V_ds` ladder in this repository's RF thread is a drift-only slice**
+  and the peak-`f_max` bias is a bias this model cannot be asked about. This
+  is the one item that would let the RF thread say something about a device
+  rather than about a model. Chapter 7 §7.9 item 7.
+- **CENSUS EVERY CRITERION AND CHECK IN THIS REPOSITORY THAT IS A RATIO** —
+  created today, and it is the 10-03 magnitude item's sibling rather than a
+  new thread. 10-03 asked which checks are ratios of two quantities the same
+  defect would scale; today shows the same fault one level up, in the
+  *criteria* rather than the checks, and gives it a worked example with a
+  measured non-monotonicity behind it. The mechanisable form: for every
+  criterion written on a ratio, record what the mechanism under test does to
+  numerator and denominator separately.
+- **MECHANISE the magnitude item** — created 10-03, worked examples on 10-04,
+  10-05 and **twice more today** (M5 and M6 were both pure-magnitude holes).
+  **Five modules, six defects, same result.** The mechanisable form is a
+  repository-wide census of every MUST_CHANGE recording its response size.
+  10-05 said "today is the last session at which one more worked example is a
+  defensible answer"; today produced two more and is therefore **overdue, not
+  pending**.
+- **A self-heating term** — created today. Feijoo *et al.* 2020 measure
+  65 → 40 GHz in `f_max` from self-heating alone, which bounds every absolute
+  frequency in Chapter 4. Ratios between model runs are much less exposed, so
+  this is a limitation to state rather than a lever. Chapter 7 §7.9 item 8.
+- **Rewire `transfer_characteristic()` to the saturated form, or decide not
+  to** — created 10-05, priced there (five modules read it, §5's
+  profile-domain correction moves them a further signed 0.25 %), **and today
+  makes the decision harder rather than easier**: the saturated form is now
+  known to be drift-only against a literature result that says diffusion
+  matters at the bias of interest, so rewiring would propagate a model whose
+  known defect is named. Recommended: **defer until the diffusion item is
+  settled**, and that is a change of recommendation from 10-05's "yes".
+- **Why does the peak-f_T bias MOVE BRANCH between the two models?** — created
+  10-05, −1.1128 V (hole) to +2.8571 V (electron). Today adds a datum: at
+  `R_c = 0` there is **no interior peak at all** in either model, so the peak
+  is a contact artefact in both and the branch question may be a question
+  about where `R_c` caps `I_d` rather than about electron–hole asymmetry.
+  **Narrowed, not closed.**
+- **A second anchor for `Delta_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, **untouched for sixteen
+  consecutive sessions**. Today was a device-physics session and again did not
+  touch it.
+- **Whether Chapter 4's `n_puddle` reproduces Section 3.3's 6.45 kΩ/sq floor**
+  — created 09-29, **untouched for eight sessions**.
+- **A description of Ti, Ni and Pd that does not go through work function** —
+  three independent failures on record; Chapter 6's central structural
+  weakness, and §7.8.1c keeps it a limitation on the RF case too.
+- **A β = 2 implementation** (10-05, bounded at 24.6–26.0 % and moving the
+  answer the wrong way, so completeness not a lever); **which other quantities
+  here are computed correctly under a name that claims more than they
+  measure?** (10-04); **which checks are RATIOS of two quantities the same
+  defect would scale?** (10-03, and see the census item above); **audit every
+  remaining check for the 10-02 §1 fault** (10-02); **do the four existing
+  audits have references that are not content-pinned?** (10-01); **is
+  `D_CHEM_PHYS` the only duplicated literature VALUE?** (10-01); **is
+  `plot_fermi_surface` the only uncommitted figure?** (10-02); **the Section
+  3.6 Pauli edge is absent from Chapter 6's model** (09-29); **where does the
+  6.5430 % internal collection efficiency come from?** (09-30); **whether the
+  three identity re-assignments should be real mutations** (09-30); **Chapters
+  2 and 3 are drafted but §4.8.2's form of error is not audited for
+  elsewhere** (10-01); whether Chapter 4 or 5 contains a RANKING that is a
+  step artefact (09-23/09-25); a finite-temperature optical conductivity
+  (09-29); angular trigonal warping (09-28); finite-temperature `n(E_F, T)`
+  (09-28); whether other `== 0.0` checks are round-trip tautologies (09-28);
+  whether RESULT 2's other convictions are read from the saturated branch
+  (09-28); a probe reporting both directions of lambda (09-28); whether `t'`
+  can be EXCLUDED quantitatively as the source of Chapter 4's electron–hole
+  asymmetry (09-28); whether any other near-cancellation shows the `c2`/`c4`
+  sign flip (09-27); migrating every remaining validation to
+  measured-value-beside-derived-bound form (09-27); whether §7.3's
+  differential-interconnect prediction holds (09-27); which of Chapters 4 and
+  5's design rules could be restated as parities or bounds (09-23); whether
+  the parity survives a photo-thermoelectric term (09-23); re-check whether
+  other "for every …" claims rest on small samples (09-20); whether Chapter
+  4's contact-resistance results should be re-run at the 5.4 eV crossover
+  (09-18); reconciling Mueller *et al.*'s 0.12 eV step with the 0.25–1.07 eV
+  offsets `METAL_WORK_FUNCTIONS` assumes (09-18); a photo-thermoelectric term
+  (Kasirga review); Shimomura *et al.*'s comb-electrode design; integrating
+  6.5's plasmonic near-field picture with the spatially-resolved
+  contact-doping machinery; isolating the root cause of the §4.7 negative
+  residual (08-31); Ti and Cr per-metal `Rc` recalibration (ResearchGate
+  rate-limiting); a second independent edge-contact dataset (Lee *et al.*
+  2022, Wiley 403'd); **the primary source for the 65 Ω·µm contact resistance**
+  (Liu *et al.* 2019, cited only secondarily today)
+
+**Automation health.** Device reachable and folder connected at the 04:30
+firing (05:16 UTC); Step 0 found neither repository carrying a 2026-10-06
+entry and no commits since midnight, so this was a full session.
+
+**The 10-05 network problem is GONE, and the measurement is recorded so the
+pattern can be read.** The device VM cloned both repositories in a single
+`device_bash` call and `pip install scipy` completed in **7.4 s**, against
+10-05's sustained 13.9–18.8 kB/s where no clone of any depth fit the 180 s
+ceiling. So the problem is intermittent across days (10-01, 10-02, 10-05 bad;
+10-03, 10-04, 10-06 fine) and the documented bundle route remains the thing to
+keep rather than a workaround to retire.
+
+**A NEW device-VM constraint, and it is not the network.** The device VM runs
+**Python 3.10.12**, and this repository's committed modules use PEP 701
+nested-quote f-strings, which are a **3.12+** feature:
+`graphene_velocity_saturation_model.py` raises `SyntaxError` there. So the
+graphene battery cannot be run on the device VM at all, whatever the network
+does, and the cloud container (Python 3.13.16, numpy 2.5.3, scipy 1.18.1) is
+now the only place this repository executes. That is a **standing** constraint,
+unlike the network, and it means the container-plus-bundle route is the only
+route for this repository rather than the fast route. `scipy` was present in
+the container and no install was needed there.
+
+The `GIT_ASKPASS` recipe ran from the device VM; the token was never written
+into `.git/config`, a remote URL, any repository file or the connected folder,
+and every transient copy is shredded at the end of the session.
+`user.name`/`user.email` were again absent in the fresh clones and set per
+09-24. **Push verified against the GitHub API rather than git's own output**,
+per 09-26, and `git fetch origin main` was run immediately before the push per
+the 10-03 race item. **Live web search was available and used**, and two of the
+three literature fetches succeeded. **One deviation from 10-05's practice,
+stated:** push-as-you-go was **not** followed commit-by-commit this session.
+With the container as the only execution environment and the device VM as the
+only push point, each push costs a bundle transfer, so the five graphene
+commits were pushed as one batch at the end of the repository's work rather
+than in two. The incremental bundle was **197 kB**, against 10-05's 11.9 MB
+full-history bundle, because `git bundle create <old_origin_main>..main`
+carries only the new objects and the device VM already held a full clone.
+**That is a better recipe than 10-05's and is the one to reuse.**
+
+**Commits this run:** 5 (the counterfactual with its transcript and figure;
+the mutation harness with its report and the four checks it forced; Section 6b
+with the reachability sweep and the non-monotonicity; the session note;
+Chapter 4 §4.6.4 with Chapter 7 §7.8.1c). This AUTOMATION_LOG.md entry makes
+**6**.
