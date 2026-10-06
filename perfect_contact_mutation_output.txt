@@ -1,0 +1,69 @@
+mutation report: graphene_perfect_contact_counterfactual.py
+==============================================================================
+  every run below uses PCC_FAST=1 (gate grid 80 pts instead of 400).
+  Only Section 1's sweeps use that grid; every number the module's
+  findings rest on is at a FIXED bias and is resolution-independent,
+  so control A at fast resolution is the same claim as at full.
+  [PASS] CONTROL A  the unmutated battery is green  -- exit 0, 0 failed checks
+
+  tag  verdict    killed by                         description
+  ----------------------------------------------------------------------------------------------------
+  M1   KILLED     C2,C3,C4,D1                       ARRIVAL: the R_c = 0 flag is dropped (counterfactual never fires)
+  M2   KILLED     X4,C3,C4                          ARRIVAL: the R_s = 0 flag is dropped (half the counterfactual)
+  M3   KILLED     X1a                               'EXACTLY' becomes 1e-12, restoring the bisection branch
+  M4   KILLED     D1                                MAGNITUDE ONLY: the 2026-10-05 prediction 1.699 becomes 1.80
+  M5   KILLED     X2b                               the g_m stencil becomes one-sided (f_T moves in the 5th digit)
+  M6   KILLED     R1b                               the residual-requirement formula drops term B
+  M7   KILLED     K2                                at_literature_geometry stops restoring gfet's globals
+  B    SURVIVED   -                                 CONTROL B: f_max/f_T formed directly as 1/(2 sqrt(denom)) instead of f_max/f_T (algebraically identical, different code)
+
+==============================================================================
+  7 of 7 mutants killed; control A green; control B survived as required
+
+  WHAT TO READ IN THE KILLER COLUMN.  Three mutants are the point of
+  this harness and each should be killed by a DIFFERENT check:
+    M1 by the checks that compare counterfactual against baseline
+       (C1-C4, D1, D2) -- if M1 is killed only by X2 then the module
+       measures reproduction and not response;
+    M3 by X1a ALONE, because X1a is the only check that distinguishes
+       R_c = 0 from R_c very small -- a module whose title says
+       EXACTLY and whose battery cannot tell 0 from 1e-12 is making
+       a claim it does not test;
+    M5 by X2b ALONE, because X2b is the only check that reads the
+       ORDER of the g_m stencil rather than a value computed with it;
+    M4 by D1 ALONE, because D1 is the only check in the battery that
+       retains a MAGNITUDE.  That is another independent instance of
+       the 2026-10-03 shape -- the only detector that catches a
+       pure-magnitude change is the only check that keeps a
+       magnitude -- and it is why the standing item asks for a
+       repository-wide census rather than one more worked example.
+
+  WHAT THIS HARNESS CHANGED, which is the point of running it.  Its
+  first run killed 3 of 7 and its second 6 of 7.  The three
+  survivors across those runs -- M5, M6 and M3 -- were ONE fault in
+  three places: a quantity or a claim that nothing in the battery
+  actually read.
+    M5 moved f_T in the fifth digit and nothing noticed, because
+      f_max/f_T is almost independent of f_T at this geometry --
+      term B is 1.11 % of the denominator, so a 1e-5 shift in f_T
+      moves the ratio by ~5e-8.  A pin against the committed f_T
+      would not have worked either, because the committed value is a
+      np.gradient on a 0.015 V grid and this module differences at
+      1e-4: a different ESTIMATOR, differing by 1.4e-5 on the
+      unmutated module.  X2b therefore reads the ORDER of the
+      stencil by a Richardson ratio (4 for central, 2 for one-sided)
+      and X2c reports the estimator gap instead of asserting it
+      away.
+    M6 moved the residual g_ds requirement and nothing noticed,
+      because R1 asserted only that it was finite and > 1.  R1b
+      recomputes the same factor by bisection on f_max/f_T, sharing
+      no algebra with the closed form.
+    M3 made R_c = 1e-12 and nothing noticed, because X1a tested a
+      LITERAL 0.0 -- an exactness check pointed at a value the
+      counterfactual did not use.  X1a now reads RC_ZERO.
+  The battery went 17/17 -> 20/20.  This is the FIFTH consecutive
+  harness in this repository to improve the suite it was pointed at
+  rather than bless it.  Two of the three holes are the standing top
+  methodological item (a report with no magnitude pin on it) and the
+  third is the 2026-09-30 arrival item, inside an exactness check.
+
