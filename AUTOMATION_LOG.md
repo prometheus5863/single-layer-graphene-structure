@@ -6446,3 +6446,352 @@ the mutation harness with its report and the four checks it forced; Section 6b
 with the reachability sweep and the non-monotonicity; the session note;
 Chapter 4 §4.6.4 with Chapter 7 §7.8.1c). This AUTOMATION_LOG.md entry makes
 **6**.
+
+---
+
+## 2026-10-07 — The diffusion term was built exactly as specified, and its premise did not survive the build
+
+**Status.** The 2026-10-06 top item — *a diffusion term in Eq. (4)* — is
+**closed, and it closed by moving its own premise.** New module
+`graphene_diffusion_current_model.py` (**30/30**, nine tolerance-free
+checks), new mutation harness (**7 of 7**, two controls surviving), new
+figure, new note, Chapter 4 **§4.6.5** and Chapter 7 **§7.8.1d** drafted,
+§7.9 item 7 **rewritten rather than ticked off**, three new §7.9 items. One
+claim this repository had committed is **withdrawn**. The device VM's
+standing "cannot run graphene at all" constraint is **retired**, and
+replaced by a narrower and measured one.
+
+### 1. The answer, in the order the item asked
+
+| the item said | the measurement says |
+|---|---|
+| Eq. (4) is drift-only | **it is undetermined** — §3 |
+| diffusion is comparable to drift | **±0.50 % of `I_d` here** — §2 |
+| the peak-`f_max` bias cannot be asked about | **true, for a different reason** — §4 |
+
+### 2. The derivation, and the thing it turned out to be
+
+Zebrev's generalised Einstein relation (`arXiv:1102.2348`, Eq. 20) with
+`eps_D = E_F/2` for graphene's linear dispersion gives `D = mu*E_F/(2e)`, and
+with `V_F = E_F/e = A_F*sqrt(n)` the diffusion term collapses **exactly** to
+`mu*n*dV_F/dx`. So the drift-diffusion current is `mu*n*d(V - V_F)/dx` —
+transport down the gradient of the quasi-Fermi potential — and the `beta = 1`
+separability that makes Eq. (4) closed-form **survives**. `lambda = 0`
+recovers Eq. (4) **bitwise**, 0.0 ULP at twelve (`V_g`, `V_ds`) points (X1):
+the overlapping-limit rule of 2026-10-03 in its strongest available form.
+
+**`int n dV_F` has an exact antiderivative**, `(A_F/3)[n^{3/2}]`, so the
+diffusion contribution to the channel integral is a **boundary term** — it
+reads only the source and drain densities and not the profile between them.
+That is worth more than the number it produces. 2026-10-05's criterion C
+found this model's profile-domain handling carries a one-signed error **674×**
+the Jensen gap it was looking for; the diffusion term **cannot inherit it**.
+**X6a asserts this structurally rather than arguing it**: a deliberately
+lopsided interior grid with the same endpoints leaves the term **bitwise**
+unchanged, and **X6c** is the contrast — the quadrature route to the same
+number moves 0.4 % on the same regridding. A structural claim with a
+structural check is a better artefact than a structural claim with a
+numerical one, and this is the first time in this series the distinction has
+been available.
+
+The size, at the two fixed biases 10-06 reported at, `V_ds = 0.1 V`:
+
+| bias | `I_d` (λ=0) | `I_d` (λ=1) | share | `Qd/Q` |
+|---|---|---|---|---|
+| saturated-peak, `+2.857143 V` | 9.007791e-05 | 9.052996e-05 | **+0.5018 %** | +1.1621 % |
+| resistor-peak, `−1.112782 V` | 8.910103e-05 | 8.865209e-05 | **−0.5038 %** | −1.1546 % |
+
+**The correction is SIGNED and its sign flips between branches** (G1b). It
+follows `d|n|/dV`, and `carrier_density()` returns a magnitude, so on the hole
+branch `|n|` rises toward the drain and the term subtracts. A model that has
+discarded the carrier's sign cannot say whether that is right for holes;
+**new §7.9 item 9**, and it bears on the still-open "why does the peak-`f_T`
+bias move branch" question. The share of `I_d` is half of `Qd/Q` because
+`S_d > 0` — Eq. (12) opposes Eq. (11) — which the mutation harness found, not
+the module (§5).
+
+**Zebrev's closed form as an independent check.** His Eq. 62 gives
+`kappa = C_ox/(C_Q + C_it)`: capacitor algebra against a boundary term, no
+shared machinery. Interior mean ratio **0.6927** (0.011699 against 0.016677 at
+the source end). Agreement to 31 % for two routes this different is
+agreement, and the residual — this model's series factor and puddle floor —
+is reported rather than tuned away.
+
+### 3. The premise, and the claim that is withdrawn
+
+Pasadas and Jiménez, *IEEE TED* 2016 (`arXiv:1605.08235`) — **the same group
+as the Feijoo *et al.* paper that created the item** — write the GFET channel
+current as `I = -W*Q_tot*v` with `v = mu*F`, `F = -dV/dx`, and state
+explicitly that *"V(x) is the quasi-Fermi level along the graphene channel"*.
+A drift expression whose driving potential is the quasi-Fermi level **is
+already the complete drift-diffusion current.** Under that reading
+`lambda = 1` is a **double count**, not missing physics.
+
+`gfet.carrier_density(V_g, V_ch)` contains evidence for both readings and
+settles neither: `V_ch` enters an electrostatic charge relation
+`C_ox*(V_g - V_ch - V_dirac)`, and is then corrected by a quantum-capacitance
+series factor — which is exactly what one applies when `V_ch` is the
+quasi-Fermi level and the graphene drop `E_F/e` is separate. **The two
+readings differ by exactly `lambda*V_F`**, the term itself. So ±0.50 % is
+simultaneously the diffusion current under one reading and **the size of an
+ambiguity that was already in every committed `I_d` in this repository.**
+
+**Withdrawn:** the claim, made in §4.6.4 and §7.9 item 7 and repeated in the
+10-06 log, that this repository's RF ladders are *drift-only slices*. They are
+slices of a model whose driving potential was never named, bounded at ±0.50 %.
+The numbers stand; the description of what they are did not. §7.9 item 7 is
+**rewritten** to the actionable form — *name the potential* — rather than
+ticked off, because building the term did not answer it and cannot.
+
+`lambda = 1` is deliberately **not** wired into any other module. That is the
+10-05 discipline (a rewiring is a priced decision, not a side effect) applied
+to a term whose correctness is undecided rather than to one whose cost is
+known.
+
+### 4. A prediction written down first, refuted, with its mechanism measured
+
+Zebrev's `kappa = C_ox/C_Q` **diverges** at charge neutrality and Feijoo
+*et al.* put the peak-`f_max` bias there. Both predict the share **peaks at
+the Dirac point**, and that was written into the module before the sweep ran.
+
+Measured: it **collapses** there. `−0.006925 %` at the nearest grid point to
+the Dirac point against `0.5053 %` at the maximum — a factor **73** — with the
+maximum two volts away at `V_g = −1.272 V`.
+
+G4b measures the mechanism instead of arguing it:
+`n = sqrt(n_eff^2 + n_puddle^2)` makes `d|n|/dV = (n_eff/n)*dn_eff/dV`
+**exactly 0.0** at `n_eff = 0`, while `C_Q` stays finite at `n_puddle` —
+`0.000000e+00` against `−2.290589e+15 m^-2/V` unfloored. **The puddle floor
+flattens precisely the region where the capacitor ratio diverges.** The
+diffusion-dominated regime is not small in this model, it is **absent**, and
+that is a fact about the regularisation rather than about graphene. 10-06 was
+right that the peak-`f_max` bias cannot be asked about; the reason is the
+floor, and **no amount of care about the transport term recovers it.** New
+§7.9 item 11 asks which *other* near-Dirac results rest on a derivative the
+floor has set to zero.
+
+### 5. The harness, and the survivor that was not a hole
+
+**7 of 7** after a first run of 6 of 7; control A green, controls B and C
+surviving. Battery **26/26 → 30/30**. The mutants attack the **structure** of
+the claim: **M6** swaps the closed form for the quadrature route to the same
+number — a <0.1 % numerical change that destroys the only claim in the module
+title — and X6a is the only check that reads it.
+
+Two checks forced:
+
+- **X9a/b/c.** λ enters in **two** places and M2 arrives at only the first. It
+  was killed only by **G5c**, a check written for something else; *an
+  incidental detector is not a detector.* X9 gave Eq. (12) its own check with
+  a magnitude, and in doing so **found the `S_d > 0` fact that explains §2's
+  otherwise unexplained factor of two.** A repair that explains an existing
+  observation is a stronger outcome than one that only closes a hole.
+- **G5d.** The stencil is pinned against the **committed** 0.683186
+  (reproduced to 1.010e-07), not only against `vsat` on the same stencil. G5a
+  compares λ=0 against `vsat` *on the same stencil*, so a stencil change moves
+  both together and **G5a is blind to it by construction** — 10-06's M5 fault
+  exactly.
+
+**AND THE PART WORTH THE MOST.** The first run's survivor was the stencil
+*spacing*, `6/399 → 6/400`. The reflex — five harnesses deep — is to file a
+survivor as a hole and add a check. Measured before filing: the change moves
+`f_max/f_T` by **−6.560e-11** relative and `f_T` by 5.275e-08, against a value
+committed to **six** figures. A central difference is `O(h^2)` accurate
+precisely *so that* its answer does not depend on `h`, so the mutant is
+**semantically inert at the precision the claim is made at**, and a check
+sensitive to it would be a check on an artefact. It is **control C** now —
+it must survive — carrying its measured size in its own description, and M7
+was replaced by a mutation that is not inert (the stencil *centre* becoming
+its one-sided *edge*, killed by G5a and G5d).
+
+That is **the verification repository's 2026-10-01 rule arriving here for the
+first time**: *a constant that can be mutated with no observable effect is not
+a suite weakness.* The two repositories' methodological series have run
+separately since 08-21, and this is the first rule to cross between them. It
+crossed because the same reflex produced the same wrong filing in both, which
+is the best available evidence that these rules are about verification rather
+than about either subject matter.
+
+Sixth consecutive harness to improve the suite it was pointed at rather than
+bless it.
+
+### 6. A second finding, annotated in place
+
+`gfet.quantum_capacitance()` evaluates `C_Q` at the **gate overdrive** in the
+slot the dispersion wants `E_F/e`. At the RF bias: **2.057 V against
+0.0977 V, a ratio of 21.05.** So this repository's `C_q` overstates `C_Q` and
+would understate `kappa` by that factor. **No committed number is withdrawn**:
+`C_q` is used downstream only through `C_q/(C_q+C_ox)`, where `C_q >> C_ox`
+makes the factor ≈ 1 either way. Chapter 4 §4.6.5 carries the annotation
+beside §4.3's numbers rather than recomputing them, per the 10-02 rule.
+
+### 7. The RF consequence
+
+| quantity | λ = 0 | λ = 1 | change |
+|---|---|---|---|
+| `f_T` | 2.073963e+10 | 2.085305e+10 | +0.5469 % |
+| `f_max` | 1.416902e+10 | 1.421070e+10 | +0.2941 % |
+| `f_max/f_T` | 0.683186 | 0.681468 | **−0.2514 %** |
+| `g_ds` | 3.374491e-02 | 3.391519e-02 | +0.5046 % |
+
+`f_max` rises and the ratio **falls**. 10-06's finding in a **third**
+mechanism, and this time the two move in *opposite directions* rather than
+merely by different amounts. §7.8.1a's verdict survives: 52.42 % of 1.3 either
+way, so the term that was supposed to threaten the structural conclusion does
+not.
+
+### 8. Methodological note, continuing the series
+
+09-28: prose is a detector. 09-29: a mutation that does not arrive is
+indistinguishable from a system that does not respond. 09-30: a control has to
+sit where the failure enters. 10-01: and name what it compares against in a
+way that cannot drift. 10-02: when it agrees, that is a fact about two
+artefacts. 10-03: a PASS/FAIL at zero is silent about magnitude. 10-04: and a
+quantity can be computed correctly under the wrong name. 10-05: and a
+criterion with a number in it can be missed in a way that locates the real
+constraint. 10-06: and a criterion can be decided correctly on the quantity it
+names and still miss the finding, if that quantity is a ratio and the
+mechanism scales both its arguments. **10-07: AND AN ITEM CAN BE WELL-POSED,
+CORRECTLY MOTIVATED FROM THE LITERATURE AND BUILT EXACTLY AS WRITTEN, WHILE
+ITS PREMISE — THAT THE MODEL LACKS THE TERM — IS NOT A FACT ABOUT THE MODEL
+BUT AN ARTEFACT OF A VARIABLE WHOSE MEANING WAS NEVER FIXED.**
+
+The checkable rule: **before adding a term to a transport equation, ask what
+the potential in it is.** A drift expression in the quasi-Fermi potential and
+a drift-diffusion expression in the electrostatic potential are the *same
+equation*, and no amount of care about the term distinguishes them. The
+mechanisable form is new §7.9 item 10 — a census of every potential-like
+variable in this repository recording which potential it is. `V_ch` was the
+first one asked and the answer was "both".
+
+### 9. A near-miss in this session's own method, recorded because it is the genre
+
+An attempt to verify that `graphene_velocity_saturation_model.py` reproduces
+its committed transcript on the **device VM** was cut off by the device
+shell's 180 s ceiling at 175 s (exit 124). `diff -q` against the committed
+transcript then reported **no differences** — because the module writes its
+transcript only at the end, so the file still held the committed copy the
+timed-out run had never overwritten. **A diff against a file the run did not
+write is not a reproduction check**, and it was one command away from being
+logged as a PASS. This is 09-29's shape (a mutation that does not arrive looks
+like a system that does not respond) in the **verification of an environment**
+rather than of a model, and the defence is the same one: *the control has to
+sit where the failure enters* — delete the artefact first, then check that it
+was recreated.
+
+### 10. Environment: one standing constraint retired, a narrower one measured
+
+10-06 recorded as **standing** that this repository cannot execute on the
+device VM at all: it runs Python 3.10.12 and
+`graphene_velocity_saturation_model.py` raised `SyntaxError` because two table
+headers containing an apostrophe were written as PEP 701 nested same-quote
+f-strings (3.12+). The consequence recorded was two interpreters, two
+execution environments and a four-file bridge crossing that delivered one
+stale copy.
+
+**Retired today.** The two headers are bound to names and interpolated;
+`ast.parse` under 3.10 now accepts **every** `.py` file in the repository, and
+the whole of today's work — module, full-resolution transcript, figure and a
+nine-run mutation harness — ran **on the device VM**, in 14.5 s and 66 s
+respectively. Nothing crossed the bridge, so 10-06's stale-copy failure mode
+did not exist this session.
+
+**Verified output-neutral rather than asserted**, which is the right control
+for a string-formatting change: the patched module was run at full resolution
+on **Python 3.13.16** in the cloud container and
+`velocity_saturation_output.txt` came back **byte-identical** to the committed
+transcript. Cross-version byte-identity on 3.10 is **not** claimed — see §9
+for why the attempt does not support it.
+
+**The replacement constraint, measured.** `graphene_velocity_saturation_model.py`
+takes **2 m 11 s** in the cloud container and **more than 2 m 55 s** on the
+device VM, against a 180 s `device_bash` ceiling, and background processes do
+**not** survive a `device_bash` call (`nohup` and `setsid` were both tried and
+both were killed). So that one module's full transcript cannot be regenerated
+on the device VM in a single call. That is narrower than a `SyntaxError` — it
+affects one module rather than the repository — and the right response is to
+regenerate that transcript in the container when it is ever needed, not to
+move the repository back there.
+
+**Automation health.** Device reachable and folder connected at the **04:30**
+firing (04:57 UTC); Step 0 found neither repository carrying a 2026-10-07
+entry and no commits since midnight, so this was a full session. `pip install
+scipy` took **3 s** (10-06: 7.4 s; 10-05: unusable), so the network was
+healthy for the fourth session in five. **Live web search was available and
+used**; two of three literature fetches succeeded, and `link.springer.com`
+returned a **429 with an explicit do-not-retry** — a new refusal class, and
+publishers remain the fourth distinct refusal source. PubMed/PMC not
+attempted per the standing note, though one plausibly relevant PMC result was
+visible in search and is left for a session with another route to it.
+
+**Not yet covered (candidates for future runs):**
+
+- **NAME THE POTENTIAL IN EQ. (4)** — created today and **the new top item**,
+  and it replaces the diffusion item rather than following it. `V_ch` is
+  undetermined between the electrostatic and quasi-Fermi readings, which
+  differ by exactly the term built today, so every `I_d` in this repository
+  carries a ±0.50 % ambiguity that no further term can remove. The actionable
+  form: declare which potential `V_ch` is, consistently across
+  `carrier_density()`, the series factor and Eq. (4), and re-derive. Chapter 7
+  §7.9 item 7, rewritten.
+- **A CENSUS OF EVERY POTENTIAL-LIKE VARIABLE IN THIS REPOSITORY** — created
+  today, the mechanisable form of the item above, and §7.9 item 10. Nothing
+  has asked this of Chapter 5's interconnect channel potential, Chapter 6's
+  two-contact photodetector channel potential, or the local Dirac-point shift
+  in §4.4. One ask produced one "both"; the base rate is unknown.
+- **A SIGNED-CARRIER FET MODEL** — created today, §7.9 item 9. Today's
+  correction flips sign between branches because it follows `d|n|/dV` and
+  `carrier_density()` returns a magnitude, so **the hole-branch sign of every
+  branch-asymmetric Chapter 4 result is unverified.** This repository already
+  has a signed-carrier treatment for photodetectors and nothing equivalent for
+  the FET. This is also the strongest new datum on the open
+  peak-`f_T`-moves-branch question.
+- **WHETHER `n_puddle` REMOVES OTHER REGIMES, NOT ONLY THE
+  DIFFUSION-DOMINATED ONE** — created today, §7.9 item 11. The floor sets a
+  *derivative* exactly to zero, which deleted the near-Dirac regime two
+  independent literature sources point at. Which other near-Dirac results rest
+  on that derivative is not known. Sibling of the §4.9 item on whether
+  `n_puddle` reproduces §3.3's 6.45 kΩ/sq floor — created 09-29, **untouched
+  for nine sessions**, and today is the first session to give it a reason that
+  is not bookkeeping.
+- **MECHANISE the magnitude item** — created 10-03; worked examples on 10-04,
+  10-05, twice on 10-06 and **again today** (M4 was a pure-magnitude hole
+  killed by X5 alone, and G2's factor-of-3 band was blind to a 50 % change).
+  **Six modules, seven defects, same result.** 10-05 said one more worked
+  example was the last defensible answer; 10-06 called it overdue; today makes
+  it **two sessions overdue**. The mechanisable form is a repository-wide
+  census of every MUST_CHANGE recording its response size.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **widened today**: `f_max` rose while `f_max/f_T` fell, so the ratio and the
+  figure of merit moved in *opposite* directions for the third distinct
+  mechanism. The 10-06 instance was a magnitude mismatch; this one is a sign
+  mismatch, which is strictly worse and strictly easier to detect.
+- **A self-heating term** — created 10-06, unchanged. Feijoo *et al.* measure
+  65 → 40 GHz from self-heating alone, which bounds every absolute frequency
+  in Chapter 4 while leaving ratios between model runs much less exposed.
+  **Demoted below the naming item today**: a limitation to state rather than a
+  lever.
+- **Rewire `transfer_characteristic()` to the saturated form, or decide not
+  to** — created 10-05, deferred 10-06 pending the diffusion question.
+  **Still deferred, and for a firmer reason**: the question the deferral waited
+  on is now known not to be answerable by adding a term. It waits on the
+  naming item instead.
+- **Why does the peak-`f_T` bias MOVE BRANCH between the two models?** —
+  created 10-05, narrowed 10-06. Today adds a second datum: the diffusion
+  correction itself flips sign between the branches, so there are now two
+  independent branch asymmetries and one of them is known to be an artefact of
+  carrying `n` as a magnitude. **Narrowed again, not closed**, and now
+  coupled to item 9.
+- **A second anchor for `Delta_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, **untouched for seventeen
+  consecutive sessions**. Today was a device-physics session and again did not
+  touch it.
+- **Whether Chapter 4's `n_puddle` reproduces Section 3.3's 6.45 kΩ/sq floor**
+  — created 09-29, **untouched for nine sessions**, and now the sibling of a
+  live item rather than an isolated one.
+
+**Commits this run:** 5 (the portability fix retiring the device-VM
+constraint; the diffusion module with its transcript and figure; the mutation
+harness with its report and the two checks it forced; the session note;
+Chapter 4 §4.6.5 with Chapter 7 §7.8.1d and the §7.9 rewrite). This
+AUTOMATION_LOG.md entry makes **6**.
