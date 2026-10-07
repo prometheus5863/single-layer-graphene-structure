@@ -796,6 +796,65 @@ See `graphene_perfect_contact_counterfactual.py`,
 `perfect_contact_counterfactual_output.txt` and
 `notes/2026-10-06-the-perfect-contact-and-the-ratio-that-divided-out-the-prize.md`.
 
+#### 7.8.1d Annotation (2026-10-07): the diffusion term was built, and the item's premise did not survive it
+
+§7.9 item 7, created 2026-10-06 and named that session's top item, said that
+Eq. (4) is drift-only and that every `V_ds` ladder in §7.8.1b and §7.8.1c is
+therefore a drift-only slice. The term has been derived and built
+(§4.6.5, `graphene_diffusion_current_model.py`, 30 checks, 30 passed). Three
+parts of the item are now settled and they do not settle the same way.
+
+**It is worth ±0.50 % of `I_d`, and the sign flips between branches.**
++0.5018 % at the saturated-peak bias and −0.5038 % at the resistor-peak bias.
+`f_max` gains +0.2941 % while `f_max/f_T` *falls* 0.2514 %, from 0.683186 to
+0.681468. §7.8.1a's structural verdict is untouched — 52.42 % of 1.3 either
+way — and the ratio moving against `f_max` is §7.8.1c's finding in a third
+mechanism.
+
+**The premise is the part that moved.** Pasadas and Jiménez
+(*IEEE TED* 2016, [arXiv:1605.08235](https://arxiv.org/pdf/1605.08235)), from
+the same group as the Feijoo *et al.* paper that created this item, write the
+GFET channel current as `I = −W Q_tot v` with `v = μF`, `F = −dV/dx`, and
+state explicitly that **"V(x) is the quasi-Fermi level along the graphene
+channel"**. A drift expression whose driving potential is the quasi-Fermi
+level is *already* the complete drift-diffusion current. Under that reading,
+the term added in §4.6.5 is a double count, not missing physics.
+
+`carrier_density(V_g, V_ch)` contains evidence for both readings and settles
+neither. `V_ch` enters an electrostatic charge relation
+`C_ox(V_g − V_ch − V_dirac)`, which reads electrostatic; it is then corrected
+by a quantum-capacitance series factor, which is exactly what one applies when
+`V_ch` is the quasi-Fermi level and the graphene drop `E_F/e` is a separate
+voltage. **The two readings differ by exactly `λV_F`** — the term itself. So
+±0.50 % is simultaneously the diffusion current under one reading and the size
+of an ambiguity that was already present in every `I_d` this thesis has
+committed.
+
+This is §7.5's recurring class in a new location. 2026-10-04 recorded that a
+quantity can be computed correctly under a name that claims more than it
+measures; here the name is a **variable**, and what it fails to pin down is
+which of two potentials it is. No value is wrong. The equation is not
+determined.
+
+**What this changes in this chapter.** The claim that §7.8.1b's and §7.8.1c's
+ladders are *drift-only* slices is withdrawn: they are slices of a model whose
+driving potential was never named, bounded at ±0.50 %. The repair is not the
+one item 7 asked for — **it is to name the potential, not to add a term** —
+and the recommendation is to declare `V_ch` the quasi-Fermi potential, keep
+`λ = 0` as the production path, and keep §4.6.5 as the bound on the choice.
+
+**And item 7's other claim is upheld for a different reason.** The
+peak-`f_max` bias remains a bias this thesis cannot be asked about. Not for
+the missing term: §4.6.5 shows the diffusion-dominated region near charge
+neutrality is *absent* from this model, because the `n_puddle` regularisation
+makes `d|n|/dV` exactly zero where Zebrev's `C_ox/C_Q` diverges. A
+regularisation chosen to keep the conductivity minimum finite removed the one
+regime the literature says matters, and no amount of care about the transport
+term recovers it.
+
+See §4.6.5 and
+`notes/2026-10-07-the-diffusion-term-was-a-boundary-term-and-the-potential-was-never-named.md`.
+
 ### 7.8.2 Contacts: the real near-term contribution, and a negative result worth having
 
 Contact resistance is the binding constraint on every graphene device in this
@@ -918,18 +977,42 @@ Stated as falsifiable items, in order of how much they would move:
 5. **Asking the differential question of Chapter 5** (§7.3's prediction).
 6. **Re-running Chapter 4's contact-resistance results at the 5.4 eV
    crossover** rather than at graphene's 4.5 eV, for consistency with Chapter 6.
-7. **A diffusion term in the saturated transport model** (added 2026-10-06,
-   §7.8.1c). Feijoo *et al.* (Nanoscale Adv. **2**, 2020) measure the diffusion
-   contribution as comparable to drift at the bias where `f_max` peaks, in
-   devices operating at ~45 % of `v_sat`. Equation (4) of this thesis's
-   saturated model is drift-only. Every `V_ds` ladder in §7.8.1b and §7.8.1c is
-   therefore a drift-only slice, and this is the one item that would let the RF
-   thread say anything about a real device rather than about this model. It
-   displaces velocity saturation as the RF thread's binding question.
+7. **Naming the potential in Eq. (4)** (rewritten 2026-10-07; was *a
+   diffusion term in the saturated transport model*, added 2026-10-06 and
+   closed by §7.8.1d). The term was built and is worth ±0.50 % of `I_d`. What
+   it revealed is that the item was not about a missing term: Eq. (4)'s
+   driving potential is undetermined between the electrostatic and quasi-Fermi
+   readings, and the two differ by exactly the term. **The actionable item is
+   to declare which potential `V_ch` is**, consistently across
+   `carrier_density()`, the series factor and Eq. (4), and then re-derive.
+   This is now the RF thread's binding question, ahead of self-heating.
 8. **A self-heating term.** The same paper measures 65 → 40 GHz in `f_max` from
    self-heating alone. This bounds every absolute frequency in Chapter 4; the
    *ratios* between model runs, which is what §7.8.1c reports, are much less
    exposed.
+9. **A signed-carrier FET model** (added 2026-10-07). §4.6.5's diffusion
+   correction flips sign between the electron and hole branches because it
+   follows `d|n|/dV` and `carrier_density()` returns a magnitude. This thesis
+   has a signed-carrier treatment for photodetectors
+   (`graphene_photodetector_signed_carrier_model.py`) and nothing equivalent
+   for the FET, so the hole-branch **sign** of every branch-asymmetric result
+   in Chapter 4 is unverified. This also bears on the open question of why the
+   peak-`f_T` bias moves branch between the two transport models.
+10. **A census of every potential-like variable in this thesis, recording
+   which potential it is** (added 2026-10-07). The mechanisable form of item 7.
+   `V_ch` was the first one asked and the answer was "both"; nothing has asked
+   of `V_ch` in Chapter 5's interconnect model, of the channel potential in
+   Chapter 6's two-contact photodetector model, or of the local Dirac-point
+   shift used in §4.4.
+11. **Whether the `n_puddle` regularisation removes other regimes, not only
+   the diffusion-dominated one** (added 2026-10-07). §4.6.5 found that
+   `d|n|/dV` is *exactly* zero at `n_eff = 0`, which deletes the
+   charge-neutrality physics that Zebrev's `C_ox/C_Q` and Feijoo *et al.*'s
+   peak-`f_max` bias both live in. A floor added to keep one quantity finite
+   silenced a different one. Which other near-Dirac results in Chapters 4
+   and 6 rest on a derivative the floor has set to zero is not known, and this
+   is a sibling of the §4.9 item on whether `n_puddle` reproduces §3.3's
+   6.45 kΩ/sq floor — open since 2026-09-29 and untouched for nine sessions.
 
 ---
 

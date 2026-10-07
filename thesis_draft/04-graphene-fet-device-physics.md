@@ -700,6 +700,134 @@ See `graphene_perfect_contact_counterfactual.py`,
 `perfect_contact_counterfactual_output.txt` and
 `notes/2026-10-06-the-perfect-contact-and-the-ratio-that-divided-out-the-prize.md`.
 
+### 4.6.5 The diffusion term: a boundary term worth ±0.5 %, and a potential this chapter never named
+
+§4.6.4 closed by naming the absence of a diffusion term in Eq. (4) as the RF
+thread's binding question, on the strength of Feijoo *et al.*'s measurement
+that diffusion is comparable to drift at the peak-`f_max` bias. The term has
+now been derived and built (`graphene_diffusion_current_model.py`,
+**30 checks, 30 passed**), and the result divides into three parts that do not
+agree with each other.
+
+**The derivation, and the `beta = 1` separability it preserves.** Zebrev's
+generalised Einstein relation ([arXiv:1102.2348](https://arxiv.org/pdf/1102.2348),
+Eq. 20) is `mu = e D/eps_D` with `eps_D = n/(dn/dmu_c)`, and graphene's linear
+dispersion gives `eps_D = E_F/2` exactly in the degenerate limit, so
+`D = mu E_F/(2e)`. Writing `V_F(n) = E_F/e = A_F sqrt(n)` with
+`A_F = hbar v_F sqrt(pi)/e` — this thesis's own Dirac dispersion, with no new
+parameter — the diffusion term collapses exactly:
+
+```
+    D dn/dx = mu n dV_F/dx
+    I_d = W e mu n d(V - lambda V_F)/dx                                  (10)
+```
+
+so the drift-diffusion current is transport down the gradient of the
+quasi-Fermi potential `Phi = V - V_F`, and the separability that makes Eq. (4)
+closed-form survives intact:
+
+```
+    I_d = mu W e Q_D / (L + mu S_D)
+    Q_D = Q + lambda (A_F/3) (n_s^{3/2} - n_d^{3/2})                     (11)
+    S_D = S + int kappa(V)/v_sat(V) dV,     kappa = -lambda dV_F/dV      (12)
+```
+
+`lambda = 0` recovers Eq. (4) **bitwise** (check X1, 0.0 ULP at twelve
+(`V_g`, `V_ds`) points), which is the overlapping-limit requirement of
+§4.6.3's criterion C in its strongest available form.
+
+**Eq. (11) is a boundary term, and that matters more than its size.**
+`int n dV_F = A_F int n d(sqrt n) = (A_F/3)[n^{3/2}]` is an exact
+antiderivative, so the diffusion contribution to the channel integral depends
+only on the **source and drain densities** and not at all on the density
+profile between them. §4.6.3's criterion C found that this chapter's
+profile-domain handling carried a one-signed error 674× larger than the Jensen
+gap it was written to look for; the diffusion term **cannot inherit that
+error**. Check X6a asserts this structurally rather than arguing it — a
+deliberately lopsided interior quadrature grid with the same endpoints leaves
+the term bitwise unchanged — and X6c is the contrast, the quadrature route to
+the same number moving by 0.4 % on the same regridding.
+
+**The size, at this chapter's own biases, `V_ds = 0.1 V`:**
+
+| bias | `I_d` (λ = 0) [A] | `I_d` (λ = 1) [A] | share | `Q_d/Q` |
+|---|---|---|---|---|
+| saturated-peak, `V_g = +2.857143 V` | 9.007791e-05 | 9.052996e-05 | **+0.5018 %** | +1.1621 % |
+| resistor-peak, `V_g = −1.112782 V` | 8.910103e-05 | 8.865209e-05 | **−0.5038 %** | −1.1546 % |
+
+**The correction is signed and its sign flips between branches.** It follows
+`d|n|/dV`, and `carrier_density()` returns a magnitude
+(`sqrt(n_eff² + n_puddle²)`), so on the hole branch `|n|` rises toward the
+drain and the term subtracts. A model that has discarded the sign of the
+carrier cannot settle whether that is the correct physical sign for holes;
+this is recorded as an open item (§7.9 item 9) and not as a result. The share
+of `I_d` is about half of `Q_d/Q` because `S_d > 0`: Eq. (12) **opposes**
+Eq. (11), with `S_d/S = +1.1621 %`.
+
+**The RF consequence.** At the literature 40 µm / 8-finger geometry:
+
+| quantity | λ = 0 | λ = 1 | change |
+|---|---|---|---|
+| `f_T` | 2.073963e+10 | 2.085305e+10 | +0.5469 % |
+| `f_max` | 1.416902e+10 | 1.421070e+10 | +0.2941 % |
+| `f_max/f_T` | 0.683186 | 0.681468 | **−0.2514 %** |
+| `g_ds` | 3.374491e-02 | 3.391519e-02 | +0.5046 % |
+
+`f_max` rises while the ratio **falls** — §4.6.4's ratio finding in a third
+mechanism, and this time the two move in opposite directions rather than
+merely by different amounts. §7.8.1a's verdict is unaffected: 0.681468 is
+52.42 % of 1.3 either way.
+
+#### A prediction written down first, and refuted — with its mechanism measured
+
+Zebrev's closed form for the local ratio, `kappa = C_ox/(C_Q + C_it)`
+(his Eq. 62), **diverges** as `C_Q → 0` at charge neutrality, and Feijoo
+*et al.* put the peak-`f_max` bias near the onset of bipolar conduction. Both
+predict the diffusion share **peaks at the Dirac point**, and that prediction
+was written into the module before its sweep was run.
+
+Measured: the share **collapses** there — `−0.006925 %` at the nearest grid
+point to the Dirac point against `0.5053 %` at the maximum, a factor of 73,
+with the maximum two volts away at `V_g = −1.272 V`. The mechanism is this
+chapter's own regularisation, measured rather than argued:
+`n = sqrt(n_eff² + n_puddle²)` makes `d|n|/dV = (n_eff/n) dn_eff/dV`
+**exactly 0.0** at `n_eff = 0`, while `C_Q` stays finite at `n_puddle`
+(G4b: `0.000000e+00` against `−2.290589e+15 m⁻²/V` unfloored). **The puddle
+floor flattens precisely the region where the capacitor ratio diverges.** The
+diffusion-dominated regime is not small in this model — it is absent, and that
+is a statement about the regularisation rather than about graphene. §4.6.4 was
+right that the peak-`f_max` bias cannot be asked about; the reason is the
+puddle floor, not the missing term, and it does not go away by adding terms.
+
+#### Annotation (2026-10-07): §4.3's `C_q` is evaluated at the gate overdrive, not at `E_F/e`
+
+`quantum_capacitance()` takes `(V_g − V_ch − V_dirac)` in the slot the
+dispersion wants `E_F/e = V_F`. At the RF bias those are **2.057 V and
+0.0977 V**, a ratio of **21.05**, so this chapter's `C_q` overstates the
+dispersion-consistent `C_Q = (2e³/πℏ²v_F²)V_F` by that factor and would
+understate `kappa` by it. §4.6.5's comparison with Zebrev therefore uses the
+dispersion-consistent form. **No number in this chapter is withdrawn**: `C_q`
+is used downstream only through the series factor `C_q/(C_q + C_ox)`, where
+`C_q ≫ C_ox` makes the factor close to unity under either evaluation. The
+figures and tables of §4.3 are annotated here rather than recomputed, per the
+2026-10-02 rule that a changed rule makes derived numbers stale until
+deliberately re-derived.
+
+#### What this section does not claim
+
+It does not claim that Eq. (4) was missing this term. §7.8.1d sets out why
+that question is not decided by the measurement above: the standard GFET
+compact model this chapter's Eq. (4) descends from writes its drift expression
+in the **quasi-Fermi** potential, under which Eq. (4) is already a complete
+drift-diffusion current and `lambda = 1` double-counts. `lambda = 1` is
+therefore **not** wired into any other module of this thesis, and the
+production path remains `lambda = 0` with ±0.50 % as a stated bound.
+
+See `graphene_diffusion_current_model.py`, `graphene_diffusion_mutation.py`,
+`diffusion_current_model.png`, `diffusion_current_output.txt`,
+`diffusion_mutation_output.txt` and
+`notes/2026-10-07-the-diffusion-term-was-a-boundary-term-and-the-potential-was-never-named.md`.
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent
