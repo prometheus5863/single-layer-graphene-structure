@@ -40,6 +40,13 @@ SECTION 1.  The exactness battery
      1.00  +0.800000     0.99353377   -0.000022
      1.00  +2.857143     1.00980497    0.011696
   [PASS] X8   1 + kappa > 0 at every bias on the ladder  -- smallest value 0.98781060
+  lambda enters in TWO places, Eq. (11) and Eq. (12).  At the saturated-peak
+  bias, V_ds = 0.1 V, the Eq. (12) half is worth:
+    S   = 1.525889660e-07 V.s/m    S_d = 1.773229553e-09 V.s/m    S_d/S = +1.162096 %
+    dropping S_d moves I_d by +0.271722 %, which is the size of the half-arrival M2 injects
+  [PASS] X9a  the Eq. (12) diffusion term is non-zero at lambda = 1 and exactly zero at lambda = 0 -- both halves of lambda ARRIVE  -- S_d = 1.773229553e-09 at lambda = 1, np.float64(0.0) at lambda = 0
+  [PASS] X9b  and dropping it is OBSERVABLE in I_d, so a half-arrived lambda cannot pass unnoticed  -- +0.271722 %
+  [PASS] X9c  S_d > 0 on the electron branch, so Eq. (12) OPPOSES Eq. (11): the two halves of the diffusion term pull in opposite directions, which is why the share of I_d is smaller than Qd/Q  -- S_d/S = +1.162096 %
 
 ==============================================================================
 SECTION 2.  How big is it, and does Zebrev's closed form agree
@@ -131,6 +138,7 @@ SECTION 4.  The RF consequence, against 2026-10-06's committed numbers
   committed 2026-10-06 value on the 400-point grid: 0.683186
   this stencil, lambda = 0:                         0.683186
   stencil-vs-grid offset:                           -0.0000 %
+  [PASS] G5d  and the stencil REPRODUCES the committed 2026-10-06 f_max/f_T to the 6 figures it was committed at, so the stencil IS the committed estimator rather than merely self-consistent  -- |0.683185899 - 0.683186| = 1.010e-07
 
   What diffusion does to the three quantities Chapter 4 is measured on:
         fT:  2.073963e+10 ->  2.085305e+10    +0.5469 %
@@ -185,7 +193,7 @@ SECTION 7.  Figure
   wrote diffusion_current_model.png
 
 ==============================================================================
-RESULT: 187 lines, 26 passed, 0 failed
+RESULT: 195 lines, 30 passed, 0 failed
 ==============================================================================
   diffusion share at the RF bias : +0.5018 % of I_d
   largest |share| over the sweep : 0.5053 % at V_g = -1.2720 V (signed: -0.5053 %)

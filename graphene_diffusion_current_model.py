@@ -147,6 +147,22 @@ and magnitude-form reporting per the standing top methodological item:
   G6  CONTROL: the lambda response and the mu response are NOT aliased
   G7  CONTROL: vsat and the resistor model are unchanged by this module
 
+TWO CHECKS ADDED BY THIS MODULE'S OWN MUTATION HARNESS (2026-10-07), which
+is the sixth consecutive harness in this repository to improve the suite it
+was pointed at rather than bless it:
+
+  X9  lambda enters in TWO places, Eq. (11) and Eq. (12).  The harness's M2
+      arrives at only the first, and on its first run was killed only by G5c
+      -- a check written for something else.  X9a/b/c give Eq. (12) its own
+      detector with a magnitude.  X9c reports a fact nothing had noticed:
+      S_d > 0 on the electron branch, so the two halves of the diffusion
+      term pull in OPPOSITE directions, which is why the share of I_d
+      (+0.50 %) is about half of Qd/Q (+1.16 %).
+  G5d the stencil is pinned against the COMMITTED 0.683186 rather than only
+      against vsat on the same stencil.  The harness's M7 changed the
+      stencil spacing and G5a could not see it, because G5a moves with it.
+      M7 SURVIVED the harness's first run; G5d is why it does not now.
+
 Run:  python3 graphene_diffusion_current_model.py
 Writes: diffusion_current_model.png, diffusion_current_output.txt
 """
@@ -508,6 +524,38 @@ def main():
           "1 + kappa > 0 at every bias on the ladder",
           f"smallest value {worst_opk:.8f}")
 
+    # --- X9: the OTHER place lambda enters.  Added 2026-10-07 in response
+    # to this module's own mutation harness, whose M2 (lambda reaches Q_D but
+    # not S_D) was killed only by G5c -- a check written for something else.
+    # 2026-10-06's coherence trap is exactly this shape, so S_D gets its own
+    # detector with a magnitude rather than an incidental one.
+    dref = _dd_integrals(VG_SAT_PEAK, VDS_REF, lam=1.0)
+    d0 = _dd_integrals(VG_SAT_PEAK, VDS_REF, lam=0.0)
+    Id_both, _ = _Id_given_Vds_ch(VG_SAT_PEAK, VDS_REF, lam=1.0)
+    denom_noSd = gfet.L + gfet.mu * dref["S"]
+    Id_noSd = gfet.mu * gfet.W * E_CHARGE * (dref["Q"] + dref["Qd"]) / denom_noSd
+    say("  lambda enters in TWO places, Eq. (11) and Eq. (12).  At the "
+        "saturated-peak")
+    say(f"  bias, V_ds = {VDS_REF} V, the Eq. (12) half is worth:")
+    say(f"    S   = {dref['S']:.9e} V.s/m    S_d = {dref['Sd']:.9e} V.s/m"
+        f"    S_d/S = {dref['Sd'] / dref['S'] * 100:+.6f} %")
+    say(f"    dropping S_d moves I_d by "
+        f"{(Id_noSd / Id_both - 1) * 100:+.6f} %, which is the size of the "
+        f"half-arrival M2 injects")
+    check("X9a", dref["Sd"] != 0.0 and d0["Sd"] == 0.0,
+          "the Eq. (12) diffusion term is non-zero at lambda = 1 and exactly "
+          "zero at lambda = 0 -- both halves of lambda ARRIVE",
+          f"S_d = {dref['Sd']:.9e} at lambda = 1, {d0['Sd']!r} at lambda = 0")
+    check("X9b", abs(Id_noSd / Id_both - 1) > 1e-9,
+          "and dropping it is OBSERVABLE in I_d, so a half-arrived lambda "
+          "cannot pass unnoticed",
+          f"{(Id_noSd / Id_both - 1) * 100:+.6f} %")
+    check("X9c", dref["Sd"] > 0.0,
+          "S_d > 0 on the electron branch, so Eq. (12) OPPOSES Eq. (11): the "
+          "two halves of the diffusion term pull in opposite directions, "
+          "which is why the share of I_d is smaller than Qd/Q",
+          f"S_d/S = {dref['Sd'] / dref['S'] * 100:+.6f} %")
+
     say()
     say("=" * 78)
     say("SECTION 2.  How big is it, and does Zebrev's closed form agree")
@@ -711,6 +759,22 @@ def main():
         f"{rf_res[('saturated-peak', 0.0)]['ratio']:.6f}")
     say(f"  stencil-vs-grid offset:                           "
         f"{(rf_res[('saturated-peak', 0.0)]['ratio'] / 0.683186 - 1) * 100:+.4f} %")
+
+    # Added 2026-10-07 in response to this module's own mutation harness,
+    # whose M7 (the stencil stops using the committed gate-grid spacing)
+    # SURVIVED: G5a compares lambda = 0 against vsat on the SAME stencil, so
+    # both move together and the comparison against the committed estimator
+    # was printed but never asserted.  2026-10-06's M5 is the same fault --
+    # a quantity nothing in the battery read -- and this is its repair here.
+    COMMITTED_RATIO_2026_10_06 = 0.683186
+    off = abs(rf_res[("saturated-peak", 0.0)]["ratio"]
+              - COMMITTED_RATIO_2026_10_06)
+    check("G5d", off < 5e-7,
+          "and the stencil REPRODUCES the committed 2026-10-06 f_max/f_T to "
+          "the 6 figures it was committed at, so the stencil IS the committed "
+          "estimator rather than merely self-consistent",
+          f"|{rf_res[('saturated-peak', 0.0)]['ratio']:.9f} - "
+          f"{COMMITTED_RATIO_2026_10_06}| = {off:.3e}")
 
     r0 = rf_res[("saturated-peak", 0.0)]
     r1 = rf_res[("saturated-peak", 1.0)]

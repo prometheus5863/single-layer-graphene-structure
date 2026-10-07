@@ -1,0 +1,56 @@
+mutation report: graphene_diffusion_current_model.py
+==============================================================================
+  every run below uses DIFF_FAST=1 (gate grid 60 pts instead of 240).
+  Only Section 3's sweep uses that grid; every number the module's
+  findings rest on is at a FIXED bias, so control A at fast
+  resolution is the same claim as at full resolution.
+  [PASS] CONTROL A  the unmutated battery is green  -- exit 0, 0 failed checks
+
+  tag  verdict    killed by                         description
+  ----------------------------------------------------------------------------------------------------
+  M1   KILLED     G1a,G1b,G4a                       ARRIVAL: lambda never reaches the channel integrals
+  M2   KILLED     X9b,G5c                           HALF-ARRIVAL: lambda reaches Q_D but NOT S_D (the 10-06 coherence trap)
+  M3   KILLED     X5,X9c,G2,G5c                     SIGN: kappa = -lambda*dV_F/dV becomes +lambda*dV_F/dV
+  M4   KILLED     X5                                MAGNITUDE ONLY: the boundary term's A_F/3 becomes A_F/2 (+50 %)
+  M5   KILLED     X6b,X6c                           CONTROL-OF-THE-CONTROL: X6's lopsided grid becomes the uniform one
+  M6   KILLED     X5,X6a                            THE STRUCTURAL CLAIM: the boundary term is replaced by the quadrature route to the same number
+  M7   KILLED     G5a,G5d                           the stencil CENTRE becomes its EDGE, where np.gradient is one-sided (the 10-06 M5 fault directly)
+  C    SURVIVED   -                                 CONTROL C: the stencil spacing 6/399 -> 6/400.  MEASURED effect on f_max/f_T: -6.560e-11 relative, eleven orders below the committed 6 figures -- INERT, not a suite weakness
+  B    SURVIVED   -                                 CONTROL B: n**1.5 written as n*sqrt(n) (algebraically identical, different code)
+
+==============================================================================
+  7 of 7 mutants killed; control A green; control B survived as required
+
+  WHAT TO READ IN THE KILLER COLUMN.  Each mutant should be killed
+  by a DIFFERENT check, and three of them by exactly one check:
+    M4 by X5 ALONE, because X5 is the only check that compares the
+       boundary term's VALUE against an independent computation.
+       G2's band is a factor of 3 wide and a 50 % change fits inside
+       it, which is the 2026-10-03 magnitude shape again: a check
+       stated as a band is blind to changes smaller than the band.
+    M5 by X6b ALONE, because X6b is the only check that tests
+       whether X6a's regridding regrids anything.
+    M6 by X6a ALONE, because X6a is the only check that reads the
+       STRUCTURE of the term rather than its value -- the
+       quadrature route agrees with the closed form to <0.1 %, so
+       every magnitude check in the battery passes on M6.
+    M7 by G5d ALONE, because G5a compares lambda = 0 against vsat
+       on the SAME stencil and both move together.  G5d, which pins
+       the stencil against the COMMITTED 0.683186, was added after
+       this harness's first run and is the only check that can see a
+       stencil change at all.
+
+  CONTROL C IS THE OTHER HALF OF THAT STORY.  The first run carried
+  the stencil SPACING 6/399 -> 6/400 as a mutant and it survived.
+  Measured before being filed as a hole: -6.560e-11 relative in
+  f_max/f_T, against a value committed to 6 figures.  A central
+  difference is O(h^2) accurate precisely so that it does not depend
+  on h, so the mutant is INERT and a check sensitive to it would be
+  a check on an artefact.  It is control C now, and it is the
+  verification repository's 2026-10-01 rule -- a constant that can be
+  mutated with no observable effect is not a suite weakness --
+  crossing into this repository for the first time.
+
+==============================================================================
+  RESULT: 7 of 7 killed, control A green, control B survived, 0 anomalies
+==============================================================================
