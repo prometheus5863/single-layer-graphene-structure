@@ -577,8 +577,14 @@ def main():
     say("  A -> B  isolates the QUADRATURE RULE")
     say("  B -> B' isolates the PROFILE DOMAIN (what the contacts drop)")
     say("  B' -> C isolates the JENSEN gap (<1/n> vs 1/<n>)")
-    say(f"  {'V_ds':>7} {'B/A-1 [%]':>12} {"B'/B-1 [%]":>12} "
-        f"{"C/B'-1 [%]":>12} {'C/A-1 [%]':>12}")
+    # PEP 701 nested same-quote f-strings are 3.12+; these two headers carry
+    # an apostrophe, so they are bound to names instead of inlined.  The
+    # rendered text is unchanged -- verified byte-for-byte against the
+    # committed transcript on 3.13 (2026-10-07).
+    hdr_bb = "B'/B-1 [%]"
+    hdr_cb = "C/B'-1 [%]"
+    say(f"  {'V_ds':>7} {'B/A-1 [%]':>12} {hdr_bb:>12} "
+        f"{hdr_cb:>12} {'C/A-1 [%]':>12}")
 
     def _R_harmonic(V_g, V_hi, n_quad=N_QUAD):
         """(L/W)/sigma averaged harmonically over the potential range
