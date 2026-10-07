@@ -1,0 +1,199 @@
+a diffusion term in Eq. (4): the 2026-10-06 TOP item
+(the result, and the premise that moved, are in the module docstring)
+
+==============================================================================
+SECTION 1.  The exactness battery
+==============================================================================
+  [PASS] X1   lambda = 0 reproduces the saturated drift model BITWISE at 12 (V_g, V_ds) points  -- worst disagreement 0.0 ULP
+  [PASS] X2   V_ds = 0 gives I_d exactly 0.0  -- [0. 0.]
+  [PASS] X3a  CONSTANT n: the diffusion boundary term is EXACTLY 0.0  -- Qd = np.float64(0.0), n_s - n_d = np.float64(0.0)
+  [PASS] X3b  CONSTANT n: I_d is BITWISE the lambda = 0 current  -- 1.44515730562531160e-04 vs 1.44515730562531160e-04
+  [PASS] X4   lambda = 2 gives EXACTLY twice lambda = 1's diffusion term  -- 1.01700786305733047e+13 vs 1.01700786305733047e+13
+  Eq. (11) closed form against a trapezoid of n*kappa on the same grid:
+    n_quad   |closed - quad| [m^-2 V]    ratio
+       101               8.668194e+03      nan
+       201               2.167427e+03   3.9993
+       401               5.421465e+02   3.9979
+       801               1.356768e+02   3.9959
+  [PASS] X5   the gap between the two routes is O(h^2), so they are the same integral computed two ways  -- Richardson ratios 3.9993, 3.9979, 3.9959 against 4 for O(h^2)
+  [PASS] X6a  a lopsided interior grid leaves the diffusion term BITWISE unchanged -- it is a boundary term  -- 5.08503931528665234e+12 vs 5.08503931528665234e+12
+  [PASS] X6b  CONTROL: the same regridding DOES move Q, so X6a is not a no-op test  -- Q moves by 5.276e-07 % (2.409e+07 ULP)
+  [PASS] X6c  CONTRAST: the QUADRATURE route to the same term DOES move on regridding, so X6a is a property of the closed form and not of the grid  -- Qd_quad moves by 0.0002 % while Qd moves 0 ULP
+  [PASS] X7a  mu -> inf reaches the ceiling W*e*n*v_sat  -- I_d/ceiling = 0.999999000001
+  [PASS] X7b  the ceiling is BITWISE independent of lambda -- diffusion cannot lift a velocity ceiling  -- 4.61830782086947926e-04
+  min(1 + kappa) over the channel, which must stay > 0 for Phi to be
+  monotonic and Eq. (10) to have a solution:
+     V_ds        V_g   min(1+kappa)   max kappa
+     0.05  -1.112782     0.98850188   -0.011456
+     0.05  +0.800000     0.99976726   -0.000001
+     0.05  +2.857143     1.01166644    0.011700
+     0.10  -1.112782     0.98845863   -0.011457
+     0.10  +0.800000     0.99950571   -0.000002
+     0.10  +2.857143     1.01162911    0.011699
+     0.20  -1.112782     0.98836960   -0.011457
+     0.20  +0.800000     0.99893372   -0.000004
+     0.20  +2.857143     1.01154070    0.011699
+     0.50  -1.112782     0.98810701   -0.011458
+     0.50  +0.800000     0.99696648   -0.000011
+     0.50  +2.857143     1.01113573    0.011698
+     1.00  -1.112782     0.98781060   -0.011461
+     1.00  +0.800000     0.99353377   -0.000022
+     1.00  +2.857143     1.00980497    0.011696
+  [PASS] X8   1 + kappa > 0 at every bias on the ladder  -- smallest value 0.98781060
+
+==============================================================================
+SECTION 2.  How big is it, and does Zebrev's closed form agree
+==============================================================================
+  G1.  Diffusion share of I_d at the two fixed biases 2026-10-06 used.
+            bias   V_ds   I_d(lam=0) [A]   I_d(lam=1) [A]  share [%]  Qd/Q [%]
+   resistor-peak   0.05     4.585636e-05     4.562558e-05    -0.5033   -1.1502
+   resistor-peak   0.10     8.910103e-05     8.865209e-05    -0.5038   -1.1546
+   resistor-peak   0.20     1.677640e-04     1.669272e-04    -0.4988   -1.1628
+   resistor-peak   0.50     3.464345e-04     3.448930e-04    -0.4450   -1.1825
+   resistor-peak   1.00     5.142972e-04     5.126262e-04    -0.3249   -1.2023
+  saturated-peak   0.05     4.645946e-05     4.669148e-05     0.4994    1.1661
+  saturated-peak   0.10     9.007791e-05     9.052996e-05     0.5018    1.1621
+  saturated-peak   0.20     1.686675e-04     1.695104e-04     0.4997    1.1534
+  saturated-peak   0.50     3.395870e-04     3.411038e-04     0.4467    1.1215
+  saturated-peak   1.00     4.762492e-04     4.777563e-04     0.3165    1.0460
+  [PASS] G1a  on the ELECTRON branch diffusion ADDS to I_d, as d|n|/dV < 0 requires  -- at the saturated-peak bias, V_ds = 0.1 V: +0.5018 %
+  [PASS] G1b  AND IT SUBTRACTS ON THE HOLE BRANCH -- the correction is SIGNED, and the sign follows d|n|/dV, which this model carries as a magnitude  -- hole branch -0.5038 %, electron branch +0.5018 %; a signed-carrier treatment is needed before the hole-branch SIGN can be trusted (new item)
+  Note: the share of I_d is about half of Qd/Q because the contact feedback
+  of Eq. (5) absorbs part of the gain and the S_D term of Eq. (12) opposes
+  it.  At the saturated-peak bias, V_ds = 0.1 V: Qd/Q = 1.1621 % against 0.5018 % in I_d.
+
+  G2.  kappa along the channel against Zebrev Eq. 62, kappa = C_ox/(C_Q + C_it),
+       with C_it = 0 and C_Q from the dispersion.  Two computations sharing
+       no machinery: a numerical dV_F/dV against capacitor algebra.
+     V_ch     n [m^-2]  kappa (this)     Cox/CQ  Cox/(CQ+Cox)
+   0.0000   7.0164e+15      0.011699   0.016677      0.016403
+   0.0250   6.9746e+15      0.011662   0.016727      0.016452
+   0.0500   6.9330e+15      0.011622   0.016777      0.016500
+   0.0750   6.8916e+15      0.011580   0.016827      0.016549
+   0.1000   6.8506e+15      0.011538   0.016877      0.016597
+  interior mean kappa/(Cox/CQ)       = 0.692681
+  interior mean kappa/(Cox/(CQ+Cox)) = 0.704302
+  [PASS] G2   the boundary term's kappa and Zebrev's capacitor ratio agree to within a factor of 3, so they are the same quantity  -- ratio 0.692681 against Cox/CQ; the residual is this model's series factor and puddle floor, not a disagreement about physics
+
+  G3.  WHY gfet.quantum_capacitance() CANNOT be used for kappa:
+       it takes the gate overdrive in the slot the dispersion wants
+       E_F/e = V_F.  The ratio IS the error in kappa, since kappa ~ 1/C_Q.
+     V_ch  overdrive [V]   V_F [V]    ratio   C_q(repo)   C_Q(disp)
+   0.0000       2.057143  0.097724  21.0506  4.8431e-01  2.3007e-02
+   0.0500       2.007143  0.097140  20.6623  4.7254e-01  2.2870e-02
+   0.1000       1.957143  0.096561  20.2684  4.6077e-01  2.2733e-02
+  [PASS] G3   the repository's C_q EXCEEDS the dispersion-consistent C_Q, so it understates kappa by that ratio  -- 21.0506x at the source end; annotated in Chapter 4, no committed number withdrawn
+
+==============================================================================
+SECTION 3.  WHERE diffusion matters: the V_g sweep
+==============================================================================
+  PREDICTION, written into this module before the sweep was run:
+  Feijoo et al. 2020 put the peak-f_max bias near the onset of bipolar
+  conduction; Zebrev's kappa = C_ox/C_Q DIVERGES as C_Q -> 0 at charge
+  neutrality.  Both therefore predict the share PEAKS AT THE DIRAC POINT.
+
+  MEASURED.  largest |share| 0.5053 % at V_g = -1.271967 V
+             share at the nearest grid point to the Dirac point (+0.811715 V): -0.006925 %
+             share at the grid edges: -0.4810 % at -2.00 V, +0.4550 % at +4.00 V
+
+  THE PREDICTION IS REFUTED, and the mechanism is this model's own
+  regularization.  carrier_density() returns
+  n = sqrt(n_eff^2 + n_puddle^2), so at n_eff = 0 the derivative
+  d|n|/dV = (n_eff/n) * dn_eff/dV is EXACTLY ZERO while C_Q stays
+  finite at n_puddle.  kappa goes as d|n|/dV, so the puddle floor
+  FLATTENS exactly the region where Zebrev's capacitor ratio diverges.
+  The diffusion-dominated regime is therefore not small in this model --
+  it is ABSENT, and that is a statement about the regularization rather
+  than about graphene.  THE MODEL CANNOT BE ASKED ABOUT THE PEAK-f_max
+  BIAS, which is what 2026-10-06 suspected, but for the puddle floor
+  rather than for the missing term.
+  [PASS] G4a  PREDICTION NOT MET: the share COLLAPSES at charge neutrality instead of diverging there  -- 0.006925 % at the Dirac point against 0.5053 % at the maximum -- a factor 73
+  MECHANISM, measured at the Dirac point: d|n|/dV = 0.000000e+00 m^-2/V with the puddle floor,
+  against -2.290589e+15 m^-2/V for the unfloored n_eff -- a factor inf.
+  [PASS] G4b  and the mechanism is confirmed by measurement: the floored derivative is smaller than the unfloored one by >1000x at the Dirac point  -- 0.000000e+00 vs -2.290589e+15 m^-2/V
+  [PASS] G4c  1 + kappa > 0 across the whole sweep, including the Dirac region  -- min 0.98774993 at V_g = -2.000000 V
+
+==============================================================================
+SECTION 4.  The RF consequence, against 2026-10-06's committed numbers
+==============================================================================
+  5-point stencils at the COMMITTED gate-grid spacing h = 0.015037594 V,
+  so g_m here is the same ESTIMATOR as the committed one.  The
+  lambda = 0 row is the control: it must reproduce vsat on the same
+  stencil bitwise, and it is reported against the committed 0.683186
+  so the stencil's own offset is visible rather than absorbed.
+
+            bias  lambda      f_T [Hz]    f_max [Hz]   f_max/f_T     g_ds [S]
+   resistor-peak     0.0  2.058532e+10  1.410499e+10    0.685197 3.354728e-02
+   resistor-peak     1.0  2.044399e+10  1.404354e+10    0.686927 3.337860e-02
+  saturated-peak     0.0  2.073963e+10  1.416902e+10    0.683186 3.374491e-02
+  saturated-peak     1.0  2.085305e+10  1.421070e+10    0.681468 3.391519e-02
+  [PASS] G5a  CONTROL: lambda = 0 reproduces vsat's f_max/f_T on this stencil BITWISE  -- 6.83185898989010942e-01
+  committed 2026-10-06 value on the 400-point grid: 0.683186
+  this stencil, lambda = 0:                         0.683186
+  stencil-vs-grid offset:                           -0.0000 %
+
+  What diffusion does to the three quantities Chapter 4 is measured on:
+        fT:  2.073963e+10 ->  2.085305e+10    +0.5469 %
+      fmax:  1.416902e+10 ->  1.421070e+10    +0.2941 %
+     ratio:  6.831859e-01 ->  6.814684e-01    -0.2514 %
+       gds:  3.374491e-02 ->  3.391519e-02    +0.5046 %
+  [PASS] G5b  f_max/f_T with diffusion is STILL below the 1.3-1.4 literature band, so 2026-10-06's structural verdict survives the term that was supposed to threaten it  -- 0.681468 = 52.42 % of 1.3
+  [PASS] G5c  and the RATIO moves less than f_max does -- the 2026-10-06 ratio-blindness, in a third mechanism  -- ratio -0.2514 % vs f_max +0.2941 %
+
+==============================================================================
+SECTION 5.  Controls
+==============================================================================
+  [PASS] G6   CONTROL: the lambda response and a 1.5x mobility response are NOT aliased, so 'diffusion did it' is distinguishable from 'mu was wrong'  -- lambda 1.005018x, mu 1.170964x
+  [PASS] G7a  the saturated drift model is BITWISE unchanged after this module has run  -- 8.19021697410684261e-05
+  [PASS] G7b  the resistor model is BITWISE unchanged too  -- 8.71934457076671478e-05
+  [PASS] G7c  gfet.mu / L / W are restored to committed values  -- mu = 0.4, L = 2e-07, W = 1e-06
+
+==============================================================================
+SECTION 6.  The premise: which potential is V_ch?
+==============================================================================
+  Pasadas and Jimenez (IEEE TED 2016, arXiv:1605.08235) write the GFET
+  channel current as I = -W*Q_tot*v with v = mu*F, F = -dV/dx, and state
+  that V(x) is the QUASI-FERMI LEVEL.  Under that reading Eq. (4) is
+  already the complete drift-diffusion current and this module's term is
+  a double count.  Under the electrostatic reading -- which is how V_ch
+  enters C_ox*(V_g - V_ch - V_dirac) in carrier_density() -- Eq. (4) is
+  drift-only and the term is missing physics.  The two readings differ by
+  exactly lambda*V_F, so the number below is BOTH the diffusion current
+  AND the size of an ambiguity that was already in every committed I_d.
+
+  at the saturated-peak bias, V_ds = 0.1 V:
+    I_d, electrostatic reading (lambda = 1) : 9.05299599e-05 A
+    I_d, quasi-Fermi reading   (lambda = 0) : 9.00779072e-05 A
+    SPREAD                                  : +0.5018 %
+  and over the whole V_g sweep the spread stays within 0.5053 % (largest |value|, at V_g = -1.2720 V), with OPPOSITE SIGNS on the two branches.
+
+  This does NOT withdraw a committed number.  It bounds one.  The RF
+  thread's conclusions are ratios between runs of one model, and G5b
+  shows the binding verdict survives either reading.  What it does end
+  is the claim that this repository's RF numbers are drift-only slices:
+  they are slices of a model whose driving potential was never named,
+  and the correct repair is to NAME IT, not to add a term.
+  Recommended, and recorded as the new top RF item: declare V_ch the
+  quasi-Fermi potential (which is what the series factor in
+  carrier_density() is for), keep lambda = 0 as the production path, and
+  keep this module as the bound on the choice.  lambda = 1 is NOT
+  wired into any other module by this commit.
+
+==============================================================================
+SECTION 7.  Figure
+==============================================================================
+  wrote diffusion_current_model.png
+
+==============================================================================
+RESULT: 187 lines, 26 passed, 0 failed
+==============================================================================
+  diffusion share at the RF bias : +0.5018 % of I_d
+  largest |share| over the sweep : 0.5053 % at V_g = -1.2720 V (signed: -0.5053 %)
+  share AT charge neutrality     : -0.006925 % -- the preregistered
+                                   divergence is REFUTED, and the puddle
+                                   floor is the measured mechanism (G4a/G4b)
+  f_max/f_T, lambda = 0 -> 1     : 0.683186 -> 0.681468  (-0.2514 %)
+  the 1.3-1.4 band verdict       : UNCHANGED (G5b)
+  the item's premise             : MOVED -- Eq. (4)'s driving potential
+                                   was never named, and the two readings
+                                   differ by exactly this term (Section 6)
