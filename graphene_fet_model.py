@@ -94,6 +94,21 @@ def quantum_capacitance(V_g_minus_Vdirac, T=300.0):
     return prefactor * smoothed_V
 
 
+# potential-reading: V_ch QUASI_FERMI -- the quasi-Fermi (electrochemical) potential of the channel carriers, in volts, from the source; Pasadas and Jimenez IEEE TED 63(7) 2016
+# Declared 2026-10-08, closing Chapter 7 Section 7.9 item 7.  It is the same
+# variable arXiv:1605.08235 calls "the quasi-Fermi level along the graphene
+# channel" in the compact model Eq. (4) descends from.  Two consequences, both measured in
+# graphene_potential_declaration.py rather than asserted here:
+#   (a) the drift form below IS the complete drift-diffusion current, so
+#       2026-10-07's diffusion term (graphene_diffusion_current_model.py,
+#       lambda = 1) is a DOUBLE COUNT worth +0.43 % of I_d at the terminals and
+#       must NOT be switched on.  It is kept as the instrument that measures the
+#       difference between the two readings.
+#   (b) the exact charge relation under this reading is
+#       V_g - V_dirac - V_ch = e*n/C_ox + E_F(n)/e, not the linearised series
+#       factor used below.  The two differ by -0.60 % in I_d at the RF bias.
+#       Chapter 4 keeps the series-factor numbers and states the limitation;
+#       re-deriving on the exact relation is Section 7.9's new top item.
 def carrier_density(V_g, V_ch=0.0):
     """
     Self-consistent channel sheet carrier density n(V_g, V_ch) [1/m^2],
@@ -107,6 +122,17 @@ def carrier_density(V_g, V_ch=0.0):
     charge implied by the quantum capacitance branch. For a closed analytic
     form we use the standard local (no-cross-coupling) approximation:
         n(V_g) = C_ox * (V_g - V_ch - V_dirac) / e   [electrostatic estimate]
+
+    ANNOTATION 2026-10-08.  The wording "electrostatic charge from V_g - V_ch"
+    above is retained as written, and is now known to be loose: V_ch is
+    declared to be the QUASI-FERMI potential (see the marker above the def),
+    so the exact relation is V_g - V_dirac - V_ch = e*n/C_ox + E_F(n)/e and
+    the series factor below is its LINEARISATION, not an additional physical
+    effect on top of an electrostatic drop.  The numbers this function returns
+    are unchanged; what changed is what they are a model OF.  The gap between
+    the linearised and exact forms is measured in
+    graphene_potential_declaration.py (Section 2) and is -0.60 % in I_d at the
+    RF bias.  No number in this docstring is deleted.
     corrected by the quantum-capacitance series factor
         n_eff = n_electrostatic * C_q / (C_q + C_ox)
     which correctly suppresses induced charge exactly where C_q is small
@@ -158,6 +184,11 @@ def transfer_characteristic(Vg_range, Vds=0.05):
     """
     Id = np.zeros_like(Vg_range)
     n_segments = 50
+    # potential-reading: V_channel_profile QUASI_FERMI -- the gradual-channel integration variable, 0 at the source to Vds at the drain, same reading as V_ch above
+    # It is this sweep that makes V_ch a CHANNEL potential rather than a
+    # terminal bias.  This is the sweep that makes V_ch a CHANNEL
+    # potential rather than a terminal bias, which is the distinction
+    # graphene_potential_census_audit.py gates its defect verdict on.
     V_channel_profile = np.linspace(0, Vds, n_segments)
 
     for i, V_g in enumerate(Vg_range):

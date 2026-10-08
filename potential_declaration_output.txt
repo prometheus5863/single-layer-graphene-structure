@@ -1,0 +1,159 @@
+==============================================================================
+THE DECLARATION: V_ch IS THE QUASI-FERMI POTENTIAL
+Chapter 7 Section 7.9 item 7, as rewritten 2026-10-07
+==============================================================================
+
+SECTION 1.  The double count, at three levels of the same model
+------------------------------------------------------------------------------
+  lambda = 0 : the drift form in the declared variable.
+  lambda = 1 : the same current with the 10-07 diffusion term ADDED.
+  Under the declaration lambda = 0 is already the complete
+  drift-diffusion current, so lambda = 1 counts diffusion twice.
+
+  At V_g = 2.00 V, V_ds = 0.10 V:
+    INTRINSIC (fixed channel drop) : 1.432116e-04 -> 1.442091e-04 A  +0.6965 %
+    TERMINAL  (contact feedback on): 8.190217e-05 -> 8.225263e-05 A  +0.4279 %
+    10-07 reported +0.5018 % at ITS saturated-peak bias, a
+    different V_g; the three numbers are the same term measured
+    three ways and they bracket each other, which is the check.
+  [PASS] the double count is a few tenths of a percent at every level
+         intrinsic +0.6965 %, terminal +0.4279 %; the contact feedback eats about a third of it, as 10-07 found
+  [PASS] the terminal double count is SMALLER than the intrinsic one
+         the series contact resistance is a negative feedback on I_d, so any intrinsic change is attenuated at the terminals -- the sign of this inequality is fixed by that and is not a fitted expectation
+
+SECTION 2.  What the declaration costs, in the quantity that is quoted
+------------------------------------------------------------------------------
+  Declaring V_ch quasi-Fermi makes (D1) the exact charge relation.
+  The repository computes (D2).  Three comparisons, narrowing from
+  the raw charge to the current Chapter 4 actually quotes, because
+  2026-10-06 established that a criterion decided on the quantity it
+  names can miss the finding when that is not the quantity at stake.
+
+  2a  RAW charge, puddle floor NOT applied:
+       dV [V]         n (D1)         n (D2)    D2/D1 - 1
+        0.010   1.363217e+13   2.293194e+13      68.219 %
+        0.050   9.282075e+13   1.164082e+14      25.412 %
+        0.100   1.999675e+14   2.356749e+14      17.857 %
+        0.500   1.104524e+15   1.193486e+15       8.054 %
+        1.000   2.261879e+15   2.390855e+15       5.702 %
+        2.000   4.600015e+15   4.785603e+15       4.035 %
+        2.700   6.245044e+15   6.461928e+15       3.473 %
+        3.500   8.129724e+15   8.377729e+15       3.051 %
+   worst +68.22 % at dV = 0.010 V -- but see 2b before quoting that.
+
+  2b  THE SAME COMPARISON WITH THE PUDDLE FLOOR, i.e. what
+      carrier_density() actually returns.  n_puddle = 5.00e+15 /m2,
+      so the near-Dirac rows above are in a regime the floor erases
+      and the +68 % is NOT a number about any committed result:
+       dV [V]     n_tot (D1)     n_tot (D2)    D2/D1 - 1
+        0.010   5.000019e+15   5.000053e+15       0.001 %
+        0.050   5.000861e+15   5.001355e+15       0.010 %
+        0.100   5.003997e+15   5.005551e+15       0.031 %
+        0.500   5.120544e+15   5.140468e+15       0.389 %
+        1.000   5.487813e+15   5.542219e+15       0.991 %
+        2.000   6.794125e+15   6.921127e+15       1.869 %
+        2.700   8.000036e+15   8.170466e+15       2.130 %
+        3.500   9.544234e+15   9.756349e+15       2.222 %
+   worst +2.22 % at dV = 3.50 V, over the drives Chapter 4 sweeps.
+  [PASS] the floored disagreement is far smaller than the raw one
+         raw +68.22 % -> floored +2.22 %: a factor 31.  Quoting the raw number would have overstated the cost of the declaration by that factor.
+
+  2c  AND IN I_d ITSELF, by running Eq. (4) on (D1).  carrier_density
+      is replaced by the (D1) form with the same puddle floor and
+      nothing else changed:
+      I_d on (D2), lambda = 0 : 8.190217e-05 A   (committed)
+      I_d on (D1), lambda = 0 : 8.140885e-05 A   (declared exactly)
+      the declaration costs   : -0.6023 % of I_d
+      the double count it removes: +0.4279 % of I_d
+  [PASS] the charge-model question is LARGER than the diffusion term
+         the declaration moves I_d by -0.6023 % while the term it retires is worth +0.4279 % -- a factor 1.4.  So the honest headline is not "the 0.50 % is resolved": it is that a question about the charge model, 1.4 times larger, was sitting underneath it, unasked.
+      NOTE: this is a MEASUREMENT of the gap, not a re-derivation.
+      Chapter 4 keeps its (D2) numbers; see SECTION 5.
+
+  2d  A numerical limit of (D2), found while doing 2a, measured:
+      quantum_capacitance() returns a finite value up to dV =
+      18.3493 V and NaN/inf above 18.3493 V, because
+      log(2*(1 + cosh(eta))) overflows once eta = dV/(kT/e) passes
+      about 710.  kT/e = 0.025852 V here, so the onset is at eta ~ 710.
+  [PASS] the overflow is far outside every bias this thesis quotes
+         onset 18.35 V against a maximum swept drive of about 2.7 V, so no committed number is affected.  It is still a defect -- the large-eta limit of that expression is |eta| + log 2 and is exact -- and it is left as a new item rather than patched today, because the module owns committed transcripts.
+
+SECTION 3.  Validation against exactly known values
+------------------------------------------------------------------------------
+  [PASS] (D1)'s closed-form root satisfies (D1) to machine precision
+         max relative residual 3.806e-16 over dV in [0.01, 3.5] V -- an algebraic identity, not a plausible range
+  [PASS] dV = 0 gives n = 0 EXACTLY in both forms, before the puddle floor
+         (D1) -> 0.0, (D2) -> 0.0
+  [PASS] n(+dV) == n(-dV) BITWISE in both forms (both carry n as a magnitude)
+         max |difference| (D1) 0.0, (D2) 0.0
+
+  The large-drive limit, measured rather than asserted, and stopped
+  below 2d's overflow:
+       dV [V] (D1)/electrostatic (D2)/electrostatic
+          0.5           0.922454           0.996751
+          1.0           0.944515           0.998373
+          2.0           0.960437           0.999186
+          5.0           0.974792           0.999674
+         10.0           0.982108           0.999837
+         15.0           0.985367           0.999891
+  [PASS] both forms approach the pure electrostatic value as dV grows, monotonically
+         (D1) 0.9225 -> 0.9854 and (D2) 0.9968 -> 0.9999 over dV = 0.5 -> 15 V; both monotone, and (D1) approaches from further away because it carries the whole graphene drop rather than a linearisation of it
+
+SECTION 4.  V_F is a POTENTIAL, and the census had it UNADJUDICATED
+------------------------------------------------------------------------------
+  graphene_potential_census_audit.py, committed earlier today, left
+  `V_F` UNADJUDICATED in three modules on the guess that it was a
+  Fermi VELOCITY written with a V_ prefix.  In
+  graphene_diffusion_current_model.py it is not: fermi_voltage(n)
+  returns E_F/e in VOLTS, and it is precisely the quantity that
+  converts between the two readings of V_ch.  In
+  graphene_contact_doping_nonlinear_model.py the same name IS a
+  velocity, 1.0e6 m/s.  One name, two quantities, two modules --
+  which is the 2026-10-01 fault (a name that cannot drift is the
+  whole requirement) in a third place.
+
+    dV = 0.1 V : n = 1.9997e+14 /m2, V_F = E_F/e = 0.0165 V, i.e. 16.5 % of the drive sits on the graphene
+    dV = 1.0 V : n = 2.2619e+15 /m2, V_F = E_F/e = 0.0555 V, i.e. 5.5 % of the drive sits on the graphene
+    dV = 2.0 V : n = 4.6000e+15 /m2, V_F = E_F/e = 0.0791 V, i.e. 4.0 % of the drive sits on the graphene
+    dV = 2.7 V : n = 6.2450e+15 /m2, V_F = E_F/e = 0.0922 V, i.e. 3.4 % of the drive sits on the graphene
+  [PASS] V_F(n) from the diffusion module equals A_FERMI*sqrt(n)
+         checked at n = 1e16 /m2; this is the identity that makes (D1) closed-form
+  The census registry is updated accordingly in the same commit:
+  two V_F rows move from UNADJUDICATED to a reading, and the third
+  stays UNADJUDICATED because its module was not read today.
+
+SECTION 5.  What this settles, and what it opens
+------------------------------------------------------------------------------
+  SETTLED.  V_ch is the quasi-Fermi potential, declared in
+  graphene_fet_model.py where it is defined rather than here.
+  2026-10-07's diffusion term is therefore a DOUBLE COUNT worth
+  +0.4279 % of I_d at the terminals, not a missing +0.4279 %. The
+  committed lambda = 0 currents stand unchanged, and the +-0.50 %
+  ambiguity 10-07 attached to every I_d in this repository is
+  RESOLVED rather than reduced.  That is the opposite of the
+  direction 10-07 expected, and the term is kept in the source as
+  the instrument that measures the difference between readings.
+
+  OPENED, and larger than what was closed.  (D1) is now the exact
+  charge relation and the repository computes (D2).  In I_d at the
+  RF bias they differ by -0.6023 % -- 1.4 times the term just
+  retired.  Re-deriving Chapter 4 on (D1) is a session of its own
+  and is the new top item.  Chapter 4 keeps its numbers today and
+  gains a stated limitation with a measured size, per the standing
+  rule that a superseded number is annotated and not deleted.
+
+  NOT SETTLED by this file:
+   - whether (D1) or (D2) is closer to MEASUREMENT.  Neither has
+     been compared to data here, only to each other, so nothing
+     above licenses calling (D2) wrong -- only non-exact under the
+     declaration.
+   - the hole branch.  Both forms carry n as a magnitude, which
+     10-07 identified as leaving every branch-asymmetric Chapter 4
+     result unverified.  The declaration does not touch it, and it
+     now BLOCKS the (D1) re-derivation rather than sitting beside
+     it: re-deriving on a magnitude would rebuild the same flaw.
+   - the cosh overflow in 2d, left as a new item.
+
+==============================================================================
+TOTAL: 10 passed, 0 failed
+==============================================================================

@@ -5,20 +5,17 @@ Chapter 7 Section 7.9 item 10, created 2026-10-07, mechanised 2026-10-08
 
 SECTION 1 -- the census
 ------------------------------------------------------------------------------
-  UNDETERMINED           1
+  UNDETERMINED           0
   DECLARED_NO_REASON     0
   DUAL_ROLE_TERMINAL    10
-  DECLARED               0
-  DETERMINED            11
-  COLLECTED_NO_ROLE     55
+  DECLARED               2
+  DETERMINED            14
+  COLLECTED_NO_ROLE     60
   PARSE_ERROR            0
-  TOTAL NAMES           77   across 24 modules
+  TOTAL NAMES           86   across 25 modules
 
   UNDETERMINED -- both roles AND channel-swept (the 10-07 defect):
-    graphene_fet_model.py::V_ch
-        carrier_density()                  line 97    ES<- n_electrostatic = C_ox * dV / e
-        channel_resistance()               line 141   ES<- n = carrier_density(V_g, V_ch) | TR<- sigma_sheet = sheet_conductivity(n)
-        transfer_characteristic()          line 170   TR<- Id = np.zeros_like(Vg_range)
+    (none)
 
   DUAL_ROLE_TERMINAL -- both roles, NOT channel-swept, not a fault:
     contact_resistance_crossover.py::V_g                   TERMINAL_BIAS
@@ -33,31 +30,34 @@ SECTION 1 -- the census
     rf_small_signal_model.py::V_dirac                      REFERENCE_LEVEL
 
   DECLARED in the source:
-    (none)
+    graphene_fet_model.py::V_ch                        QUASI_FERMI (line 97)
+        reason: the quasi-Fermi (electrochemical) potential of the channel carriers, in volts, from the source; Pasadas and Ji
+    graphene_fet_model.py::V_channel_profile           QUASI_FERMI (line 187)
+        reason: the gradual-channel integration variable, 0 at the source to Vds at the drain, same reading as V_ch above
 
 SECTION 2 -- registry completeness: a census that cannot go stale
 ------------------------------------------------------------------------------
   PASS  every potential-like name found is in POTENTIAL_REGISTRY
-        77 names, every one adjudicated or explicitly UNADJUDICATED
+        86 names, every one adjudicated or explicitly UNADJUDICATED
   PASS  POTENTIAL_REGISTRY has no rows for names that do not exist
         no dead rows
 
   Adjudication breakdown:
-    DISPLAY_ONLY                11
+    DISPLAY_ONLY                12
     ELECTROSTATIC_ONLY           1
-    ENERGY_NOT_A_POTENTIAL       6
+    ENERGY_NOT_A_POTENTIAL       8
     GEOMETRIC_PHASE              3
     MOBILITY_NOT_A_POTENTIAL    12
-    QUASI_FERMI                  7
-    REFERENCE_LEVEL              9
-    TERMINAL_BIAS               19
+    QUANTUM_CAPACITANCE_DROP     2
+    QUASI_FERMI                  8
+    REFERENCE_LEVEL             10
+    TERMINAL_BIAS               22
     TRANSPORT_ONLY               2
-    UNADJUDICATED                7
+    UNADJUDICATED                5
+    VELOCITY_NOT_A_POTENTIAL     1
 
-  7 of 77 names are UNADJUDICATED. That is OPEN WORK, not a pass:
-    graphene_contact_doping_nonlinear_model.py::V_F
+  5 of 86 names are UNADJUDICATED. That is OPEN WORK, not a pass:
     graphene_contact_doping_nonlinear_model.py::phi
-    graphene_diffusion_current_model.py::V_F
     graphene_diffusion_current_model.py::mu_resp
     graphene_diffusion_mutation.py::V_F
     graphene_photodetector_signed_carrier_model.py::phi
@@ -96,8 +96,8 @@ SECTION 4 -- controls
         got UNDETERMINED
   4c NULL, at the point where the failure enters:
   PASS  the census is EMPTY when every potential-like name is renamed away
-        44 files rewritten (the instrument itself excluded, see
-        null_control for why), 30 distinct names renamed; leftovers=[]
+        45 files rewritten (the instrument itself excluded, see
+        null_control for why), 31 distinct names renamed; leftovers=[]
   4d MUTATION:
   PASS  M1 a charge role injected into a TRANSPORT_ONLY terminal bias  [expect DUAL_ROLE_TERMINAL]
         got DUAL_ROLE_TERMINAL
@@ -105,15 +105,17 @@ SECTION 4 -- controls
         got DETERMINED
   PASS  M3 a declaration with no reason  [expect DECLARED_NO_REASON]
         got DECLARED_NO_REASON
-  PASS  M4 the channel-swept gate is load-bearing: remove the drain-bias name from the sweep and V_ch must LEAVE the defect class  [expect DUAL_ROLE_TERMINAL]
+  PASS  M4a the DECLARATION is what cleared the defect: strip it and V_ch must go back to UNDETERMINED  [expect UNDETERMINED]
+        got UNDETERMINED
+  PASS  M4b the channel-swept gate is load-bearing: with the declaration stripped TOO, removing the drain-bias name from the sweep must take V_ch out of the defect class  [expect DUAL_ROLE_TERMINAL]
         got DUAL_ROLE_TERMINAL
   PASS  M5 a SECOND channel-swept dual-role variable in real repository code must also be caught  [expect UNDETERMINED]
         got UNDETERMINED
 
 SECTION 5 -- what the census says
 ------------------------------------------------------------------------------
-  77 potential-like names, over-collected on purpose, across 24
-  modules.  1 are in both roles and channel-swept; 10 are in both
+  86 potential-like names, over-collected on purpose, across 25
+  modules.  0 are in both roles and channel-swept; 10 are in both
   roles and are terminal biases, where dual use is not ambiguity.
 
   The 10-07 entry listed three places it expected siblings of the
@@ -124,10 +126,10 @@ SECTION 5 -- what the census says
   evaluated by the closed form that replaced the derivation.
 
   The base rate the 10-07 entry asked for, measured: ONE defect in
-  77 names, confined to one variable in one module, and a further
-  7 names whose status as potentials is undecided.  The guess that
+  86 names, confined to one variable in one module, and a further
+  5 names whose status as potentials is undecided.  The guess that
   the class was widespread is not supported.
 
 ==============================================================================
-TOTAL: 14 passed, 1 failed (1 of them EXPECTED)
+TOTAL: 15 passed, 1 failed (1 of them EXPECTED)
 ==============================================================================

@@ -129,8 +129,15 @@ TRANSPORT_MARKER_RE = re.compile(
     r'|/\s*L(_channel)?\b|\blinspace\(\s*0\s*,\s*V'
 )
 
+# The declaration may name its variable explicitly, which it must whenever
+# the line below it mentions more than one potential-like name:
+#     # potential-reading: V_ch QUASI_FERMI -- <reason>
+# Without a name it applies to the first potential-like name on this line or
+# the next, which was ambiguous for a function parameter: `def
+# carrier_density(V_g, V_ch=0.0)` would have bound the declaration to V_g.
 DECL_RE = re.compile(
-    r'#\s*potential-reading:\s*([A-Z_]+)\s*(?:--\s*(.*))?$'
+    r'#\s*potential-reading:\s*(?:([A-Za-z_][A-Za-z0-9_]*)\s+)?([A-Z_]+)\s*'
+    r'(?:--\s*(.*))?$'
 )
 
 # ---------------------------------------------------------------------------
@@ -179,9 +186,10 @@ POTENTIAL_REGISTRY = {
     'graphene_diffusion_current_model.py::V_ds': ('TERMINAL_BIAS', 'applied drain bias'),
     'graphene_diffusion_current_model.py::V_g': ('TERMINAL_BIAS', 'applied gate voltage'),
     'graphene_diffusion_current_model.py::V_dirac': ('REFERENCE_LEVEL', 'offset'),
-    'graphene_diffusion_current_model.py::V_F': ('UNADJUDICATED',
-        'a Fermi VELOCITY written with a V_ prefix; over-collected by the name '
-        'pattern and not yet confirmed to be velocity at every use site'),
+    'graphene_diffusion_current_model.py::V_F': ('QUANTUM_CAPACITANCE_DROP',
+        'adjudicated 2026-10-08: NOT a velocity.  fermi_voltage(n) returns '
+        'E_F/e in VOLTS, and it is the quantity that converts between the two '
+        'readings of V_ch -- see graphene_potential_declaration.py Section 4'),
     'graphene_diffusion_current_model.py::V_': ('DISPLAY_ONLY', 'LaTeX fragment'),
     'graphene_diffusion_current_model.py::E_F': ('ENERGY_NOT_A_POTENTIAL', 'an energy'),
     'graphene_diffusion_current_model.py::mu_resp': ('UNADJUDICATED',
@@ -269,13 +277,31 @@ POTENTIAL_REGISTRY = {
 
     # --- contacts ----------------------------------------------------------
     'graphene_contact_doping_nonlinear_model.py::E_F': ('ENERGY_NOT_A_POTENTIAL', 'an energy'),
-    'graphene_contact_doping_nonlinear_model.py::V_F': ('UNADJUDICATED', 'see the V_F entry above'),
+    'graphene_contact_doping_nonlinear_model.py::V_F': ('VELOCITY_NOT_A_POTENTIAL',
+        'adjudicated 2026-10-08: here V_F IS a velocity, 1.0e6 m/s.  The same '
+        'name is a voltage in graphene_diffusion_current_model.py -- one name, '
+        'two quantities, two modules'),
     'graphene_contact_doping_nonlinear_model.py::phi': ('UNADJUDICATED',
         'plausibly a metal work function; not confirmed at every use site'),
     'graphene_edge_contact_model.py::V_BG': ('TERMINAL_BIAS', 'applied back-gate voltage'),
     'graphene_edge_contact_model.py::E_F': ('ENERGY_NOT_A_POTENTIAL', 'an energy'),
     'graphene_edge_contact_model.py::E_F_eV': ('ENERGY_NOT_A_POTENTIAL', 'an energy in eV'),
     'graphene_edge_contact_model.py::E_F_joules': ('ENERGY_NOT_A_POTENTIAL', 'an energy in J'),
+
+
+    # --- the declaration file itself, committed 2026-10-08 -----------------
+    'graphene_potential_declaration.py::V_ch': ('QUASI_FERMI',
+        'the subject of the file; declared in graphene_fet_model.py'),
+    'graphene_potential_declaration.py::V_F': ('QUANTUM_CAPACITANCE_DROP',
+        'E_F/e, the quantity that converts between the two readings'),
+    'graphene_potential_declaration.py::V_g': ('TERMINAL_BIAS', 'applied gate voltage'),
+    'graphene_potential_declaration.py::V_ds': ('TERMINAL_BIAS', 'applied drain bias'),
+    'graphene_potential_declaration.py::V_dirac': ('REFERENCE_LEVEL', 'offset'),
+    'graphene_potential_declaration.py::V_g_rf': ('TERMINAL_BIAS', 'the RF-bias gate voltage'),
+    'graphene_potential_declaration.py::V_': ('DISPLAY_ONLY', 'LaTeX/prose fragment'),
+    'graphene_potential_declaration.py::E_F': ('ENERGY_NOT_A_POTENTIAL', 'an energy, in prose'),
+    'graphene_fet_model.py::E_F': ('ENERGY_NOT_A_POTENTIAL',
+        'appears only in the 2026-10-08 docstring annotation, as E_F(n)/e'),
 
     # --- instruments -------------------------------------------------------
     'graphene_figure_provenance_audit.py::phi': ('GEOMETRIC_PHASE', 'an angle in a checked figure'),
@@ -499,14 +525,16 @@ def scan_file(path):
         m = DECL_RE.search(ln)
         if not m:
             continue
-        reading, reason = m.group(1), (m.group(2) or '').strip()
-        target = None
-        for probe in (ln, lines[i + 1] if i + 1 < len(lines) else ''):
-            mm = re.search(r'\b(V_[A-Za-z0-9_]*|phi[A-Za-z0-9_]*|mu_[A-Za-z0-9_]*)\b',
-                           re.sub(r'#.*potential-reading[^\n]*', '', probe))
-            if mm:
-                target = mm.group(1)
-                break
+        named, reading, reason = m.group(1), m.group(2), (m.group(3) or '').strip()
+        target = named
+        if target is None:
+            for probe in (ln, lines[i + 1] if i + 1 < len(lines) else ''):
+                mm = re.search(
+                    r'\b(V_[A-Za-z0-9_]*|phi[A-Za-z0-9_]*|mu_[A-Za-z0-9_]*)\b',
+                    re.sub(r'#.*potential-reading[^\n]*', '', probe))
+                if mm:
+                    target = mm.group(1)
+                    break
         declarations[target] = (reading, reason, i + 1)
 
     swept = _channel_swept_names(tree, code_lines)
@@ -709,11 +737,20 @@ MUTANTS = (
      'V_bias = 0.1',
      '# potential-reading: TRANSPORT_ONLY\nV_bias = 0.1',
      'DECLARED_NO_REASON'),
-    ('M4 the channel-swept gate is load-bearing: remove the drain-bias name '
-     'from the sweep and V_ch must LEAVE the defect class',
+    ('M4a the DECLARATION is what cleared the defect: strip it and V_ch must '
+     'go back to UNDETERMINED',
      'graphene_fet_model.py', 'V_ch',
-     'V_channel_profile = np.linspace(0, Vds, n_segments)',
-     'V_channel_profile = np.linspace(0, 0.05, n_segments)',
+     ('# potential-reading: V_ch QUASI_FERMI',),
+     ('# (declaration stripped by mutant M4a)',),
+     'UNDETERMINED'),
+    ('M4b the channel-swept gate is load-bearing: with the declaration '
+     'stripped TOO, removing the drain-bias name from the sweep must take '
+     'V_ch out of the defect class',
+     'graphene_fet_model.py', 'V_ch',
+     ('# potential-reading: V_ch QUASI_FERMI',
+      'V_channel_profile = np.linspace(0, Vds, n_segments)'),
+     ('# (declaration stripped by mutant M4b)',
+      'V_channel_profile = np.linspace(0, 0.05, n_segments)'),
      'DUAL_ROLE_TERMINAL'),
     ('M5 a SECOND channel-swept dual-role variable in real repository code '
      'must also be caught',
@@ -730,15 +767,20 @@ MUTANTS = (
 def mutation_control():
     out = []
     for label, fname, varname, old, new, expected in MUTANTS:
+        olds = old if isinstance(old, tuple) else (old,)
+        news = new if isinstance(new, tuple) else (new,)
         d = tempfile.mkdtemp(prefix='potcensus_mut_')
         try:
             src = open(os.path.join(HERE, fname)).read()
-            if old not in src:
+            missing = [o for o in olds if o not in src]
+            if missing:
                 out.append((label, 'ANCHOR MISSING -- mutant never arrived',
                             expected, False))
                 continue
+            for o, n in zip(olds, news):
+                src = src.replace(o, n, 1)
             with open(os.path.join(d, fname), 'w') as fh:
-                fh.write(src.replace(old, new, 1))
+                fh.write(src)
             c = census(d)
             key = '%s::%s' % (fname, varname)
             got = verdict_for(c[key]) if key in c else 'NOT FOUND'
