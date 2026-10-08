@@ -855,6 +855,59 @@ term recovers it.
 See §4.6.5 and
 `notes/2026-10-07-the-diffusion-term-was-a-boundary-term-and-the-potential-was-never-named.md`.
 
+#### 7.8.1e Annotation (2026-10-08): the potential is named, and the naming question was the smaller half
+
+§7.8.1d recommended declaring `V_ch` the quasi-Fermi potential, keeping
+`λ = 0` as the production path, and keeping §4.6.5 as the bound on the choice.
+**All three have been done** (§4.6.6). The declaration lives in
+`graphene_fet_model.py` as a machine-readable in-source marker, so the
+statement of what this thesis's own variable means travels with the variable.
+
+**What §7.8.1d got right.** The term is a double count, not missing physics:
++0.6965 % intrinsic and **+0.4279 % at the terminals** at `V_g` = 2.0 V,
+`V_ds` = 0.1 V, bracketing §4.6.5's +0.5018 % at its own bias. The claim
+withdrawn in §7.8.1d — that §7.8.1b's and §7.8.1c's `V_ds` ladders are
+*drift-only* slices — can now be restated positively: **they are slices of the
+complete drift-diffusion current in the quasi-Fermi variable**, with no
+±0.50 % ambiguity attached. That ambiguity is resolved rather than bounded, and
+§7.8.1a's structural verdict is untouched for the third consecutive session.
+
+**What §7.8.1d did not see.** A declaration is a promise that the rest of the
+model belongs to the declared variable, and that promise has a price. Under the
+declaration the exact charge relation is
+`V_g − V_dirac − V_ch = e·n/C_ox + E_F(n)/e`; §4.3 computes its linearisation.
+Running Eq. (4) on the exact form moves `I_d` at the RF bias by **−0.6023 %**
+— **1.4 times the term §7.9 items 7 and 8 were competing over.**
+
+This is the uncomfortable part, and it belongs in this chapter rather than only
+in Chapter 4. §7.5.6 identified the recurring class and §7.7 identified unequal
+scrutiny as its cause. Here is a clean instance of the latter: **two sessions
+(2026-10-06 and 2026-10-07) went into a transport term worth +0.43 %, while a
+−0.60 % question about the same chapter's charge relation sat directly
+underneath it, reachable by replacing one function and re-running.** Nothing
+protected the charge model from scrutiny except that no item pointed at it, and
+no item pointed at it because the attention had been captured by a literature
+paper's framing (Feijoo *et al.*'s diffusion measurement) rather than by an
+audit of this thesis's own equations. §7.7's thesis survives contact with a
+third example.
+
+**What it does not change.** Every number in Chapters 4 and 5 remains a
+linearised-series-factor number, annotated in place and not deleted, per the
+standing rule. The −0.60 % is a *measurement of a gap*, not a new result set,
+and the two charge forms have been compared only to each other — never to
+measurement — so nothing here licenses calling the committed model wrong, only
+non-exact under its own declaration. §7.8.5's summary judgement is unchanged.
+
+**And one ranking change that follows.** §7.9 item 9 (a signed-carrier FET
+model, created 2026-10-07) is promoted from a sibling of item 7 to the
+**prerequisite** of the new top item 12. Both charge forms carry `n` as a
+magnitude, so re-deriving Chapter 4 on the exact relation before a
+signed-carrier treatment exists would rebuild the branch-sign flaw in a new
+equation rather than fix it. The hole branch is now blocking, not adjacent.
+
+See §4.6.6 and
+`notes/2026-10-08-the-declaration-and-the-question-underneath-it.md`.
+
 ### 7.8.2 Contacts: the real near-term contribution, and a negative result worth having
 
 Contact resistance is the binding constraint on every graphene device in this
@@ -977,15 +1030,16 @@ Stated as falsifiable items, in order of how much they would move:
 5. **Asking the differential question of Chapter 5** (§7.3's prediction).
 6. **Re-running Chapter 4's contact-resistance results at the 5.4 eV
    crossover** rather than at graphene's 4.5 eV, for consistency with Chapter 6.
-7. **Naming the potential in Eq. (4)** (rewritten 2026-10-07; was *a
-   diffusion term in the saturated transport model*, added 2026-10-06 and
-   closed by §7.8.1d). The term was built and is worth ±0.50 % of `I_d`. What
-   it revealed is that the item was not about a missing term: Eq. (4)'s
-   driving potential is undetermined between the electrostatic and quasi-Fermi
-   readings, and the two differ by exactly the term. **The actionable item is
-   to declare which potential `V_ch` is**, consistently across
-   `carrier_density()`, the series factor and Eq. (4), and then re-derive.
-   This is now the RF thread's binding question, ahead of self-heating.
+7. ~~**Naming the potential in Eq. (4)**~~ — **CLOSED 2026-10-08** (§4.6.6,
+   §7.8.1e). `V_ch` is declared the **quasi-Fermi potential**, in the source
+   where it is defined. The consequence is that 2026-10-07's diffusion term is
+   a **double count** worth +0.4279 % of `I_d` at the terminals, not a missing
+   0.50 %, so the committed `λ = 0` currents stand and `λ` is retained as the
+   instrument that measures the difference between readings. The item's
+   history — created 2026-10-06 as *a diffusion term in the saturated
+   transport model*, rewritten 2026-10-07 when the term turned out to be the
+   difference between two readings of a variable — is kept because the shape of
+   it recurs. **It is replaced, not succeeded, by item 12.**
 8. **A self-heating term.** The same paper measures 65 → 40 GHz in `f_max` from
    self-heating alone. This bounds every absolute frequency in Chapter 4; the
    *ratios* between model runs, which is what §7.8.1c reports, are much less
@@ -998,12 +1052,23 @@ Stated as falsifiable items, in order of how much they would move:
    for the FET, so the hole-branch **sign** of every branch-asymmetric result
    in Chapter 4 is unverified. This also bears on the open question of why the
    peak-`f_T` bias moves branch between the two transport models.
-10. **A census of every potential-like variable in this thesis, recording
-   which potential it is** (added 2026-10-07). The mechanisable form of item 7.
-   `V_ch` was the first one asked and the answer was "both"; nothing has asked
-   of `V_ch` in Chapter 5's interconnect model, of the channel potential in
-   Chapter 6's two-contact photodetector model, or of the local Dirac-point
-   shift used in §4.4.
+10. ~~**A census of every potential-like variable in this thesis**~~ —
+   **CLOSED 2026-10-08** as a standing instrument,
+   `graphene_potential_census_audit.py`. 86 names across 25 modules, each
+   carrying an explicit adjudication; a name present in the repository and
+   absent from the registry is reported as a fault, so the census cannot go
+   stale silently — and it caught its own staleness on the very next file
+   added. **One defect in 86 names.** All three siblings this item predicted
+   were checked and none is one, for three different reasons: Chapter 5's
+   interconnect model contains *no potential-like variable at all*; Chapter 6's
+   two-contact `V_bias` is imported and printed and enters no computation in
+   its own module; §4.4's `V_channel_shift` appears only in a docstring
+   derivation the evaluated closed form never uses. The first of those is kept
+   as a check that is *expected to fail*, because a pass there would mean a
+   potential had appeared in Chapter 5. Seven names remain `UNADJUDICATED` and
+   are recorded as open work; none is channel-swept, so none can carry the
+   defect. **A predicted class is not a measured class**, and the measured rate
+   is 1 in 86.
 11. **Whether the `n_puddle` regularisation removes other regimes, not only
    the diffusion-dominated one** (added 2026-10-07). §4.6.5 found that
    `d|n|/dV` is *exactly* zero at `n_eff = 0`, which deletes the
@@ -1012,7 +1077,42 @@ Stated as falsifiable items, in order of how much they would move:
    silenced a different one. Which other near-Dirac results in Chapters 4
    and 6 rest on a derivative the floor has set to zero is not known, and this
    is a sibling of the §4.9 item on whether `n_puddle` reproduces §3.3's
-   6.45 kΩ/sq floor — open since 2026-09-29 and untouched for nine sessions.
+   6.45 kΩ/sq floor — open since 2026-09-29 and untouched for ten sessions.
+   **2026-10-08 adds a reason to prefer this item over item 13:** §4.6.6's
+   exact charge relation (4.28) and the series factor (4.29) disagree by +68 %
+   raw at `dV` = 0.01 V and by 0.001 % once the floor is applied, so the floor
+   is now known to be the dominant term in the near-Dirac charge of *both*
+   forms. Whatever it has silenced, it has silenced in the replacement model
+   too.
+12. **Re-deriving Chapter 4 on the exact charge relation (4.28)** (added
+   2026-10-08, and **the new top item of the RF thread**). The declaration in
+   item 7 makes
+   `V_g − V_dirac − V_ch = e·n/C_ox + E_F(n)/e` the exact relation; §4.3
+   computes its linearisation. Running Eq. (4) on the exact form moves `I_d` at
+   the RF bias by **−0.6023 %**, which is **1.4 times** the transport term
+   items 7 and 8 were competing over. Two sessions went into a +0.43 % term
+   while this sat underneath it, reachable in one line. The item is to re-derive
+   §§4.3–4.6 on (4.28) and re-report, keeping the (4.29) numbers annotated in
+   place. **It is blocked by item 9**: (4.28) and (4.29) both carry `n` as a
+   magnitude, so re-deriving before the signed-carrier treatment exists would
+   rebuild the branch-sign flaw in a new equation. Item 9 is therefore promoted
+   from a sibling of item 7 to the **prerequisite** of the top item.
+13. **The `cosh` overflow in `quantum_capacitance()`** (added 2026-10-08).
+   `log(2(1 + cosh η))` returns `inf`/`NaN` once `η = dV/(kT/e)` passes ~710,
+   i.e. above `dV` = **18.3493 V** at 300 K, measured by bisection. The exact
+   large-`η` limit is `|η| + log 2`. No committed number is affected — the
+   maximum drive swept anywhere in this thesis is ~2.7 V — so this is a
+   *latent* defect and is ranked last deliberately. It is recorded rather than
+   patched because `graphene_fet_model.py` owns committed transcripts across
+   Chapters 4, 5 and 6, and a numerics change there needs its own
+   output-neutrality pass of the kind 2026-10-07 ran for the f-string fix.
+14. **Measuring what a declaration costs, as a standing habit** (added
+   2026-10-08; the mechanisable form of §4.6.6's second half). A declaration
+   that resolves an ambiguity is a promise that the rest of the model belongs
+   to the declared variable, and the size of that promise is computable: here
+   it was one monkey-patched function and one re-run. Nothing in this thesis
+   asks it of the other declarations it has made. Items 2, 3 and 6 all turn on
+   a named quantity, and none of them has been costed this way.
 
 ---
 

@@ -828,6 +828,160 @@ See `graphene_diffusion_current_model.py`, `graphene_diffusion_mutation.py`,
 `diffusion_mutation_output.txt` and
 `notes/2026-10-07-the-diffusion-term-was-a-boundary-term-and-the-potential-was-never-named.md`.
 
+### 4.6.6 The potential is named — and the naming question was standing in front of a larger one
+
+§4.6.5 ended with a variable that had two readings and a term that was exactly
+the difference between them. This section names the variable, reports what that
+does to §4.6.5's result, and reports the thing the naming question had been
+hiding.
+
+#### The declaration
+
+> **`V_ch` is the quasi-Fermi (electrochemical) potential of the channel
+> carriers, in volts, measured from the source.**
+
+It is declared in `graphene_fet_model.py` itself, as a machine-readable
+in-source marker above `carrier_density()`, so that the repository's statement
+of what its own variable means travels with the variable rather than living in
+a note. Three grounds, none of them new work:
+
+1. The compact model Eq. (4) descends from defines exactly that variable.
+   Pasadas and Jiménez (*IEEE TED* 63(7) 2016,
+   [arXiv:1605.08235](https://arxiv.org/pdf/1605.08235)) write `v = μF` with
+   `F = −dV/dx` and state that *"V(x) is the quasi-Fermi level along the
+   graphene channel"*.
+2. Classical long-channel theory uses the same variable and states what it
+   buys: the channel variable `V(y)` is the quasi-Fermi potential, and the
+   current-density equation it feeds is *"both drift and diffusion"*
+   ([long-channel MOSFET notes](https://dunham.ece.uw.edu/ee531/Long_Channel_MOSFET.pdf)).
+   In the quasi-Fermi variable, **one term is the complete current**.
+3. `carrier_density()` already assumes it. The quantum-capacitance series
+   factor `C_q/(C_q + C_ox)` is the correction one applies when the channel
+   variable is the quasi-Fermi level and the graphene drop `E_F/e` is carried
+   separately. Under a strictly electrostatic reading, that factor is itself a
+   double count.
+
+**What the literature does not say, recorded because it bears on the thesis.**
+A review of GFET compact models (Lu *et al.*,
+[arXiv:1703.09759](https://arxiv.org/pdf/1703.09759)) does *not* make this
+identification: it calls the imref splitting "a.k.a. channel voltage" in one
+section and describes `V(x)` only as "the voltage along the channel" in the
+compact-model sections, never connecting them; its Eq. (12) carries a diffusion
+term that its Eq. (15) writes with the same expression as drift; and its
+compact model uses a drift form while stating only that drift-diffusion "is
+assumed". **The ambiguity §4.6.5 found is inherited from the compact-model
+literature rather than introduced here** — which does not excuse it in a
+thesis, and does raise the value of declaring it explicitly.
+
+#### §4.6.5's term is a double count, and its numbers stand
+
+`graphene_diffusion_current_model.py` writes the current as `d(V − λV_F)/dx`
+and names `V − V_F` the quasi-Fermi potential. Under the declaration `V` *is*
+that potential, so `λ = 0` is already the complete drift-diffusion current.
+
+**The term built in §4.6.5 is therefore a double count, not missing physics.**
+Measured three ways at `V_g` = 2.0 V, `V_ds` = 0.1 V:
+
+| Level | `I_d` (λ = 0) | `I_d` (λ = 1) | difference |
+|---|---|---|---|
+| intrinsic (fixed channel drop) | 1.432116×10⁻⁴ A | 1.442091×10⁻⁴ A | **+0.6965 %** |
+| terminal (contact feedback on) | 8.190217×10⁻⁵ A | 8.225263×10⁻⁵ A | **+0.4279 %** |
+| §4.6.5, at its saturated-peak bias | — | — | +0.5018 % |
+
+The terminal figure must be the smaller of the first two, because the series
+contact resistance is a negative feedback on `I_d`; that inequality is checked
+rather than assumed, and its sign is fixed by the circuit, not by a fit.
+
+**No number in §4.6.5 is deleted or changed.** The derivation is correct, the
+boundary-term structure is correct, and the measured size is correct. What
+changes is the direction: the production path is `λ = 0`, and `λ` is retained
+as the instrument that *measures* the difference between the two readings. The
+±0.50 % ambiguity §4.6.5 attached to every `I_d` in this chapter is therefore
+**resolved rather than bounded**.
+
+#### And the larger question the naming had been standing in front of
+
+Declaring `V_ch` quasi-Fermi is not free: it promises that the charge relation
+is the one that variable belongs to. Under the declaration the gate drive
+divides exactly,
+
+```
+V_g − V_dirac − V_ch  =  e·n/C_ox  +  E_F(n)/e ,    E_F(n)/e = A_F·√n    (4.28)
+```
+
+which is a quadratic in `√n` with a closed-form root and no new parameter —
+`A_F` is this thesis's own Dirac dispersion. §4.3's `carrier_density()` instead
+uses the linearised series factor
+
+```
+n = (C_ox·dV/e) · C_q/(C_q + C_ox)                                      (4.29)
+```
+
+(4.29) is the linearisation of (4.28). Running Eq. (4) on (4.28) with nothing
+else changed:
+
+| | `I_d` at the RF bias |
+|---|---|
+| on (4.29), λ = 0 — **the committed model** | 8.190217×10⁻⁵ A |
+| on (4.28), λ = 0 — the declaration taken exactly | 8.140885×10⁻⁵ A |
+| **cost of the declaration** | **−0.6023 %** |
+| the double count it removes | +0.4279 % |
+
+**The charge-model question is 1.4 times larger than the transport term this
+chapter spent 2026-10-06 and 2026-10-07 on.** That is the finding of this
+section, and it is not a flattering one: two sessions went into a term worth
++0.43 % while a −0.60 % question about the chapter's own charge relation sat
+unexamined directly underneath it, reachable in one line of code.
+
+**A number this section declines to quote.** The raw (4.28)-vs-(4.29) charge
+disagreement reaches **+68 %** at `dV` = 0.01 V. Quoting that would be wrong:
+`n_puddle` = 5×10¹⁵ m⁻² swamps both forms there and no result in this chapter
+lives in that regime. In what `carrier_density()` actually returns, the worst
+disagreement across the drives this chapter sweeps is **+2.22 %**; in `I_d` it
+is **−0.60 %**. The raw figure would have overstated the cost by a factor of
+31. This is §4.10's lesson and 2026-10-06's rule applied to this section's own
+result.
+
+#### Annotation to §4.3 and §4.6.5, in place
+
+§4.3's `carrier_density()` docstring is annotated in the source rather than
+rewritten: the wording "electrostatic charge from `V_g − V_ch`" is retained and
+marked loose, since under the declaration the exact relation is (4.28) and the
+series factor is its linearisation rather than an additional physical effect.
+**The numbers that function returns are unchanged — verified bitwise over a
+41-point sweep — and what changed is what they are a model of.**
+
+#### A numerical defect found on the way, measured and left open
+
+`quantum_capacitance()` returns a finite value up to `dV` = **18.3493 V** and
+`inf`/`NaN` above it, because `log(2(1 + cosh η))` overflows once
+`η = dV/(kT/e)` exceeds about 710 (`kT/e` = 25.85 mV at 300 K). The exact
+large-`η` limit is `|η| + log 2`. The onset is far outside the ~2.7 V maximum
+drive this chapter sweeps, so **no committed number is affected**; it is
+recorded as §7.9 item 13 rather than patched here, because that module owns
+committed transcripts.
+
+#### What this section does not claim
+
+1. It does **not** claim (4.29) is wrong. (4.28) and (4.29) have been compared
+   only to each other, never to measurement. Under the declaration (4.29) is
+   non-exact; whether it is less accurate is not established here.
+2. It does **not** re-derive this chapter. Every committed number remains a
+   (4.29) number. The −0.60 % is a measurement of the gap, obtained by
+   replacing one function and re-running, not a new result set.
+3. It does **not** touch the hole branch. Both (4.28) and (4.29) carry `n` as a
+   magnitude, which §4.6.5 already identified as leaving every branch-asymmetric
+   result in this chapter unverified. The declaration does not help, and the
+   signed-carrier item (§7.9 item 9) now **blocks** the (4.28) re-derivation
+   rather than sitting beside it: re-deriving on a magnitude would rebuild the
+   same flaw in a new equation.
+
+Machine output: `potential_declaration_output.txt` (10 checks, 10 passed) and
+`potential_census_output.txt` (16 checks, 15 passed, 1 expected failure).
+Modules: `graphene_potential_declaration.py`,
+`graphene_potential_census_audit.py`. Note:
+`notes/2026-10-08-the-declaration-and-the-question-underneath-it.md`.
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent
