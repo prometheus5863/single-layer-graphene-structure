@@ -1,0 +1,133 @@
+==============================================================================
+POTENTIAL-VARIABLE CENSUS -- which potential is each one?
+Chapter 7 Section 7.9 item 10, created 2026-10-07, mechanised 2026-10-08
+==============================================================================
+
+SECTION 1 -- the census
+------------------------------------------------------------------------------
+  UNDETERMINED           1
+  DECLARED_NO_REASON     0
+  DUAL_ROLE_TERMINAL    10
+  DECLARED               0
+  DETERMINED            11
+  COLLECTED_NO_ROLE     55
+  PARSE_ERROR            0
+  TOTAL NAMES           77   across 24 modules
+
+  UNDETERMINED -- both roles AND channel-swept (the 10-07 defect):
+    graphene_fet_model.py::V_ch
+        carrier_density()                  line 97    ES<- n_electrostatic = C_ox * dV / e
+        channel_resistance()               line 141   ES<- n = carrier_density(V_g, V_ch) | TR<- sigma_sheet = sheet_conductivity(n)
+        transfer_characteristic()          line 170   TR<- Id = np.zeros_like(Vg_range)
+
+  DUAL_ROLE_TERMINAL -- both roles, NOT channel-swept, not a fault:
+    contact_resistance_crossover.py::V_g                   TERMINAL_BIAS
+    graphene_diffusion_current_model.py::V_g               TERMINAL_BIAS
+    graphene_fet_model.py::V_dirac                         REFERENCE_LEVEL
+    graphene_fet_model.py::V_g                             TERMINAL_BIAS
+    graphene_velocity_saturation_model.py::V_SAT_ANCHOR    UNADJUDICATED
+    graphene_velocity_saturation_model.py::V_g             TERMINAL_BIAS
+    graphene_velocity_saturation_model.py::V_hi            TERMINAL_BIAS
+    graphene_velocity_saturation_model.py::mu_saved        MOBILITY_NOT_A_POTENTIAL
+    graphene_velocity_saturation_model.py::mu_t            MOBILITY_NOT_A_POTENTIAL
+    rf_small_signal_model.py::V_dirac                      REFERENCE_LEVEL
+
+  DECLARED in the source:
+    (none)
+
+SECTION 2 -- registry completeness: a census that cannot go stale
+------------------------------------------------------------------------------
+  PASS  every potential-like name found is in POTENTIAL_REGISTRY
+        77 names, every one adjudicated or explicitly UNADJUDICATED
+  PASS  POTENTIAL_REGISTRY has no rows for names that do not exist
+        no dead rows
+
+  Adjudication breakdown:
+    DISPLAY_ONLY                11
+    ELECTROSTATIC_ONLY           1
+    ENERGY_NOT_A_POTENTIAL       6
+    GEOMETRIC_PHASE              3
+    MOBILITY_NOT_A_POTENTIAL    12
+    QUASI_FERMI                  7
+    REFERENCE_LEVEL              9
+    TERMINAL_BIAS               19
+    TRANSPORT_ONLY               2
+    UNADJUDICATED                7
+
+  7 of 77 names are UNADJUDICATED. That is OPEN WORK, not a pass:
+    graphene_contact_doping_nonlinear_model.py::V_F
+    graphene_contact_doping_nonlinear_model.py::phi
+    graphene_diffusion_current_model.py::V_F
+    graphene_diffusion_current_model.py::mu_resp
+    graphene_diffusion_mutation.py::V_F
+    graphene_photodetector_signed_carrier_model.py::phi
+    graphene_velocity_saturation_model.py::V_SAT_ANCHOR
+    None of them is channel-swept, so none can carry the 10-07
+    defect; what is undecided is whether they are potentials at all.
+
+SECTION 3 -- the three siblings named on 2026-10-07, checked
+------------------------------------------------------------------------------
+  FAIL* Chapter 5's interconnect model has a potential-like variable at all   (* expected; see detail)
+        NONE.  graphene_interconnect_model.py contains no potential-like
+        name anywhere: it is a resistivity-and-geometry model and has no
+        channel potential to be ambiguous about.  The 10-07 candidate
+        "Chapter 5's interconnect channel potential" DOES NOT EXIST.
+        This check is kept, and kept failing, as the standing record of
+        that -- a passing check here would mean a potential had appeared.
+  PASS  Chapter 6's two-contact channel potential is not ambiguous
+        roles=[].  It is imported and printed and enters no computation in
+        that module, so there is no second reading available to it.
+  PASS  Section 4.4's local Dirac-point shift (V_channel_shift) is collected
+        verdict=COLLECTED_NO_ROLE; it appears only in the docstring derivation, which is
+        itself a finding: the closed form actually evaluated never computes
+        it.  Collected as a provenance fact, adjudicated ELECTROSTATIC_ONLY.
+
+SECTION 4 -- controls
+------------------------------------------------------------------------------
+  4a POSITIVE, exactly known (established independently on 10-07):
+  PASS  graphene_fet_model.V_ch is seen in BOTH roles
+        roles=['ELECTROSTATIC', 'TRANSPORT']
+  PASS  graphene_fet_model.V_ch is seen as CHANNEL-SWEPT
+        swept=True
+  4b SYNTHETIC, both directions:
+  PASS  one role -> DETERMINED
+        got DETERMINED
+  PASS  two roles + channel-swept -> UNDETERMINED
+        got UNDETERMINED
+  4c NULL, at the point where the failure enters:
+  PASS  the census is EMPTY when every potential-like name is renamed away
+        44 files rewritten (the instrument itself excluded, see
+        null_control for why), 30 distinct names renamed; leftovers=[]
+  4d MUTATION:
+  PASS  M1 a charge role injected into a TRANSPORT_ONLY terminal bias  [expect DUAL_ROLE_TERMINAL]
+        got DUAL_ROLE_TERMINAL
+  PASS  M2 INERT: the same injection inside a comment  [expect DETERMINED]
+        got DETERMINED
+  PASS  M3 a declaration with no reason  [expect DECLARED_NO_REASON]
+        got DECLARED_NO_REASON
+  PASS  M4 the channel-swept gate is load-bearing: remove the drain-bias name from the sweep and V_ch must LEAVE the defect class  [expect DUAL_ROLE_TERMINAL]
+        got DUAL_ROLE_TERMINAL
+  PASS  M5 a SECOND channel-swept dual-role variable in real repository code must also be caught  [expect UNDETERMINED]
+        got UNDETERMINED
+
+SECTION 5 -- what the census says
+------------------------------------------------------------------------------
+  77 potential-like names, over-collected on purpose, across 24
+  modules.  1 are in both roles and channel-swept; 10 are in both
+  roles and are terminal biases, where dual use is not ambiguity.
+
+  The 10-07 entry listed three places it expected siblings of the
+  V_ch defect.  All three are now checked and NONE of them is one,
+  for three different reasons: Chapter 5 has no potential variable
+  at all; Chapter 6's two-contact V_bias enters no computation in
+  its own module; and Section 4.4's V_channel_shift is never
+  evaluated by the closed form that replaced the derivation.
+
+  The base rate the 10-07 entry asked for, measured: ONE defect in
+  77 names, confined to one variable in one module, and a further
+  7 names whose status as potentials is undecided.  The guess that
+  the class was widespread is not supported.
+
+==============================================================================
+TOTAL: 14 passed, 1 failed (1 of them EXPECTED)
+==============================================================================
