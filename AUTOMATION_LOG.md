@@ -6795,3 +6795,270 @@ constraint; the diffusion module with its transcript and figure; the mutation
 harness with its report and the two checks it forced; the session note;
 Chapter 4 §4.6.5 with Chapter 7 §7.8.1d and the §7.9 rewrite). This
 AUTOMATION_LOG.md entry makes **6**.
+
+---
+
+## 2026-10-08 — The potential is named, and naming it exposed a question 1.4 times larger
+
+Two items closed, both created or rewritten on 2026-10-07: §7.9 item 10 (the
+census) and §7.9 item 7 (the declaration). Doing the census first was the right
+order, and it is the census that produced the surprise.
+
+### 1. The census: one defect in 86 names, and three predictions all wrong
+
+`graphene_potential_census_audit.py` collects every potential-like name in the
+repository — **86 across 25 modules** — and requires each to carry an explicit
+adjudication in a registry inside the file. A name present in the repository
+and absent from the registry is reported as a fault in its own right, so the
+census **cannot go stale silently**. It proved that on the very next file
+added: committing `graphene_potential_declaration.py` made the completeness
+check FAIL until that module's nine names were adjudicated.
+
+The name pattern is deliberately too wide — it catches `mu_acoustic`, a
+mobility — because a pattern narrow enough to have no false positives has
+already decided which names are potentials, which is the thing being audited.
+`MOBILITY_NOT_A_POTENTIAL` is one of the readings, and 12 names carry it.
+
+**The 10-07 entry named three sibling defects it expected. All three were
+checked and NONE is one, for three different reasons:**
+
+| 10-07's candidate | Found |
+|---|---|
+| Chapter 5's interconnect channel potential | **does not exist** — `graphene_interconnect_model.py` has no potential-like name at all |
+| Chapter 6's two-contact channel potential | imported and printed, **enters no computation** in its own module |
+| §4.4's local Dirac-point shift | appears **only in a docstring** derivation the evaluated closed form never uses |
+
+The first is kept as a check **expected to fail**, and failing on every run,
+because a pass there would mean a potential variable had appeared in Chapter 5.
+Measured base rate: **1 defect in 86 names.** Seven names remain
+`UNADJUDICATED` — open work, not a pass — and none is channel-swept, so none
+can carry the defect.
+
+### 2. Thirteen false positives, and the gate they forced
+
+The first run reported **thirteen** dual-role names, including `V_g`, `V_hi`,
+`mu_t` and `V_SAT_ANCHOR`. Every one was a false positive and instructively so.
+`V_g` really does appear in a charge relation and a current relation in the same
+function, and that is **not** a defect: a terminal bias is the same physical
+quantity in both, so it has no second reading.
+
+What made `V_ch` ambiguous was never that it appeared twice. It is that `V_ch`
+is **channel-swept** — swept from 0 to the drain bias *inside one current
+evaluation* — which is the only situation in which the electrostatic and
+quasi-Fermi readings differ. The verdict now requires both roles **and**
+channel-swept, detected by following `profile = linspace(0, Vds, n)` through to
+`for V_ch in profile`; the benign case is reported as `DUAL_ROLE_TERMINAL` and
+ten names sit there. **Mutants M4a/M4b exist so the gate is not decoration:**
+M4a strips the declaration and requires `V_ch` to fall back to `UNDETERMINED`
+(proving the *declaration* cleared the defect, not a classifier change); M4b
+strips the declaration *and* the drain-bias name and requires `V_ch` to leave
+the defect class. Both pass.
+
+Two first-version faults worth recording as this repository's own classes:
+role markers fired on **prose** (a comment about `sheet_conductivity`, and each
+function's own `def` line matching its own name — comments, docstrings, strings
+and signatures are now blanked first); and three registry rows had **no code
+behind them** because the scanner saw only `ast.Name` and missed every
+`gfet.V_dirac`, i.e. cross-module use through an `Attribute`. The dead-row
+check earned its keep on its first run.
+
+### 3. The declaration, and the literature that does not make it
+
+> **`V_ch` is the quasi-Fermi (electrochemical) potential of the channel
+> carriers, in volts, measured from the source.**
+
+Declared in `graphene_fet_model.py` where `V_ch` is defined, as a
+machine-readable in-source marker, following `graphene_dead_name_sweep.py`'s
+convention. Three grounds: Pasadas and Jiménez (*IEEE TED* 2016,
+arXiv:1605.08235) define exactly that variable in the compact model Eq. (4)
+descends from; classical long-channel theory uses the same variable and heads
+the current equation it feeds "both drift and diffusion"; and
+`carrier_density()` already applies the quantum-capacitance series factor,
+which is the correction for exactly that reading.
+
+**And a literature result worth having.** Lu *et al.*'s review of GFET compact
+models (arXiv:1703.09759) was fetched specifically to see whether the
+identification is standard. **It is not made there**: §2.5 calls the imref
+splitting "a.k.a. channel voltage" but never connects it to the `V(x)` of the
+compact-model sections; Eq. (12) carries a diffusion term that Eq. (15) writes
+with the same expression as drift, unexplained; and the §5 compact model uses a
+drift form while only *assuming* drift-diffusion. **The ambiguity 10-07 found
+is inherited from the literature rather than invented here** — which does not
+excuse it and does raise the value of declaring it.
+
+### 4. 10-07's term is a double count, measured three ways
+
+Under the declaration, `λ = 0` is already the complete drift-diffusion current,
+so `λ = 1` adds a term already present. At `V_g` = 2.0 V, `V_ds` = 0.1 V:
+
+| Level | λ=0 | λ=1 | difference |
+|---|---|---|---|
+| intrinsic | 1.432116e-04 A | 1.442091e-04 A | **+0.6965 %** |
+| terminal | 8.190217e-05 A | 8.225263e-05 A | **+0.4279 %** |
+| 10-07, at its own saturated-peak bias | — | — | +0.5018 % |
+
+The terminal figure **must** be the smaller of the first two because the series
+contact resistance is negative feedback; that inequality is checked, and its
+sign is fixed by the circuit rather than by a fit. Nothing is rewritten:
+§4.6.5's numbers stand, and `λ` is retained as the instrument that *measures*
+the difference between readings.
+
+### 5. The question underneath, and it is larger
+
+The declaration promises that the charge relation is the one `V_ch` belongs to:
+
+    V_g − V_dirac − V_ch = e·n/C_ox + E_F(n)/e        (4.28, exact, closed form)
+    n = (C_ox·dV/e)·C_q/(C_q + C_ox)                  (4.29, what the repo computes)
+
+Running Eq. (4) on (4.28) with nothing else changed moves `I_d` at the RF bias
+by **−0.6023 %** — **1.4 times** the term just retired. **Two sessions went
+into a +0.43 % transport term while a −0.60 % question about the same chapter's
+charge relation sat underneath it, reachable by replacing one function.** That
+is §7.7's unequal scrutiny in a third instance, and the cause is nameable: the
+attention was captured by a literature paper's framing rather than by an audit
+of this repository's own equations.
+
+**A number this session declined to quote.** The raw (4.28)-vs-(4.29) charge
+disagreement reaches **+68 % at `dV` = 0.01 V** — in a regime `n_puddle` =
+5e15 /m² swamps, where no committed result lives. In what `carrier_density()`
+actually returns the worst is **+2.22 %**, and in `I_d` it is **−0.60 %**. The
+raw figure would have overstated the declaration's cost by a **factor of 31**.
+10-06's rule, applied to this session's own result.
+
+### 6. Validation against exactly known values
+
+- (4.28)'s closed-form root satisfies (4.28) to **3.8e-16** relative — an
+  algebraic identity, not a plausible range.
+- `dV = 0` gives `n = 0` **exactly** in both forms before the puddle floor.
+- `n(+dV) == n(−dV)` **bitwise** in both forms (both carry `n` as a magnitude).
+- The large-drive limit is measured and monotone for both, not asserted.
+- `graphene_fet_model.py`'s output is verified **bitwise unchanged** by this
+  session's edit over a 41-point sweep. The edit is comments plus one docstring
+  annotation; 10-02 established byte-identity is not correctness, and it is
+  exactly the right instrument for a comment-only change.
+
+### 7. A new defect found on the way, measured and ranked last on purpose
+
+`quantum_capacitance()` returns `inf`/`NaN` above `dV` = **18.3493 V** (found
+by bisection), because `log(2(1+cosh η))` overflows once `η = dV/(kT/e)`
+exceeds ~710; `kT/e` = 25.85 mV here. The exact large-`η` limit is
+`|η| + log 2`. The maximum drive swept anywhere in this thesis is ~2.7 V, so
+**no committed number is affected** — it is a *latent* defect, is §7.9 item 13,
+and is deliberately ranked last. Not patched today because that module owns
+committed transcripts across three chapters.
+
+### 8. Two census rows adjudicated, one against the census's own guess
+
+The census left `V_F` `UNADJUDICATED` on the guess that it was a Fermi
+*velocity*. In `graphene_diffusion_current_model.py` it is not —
+`fermi_voltage(n)` returns `E_F/e` in **volts**, and it is the very quantity
+that converts between the two readings. In
+`graphene_contact_doping_nonlinear_model.py` the same name **is** a velocity,
+1.0e6 m/s. One name, two quantities, two modules: 10-01's fault in a third
+place. The third row stays `UNADJUDICATED` because its module was not read
+today, which is cheaper than guessing again.
+
+### 9. Methodological note, continuing the series
+
+09-28: prose is a detector. 09-29: a mutation that does not arrive is
+indistinguishable from a system that does not respond. 09-30: a control has to
+sit where the failure enters. 10-01: and name what it compares against in a way
+that cannot drift. 10-02: when it agrees, that is a fact about two artefacts.
+10-03: a PASS/FAIL at zero is silent about magnitude. 10-04: a quantity can be
+computed correctly under the wrong name. 10-05: a criterion with a number in it
+can be missed in a way that locates the real constraint. 10-06: and decided
+correctly on the quantity it names while missing the finding, if that quantity
+is a ratio. 10-07: an item can be well-posed, correctly motivated and built
+exactly as written while its premise is an artefact of an unnamed variable.
+**10-08: AND CLOSING SUCH AN ITEM CAN SHOW THE AMBIGUITY WAS THE SMALLER HALF.
+NAMING THE POTENTIAL SETTLED ±0.50 % AND EXPOSED −0.60 % THAT THE NAMING
+QUESTION HAD BEEN STANDING IN FRONT OF.**
+
+The checkable rule: **when a declaration resolves an ambiguity, measure what
+the declaration itself costs in the quantity you quote.** A declaration
+promises the rest of the model belongs to the declared variable, and that
+promise is computable — here, one monkey-patched function and one re-run.
+Mechanisable form: new §7.9 item 14. Items 2, 3 and 6 all turn on a named
+quantity and none has been costed this way.
+
+Second rule, from §1: **a predicted class is not a measured class.** Three
+siblings were predicted on 10-07 from one instance; the census found zero, with
+three different reasons. Predicting where a defect class lives is cheap; the
+census that measures it cost one session and is now standing.
+
+### 10. Environment and automation health
+
+Device reachable and folder connected at the **04:30** firing (04:50 UTC);
+Step 0 found neither repository carrying a 2026-10-08 entry and no commits
+since midnight, so this was a full session. `pip install scipy` succeeded (the
+device VM still lacks it; 10-07: 3 s), so the network was healthy for the fifth
+session in six. The whole session ran **on the device VM** — the 10-06
+`SyntaxError` constraint stayed retired, and nothing crossed the bridge.
+**Live web search was available and used**: three fetches attempted, two
+returned usable content (arXiv:1703.09759, the long-channel MOSFET notes) and
+one returned **table-of-contents text only** — Pasadas's 2017 dissertation
+(arXiv:1709.01324), whose §§3.4.3–3.4.4 are the sections that would have
+answered the question directly. Recorded as a *partial* fetch rather than a
+failure: the extraction succeeded and the content was not in it. PubMed/PMC not
+attempted, per the standing note.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-DERIVE CHAPTER 4 ON THE EXACT CHARGE RELATION (4.28)** — created today,
+  §7.9 item 12, and **the new top item**. Worth −0.6023 % in `I_d` at the RF
+  bias, 1.4× the term two sessions went into. **Blocked by the signed-carrier
+  item**: both charge forms carry `n` as a magnitude, so re-deriving first
+  would rebuild the branch-sign flaw in a new equation.
+- **A SIGNED-CARRIER FET MODEL** — created 10-07, §7.9 item 9, **promoted today
+  from sibling to prerequisite** of the top item. This is the first session in
+  which it blocks something rather than sitting beside it, and it remains
+  untouched.
+- **MEASURE WHAT EACH DECLARATION COSTS** — created today, §7.9 item 14, the
+  mechanisable form of today's second half. One function patched, one re-run.
+  Items 2, 3 and 6 all turn on a named quantity; none costed.
+- **MECHANISE the magnitude item** — created 10-03; worked examples on 10-04,
+  10-05, twice on 10-06, on 10-07 and **again today** (the +68 % raw charge
+  disagreement was a pure-magnitude trap that a sign or PASS/FAIL check would
+  have waved through, and the factor between the quotable and unquotable
+  version was 31). **Seven modules, eight defects, same result. Three sessions
+  overdue.** The mechanisable form is a repository-wide census of every
+  MUST_CHANGE recording its response size — and today's census is the proof
+  such a sweep is buildable in one session, which removes the last excuse.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06, widened
+  10-07. Untouched today. Today's census is a worked template for it: the
+  registry-plus-completeness-check pattern transfers directly.
+- **WHETHER `n_puddle` REMOVES OTHER REGIMES** — created 10-07, §7.9 item 11.
+  **Strengthened today**: the floor is now known to dominate the near-Dirac
+  charge of *both* (4.28) and (4.29) — 0.001 % disagreement at `dV` = 0.01 V
+  once floored, against +68 % raw — so whatever it silenced, it silenced in the
+  replacement model too. Sibling of the §4.9 item on whether `n_puddle`
+  reproduces §3.3's 6.45 kΩ/sq floor, created 09-29 and **untouched for ten
+  sessions**.
+- **THE `cosh` OVERFLOW** — created today, §7.9 item 13, **ranked last on
+  purpose**: latent, no committed number affected, and a numerics change in
+  `graphene_fet_model.py` needs its own output-neutrality pass.
+- **The seven `UNADJUDICATED` census rows** — created today. `V_SAT_ANCHOR`,
+  `mu_resp`, two `phi` and one `V_F` among them. None is channel-swept so none
+  can carry the 10-07 defect; what is undecided is whether they are potentials
+  at all. Cheap, and the census will keep reporting them until they are decided.
+- **A self-heating term** — created 10-06, demoted 10-07, **unchanged and now
+  third in the RF queue** behind items 12 and 9. Still a limitation to state
+  rather than a lever.
+- **Rewire `transfer_characteristic()` to the saturated form, or decide not
+  to** — created 10-05, deferred 10-06 and 10-07. **The deferral's reason is
+  now gone**: it waited on the naming question, which is closed. It waits on
+  item 12 instead, which is a stronger reason and a worse position.
+- **Why does the peak-`f_T` bias MOVE BRANCH between the two models?** —
+  created 10-05, narrowed 10-06 and 10-07. Untouched today; still coupled to
+  item 9, which is now blocking.
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, **untouched for eighteen
+  consecutive sessions**. Today was a naming-and-audit session and again did
+  not touch it. Eighteen sessions is no longer a backlog entry; it is a
+  statement about what this automation preferentially does, and §7.7 is the
+  chapter that should be made to answer for it.
+
+**Commits this run:** 4 (the census with its transcript; the declaration, the
+double-count measurement and the two adjudicated registry rows; the session
+note; Chapter 4 §4.6.6 with Chapter 7 §7.8.1e and the §7.9 rewrite). This
+AUTOMATION_LOG.md entry makes **5**.
