@@ -7058,7 +7058,35 @@ attempted, per the standing note.
   statement about what this automation preferentially does, and §7.7 is the
   chapter that should be made to answer for it.
 
-**Commits this run:** 4 (the census with its transcript; the declaration, the
+### 11. Addendum: the device dropped mid-session, and the work was nearly lost
+
+Written after the fact, because the §10 health note above was committed before
+the interruption and would otherwise read as a clean session.
+
+**The device dropped off the bridge at roughly 05:25 UTC**, immediately after
+this entry was committed, with **all five of this repository's commits and the
+Design-Verification-Roadmap's first commit sitting local and unpushed**. Three
+retries failed. The session sent one notification saying so and stopped, on the
+correct assumption that the scratch clone was lost and a later firing would
+redo the work from GitHub. **The connection came back**, `$HOME/work` had
+survived intact in the session VM, and the first action on reconnect was to
+push everything already committed and verify it against the GitHub API before
+resuming.
+
+Two things worth keeping:
+
+- **The three-firing redundancy would have worked.** Nothing had been pushed,
+  so both repositories on GitHub were untouched — no half-pushed state — and a
+  later firing's Step 0 would correctly have found no 2026-10-08 entry and run
+  a full session. The design held under its first real test.
+- **PUSH EARLIER, and this is a standing correction to how these sessions are
+  run.** Five commits accumulated here before anything was pushed, which left
+  roughly forty minutes of work in a place only a live bridge could reach. The
+  remaining work was pushed in batches instead. A commit that exists only in
+  the session VM is not preserved work, and the cost of pushing more often is
+  one command.
+
+**Commits this run:** 5 (the census with its transcript; the declaration, the
 double-count measurement and the two adjudicated registry rows; the session
-note; Chapter 4 §4.6.6 with Chapter 7 §7.8.1e and the §7.9 rewrite). This
-AUTOMATION_LOG.md entry makes **5**.
+note; Chapter 4 §4.6.6 with Chapter 7 §7.8.1e and the §7.9 rewrite; this
+addendum). This AUTOMATION_LOG.md entry makes **6**.
