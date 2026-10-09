@@ -1,0 +1,261 @@
+==============================================================================
+A SIGNED-CARRIER FET MODEL -- Chapter 7 Section 7.9 item 9
+the prerequisite item 12 has been waiting on since 2026-10-08
+==============================================================================
+
+Device constants read FROM graphene_fet_model (not re-typed here):
+  C_ox      = 3.836815e-04 F/m^2
+  n_puddle  = 5.000000e+15 1/m^2   (5.000e+11 1/cm^2)
+  mu        = 0.4000 m^2/(V.s)
+  V_dirac   = 0.8000 V
+  A_FERMI   = 1.166650e-09 V.m          (from graphene_diffusion_current_model)
+
+------------------------------------------------------------------------------
+SECTION 1.  The decomposition reproduces (D2) as an identity
+------------------------------------------------------------------------------
+  [PASS] n_e + n_h reproduces carrier_density() over 801 points
+         max relative difference 3.231e-16 ; bitwise identical: False
+  [PASS] n_e - n_h recovers the net density to <= 1 ulp OF THE TOTAL
+         max 1.000e+00 1/m^2 = 1.00 ulp of S ; 1.483e-16 relative to S
+         AND A FINDING, not a rounding note: measured against the
+         NET density instead of the total the same residual is
+         1.772e-14 -- a factor 119 larger -- because n_net -> 0 at
+         neutrality while S stays at the puddle floor.  Writing
+         this check as a ratio and choosing its denominator is
+         what decides PASS from FAIL, which is Section 7.9's
+         10-06 ratio-criterion item in a fresh instance.
+         DESIGN RULE: never reconstruct the net density from the
+         species pair; call n_net() / n_net_of_dV() directly.
+  [PASS] MASS ACTION: n_e*n_h == n_puddle^2/4 with no free parameter
+         target 6.250000e+30 ; max relative residual 3.603e-16
+  [PASS] both species non-negative everywhere
+         min n_e 1.067762e+15 , min n_h 1.067762e+15
+
+------------------------------------------------------------------------------
+SECTION 2.  Validation against exactly known values
+            (symmetries that must return ZERO, not plausible ranges)
+------------------------------------------------------------------------------
+  [PASS] AMBIPOLAR SYMMETRY n_e(+dV) == n_h(-dV), BITWISE in dV, 801 points
+         max absolute difference 0.000e+00 1/m^2 -- exact zero required and met
+  [PASS] the V_g-route residual is FULLY ACCOUNTED FOR by its argument
+         feeding the reconstructed dV into the dV-level model reproduces the V_g-route species BITWISE, so the 2.0 /m^2 below is the argument's error and none of it is the model's
+         THIS CHECK FIRST RAN AS "BITWISE" AND FAILED, AT 2.0 /m^2.
+         The symmetry is NOT broken -- (a) above is bitwise.  What
+         is not exact is the ARGUMENT: (V_dirac - x) - V_dirac is
+         not -((V_dirac + x) - V_dirac) in binary floating point.
+         Measured directly: that reconstruction is odd bitwise? False,
+         worst |dV_- + dV_+| = 2.220e-16 V, at x = -2.0 V, which the
+         C_ox/e lever of 2.395e+15 /(V.m^2) turns into the 2.0 /m^2
+         above.  A symmetry check can fail because of how its
+         argument was BUILT rather than because the symmetry is
+         absent -- the 09-30 arrival lesson, in the input instead
+         of in the mutation.
+  [PASS] dV = 0 gives n_net EXACTLY zero
+         n_net(0) = 0.0
+  [PASS] dV = 0 gives n_e == n_h BITWISE (the Dirac point is neutral)
+         n_e = n_h = 2.500000e+15 1/m^2 = n_puddle/2 = 2.500000e+15
+  [PASS] (4.28) signed root is ODD, BITWISE: n(-dV) == -n(+dV)
+         max absolute difference 0.000e+00 1/m^2
+  [PASS] (4.28) is SATISFIED by its signed root (algebraic identity)
+         max relative residual 7.690e-16 over dV in [-2, 2] V
+  [PASS] two-carrier sigma == shipped sigma at mu_e = mu_h, to the precision Chapter 4 commits (1e-12 rel)
+         max 1.626e-19 S/sq = 3.689e-16 relative = 3.00 ulp ; bitwise: False
+         THIS CHECK WAS FIRST WRITTEN AS "BITWISE" AND FAILED at
+         3.00 ulp, and it was NOT fixed by widening a ulp budget
+         until it passed -- 09-29's alpha anchor established that
+         the repair for a failing exactness check is to state the
+         identity being checked and name the slack.  The identity:
+         0.5*(S+n) + 0.5*(S-n) == S algebraically but reassociates
+         the sum; e*mu* then adds two roundings.  The slack: 3.689e-16
+         relative, against four significant figures in the chapter.
+         10-02 said byte identity is not correctness.  Today adds
+         the converse: ABSENCE of byte identity is not a defect,
+         and three ulp of summation order is not a physics claim.
+
+------------------------------------------------------------------------------
+SECTION 3.  The internal p-n junction the magnitude model could not
+            represent
+------------------------------------------------------------------------------
+  The shipped transfer_characteristic() averages the LOCAL channel
+  resistance over V_ch from 0 to V_ds.  Where dV = V_g - V_ch -
+  V_dirac changes sign the channel changes TYPE, and |n| merely
+  dips to the puddle floor.  The branch is now countable:
+
+  V_ds     V_g        frac n     frac p     CNP at V_ch =
+  0.05     0.6000     0.00       1.00       unipolar
+  0.05     0.8125     0.26       0.74       0.0125 V
+  0.05     0.8250     0.50       0.50       0.0250 V
+  0.05     1.0500     1.00       0.00       unipolar
+  0.10     0.6000     0.00       1.00       unipolar
+  0.10     0.8250     0.26       0.74       0.0250 V
+  0.10     0.8500     0.50       0.50       0.0500 V
+  0.10     1.1000     1.00       0.00       unipolar
+  0.50     0.6000     0.00       1.00       unipolar
+  0.50     0.9250     0.26       0.74       0.1250 V
+  0.50     1.0500     0.50       0.50       0.2500 V
+  0.50     1.5000     1.00       0.00       unipolar
+
+  V_ds = 0.05 V : channel is ambipolar for 0.8000 V < V_g < 0.8500 V (width = V_ds = 0.05 V)
+  V_ds = 0.10 V : channel is ambipolar for 0.8000 V < V_g < 0.9000 V (width = V_ds = 0.10 V)
+  V_ds = 0.20 V : channel is ambipolar for 0.8000 V < V_g < 1.0000 V (width = V_ds = 0.20 V)
+  V_ds = 0.50 V : channel is ambipolar for 0.8000 V < V_g < 1.3000 V (width = V_ds = 0.50 V)
+  V_ds = 1.00 V : channel is ambipolar for 0.8000 V < V_g < 1.8000 V (width = V_ds = 1.00 V)
+
+  The window width equals V_ds EXACTLY, for the reason stated in
+  ambipolar_window(): dV vanishes somewhere in (0, V_ds) iff
+  V_dirac < V_g < V_dirac + V_ds.  No sweep is needed to know it,
+  and the census above agrees with it at every row.
+  [PASS] census agrees with the closed-form ambipolar window at 5 biases
+         mid-window biases are two-branch; both edges unipolar
+
+------------------------------------------------------------------------------
+SECTION 4.  Section 4.9 / Chapter 3 Section 3.3: the floor item,
+            open since 2026-09-29 and untouched for ELEVEN sessions
+------------------------------------------------------------------------------
+  Chapter 4 Dirac-point floor, from this module:
+    n_e = n_h = n_puddle/2 = 2.500000e+15 1/m^2 at dV = 0, EXACTLY
+    sigma_min = e*mu*(n_e + n_h) = e*mu*n_puddle = 3.204353e-04 S/sq
+    R_sheet   = 3.120755e+03 Ohm/sq = 3.1208 kOhm/sq
+
+  Chapter 3 Section 3.3 MEASURED floor, recomputed from CODATA:
+    sigma_min = 4 q_e^2/h = 1.549618e-04 S/sq
+    R_sheet   = 6.4532 kOhm/sq   (Section 3.3 quotes 6.45 kOhm/sq)
+  [PASS] this module reproduces Section 3.3's quoted 6.45 kOhm/sq from CODATA
+         computed 6.4532 kOhm/sq against the 6.45 kOhm/sq in the chapter text
+
+  *** THE DISAGREEMENT ***
+    Chapter 4 is MORE CONDUCTIVE at the Dirac point than Chapter 3
+    by a factor of 2.0678.
+    Chapter 4 predicts 3.1208 kOhm/sq at neutrality where Chapter 3
+    measures 6.4532 kOhm/sq.
+    The n_puddle that would reconcile them is 2.417989e+15 1/m^2 =
+    2.4180e+11 1/cm^2, against the shipped 5.0000e+11 1/cm^2, i.e. a factor
+    2.0678 SMALLER.
+
+    Printed with the factor first, 10-03's magnitude rule: a
+    PASS/FAIL on "do the two floors agree" would have returned FAIL
+    and been silent about whether the gap was 2x or 200x.
+
+  WHY THE SIGNED READING IS WHAT MAKES THIS DECIDABLE.
+    n_puddle enters (D2) as a quadrature floor on a MAGNITUDE, and a
+    magnitude cannot say whether the floor is on the net density,
+    on the total, or on each species.  Those three readings differ
+    by factors of 1, 1 and 2 in sigma_min, which is the same order
+    as the disagreement itself -- so before Section 1 the gap was
+    not quotable.  Section 1 settles it: the floored quantity is
+    n_e + n_h, the TOTAL.  Had n_puddle meant the per-species
+    density the total would be 2*n_puddle and Chapter 4 would be
+    4.1357 x too conductive instead of 2.0678 x -- the discrepancy
+    moves the WRONG WAY under that reading, so the convention
+    cannot be what explains it.
+
+  WHAT IS NOT CLAIMED.  These two floors are not the same physics:
+    4 q_e^2/h is a quantum/ballistic minimum conductivity observed
+    experimentally, while e*mu*n_puddle is a diffusive disorder
+    floor.  They are not required to be equal.  What IS a defect is
+    that a thesis quotes both, in chapters that feed each other,
+    without ever comparing them -- and that the diffusive one comes
+    out BELOW the measured one, i.e. Chapter 4's channel is less
+    resistive at neutrality than any measured graphene sheet.
+  [PASS] Chapter 4 floor is on the more-conductive side of Chapter 3's
+         the sign of the disagreement is fixed, not fitted: 3.204353e-04 > 1.549618e-04 S/sq
+
+------------------------------------------------------------------------------
+SECTION 5.  What the factor 2.0678 costs the device numbers
+            (intrinsic vs terminal, the 2026-10-08 structure)
+------------------------------------------------------------------------------
+  terminal (R_c = 600.0 Ohm)
+    shipped   n_puddle: I_on 1.013756e-04 A, I_off 8.170468e-05 A, on/off 1.2408
+    Ch.3-matched      : I_on 9.435561e-05 A, I_off 5.294908e-05 A, on/off 1.7820
+    I_off changes by -35.1946 % ; on/off ratio changes by +43.6227 %
+    on/off multiplier  = 1.4362 x
+
+  intrinsic (R_c = 0)
+    shipped   n_puddle: I_on 2.587784e-04 A, I_off 1.602769e-04 A, on/off 1.6146
+    Ch.3-matched      : I_on 2.174762e-04 A, I_off 7.760318e-05 A, on/off 2.8024
+    I_off changes by -51.5818 % ; on/off ratio changes by +73.5702 %
+    on/off multiplier  = 1.7357 x
+
+  The 2.0678 x floor error reaches the on/off ratio as 1.7357 x
+  intrinsically and only 1.4362 x at the terminals: the contact
+  resistance attenuates it by a further 1.2085 x.  Same negative-
+  feedback structure 10-08 measured for the charge relation, and the
+  inequality below is fixed by the circuit rather than by a fit.
+  [PASS] contact resistance attenuates the floor error at the terminals
+         terminal multiplier 1.4362 < intrinsic multiplier 1.7357
+
+------------------------------------------------------------------------------
+SECTION 5b.  Section 7.9 item 11 answered: n_puddle is NOT a
+             near-Dirac regularizer, and the sanity check that
+             assumed it was is the thing that found out
+------------------------------------------------------------------------------
+  This section exists because of a FAILED assertion.  Section 5 was
+  written with the guard "I_on is essentially untouched by the
+  floor", on the docstring's word that n_puddle "regularizes n at
+  the Dirac point" and "regularizes the conductivity minimum".
+  It failed: changing the floor moved I_on by -6.9247 %.
+
+  The reason, measured rather than reasoned:
+  V_g        |n_net| (1/m^2)  n_puddle/|n_net| floor adds   regime
+  0.90       2.356749e+14     21.2157          +2023.922 %  near-Dirac
+  1.50       1.672432e+15     2.9897           +215.247 %   near-Dirac
+  2.00       2.869804e+15     1.7423           +100.886 %   near-Dirac
+  2.50       4.067178e+15     1.2294           +58.471 %    near-Dirac
+  3.00       5.264553e+15     0.9497           +37.914 %    ON STATE
+  3.50       6.461928e+15     0.7738           +26.440 %    ON STATE
+
+  At V_g = 3.5 V -- the MAXIMUM overdrive swept anywhere in this
+  thesis -- the "residual" puddle density is 0.7738 of the
+  gate-induced net density and still adds +26.440 % to the total.
+  A density that is 77 % of the signal at full drive is not a
+  regularizer; it is a parallel conduction channel that the model
+  carries at every bias.  That is Section 7.9 item 11 -- "whether
+  n_puddle removes other regimes", created 10-07 -- answered: it
+  does not remove regimes, it ADDS a floor to all of them, and the
+  docstring that calls it a Dirac-point regularizer is wrong about
+  its own device.
+
+  The overdrive at which the floor's contribution to the total
+  falls below 1 %: dV = 14.7285 V, i.e. 5.46 x the largest overdrive
+  this thesis sweeps (2.7 V).  The regime in which the
+  docstring's description is true is a regime the thesis never
+  enters -- and it is only 3.62 V below where
+  quantum_capacitance() stops returning a number at all.
+  [PASS] the 1 percent-floor crossover is bracketed inside the FINITE domain
+         bracket ceiling 17.4318 V, set at 0.95 x the 18.3493 V overflow onset of Section 7.9 item 13
+         The first version of this bisection scored the NaN above
+         the overflow as "floor dominates" and returned its own
+         bracket ceiling, 200 V, as the answer.  Item 13 was
+         recorded on 10-08 as latent with no committed number
+         affected; its first use outside its own module produced a
+         wrong number in the first draft of this section.
+  [PASS] n_puddle is comparable to the on-state net density (item 11)
+         n_puddle/|n_net| = 0.7738 at V_g = 3.5 V, so the floor is a global additive density rather than a near-Dirac patch
+  [PASS] and that is what moved I_on when only the FLOOR was changed
+         I_on moved -6.9247 % under a change to an allegedly OFF-state-only parameter
+         Both of these started as one assertion that the floor
+         does NOT reach the on state.  09-28: prose is a detector.
+         Today: SO IS A SANITY CHECK YOU EXPECTED TO PASS.
+
+------------------------------------------------------------------------------
+SECTION 6.  Output neutrality: no committed number moved today
+------------------------------------------------------------------------------
+  graphene_fet_model is imported, read and monkey-patched by this
+  module (Section 5 sets n_puddle and Rc_total inside try/finally).
+  Both are restored, and the shipped sweep is re-run afterwards:
+    n_puddle  = 5.000000e+15 1/m^2 (restored)
+    Rc_total  = 600.000000 Ohm (restored)
+    I_d(V_g = 3.5 V, V_ds = 0.1 V) = 1.013755593e-04 A
+    n(V_g = 3.5 V)                = 8.170466200e+15 1/m^2
+  [PASS] module-level constants restored exactly after patching
+         n_puddle and Rc_total compare equal to their shipped literals
+
+  10-02 established byte-identity is not correctness.  It is the
+  right instrument HERE because this module adds no equation to the
+  shipped path: every new quantity is a decomposition of one that
+  was already being computed.
+
+------------------------------------------------------------------------------
+Figure written: fet_signed_carrier_model.png
+CHECKS: 19 passed, 0 failed
+------------------------------------------------------------------------------
