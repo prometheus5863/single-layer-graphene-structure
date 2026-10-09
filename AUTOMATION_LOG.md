@@ -7090,3 +7090,279 @@ Two things worth keeping:
 double-count measurement and the two adjudicated registry rows; the session
 note; Chapter 4 §4.6.6 with Chapter 7 §7.8.1e and the §7.9 rewrite; this
 addendum). This AUTOMATION_LOG.md entry makes **6**.
+
+---
+
+## 2026-10-09 — The sign was computed and thrown away, and the floor was never a floor
+
+**Session type:** full session. Step 0 at the **04:30** firing (04:35 UTC) found
+the device reachable, the "scheduled harsh" folder connected, **neither**
+repository carrying a 2026-10-09 entry and no commits since midnight.
+
+**Item worked:** §7.9 item 9, *a signed-carrier FET model* — created 10-07,
+promoted 10-08 from sibling to **prerequisite** of the top item 12, and
+untouched until today. Closed. Closing it also closed the §4.9 floor item and
+partly answered item 11.
+
+### 1. Why item 9 had to precede item 12, more sharply than 10-08 put it
+
+10-08's reason — re-deriving first "would rebuild the branch-sign flaw in a new
+equation" — is correct and understates the obstruction. **Both terms on the
+right of (4.28) are odd in `n`**: `e·n/C_ox` trivially, and
+`E_F(n)/e = A_F·sign(n)·√|n|` because a hole gas's Fermi level lies below the
+Dirac point. A relation with two odd sides has an **odd root**, and an odd root
+cannot be produced by a solver whose first line is `dV = np.abs(dV)` — which is
+the first line of `graphene_potential_declaration.n_quasi_fermi()`. That solver
+returns the right *magnitude*; nothing in the repository could return **which
+branch the channel is on at a given point**.
+
+`carrier_density()` is where it is lost. It **computes** the sign — `n_eff` is
+odd in `dV` because `C_q` is even — and discards it in
+`√(n_eff² + n_puddle²)`. Harmless for conductivity, which takes `abs(n)`;
+fatal for (4.28).
+
+`n_net_exact()` restores the branch. Validated against exactly known values:
+
+- the root is odd **BITWISE** over 801 points (residual exactly 0);
+- substituting it back into (4.28) leaves **7.690e-16** relative over
+  `dV ∈ [−2, 2] V`.
+
+**§7.9 item 12 is UNBLOCKED, and for the first time in three sessions the top
+item has nothing in front of it.**
+
+### 2. The decomposition, and the identity it exposes
+
+    n_net = n_e − n_h  (electrostatics, signed, odd in dV)
+    S = √(n_net² + n_puddle²),   n_e = (S + n_net)/2,   n_h = (S − n_net)/2
+
+| identity | residual | what it means |
+|---|---|---|
+| `n_e + n_h` == `carrier_density()` | 3.231e-16 rel | the floored quantity is the **TOTAL** density |
+| `n_e·n_h` == `n_puddle²/4` | 3.603e-16 rel | the August quadrature floor **is** a mass-action law |
+| `n_e(+dV)` == `n_h(−dV)` | **bitwise 0** in `dV` | ambipolar symmetry, machine-checked |
+
+**Contract honoured: no number in Chapter 4 moved.** Two-carrier `σ` equals the
+shipped `σ` to 3 ulp; the shipped sweep is re-run after the monkey-patching
+with `n_puddle` and `Rc_total` verified restored.
+
+**Literature position recorded honestly rather than favourably.** Live web
+search was available; two queries and one fetch, all successful, no
+PubMed/PMC attempted per the standing note. [Wiedmann *et al.*, *Coexistence of
+electron and hole transport in graphene*, **Phys. Rev. B 84, 115314 (2011)**,
+arXiv:1107.3929](https://arxiv.org/pdf/1107.3929) splits net-from-gate and
+total-from-disorder exactly as this module does, and argues from the `1/R_H`
+divergence at neutrality that `n + p` must stay finite — **independent,
+measurement-side support for identifying `n_puddle` as the total**. It imposes
+**no** electron–hole product; `n` and `p` are outputs of their Hall fit. So the
+mass-action law is a **stronger assumption than the literature makes**,
+inherited from a smoothness choice, and is logged as a limitation rather than a
+result. Their sample B gives a total puddle density of 8.4e14 /m², i.e. the
+shipped `n_puddle` is **5.95×** an externally measured value — noted, not acted
+on, since §4.6.7's comparison is internal to this thesis and is the stronger
+finding.
+
+### 3. Three exactness checks failed as first written, and none was a code defect
+
+This is the session's methodological content.
+
+**(a) The ambipolar symmetry failed "bitwise", by 2.0 /m².** The symmetry is not
+broken — it is bitwise in `dV`. `(V_dirac − x) − V_dirac` is **not**
+`−((V_dirac + x) − V_dirac)` in binary floating point: worst case 2.220e-16 V at
+`x` = −2 V, where `0.8 − 2.0 − 0.8` returns `−1.9999999999999998`. The `C_ox/e`
+lever is 2.395e15 /(V·m²). **Every sweep in this repository is a `linspace` over
+`V_g` followed by a subtraction of `V_dirac`**, so any bitwise symmetry claim
+about any of them must name its parameterisation; `n_net_of_dV()` exists so
+such claims can be made in the variable the model is a function of. The residual
+is **accounted for, not thresholded**: feeding the reconstructed `dV` back into
+the `dV`-level model reproduces the `V_g`-route species bitwise, which proves
+all 2.0 /m² is the argument's and none is the model's. A "≤ 2 ulp" tolerance
+would also have passed, and would have been a number tuned until green.
+
+**(b) "`n_e − n_h` recovers `n_net`" failed at 1.772e-14 and passes at
+1.5e-16** — the same 1-ulp-of-`S` residual, **119× apart**, because `n_net → 0`
+at neutrality while `S` stays pinned at the floor. **The denominator decided
+PASS from FAIL.** That is 10-06's ratio-criterion item occurring in a check
+written *by the audit*, not found in the audited code — its first instance of
+that kind. Design rule added to the module: never reconstruct the net density
+from the species pair.
+
+**(c) The `σ` identity failed "bitwise" at 3 ulp** and was **not** repaired by
+widening a ulp budget. 09-29's α anchor set the policy: state the identity and
+name the slack. The criterion is now 1e-12 relative, justified as six orders
+below the four significant figures Chapter 4 quotes and eleven above float
+noise — a statement about the chapter, not about the test. 10-02 said byte
+identity is not correctness; today adds the converse.
+
+### 4. §4.9's floor item, open since 2026-09-29 and untouched for ELEVEN sessions
+
+| | value | sheet resistance |
+|---|---|---|
+| Chapter 4: `σ_min = e·μ·n_puddle` | 3.204353e-04 S/sq | **3.1208 kΩ/sq** |
+| Chapter 3 §3.3, measured `4q_e²/h` | 1.549618e-04 S/sq | **6.4532 kΩ/sq** |
+
+**Chapter 4 is 2.0678× MORE CONDUCTIVE at neutrality than Chapter 3** — its
+channel at the Dirac point is less resistive than any measured graphene sheet.
+Reconciling `n_puddle` = 2.418e11 cm⁻² against the shipped 5e11 cm⁻². §3.3's
+6.45 kΩ/sq is recomputed here from CODATA (to 0.0032 kΩ/sq) rather than
+re-typed, so the comparison cannot drift.
+
+**It is decidable only because item 9 is closed.** `n_puddle` floors a
+*magnitude*, and a magnitude cannot say whether it floors the net density, the
+total, or each species — three readings differing by factors of 1, 1 and 2 in
+`σ_min`, **the same order as the answer**. Item 9 settles it as the total, and
+the per-species reading moves the gap the **wrong way** (4.1357×), so the
+convention cannot be the explanation.
+
+**Cost, intrinsic and terminal** (`V_ds` = 0.1 V, on-state `V_g` = 3.5 V):
+
+| | shipped | Ch.3-matched | on/off multiplier |
+|---|---|---|---|
+| terminal (`R_c` = 600 Ω) | 1.2408 | 1.7820 | **1.4362×** |
+| intrinsic (`R_c` = 0) | 1.6146 | 2.8024 | **1.7357×** |
+
+`I_off` falls 35.19 % at the terminals, 51.58 % intrinsically; the contacts
+attenuate the error by a further **1.2085×**. **10-08's negative-feedback
+structure on a completely different parameter**, which upgrades it from a
+property of the charge relation to a property of the device topology. §4.4's
+numbers stand with the limitation attached. §7.2 undisturbed: 1.78 is no more a
+switch than 1.24 — and §7.8.1's reason is *strengthened* by the floor having
+been understated.
+
+**Not quietly rewritten:** §3.3's table is untouched and §3.3.1 corrects only
+the word "encodes" — `n_puddle` encodes the same *picture* as §3.3's floor, not
+the same *number*.
+
+### 5. Item 11 answered, and its premise was wrong
+
+Item 11 asked which other **near-Dirac** regimes the floor had removed. The
+floor is not a near-Dirac term:
+
+| `V_g` (V) | \|n_net\| (m⁻²) | `n_puddle`/\|n_net\| | floor adds |
+|---|---|---|---|
+| 0.90 | 2.357e+14 | 21.22 | +2023.9 % |
+| 2.00 | 2.870e+15 | 1.742 | +100.9 % |
+| **3.50** | **6.462e+15** | **0.774** | **+26.4 %** |
+
+At the largest overdrive swept anywhere in this thesis the *residual* puddle
+density is **77 % of the gate-induced density**; its contribution drops below
+1 % only at `dV` = **14.73 V**, 5.46× anything swept. It does not remove
+regimes, **it adds a parallel conducting density to all of them**, and
+`carrier_density()`'s docstring calling it a Dirac-point regularizer describes a
+regime the thesis never enters. The original `d|n|/dV` = 0 question stays open.
+
+**Found by a check written to PASS.** §5 asserted `I_on` is untouched by an
+off-state parameter, on the docstring's authority. It failed at **−6.92 %**.
+09-28: prose is a detector. **Today: so is a sanity check you expected to pass.**
+
+### 6. Item 13 produced a wrong number on its first use outside its own module
+
+10-08 ranked the `cosh` overflow (`dV` > 18.3493 V) last as *latent*, "no
+committed number affected". Above the onset `C_q` is `inf`, so
+`C_q/(C_q + C_ox)` is `inf/inf = nan`; `nan > 0` is **False**; and the first
+draft of §4.6.7's 1 %-crossover bisection scored the `NaN` branch as "the floor
+dominates", walked away from the root and **returned its own 200 V bracket
+ceiling as the answer**. Correct value 14.73 V. Caught before commit because the
+figure was 74× the swept range. **Latent and harmless are not the same
+property.** Ranking unchanged (the output-neutrality reason stands); mitigation
+added — callers outside the module must treat non-finite `C_q` as a hard stop.
+
+### 7. Methodological note, continuing the series
+
+09-28: prose is a detector. 09-29: a mutation that does not arrive is
+indistinguishable from a system that does not respond. 09-30: a control has to
+sit where the failure enters. 10-01: and name what it compares against in a way
+that cannot drift. 10-02: when it agrees, that is a fact about two artefacts.
+10-03: a PASS/FAIL at zero is silent about magnitude. 10-04: a quantity can be
+computed correctly under the wrong name. 10-05: a criterion with a number in it
+can be missed in a way that locates the real constraint. 10-06: and decided
+correctly on the quantity it names while missing the finding, if that quantity
+is a ratio. 10-07: an item can be well-posed, correctly motivated and built
+exactly as written while its premise is an artefact of an unnamed variable.
+10-08: and closing such an item can show the ambiguity was the smaller half.
+**10-09: AN EXACTNESS CHECK THAT FAILS IS A MEASUREMENT OF WHATEVER IT WAS
+WRITTEN ON TOP OF.** Three failed today; one measured the repository's sweep
+parameterisation, one measured its own denominator, one measured a docstring.
+None measured what it was aimed at, and none was a defect in the new code.
+
+The checkable rule: **when an exactness check fails, find out what it measured
+before deciding what to change.** Three repairs were available at the moment of
+failure — loosen the tolerance, fix the model, or find out — and only the third
+produced the findings; the first would have silently accepted all three.
+Mechanisable form: **new §7.9 item 15**, sweep every tolerance in this
+repository and flag any set *after* a failure rather than derived from the
+precision being claimed.
+
+Second rule, from §4: **a one-line comparison can be blocked for eleven
+sessions by an undeclared signature in one of its two inputs.** The floor item
+was never hard; it was undecidable, because the three readings of its input
+differ by the same factor as its answer. 10-01 found the fault was in the
+naming. Today's variant: the fault was in the **signature**.
+
+### 8. Environment and automation health
+
+Device reachable and folder connected at the **04:30** firing. `pip install
+scipy` succeeded (3 s; the device VM still lacks it) — network healthy for the
+sixth session in seven. The whole session ran **on the device VM**; nothing
+crossed the bridge. **Live web search available and used**: two searches, one
+fetch, all successful. **10-08's push-earlier correction was followed**: every
+commit was pushed and verified against the GitHub API before the next one was
+written, so at no point did more than one commit exist only in the session VM.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-DERIVE CHAPTER 4 ON THE EXACT CHARGE RELATION (4.28)** — §7.9 item 12,
+  **now the top item with NOTHING IN FRONT OF IT** for the first time in three
+  sessions. Worth −0.6023 % in `I_d` at the RF bias. Its prerequisite closed
+  today, and it now *blocks* the §4.6.5 rewiring item rather than merely
+  outranking it. **The next session should do this unless something larger
+  appears.**
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — the floor question that today's work
+  did *not* answer. Today established the floor is global rather than
+  near-Dirac; the derivative question is separate and untouched. Now the
+  cheapest open physics item.
+- **AUDIT EVERY TOLERANCE, FLAG ANY SET AFTER A FAILURE** — §7.9 item 15,
+  created today. The natural instrument for item 6's magnitude census *and*
+  10-06's ratio-criterion item, since a tolerance set after a failure and a
+  criterion written as a ratio are the two ways a check stops being a check
+  without anyone editing it.
+- **MECHANISE the magnitude item** — created 10-03; worked examples on 10-04,
+  10-05, twice on 10-06, 10-07, 10-08 and **twice again today** ((b) above, and
+  the 2.0678 factor where a PASS/FAIL would have been silent). **Eight modules,
+  nine defects, same result. Four sessions overdue**, and item 15 now subsumes
+  part of it, which is either the way it finally gets built or the way it gets
+  quietly dropped.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06, widened
+  10-07, **untouched for the third session**, and today it produced an instance
+  *inside the audit itself* rather than in audited code. That is the strongest
+  argument yet for building it.
+- **MEASURE WHAT EACH DECLARATION COSTS** — §7.9 item 14, created 10-08,
+  untouched. Items 2, 3 and 6 all turn on a named quantity; none costed.
+- **THE `cosh` OVERFLOW** — §7.9 item 13. Ranking unchanged (last), description
+  amended: it is a trap for every new caller, and it caught one today.
+- **WHETHER `n_puddle` SHOULD ACTUALLY CHANGE** — created today, and
+  deliberately *not* an item yet. Adopting 2.418e15 /m² would move §4.4, §4.7
+  and §4.10 and require its own output-neutrality pass; the question of whether
+  two floors that are not required to agree *should* be reconciled is a physics
+  judgement this automation should not make silently.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created today. The two-carrier form
+  `σ = e(μ_e n_e + μ_h n_h)` is built and deliberately run at `μ_e = μ_h`, so
+  it moves no number; contact-doped graphene has a real mobility asymmetry and
+  this is now a one-parameter experiment away.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** — split out
+  of item 9 today. It is now *expressible* and still unverified; it was never
+  the same question as the blocker.
+- **Why does the peak-`f_T` bias MOVE BRANCH between the two models?** — also
+  split out of item 9 today, and no longer coupled to a blocking item.
+- **The seven `UNADJUDICATED` census rows** — created 10-08, untouched. Cheap,
+  and the census will keep reporting them.
+- **A self-heating term** — created 10-06, **third in the RF queue** behind
+  items 12 and the §4.6.5 rewiring. Still a limitation to state.
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, **untouched for NINETEEN
+  consecutive sessions**. Today was an audit-and-signature session and again did
+  not touch it. §7.7 gained a fourth instance today and this is the standing
+  one.
+
+**Commits this run:** 4 (the signed-carrier module with its transcript and
+figure; the session notes; Chapter 4 §4.6.7 with Chapter 3 §3.3.1; Chapter 7
+§7.9 with §7.8.1f). This AUTOMATION_LOG.md entry makes **5**.
