@@ -908,6 +908,36 @@ equation rather than fix it. The hole branch is now blocking, not adjacent.
 See §4.6.6 and
 `notes/2026-10-08-the-declaration-and-the-question-underneath-it.md`.
 
+#### 7.8.1f Annotation (2026-10-09): the prerequisite is cleared, and the off-state number this thread assumed was 2.07x off
+
+§7.8.1e ended by promoting §7.9 item 9 to the prerequisite of the RF thread's
+top item. **Item 9 is closed** (§4.6.7), item 12 is unblocked, and for the first
+time in three sessions the top item has nothing in front of it. That is the
+whole of this annotation's RF content: no `f_T` or `f_max` number moved today,
+and the saturated-model queue — item 12, then the §4.6.5 rewiring, then
+self-heating — is unchanged in order and one position shorter at the front.
+
+**The non-RF finding is the one that bears on §7.8.1 rather than §7.8.1a.** This
+thread's verdict that graphene is not a logic transistor rests on the off-state
+floor, and §4.6.7 finds that Chapter 4's floor and Chapter 3's measured floor
+disagree by **2.0678×**, with Chapter 4 on the more conductive side. Correcting
+to Chapter 3's floor raises the on/off ratio from **1.2408 to 1.7820** at
+`V_ds` = 0.1 V. **The verdict is undisturbed and this is worth saying plainly
+rather than quietly**: an on/off ratio of 1.78 is no more a switch than one of
+1.24, and §7.8.1's reason — that the floor is physics and not a process
+limitation — is if anything strengthened by the discovery that the floor was
+being *understated*. A finding that moves a number by a factor of two without
+moving the conclusion it supports is the useful kind of robustness result, and
+§7.6 is where it belongs.
+
+But it is also an instance of §7.7. The floor comparison was a one-line
+calculation flagged in §4.9 on 2026-09-29 and left for **eleven sessions**,
+while two consecutive sessions went into a ±0.5 % transport term in the RF
+thread. §7.7's unequal-scrutiny finding now has a fourth instance, and the
+pattern across all four is the same: **the cheap check on the quantity the
+conclusion actually rests on loses to the expensive check on the quantity the
+current thread is about.**
+
 ### 7.8.2 Contacts: the real near-term contribution, and a negative result worth having
 
 Contact resistance is the binding constraint on every graphene device in this
@@ -1044,14 +1074,23 @@ Stated as falsifiable items, in order of how much they would move:
    self-heating alone. This bounds every absolute frequency in Chapter 4; the
    *ratios* between model runs, which is what §7.8.1c reports, are much less
    exposed.
-9. **A signed-carrier FET model** (added 2026-10-07). §4.6.5's diffusion
-   correction flips sign between the electron and hole branches because it
-   follows `d|n|/dV` and `carrier_density()` returns a magnitude. This thesis
-   has a signed-carrier treatment for photodetectors
-   (`graphene_photodetector_signed_carrier_model.py`) and nothing equivalent
-   for the FET, so the hole-branch **sign** of every branch-asymmetric result
-   in Chapter 4 is unverified. This also bears on the open question of why the
-   peak-`f_T` bias moves branch between the two transport models.
+9. ~~**A signed-carrier FET model**~~ (added 2026-10-07) — **CLOSED
+   2026-10-09**, `graphene_fet_signed_carrier_model.py`, 19/19 checks, §4.6.7.
+   The sharper statement of why it blocked item 12 than 10-08 gave: both terms
+   on the right of (4.28) are **odd** in `n`, so the relation has an odd root,
+   and an odd root cannot come out of a solver whose first line is
+   `dV = np.abs(dV)`. `carrier_density()` *computes* the sign — `n_eff` is odd
+   in `dV` because `C_q` is even — and discards it in the quadrature floor.
+   `n_net_exact()` carries it: odd **bitwise**, satisfying (4.28) to 7.690e-16
+   relative. The decomposition `n_e,h = (S ± n_net)/2` reproduces the shipped
+   magnitude as an identity, yields `n_e·n_h = n_puddle²/4` (so the August
+   quadrature floor is algebraically a mass-action law), and makes graphene's
+   ambipolar symmetry a bitwise check. **No number in Chapter 4 moved** — 3 ulp
+   on `σ`. The two sub-questions this item carried are now separated: the
+   hole-branch sign of Chapter 4's branch-asymmetric results is *expressible*
+   but still unverified, and the peak-`f_T` branch-crossing question is
+   untouched; both are retained in the backlog under their own entries rather
+   than inside a closed item.
 10. ~~**A census of every potential-like variable in this thesis**~~ —
    **CLOSED 2026-10-08** as a standing instrument,
    `graphene_potential_census_audit.py`. 86 names across 25 modules, each
@@ -1084,6 +1123,41 @@ Stated as falsifiable items, in order of how much they would move:
    is now known to be the dominant term in the near-Dirac charge of *both*
    forms. Whatever it has silenced, it has silenced in the replacement model
    too.
+   **2026-10-09 — PARTIALLY ANSWERED, and the premise of the question was
+   wrong.** The question asked which *other near-Dirac regimes* the floor had
+   removed. §4.6.7 measures that the floor is not a near-Dirac term at all: at
+   `V_g` = 3.5 V, the largest overdrive swept anywhere in this thesis, it is
+   **0.774** of the gate-induced net density and adds **+26.4 %** to the total,
+   and its contribution falls below 1 % only at `dV` = **14.73 V**, 5.46× the
+   maximum swept. It does not remove regimes; it adds a parallel conducting
+   density to all of them, and `carrier_density()`'s docstring calling it a
+   Dirac-point regularizer describes a regime this thesis never enters. It was
+   found by a check written to PASS on that docstring's authority, which failed
+   at −6.92 % in `I_on` — an allegedly off-state-only parameter moving the on
+   state. **What remains open is the original `d|n|/dV` = 0 question**, which
+   is about the derivative and is not answered by this. The sibling §4.9 floor
+   item is **CLOSED** (see item 11a).
+11a. ~~**Whether Chapter 4's `n_puddle` reproduces §3.3's 6.45 kΩ/sq floor**~~
+   (§4.9, added 2026-09-29, **untouched for eleven sessions**) — **CLOSED
+   2026-10-09**, §4.6.7 and §3.3.1. It does not. `σ_min = e·μ·n_puddle` =
+   3.204353e-04 S/sq = **3.1208 kΩ/sq** against §3.3's measured `4q_e²/h` =
+   **6.4532 kΩ/sq**: Chapter 4's channel at neutrality is **2.0678× more
+   conductive** than the floor Chapter 3 calls measured, and the reconciling
+   `n_puddle` is 2.418e11 cm⁻² against the shipped 5e11 cm⁻². It stayed open
+   eleven sessions not because the calculation is hard — it is one line, as the
+   item itself always said — but because `n_puddle` is a floor on a
+   **magnitude**, and a magnitude cannot say whether it floors the net density,
+   the total, or each species: three readings differing by factors of 1, 1 and 2
+   in `σ_min`, the same order as the answer. Item 9 settles it as the total, and
+   the per-species reading moves the discrepancy the **wrong way** (4.1357×), so
+   the convention is not the explanation. Cost: §4.4's on/off ratio is
+   understated by 1.7357× intrinsically and 1.4362× at the terminals, the
+   contacts attenuating the error by a further 1.2085× — §4.6.6's
+   negative-feedback structure on a different parameter, hence a property of the
+   device topology. §7.2 is undisturbed: 1.78 is no more a switch than 1.24.
+   **The generalisable finding is the eleven sessions**, not the factor: a
+   one-line comparison was not blocked by its difficulty but by an undeclared
+   signature in one of its two inputs.
 12. **Re-deriving Chapter 4 on the exact charge relation (4.28)** (added
    2026-10-08, and **the new top item of the RF thread**). The declaration in
    item 7 makes
@@ -1097,6 +1171,12 @@ Stated as falsifiable items, in order of how much they would move:
    magnitude, so re-deriving before the signed-carrier treatment exists would
    rebuild the branch-sign flaw in a new equation. Item 9 is therefore promoted
    from a sibling of item 7 to the **prerequisite** of the top item.
+   **2026-10-09: UNBLOCKED AND UNTOUCHED.** Item 9 is closed and
+   `n_net_exact()` supplies the branched root (odd bitwise, residual 7.690e-16).
+   This item has no prerequisite left and is the **top item with nothing in
+   front of it** — the first time in three sessions that is true. It is also now
+   the only remaining reason the §4.6.5 rewiring item is deferred, so it blocks
+   work rather than merely ranking above it.
 13. **The `cosh` overflow in `quantum_capacitance()`** (added 2026-10-08).
    `log(2(1 + cosh η))` returns `inf`/`NaN` once `η = dV/(kT/e)` passes ~710,
    i.e. above `dV` = **18.3493 V** at 300 K, measured by bisection. The exact
@@ -1106,6 +1186,19 @@ Stated as falsifiable items, in order of how much they would move:
    patched because `graphene_fet_model.py` owns committed transcripts across
    Chapters 4, 5 and 6, and a numerics change there needs its own
    output-neutrality pass of the kind 2026-10-07 ran for the f-string fix.
+   **2026-10-09 amends the "no committed number affected" clause, and the
+   ranking stands.** On its first use from outside the module that owns it, the
+   overflow produced a wrong number: above the onset `C_q` is `inf`, so
+   `C_q/(C_q + C_ox)` is `inf/inf = nan`, `nan > 0` evaluates `False`, and the
+   first draft of §4.6.7's 1 %-crossover bisection scored the `NaN` branch as
+   "the floor dominates", walked away from the root and returned its own 200 V
+   bracket ceiling as a result. The correct value is 14.73 V. Caught before
+   commit because the printed figure was 74× the swept range; nothing reached a
+   transcript. **Latent and harmless are not the same property** — the defect is
+   still latent with respect to committed numbers, and is now known to be a trap
+   for every new caller. The ranking is unchanged for the output-neutrality
+   reason above, but the *mitigation* changed: callers outside this module must
+   treat non-finite `C_q` as a hard stop rather than as a magnitude.
 14. **Measuring what a declaration costs, as a standing habit** (added
    2026-10-08; the mechanisable form of §4.6.6's second half). A declaration
    that resolves an ambiguity is a promise that the rest of the model belongs
@@ -1113,6 +1206,26 @@ Stated as falsifiable items, in order of how much they would move:
    it was one monkey-patched function and one re-run. Nothing in this thesis
    asks it of the other declarations it has made. Items 2, 3 and 6 all turn on
    a named quantity, and none of them has been costed this way.
+15. **An audit of every tolerance in this repository, recording what fixed it
+   at that value** (added 2026-10-09; the mechanisable form of §4.6.7's last
+   subsection). Three exactness checks failed as first written today, and all
+   three were measurements of something other than what they were pointed at:
+   one measured the floating-point behaviour of this thesis's `V_g` sweep
+   parameterisation (the ambipolar symmetry is bitwise in `dV`, and
+   `(V_dirac − x) − V_dirac ≠ −((V_dirac + x) − V_dirac)` to 2.22e-16 V, which
+   the `C_ox/e` lever turns into 2.0 /m²); one measured its own denominator
+   (PASS and FAIL 119× apart on a 1-ulp residual, because `n_net → 0` where `S`
+   does not); one measured four significant figures against 53 bits. **Three
+   repairs were available at the moment of failure — loosen the tolerance, fix
+   the model, or find out what it measured — and only the third produced the
+   findings.** The first would have silently accepted all three. The item is to
+   sweep every numerical tolerance in the repository and flag any that was set
+   *after* a failure rather than derived from the precision being claimed, which
+   is the only way to tell a justified tolerance from a tuned one after the
+   fact. Sibling of item 6's magnitude census and of 10-06's ratio-criterion
+   item, and the natural instrument for both: a tolerance set after a failure
+   and a criterion written as a ratio are the two ways a check stops being a
+   check without anyone editing it.
 
 ---
 
