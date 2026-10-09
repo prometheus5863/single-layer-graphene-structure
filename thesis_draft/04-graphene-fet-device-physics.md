@@ -982,6 +982,185 @@ Modules: `graphene_potential_declaration.py`,
 `graphene_potential_census_audit.py`. Note:
 `notes/2026-10-08-the-declaration-and-the-question-underneath-it.md`.
 
+### 4.6.7 The sign was computed and discarded — and the disorder floor is 2.07× Chapter 3's
+
+**2026-10-09.** §4.6.6 declared `V_ch` and left the exact charge relation (4.28)
+as §7.9's top item, blocked by item 9. Item 9 is now closed, and closing it
+answered two other open items and falsified a docstring. Module:
+`graphene_fet_signed_carrier_model.py` (19/19 checks). Transcript:
+`fet_signed_carrier_output.txt`. Figure: `fet_signed_carrier_model.png`.
+Session notes:
+`notes/2026-10-09-the-sign-was-computed-then-thrown-away-and-the-floor-was-never-a-floor.md`.
+
+#### Why (4.28) could not be solved before today
+
+Both terms on the right of (4.28) are **odd** in `n`: `e·n/C_ox` trivially, and
+`E_F(n)/e = A_F·sign(n)·√|n|` because the Fermi level of a hole gas lies below
+the Dirac point. A relation with two odd sides has an odd root, and an odd root
+cannot come out of a solver whose first line is `dV = np.abs(dV)` — which is the
+first line of the 10-08 solver. That solver returns the correct *magnitude*;
+what no object in this repository could return was **which branch the channel is
+on at a given point**.
+
+`carrier_density()` is the origin. It *computes* the sign — `n_eff` is odd in
+`dV` because `C_q` is even — and then discards it in the quadrature floor
+`√(n_eff² + n_puddle²)`. Everything downstream takes `abs(n)`, so for the
+conductivity the discard is harmless; for (4.28) it removes the branch.
+
+`n_net_exact()` restores it. Validated against exactly known values, not ranges:
+the root is odd **bitwise** over 801 points, and substituting it back into
+(4.28) leaves a residual of **7.690e-16** relative over `dV ∈ [−2, 2] V`.
+**§7.9 item 12 is unblocked.**
+
+#### The decomposition, and what it reveals `n_puddle` to be
+
+    n_net = n_e − n_h  (electrostatics, signed),  S = √(n_net² + n_puddle²)
+    n_e = (S + n_net)/2,    n_h = (S − n_net)/2
+
+- `n_e + n_h` **is** `S`, i.e. exactly what `carrier_density()` returns. So the
+  quantity this chapter has been flooring since August is the **total conducting
+  density** — not the net density, not a per-species density.
+- `n_e·n_h = n_puddle²/4` to 3.603e-16 relative: the August quadrature floor,
+  chosen for smoothness, is algebraically a **mass-action law**.
+- `n_e(+dV) = n_h(−dV)` bitwise: graphene's ambipolar symmetry, machine-checked.
+
+**Contract: no number in this chapter moves.** The two-carrier conductivity
+equals the shipped conductivity to 3 ulp (3.609e-16 relative, against the four
+significant figures this chapter quotes), and the shipped sweep is re-run after
+the module's monkey-patching with the constants verified restored.
+
+[Wiedmann et al., Phys. Rev. B **84**, 115314 (2011), arXiv:1107.3929] splits
+net-from-gate and total-from-disorder in the same way and argues from the
+divergence of `1/R_H` at neutrality that `n + p` must remain finite —
+independent, measurement-side support for the identification above. It imposes
+**no** electron–hole product, so the mass-action law is a *stronger* assumption
+than the literature makes and is recorded as a limitation, not a result.
+
+#### §4.9's floor item, open since 2026-09-29 and untouched for eleven sessions
+
+With `n_puddle` named as the total, `dV = 0` gives `n_e = n_h = n_puddle/2`
+exactly and the floor is a one-line calculation:
+
+| | value | sheet resistance |
+|---|---|---|
+| this chapter: `σ_min = e·μ·n_puddle` | 3.204353 × 10⁻⁴ S/sq | **3.1208 kΩ/sq** |
+| Chapter 3 §3.3, measured `4q_e²/h` | 1.549618 × 10⁻⁴ S/sq | **6.4532 kΩ/sq** |
+
+**Chapter 4 is 2.0678× more conductive at neutrality than Chapter 3.** The
+`n_puddle` that reconciles them is 2.417989 × 10¹⁵ m⁻² = 2.418 × 10¹¹ cm⁻²,
+against the shipped 5 × 10¹¹ cm⁻². (§3.3's 6.45 kΩ/sq is reproduced here from
+CODATA to 0.0032 kΩ/sq rather than re-typed, so the comparison cannot drift.)
+
+Quoted as a factor first, per 10-03: a PASS/FAIL on "do the two floors agree"
+returns FAIL and says nothing about whether the gap is 2× or 200×.
+
+**This is decidable only because item 9 is closed.** A quadrature floor on a
+*magnitude* cannot say whether it floors the net density, the total, or each
+species — three readings differing by factors of 1, 1 and 2 in `σ_min`, the same
+order as the answer. And the convention is not the explanation: under the
+per-species reading the total would be `2·n_puddle` and this chapter would be
+**4.1357×** too conductive, so that reading moves the discrepancy the **wrong
+way**.
+
+**What is not claimed.** `4q_e²/h` is a quantum/ballistic minimum conductivity
+observed experimentally; `e·μ·n_puddle` is a diffusive disorder floor. They are
+not required to be equal. The defect is that this thesis quotes both, in
+chapters that feed each other, and had never compared them — and that the
+diffusive one lands **below** the measured one, i.e. this chapter's channel at
+neutrality is less resistive than any measured graphene sheet.
+
+#### What the factor costs, and the contacts attenuate it again
+
+At `V_ds` = 0.1 V, on-state `V_g` = 3.5 V, off-state at `V_g = V_dirac`:
+
+| | shipped | Ch.3-matched | on/off multiplier |
+|---|---|---|---|
+| terminal (`R_c` = 600 Ω) | on/off **1.2408** | 1.7820 | **1.4362×** |
+| intrinsic (`R_c` = 0) | on/off **1.6146** | 2.8024 | **1.7357×** |
+
+`I_off` falls 35.19 % at the terminals, 51.58 % intrinsically. The 2.0678× floor
+error reaches the on/off ratio as 1.7357× intrinsically and only 1.4362× at the
+terminals: **the contacts attenuate it by a further 1.2085×** — §4.6.6's
+negative-feedback structure, on a completely different parameter, which makes it
+a property of the device topology rather than of the charge relation.
+
+**§4.4's on/off ratio is therefore understated**, by up to 1.44× as measured at
+the terminals, *if* §3.3's measured floor is the right one for this device.
+§4.4's numbers stand and are not deleted; this is the limitation attached to
+them. It does not disturb §7.2's conclusion — an on/off ratio of 1.78 is no more
+a logic transistor than one of 1.24.
+
+#### Annotation to §4.3 and §4.4, in place: `n_puddle` is not a Dirac-point term
+
+§7.9 item 11, created 10-07, asked whether `n_puddle` removes other regimes.
+It does not remove regimes; **it adds a floor to all of them.** Measured:
+
+| `V_g` (V) | \|n_net\| (m⁻²) | `n_puddle`/\|n_net\| | floor adds to total |
+|---|---|---|---|
+| 0.90 | 2.357 × 10¹⁴ | 21.22 | +2023.9 % |
+| 2.00 | 2.870 × 10¹⁵ | 1.742 | +100.9 % |
+| 3.00 | 5.265 × 10¹⁵ | 0.950 | +37.9 % |
+| **3.50** | **6.462 × 10¹⁵** | **0.774** | **+26.4 %** |
+
+At the largest overdrive this thesis sweeps, the *residual* puddle density is
+**77 % of the gate-induced density** and still adds **+26.4 %** to the total.
+Its contribution falls below 1 % only at `dV` = **14.73 V**, 5.46× anything swept
+here. `carrier_density()`'s docstring — the floor "regularizes `n` at the Dirac
+point" — describes a regime this thesis never enters. The docstring's wording is
+annotated in place rather than deleted.
+
+This was found by a **check written to pass**: §5 of the module asserted that
+`I_on` is untouched by an off-state parameter, on the docstring's authority, and
+it failed at −6.92 %. 09-28 established that prose is a detector; today adds
+that so is a sanity check one expects to pass.
+
+#### Three exactness checks failed as first written, and none was a code defect
+
+Recorded because the *repair* is the transferable part.
+
+1. The ambipolar symmetry failed "bitwise" by 2.0 /m². The symmetry is not
+   broken — it is bitwise in `dV`. `(V_dirac − x) − V_dirac` is not
+   `−((V_dirac + x) − V_dirac)` in binary floating point (worst 2.220e-16 V at
+   `x` = −2 V), and the `C_ox/e` lever of 2.395 × 10¹⁵ /(V·m²) turns that into
+   2.0 /m². **Every sweep in this thesis is a `linspace` over `V_g` followed by
+   a subtraction of `V_dirac`**, so any bitwise symmetry claim must name its
+   parameterisation. The residual is accounted for, not thresholded: feeding the
+   reconstructed `dV` back into the `dV`-level model reproduces the `V_g`-route
+   species bitwise.
+2. "`n_e − n_h` recovers `n_net`" failed at 1.772e-14 and passes at 1.5e-16 —
+   the same 1-ulp residual, **119× apart**, because `n_net → 0` at neutrality
+   while `S` stays at the floor. The denominator decided PASS from FAIL: §7.9's
+   10-06 ratio-criterion item, in a check written by the audit itself.
+3. The `σ` identity failed "bitwise" at 3 ulp and was **not** repaired by
+   widening a ulp budget — 09-29's α-anchor policy — but by stating the identity
+   and naming the slack against the precision this chapter commits.
+
+#### A number item 13 produced on its first use outside its own module
+
+§4.6.6 recorded the `cosh` overflow above `dV` = 18.3493 V as item 13, latent,
+"no committed number affected". The first draft of the 1 %-crossover bisection
+above scored the resulting `NaN` as "the floor dominates" (`nan > 0` is `False`)
+and returned its own 200 V bracket ceiling as the answer; the correct value is
+14.73 V. The bracket is now capped below the onset and `NaN` is a hard stop.
+**Latent and harmless are not the same property.** Item 13's ranking is
+unchanged — it is a numerics change inside a module with committed transcripts
+across three chapters — but "no committed number affected" is no longer the
+whole of its description.
+
+#### What this section does not claim
+
+- It does not claim `n_puddle` should be changed. The 2.418 × 10¹⁵ m⁻² figure is
+  what would reconcile two floors that are not required to agree; adopting it
+  would move §4.4, §4.7 and §4.10 and is not done here.
+- It does not claim the mass-action closure is physical. It is algebraically
+  equivalent to a smoothness choice, and the literature it most resembles
+  declines to impose it.
+- It does not claim the signed model is a new physical model. Its contract is
+  the opposite: every quantity it introduces is a decomposition of one already
+  being computed, and the conductivity is unmoved to 3 ulp.
+- It does not re-derive anything on (4.28). That is item 12, now unblocked and
+  still open.
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent

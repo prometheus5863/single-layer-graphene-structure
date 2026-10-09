@@ -127,6 +127,58 @@ digits for exactly this reason, and Chapter 7 §7.2's conclusion — that
 graphene's device future is in interconnects, RF and photodetection rather than
 in logic — descends from this section more directly than from any other.
 
+
+### 3.3.1 Annotation (2026-10-09): Chapter 4's floor is 2.07× this one, and the two had never been compared
+
+This section states that the measured floor is `4q_e²/h` = 6.45 kΩ/□, and then
+says the repository "encodes that picture as `n_puddle = 5 × 10¹⁵ m⁻²` in
+`graphene_fet_model.py`". **Those two statements had never been checked against
+each other**, in the eleven sessions since this chapter was drafted. They
+disagree.
+
+Chapter 4's disorder floor is `σ_min = e·μ·n_puddle` — a one-line calculation,
+available since August, decidable only once §4.6.7 established that `n_puddle`
+is the **total** carrier density `n_e + n_h` rather than a net or per-species
+density. It gives 3.204353 × 10⁻⁴ S/sq = **3.1208 kΩ/□**, against the
+1.549618 × 10⁻⁴ S/sq = 6.4532 kΩ/□ in the table above:
+
+> **Chapter 4's channel at neutrality is 2.0678× more conductive than the floor
+> this section calls measured.** The `n_puddle` that would reconcile them is
+> 2.418 × 10¹¹ cm⁻², against the shipped 5 × 10¹¹ cm⁻².
+
+Nothing in the table above is changed and no number in it is deleted. What is
+corrected is the *word* "encodes": `n_puddle = 5 × 10¹⁵ m⁻²` is not an encoding
+of this section's 6.45 kΩ/□ floor, it is an independent parameter that happens
+to be of the same order and lands a factor of two on the conductive side. The
+sentence should be read as describing the same *picture* — charge puddles
+averaging over a non-uniform local density — and not the same *number*.
+
+Two consequences recorded rather than acted on:
+
+- **§4.4's on/off ratio is understated** by up to 1.44× at the terminals, if
+  this section's measured floor is the right one for that device. §4.6.7
+  measures it: 1.2408 → 1.7820 at `V_ds` = 0.1 V. It does not disturb this
+  section's central negative result, nor §7.2's conclusion — 1.78 is no more a
+  switch than 1.24.
+- These two floors are **not the same physics** and are not required to agree.
+  `4q_e²/h` is a quantum/ballistic minimum conductivity observed
+  experimentally; `e·μ·n_puddle` is a diffusive disorder floor. The defect is
+  not that they differ, it is that a thesis quoted both in chapters that feed
+  each other without ever putting them side by side — and that the diffusive
+  one came out **below** the measured one, which no graphene sheet does.
+
+An external cross-check, for scale and not as an anchor:
+[Wiedmann et al., Phys. Rev. B **84**, 115314 (2011), arXiv:1107.3929] extract
+both species from the Hall coefficient and report `n = p ≈ 4.2 × 10¹⁴ m⁻²` at
+neutrality for their sample B, i.e. a total puddle density of ≈ 8.4 × 10¹⁴ m⁻².
+The shipped `n_puddle` is **5.95×** that, and even the Chapter-3-matched value
+is 2.88× it. Different sample, unstated substrate quality, so this is context
+rather than a calibration — §4.6.7's comparison is internal to this thesis and
+is the stronger finding.
+
+Source: `graphene_fet_signed_carrier_model.py` §4,
+`fet_signed_carrier_output.txt`.
+
 ## 3.4 The half-integer quantum Hall effect
 
 In a perpendicular field the Dirac spectrum gives Landau levels
