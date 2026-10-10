@@ -7366,3 +7366,252 @@ written, so at no point did more than one commit exist only in the session VM.
 **Commits this run:** 4 (the signed-carrier module with its transcript and
 figure; the session notes; Chapter 4 §4.6.7 with Chapter 3 §3.3.1; Chapter 7
 §7.9 with §7.8.1f). This AUTOMATION_LOG.md entry makes **5**.
+
+## 2026-10-10 — The series factor was a derivative, and the number it moved was two numbers cancelling
+
+**Session type:** full session. Step 0 at the **first firing of the day**
+(06:19 UTC) found the device reachable, the "scheduled harsh" folder
+connected, **neither** repository carrying a 2026-10-10 entry and no commits
+since midnight.
+
+**Item worked:** §7.9 **item 12**, *re-derive Chapter 4 on the exact charge
+relation (4.28)* — created 10-08, blocked by item 9, unblocked 10-09, the top
+item with nothing in front of it. **Closed.** Closing it unblocked the §4.6.5
+rewiring item and opened one new item, already costed.
+
+### 1. The item asked for a number. The finding is that the chapter had the pair of equations mis-described.
+
+Chapter 4 has called (4.29) "the linearisation of (4.28)" in three places
+since 10-08 — §4.6.6, the §4.3 annotation, and §7.9 item 12 itself. **It is
+checkable in one line and it is false.** A linearisation shares its function's
+leading order. Measured log-log exponents `d ln n/d ln dV`:
+
+| `dV` (V) | (4.28) | (4.29) |
+|---|---|---|
+| 10⁻¹⁰ | **1.99999854** | **1.00000000** |
+| 10⁻⁴ | 1.943766 | 1.000000 |
+| 10⁻² | 1.274493 | 1.002201 |
+
+In (4.28), `a·n + b·√n = dV`, so `n → (dV/b)²` as `dV → 0` — **quadratic**. In
+(4.29), `C_q(0)` is finite — **linear**.
+
+**What (4.29) actually is.** Differentiating (4.28) gives
+`d(dV)/dn = e/C_ox + e/C_Q(n)` with `C_Q(n) = e²dn/dE_F = 2e√n/A_F`, hence
+
+    dn/d(dV) = (C_ox/e)·C_Q(n)/(C_Q(n) + C_ox)                      (4.31)
+
+and (4.31) **is** (4.29) with `dn/d(dV)` where (4.29) writes `n/dV`. The
+series factor is the charge relation's **exact derivative**, used as though it
+were algebraic: a **one-point rectangle rule** for its own integral. A
+truncated expansion improves as the argument shrinks; a rectangle rule
+degrades where the slope varies fastest, which is near the Dirac point — which
+is why 10-08 measured +68 % there.
+
+Checked, not asserted: `e·dn/d(dV)` equals the series combination of `C_ox`
+with `C_Q(n)` to **1 ulp**; integrating (4.31) back to the closed-form root
+converges at observed order **3.994** with the `h⁴` extrapolation landing
+**1.5e-13** relative.
+
+### 2. Two independent errors, separated and sized for the first time
+
+| `dV` (V) | total error of (4.29) | quadrature alone | **argument alone** | sum |
+|---|---|---|---|---|
+| 0.01 | +68.2193 % | +32.1722 % | **+68.0927 %** | +100.2649 % |
+| 1.20 (RF bias) | **+5.2064 %** | **+2.6396 %** | **+4.7416 %** | +7.3812 % |
+| 2.70 | +3.4729 % | +1.7523 % | **+3.2193 %** | +4.9716 % |
+
+The second error is `quantum_capacitance()` evaluating `C_q` at the gate
+overdrive instead of at `E_F/e` — noticed in §4.6.5's 10-07 annotation and
+never costed. **The argument error is the larger single contributor.** Neither
+is the explanation alone. And they are **not additive**: the sum overstates by
+1.42× at the RF bias and 1.47× at `dV` = 0.01 V, because they compose
+multiplicatively in the series factor. A decomposition reported as a sum would
+have erred in the flattering direction.
+
+The puddle floor attenuates all of it by **4.3×** (+5.21 % raw → +1.22 % in
+what `carrier_density()` returns). That is a property of `n_puddle`, which
+10-09 measured to be 2.0678× off Chapter 3 — so it is not reassurance.
+
+### 3. The re-derivation itself
+
+| quantity | (4.29) | (4.28) | change |
+|---|---|---|---|
+| `n` at 3.5 V (m⁻²) | 8.170466e15 | 8.000036e15 | −2.0859 % |
+| `R_ch` at the Dirac point (Ω) | 624.1509 | 624.1509 | **0.0000 %** |
+| `L_x` Pd/300/500 (nm) | 115.20/314.17/523.62 | 112.79/307.62/512.70 | −2.0859 % |
+| terminal on/off | 1.240756 | 1.230617 | −0.8171 % |
+| intrinsic on/off | 1.614570 | 1.581261 | −2.0630 % |
+| `I_d` saturated, RF (A) | 8.190217e-05 | 8.140885e-05 | **−0.6023 %** |
+
+The last line **reproduces §4.6.6's published −0.6023 % to four decimal places
+from an independently written patch path**. By 10-02's rule that is a fact
+about two artefacts, not a validation; what it buys is the assurance that the
+(4.29) column is the committed model and not a re-run with drift.
+
+Every qualitative claim of §§4.3–4.4 survives: the 200 nm crossover verdict,
+the on/off ratio still between 1 and 2, the resistance ordering. 0.0000 % at
+the Dirac point because the floor supplies the whole density there.
+
+**On/off moves less at the terminals (−0.8171 %) than intrinsically
+(−2.0630 %) — the THIRD parameter in three sessions** to show that structure,
+after the diffusion term (10-08) and `n_puddle` (10-09). Recorded as a
+property of the **device topology**, not of any one parameter.
+
+### 4. The item was mis-scoped, and the number it moved was a cancellation
+
+Under (4.31) the small-signal gate capacitance **is** the charge relation's
+derivative, so re-deriving the charge forces `C_gs` to move too:
+
+| | (4.29) | charge only | charge + `C_Q` |
+|---|---|---|---|
+| peak-`f_T` bias (V) | −1.1115 | −1.1992 | −1.1867 |
+| `f_T` (GHz) | 20.2787 | 19.8734 | 20.2666 |
+| change in `f_T` | — | **−1.9986 %** | **−0.0594 %** |
+
+**The −0.06 % is a cancellation of two ~2 % terms, not a small effect.**
+Reporting the charge alone overstates by 34×; reporting only the total calls a
+pair of 2 % corrections negligible. §7.4's bound-versus-ranking distinction
+gains a third member — *a number that is small because two larger numbers
+oppose* — and **nothing in this repository would detect one, because every
+check ever written here asks about one quantity at a time.** That is a gap in
+the method and it is logged as such.
+
+**The peak's LOCATION moves 6.76 % against 0.0594 % in height, a ratio of
+114.** Both peaks stay on the hole branch, which answers §4.6.7's peak-`f_T`
+branch-crossing question **NO** for the (4.28)-vs-(4.29) pair and leaves it
+open for the pair it was asked about. §7.8.1a untouched for the right reason:
+`f_max/f_T` moves **+0.0228 %**, 0.643007 → 0.643154, still below the 1.3–1.4
+band a *perfect* gate cannot reach. **Five levers now tried** against the RF
+verdict and the binding constraint is still that `transfer_characteristic()`
+is a resistor with no output resistance.
+
+### 5. Five checks failed as first written, and today's addition to the series
+
+**(a)** The quadratic-exponent check, swept only to `dV` = 10⁻⁴ V, returned
+1.9438 against ±0.01. It measured the **crossover drive**
+`dV_x = 2A_F²C_ox/e` = **6.519 mV**: 10⁻⁴ V is 65× below it, where the
+correction is O(√(dV/dV_x)) ≈ 12 %.
+
+**(b)** The integral identity failed at 1.1e-07, order 3.49, on a uniform
+grid — and measured **the same 6.519 mV**. The integrand turns over inside a
+layer of that width at the lower limit and 4001 uniform nodes put 22 in it. A
+graded grid gives order 3.994 with 12× fewer points. **Two exactness checks,
+different subsections, different purposes, both failing by measuring the same
+number** — the strongest evidence yet that 10-09's rule is a rule.
+
+**(c)** "Every number moves by under 2 %" failed at 2.0859 %. The 2 % was a
+round number chosen before the run, so it was **deleted**, not widened:
+widening to 2.5 % is precisely the tuned tolerance item 15 exists to find. The
+magnitudes are now printed with no threshold and the check tests the
+qualitative claims. Separately, a guessed 10⁻¹⁰ bound on (b) was replaced by
+**the observed convergence order and the absence of a plateau** — a criterion
+the method supplies rather than the author.
+
+**(d), (e)** Two checks were wrong in their **prose** and failed on it: one
+asserted the capacitance half was the *larger* half (it is 0.970×), one
+asserted `f_T` was "two orders below the 100–300 GHz RF requirement" (about
+one order, and §7.8.1a does not rest on a frequency threshold at all).
+09-28: prose is a detector. Today it detected the author's own checks.
+
+**Today's addition.** 10-09 named three repairs available at the moment an
+exactness check fails — loosen, fix the model, find out what it measured.
+**There is a fourth, and (c) needed it: delete the criterion and check the
+claim instead.** (c) was not a measurement wanting a better threshold; it was
+a threshold with no claim underneath it. The checkable form: **a criterion
+whose failure would not change any sentence in the thesis is not a check**,
+and item 15's sweep should flag those as well as tuned tolerances.
+
+### 6. A delivery fault found on the way
+
+`contact_resistance_crossover.py` opens with `from graphene_fet_model import
+carrier_density`, so it holds its own reference bound at import. Rebinding
+`graphene_fet_model.carrier_density` does not reach it, and a re-derivation
+patching only the owning module would have left §4.4 on (4.29) **while
+reporting it as re-derived**. 10-03's frozen-default fault in monkey-patch
+form. An **arrival control** (09-30's rule) now precedes the §4.4 numbers.
+
+### 7. Literature
+
+**Live web search available and used: one search, one fetch, both
+successful.** No PubMed/PMC attempted, per the standing note.
+[arXiv:2209.00388](https://arxiv.org/pdf/2209.00388), the
+Pasadas/Jiménez-lineage compact-model review, supports **both** diagnoses as
+its own conventions: its `C_q` is `∂Q_net/∂V_c` evaluated at the chemical-
+potential shift and never at the overdrive, and its series-capacitance
+expression appears as `dV/dV_c = 1 + C_q(V_c)/(C_t + C_b)`, explicitly a
+differential relation used for charge partitioning rather than to solve the
+static gate-to-channel relation — which it treats as implicit and hands to the
+simulator. It also states the Fermi–Dirac form "is not convenient for a
+compact model" and uses `C_q ≈ k·c₁·√(1 + (V_c/c₁)²)`, whose **`c₁ → 0` limit
+is exactly (4.30)**. So **(4.28) is the T = 0 limit of a standard literature
+form**, and it has a closed-form root *because* it drops the thermal rounding
+the literature keeps. The convenience and the limitation are the same choice,
+and that is now Chapter 4's stated limitation rather than a claim of exactness.
+
+### 8. Environment and automation health
+
+Device reachable and folder connected at the first firing. `pip install scipy`
+succeeded (the device VM still lacks it) — network healthy for the seventh
+session in eight. The whole session ran **on the device VM**; nothing crossed
+the bridge. **Every commit was pushed and verified against the GitHub API
+before the next was written**, per 10-08's correction, so at no point did more
+than one commit exist only in the session VM.
+
+**Not yet covered (candidates for future runs):**
+
+- **FIX `quantum_capacitance()`'s ARGUMENT** — §7.9 **item 16**, created
+  today, and **the first item on that list to arrive already costed**:
+  +4.7416 % of the raw charge at the RF bias, larger than the quadrature error
+  and larger than anything else open on Chapter 4. **Not latent** — it is
+  active in every committed number in Chapters 4, 5 and 6 — and it deviates
+  from the literature's own convention rather than being a choice this thesis
+  is entitled to. Ranked low only because the module owns committed
+  transcripts and the change needs an output-neutrality pass. **It would be
+  the first change in this thesis to MOVE committed numbers rather than
+  annotate them**, and the floor's 4.3× attenuation is why that is survivable.
+  The next session should do this unless something larger appears.
+- **A CHECK THAT CAN SEE A CANCELLATION** — created today, out of §4.6.8's
+  `f_T` result. Every check in this repository asks about one quantity; a
+  number that is small because two larger numbers oppose is invisible to all
+  of them. The mechanisable form is a *two-knob* sweep: for each committed
+  number, move each of its inputs separately and report whether the combined
+  move is smaller than either. Sibling of item 14 (what a declaration costs),
+  and the first methodological item here that is about **interaction** rather
+  than about one quantity being named or bounded wrongly.
+- **THE §4.6.5 REWIRING ITEM**, unblocked today by item 12's closure and with
+  nothing in front of it now.
+- **AUDIT EVERY TOLERANCE** — §7.9 item 15, created 10-09, **now five
+  sessions overdue** and today carrying two worked repairs (delete the bound
+  and check the claim; let the method set the criterion) plus a widened remit:
+  also flag any criterion whose failure would change no sentence in the thesis.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the second session;
+  still the cheapest open physics item.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **untouched for the fourth session**. Today produced no new instance, which
+  is the first session since its creation that has not.
+- **MECHANISE the magnitude item** — created 10-03, worked examples on seven
+  subsequent sessions, **five sessions overdue**. Items 15 and the new
+  cancellation item now both subsume parts of it.
+- **MEASURE WHAT EACH DECLARATION COSTS** — §7.9 item 14, created 10-08,
+  untouched for the second session.
+- **THE `cosh` OVERFLOW** — §7.9 item 13, ranking unchanged (last).
+- **WHETHER `n_puddle` SHOULD ACTUALLY CHANGE** — created 10-09, still
+  deliberately not an item. Item 16 would move committed numbers first, and
+  doing both in one session would make neither attributable.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 10-09, untouched. One
+  parameter away.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** — still
+  expressible and unverified, untouched for the second session.
+- **The seven `UNADJUDICATED` census rows** — created 10-08, untouched.
+- **A self-heating term** — created 10-06, now second in the RF queue behind
+  item 16.
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, **untouched for TWENTY
+  consecutive sessions**. Today was a numerics-and-wording session and again
+  did not touch it. §7.7 gained a fifth instance today and this is the
+  standing one.
+
+**Commits this run:** 4 (the re-derivation module with its transcript and
+figure; Chapter 4 §4.6.8 with the in-place annotations to §4.6.6, §4.3 and
+`graphene_fet_model.py`; Chapter 7 items 12/15/16 and §7.8.1g; the session
+notes). This AUTOMATION_LOG.md entry makes **5**.
