@@ -938,6 +938,55 @@ pattern across all four is the same: **the cheap check on the quantity the
 conclusion actually rests on loses to the expensive check on the quantity the
 current thread is about.**
 
+#### 7.8.1g Annotation (2026-10-10): the fifth lever, and it was two levers that cancelled
+
+§7.9 item 12 — re-deriving Chapter 4 on the exact charge relation — is closed
+(§4.6.8). It is the **fifth** lever this thread has tried against the RF
+verdict, after velocity saturation (10-05), the perfect contact (10-06), the
+diffusion term (10-07/10-08) and the charge relation's prerequisite (10-09).
+The verdict is unchanged and the *reason* it is unchanged has changed shape
+twice.
+
+**What moved.** `f_max/f_T` moves **+0.0228 %**, from 0.643007 to 0.643154 at
+the 40 µm 8-finger geometry. Peak `f_T` moves −0.0594 %, peak `f_max`
+−0.0366 %, extrinsic `f_T` −1.6720 %, extrinsic `f_max` −1.7091 %. The
+structural statement of §7.8.1a — that this model's `f_max` is a restatement
+of `R_total/(R_g+R_s)` and not an estimate of `f_max` — is therefore
+untouched, which is the correct thing to have checked. An earlier draft of
+that check tested a *frequency* instead (that `f_T` sat "two orders below the
+100–300 GHz RF-frontend requirement") and was wrong twice: the gap is about
+one order, and §7.8.1a never rested on a frequency threshold. §7.5's taxonomy
+gains a small class (v) instance in the audit layer rather than in the model.
+
+**What the small number conceals, and this is the new thing.** The −0.0594 %
+in `f_T` is **a cancellation, not a smallness**. The charge change alone is
+−1.9986 %; the gate-capacitance change that the same differential identity
+forces is +1.9392 %; the two are within 3 % of each other in magnitude and
+opposite in sign. Four of the five levers in this thread were reported as
+single numbers. This one could not have been: reporting the charge alone would
+have overstated the effect by 34×, and reporting only the total would have
+called a pair of 2 % corrections negligible. **§7.4's distinction between a
+bound and a ranking has a third member — a number that is small because two
+larger numbers oppose — and nothing in this thesis's audit record would detect
+it, because every check that has ever been written here asks about one
+quantity at a time.**
+
+**And the peak bias is where the sensitivity lives.** Peak `f_T` moves
+0.0594 % in height and **6.76 %** in location, a ratio of 114. Both peaks stay
+on the hole branch, so §4.6.7's open "does the peak-`f_T` bias change branch
+between the two models" question is answered **NO** for the
+(4.28)-vs-(4.29) pair, and stays open for the branched-vs-magnitude pair it
+was actually asked about. The observation that this thread's figures of merit
+are far more sensitive in *where* they peak than in *how high* they peak is new
+and is not something any of the five levers was designed to reveal.
+
+**What this does to the ledger.** The RF thread has now exhausted its
+model-side levers; what remains (item 16, the `C_q` argument) is the first
+open item with a cost larger than any lever tried, and it is a defect rather
+than a missing physical effect. §7.8.1a's conclusion is unchanged and better
+supported than it was, because the levers that could have moved it have been
+tried and measured rather than assumed to be small.
+
 ### 7.8.2 Contacts: the real near-term contribution, and a negative result worth having
 
 Contact resistance is the binding constraint on every graphene device in this
@@ -1177,6 +1226,29 @@ Stated as falsifiable items, in order of how much they would move:
    front of it** — the first time in three sessions that is true. It is also now
    the only remaining reason the §4.6.5 rewiring item is deferred, so it blocks
    work rather than merely ranking above it.
+   **2026-10-10 — CLOSED**, §4.6.8,
+   `graphene_exact_charge_rederivation.py`, 21/21 checks. The −0.6023 % is
+   reproduced to four decimal places from an independently written patch path,
+   and **the item's own description of its two equations was wrong**. (4.29) is
+   not the linearisation of (4.28); the two do not share a leading order as
+   `dV → 0` (exponents 1.99999854 and 1.00000000 at `dV` = 10⁻¹⁰ V, quadratic
+   against linear). (4.29) is (4.28)'s **exact differential relation used
+   algebraically** — a one-point rectangle rule for the integral of
+   `dn/d(dV) = (C_ox/e)·C_Q/(C_Q+C_ox)` with `C_Q(n) = 2e√n/A_F`, verified an
+   identity to 1 ulp and by integrating it back to the closed-form root at
+   observed order 3.994 — compounded with a **second, independent** error:
+   `C_q` evaluated at the overdrive rather than at `E_F/e`. Separated for the
+   first time, the argument error (+4.7416 % of the charge at the RF bias) is
+   **larger** than the quadrature error (+2.6396 %), and the two are not
+   additive. §§4.3–4.4 move by at most 2.0859 % with every qualitative claim
+   intact. **The item was also mis-scoped**: under the differential identity
+   the gate capacitance *is* the charge relation's derivative, so `C_gs` moves
+   too, and in `f_T` the charge half (−1.9986 %) and the capacitance half
+   (+1.9392 %) nearly cancel to −0.0594 % — two coupled 2 % corrections, not a
+   negligible effect. The three sentences in this thesis that call (4.29) a
+   linearisation (§4.6.6, the §4.3 annotation, and this item) are marked
+   superseded in place, not deleted. The §4.6.5 rewiring item is therefore
+   **unblocked**, and the argument error this exposed becomes item 16.
 13. **The `cosh` overflow in `quantum_capacitance()`** (added 2026-10-08).
    `log(2(1 + cosh η))` returns `inf`/`NaN` once `η = dV/(kT/e)` passes ~710,
    i.e. above `dV` = **18.3493 V** at 300 K, measured by bisection. The exact
@@ -1226,6 +1298,39 @@ Stated as falsifiable items, in order of how much they would move:
    item, and the natural instrument for both: a tolerance set after a failure
    and a criterion written as a ratio are the two ways a check stops being a
    check without anyone editing it.
+   **2026-10-10 — a near-miss of exactly this kind, caught and recorded.**
+   §4.6.8's first draft required "every number moves by under 2 %" and failed
+   at 2.0859 %. Widening it to 2.5 % would have produced a passing criterion
+   that measured nothing but the run that set it. The bound was **deleted**
+   instead: the magnitudes are printed with no threshold and the check tests
+   the qualitative claims. The same session replaced a guessed 10⁻¹⁰ error
+   bound on a quadrature identity with the **observed convergence order and
+   the absence of a plateau**, which the method supplies and no one has to
+   choose. The item now has two patterns to look for and one worked repair for
+   each: *delete the bound and check the claim*, and *let the method set the
+   criterion*. It is still unbuilt, and now **five sessions overdue**.
+
+16. **Fixing `quantum_capacitance()`'s argument** (added 2026-10-10, and the
+   first item on this list that arrives already costed). `C_q` is evaluated at
+   the gate overdrive `dV`; the dispersion it is derived from requires
+   `E_F/e = A_F·√n`, which at the RF bias is **4.04 %** of the overdrive.
+   §4.6.8 separates this from the quadrature error of (4.29) and sizes it at
+   **+4.7416 %** of the raw charge at that bias — **larger than the quadrature
+   error (+2.6396 %), and the largest cost attached to anything currently open
+   on Chapter 4**. The compact-model review
+   [arXiv:2209.00388](https://arxiv.org/pdf/2209.00388) evaluates its `C_q` at
+   the chemical-potential shift and never at the overdrive, so this is a
+   deviation from the literature's own convention rather than a modelling
+   choice this thesis is entitled to. It is ranked here rather than acted on
+   for the same process reason as item 13 — `graphene_fet_model.py` owns
+   committed transcripts across Chapters 4, 5 and 6, and a numerics change
+   there needs its own output-neutrality pass — but unlike item 13 it is **not
+   latent**: it is active in every committed number in those chapters. The
+   honest statement is that it has the largest known cost on this list and is
+   ranked low only for process reasons. Acting on it would be the first change
+   in this thesis to **move** committed Chapter 4 numbers rather than annotate
+   them, and the puddle floor's 4.3× attenuation of charge errors (§4.6.8) is
+   the reason that is survivable.
 
 ---
 
