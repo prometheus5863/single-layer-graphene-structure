@@ -917,7 +917,13 @@ uses the linearised series factor
 n = (C_ox·dV/e) · C_q/(C_q + C_ox)                                      (4.29)
 ```
 
-(4.29) is the linearisation of (4.28). Running Eq. (4) on (4.28) with nothing
+(4.29) is the linearisation of (4.28). [**SUPERSEDED 2026-10-10, §4.6.8:**
+this sentence is wrong and is kept as written. (4.29) is (4.28)'s *exact
+differential relation* used algebraically — a one-point rectangle rule for
+∫(4.31) — compounded with `C_q` evaluated at the overdrive rather than at
+`E_F/e`. The two forms do not share a leading order as `dV → 0`: (4.28) is
+quadratic, (4.29) linear. **The −0.6023 % below is unaffected and was
+reproduced independently.**] Running Eq. (4) on (4.28) with nothing
 else changed:
 
 | | `I_d` at the RF bias |
@@ -948,6 +954,9 @@ result.
 rewritten: the wording "electrostatic charge from `V_g − V_ch`" is retained and
 marked loose, since under the declaration the exact relation is (4.28) and the
 series factor is its linearisation rather than an additional physical effect.
+[**SUPERSEDED 2026-10-10, §4.6.8:** read "its exact differential relation,
+used algebraically" for "its linearisation". The statement that it is not an
+additional physical effect stands.]
 **The numbers that function returns are unchanged — verified bitwise over a
 41-point sweep — and what changed is what they are a model of.**
 
@@ -1159,7 +1168,266 @@ whole of its description.
   the opposite: every quantity it introduces is a decomposition of one already
   being computed, and the conductivity is unmoved to 3 ulp.
 - It does not re-derive anything on (4.28). That is item 12, now unblocked and
-  still open.
+  still open. [**CLOSED 2026-10-10, §4.6.8.**]
+
+### 4.6.8 Chapter 4 re-derived on (4.28) — and (4.29) was never a linearisation
+
+§4.6.6 declared `V_ch` the quasi-Fermi potential, made (4.28) the exact charge
+relation, measured the gap to (4.29) at −0.6023 % of `I_d`, and left the
+re-derivation as §7.9 item 12. §4.6.7 supplied the branched root the item was
+blocked on. This section does the re-derivation. **The −0.60 % reproduces
+exactly; the finding is that the chapter has been describing the pair of
+equations wrongly, in three places, since 2026-10-08.**
+
+Machine output: `exact_charge_rederivation_output.txt` (21 checks, 21 passed).
+Module: `graphene_exact_charge_rederivation.py`. Figure:
+`exact_charge_rederivation.png`.
+
+#### (4.29) is not the linearisation of (4.28), and the test is one line
+
+A linearisation of a function agrees with it to first order by construction.
+These two do not share a *leading* order. In (4.28), `a·n + b·√n = dV` with
+`a = e/C_ox` and `b = A_F`; as `dV → 0` the `√n` term dominates and
+`n → (dV/b)²` — **quadratic**. In (4.29), `C_q(0)` is finite, so
+`n → (C_ox/e)·f(C_q(0))·dV` — **linear**. Measured log-log exponents:
+
+| `dV` (V) | d ln n/d ln dV, (4.28) | d ln n/d ln dV, (4.29) |
+|---|---|---|
+| 10⁻¹⁰ | **1.99999854** | **1.00000000** |
+| 10⁻⁶ | 1.999387 | 1.000000 |
+| 10⁻⁴ | 1.943766 | 1.000000 |
+| 10⁻² | 1.274493 | 1.002201 |
+
+#### What (4.29) actually is: the exact differential relation, used algebraically
+
+Differentiating (4.28),
+
+```
+d(dV)/dn = e/C_ox + (1/e)·dE_F/dn = e/C_ox + e/C_Q(n),
+C_Q(n) := e²·dn/dE_F = 2·e·√n / A_F                                  (4.30)
+
+  =>  dn/d(dV) = (C_ox/e) · C_Q(n)/(C_Q(n) + C_ox)                   (4.31)
+```
+
+(4.31) **is** (4.29) with `dn/d(dV)` in place of `n/dV`. So the series factor
+is not an approximation *of* the charge relation; it is the charge relation's
+exact derivative, and (4.29) uses it as a **one-point rectangle rule** for
+`∫₀^dV (4.31) dV'`. That is a quadrature error, not a truncated expansion, and
+a rectangle rule is worst where the slope varies fastest — near the Dirac
+point, which is exactly where §4.6.6's raw disagreement reached +68 %.
+
+(4.30) and (4.31) are verified as identities, not asserted: `e·dn/d(dV)` from
+(4.28)'s closed-form root equals the series combination of `C_ox` with `C_Q(n)`
+to **1 ulp**, and numerically integrating (4.31) back to the closed-form root
+converges at **observed order 3.994** against Simpson's 4, with the `h⁴`
+extrapolation landing **1.5×10⁻¹³** relative from it. An error in the prefactor
+of `C_Q` — a dropped factor of 2, say — would leave an O(1) plateau and drive
+the observed ratio to 1 instead of 16; that is what the order, rather than a
+threshold on the error, is testing.
+
+#### Two independent errors, separated for the first time
+
+(4.29) differs from (4.28) in two unrelated ways: the quadrature above, and
+`quantum_capacitance()` evaluating `C_q` at the gate overdrive `dV` instead of
+at `E_F/e = A_F·√n` (noticed in §4.6.5's 2026-10-07 annotation and never
+costed). Running the 2×2 — {rectangle, integral} × {argument `dV`, argument
+`E_F/e`} — on the raw charge, with the puddle floor off so that the floor does
+none of the work:
+
+| `dV` (V) | total error of (4.29) | quadrature alone | **argument alone** | sum |
+|---|---|---|---|---|
+| 0.01 | +68.2193 % | +32.1722 % | **+68.0927 %** | +100.2649 % |
+| 0.50 | +8.0543 % | +4.1176 % | **+7.2144 %** | +11.3320 % |
+| 1.20 (RF bias) | **+5.2064 %** | **+2.6396 %** | **+4.7416 %** | +7.3812 % |
+| 2.70 | +3.4729 % | +1.7523 % | **+3.2193 %** | +4.9716 % |
+
+Three things follow. **The argument error is the larger single contributor**
+(+4.74 % against +2.64 % at the RF bias) — which no earlier session could have
+known, because none separated them. **Neither is the explanation on its own.**
+And **they are not additive**: the sum overstates the total by 1.42× at the RF
+bias and by 1.47× at `dV` = 0.01 V, because they compose multiplicatively in
+the series factor. A decomposition reported as a sum would have been wrong in
+the direction that flatters it.
+
+The puddle floor then attenuates all of this by **4.3×** at the RF bias
+(+5.21 % raw → +1.22 % in what `carrier_density()` returns). That attenuation
+is a property of `n_puddle`, which §4.6.7 measured to be 2.0678× off Chapter
+3's floor — so it is a reason the re-derivation moves little, not a reason for
+confidence in either form.
+
+#### §§4.3–4.4 re-derived
+
+| quantity | on (4.29) | on (4.28) | change |
+|---|---|---|---|
+| `n` at `V_g` = 3.5 V (m⁻²) | 8.170466×10¹⁵ | 8.000036×10¹⁵ | **−2.0859 %** |
+| `R_ch` at `V_g` = 3.5 V (Ω) | 381.9555 | 390.0926 | +2.1304 % |
+| `R_ch` at the Dirac point (Ω) | 624.1509 | 624.1509 | **0.0000 %** |
+| `I_d`, drift, RF bias (A) | 8.719345×10⁻⁵ | 8.671268×10⁻⁵ | −0.5514 % |
+| `I_d`, saturated, λ = 0, RF bias (A) | 8.190217×10⁻⁵ | 8.140885×10⁻⁵ | **−0.6023 %** |
+| `L_x`, Pd 110 Ω·µm (nm) | 115.20 | 112.79 | −2.0859 % |
+| `L_x`, 300 Ω·µm (nm) | 314.17 | 307.62 | −2.0859 % |
+| `L_x`, 500 Ω·µm (nm) | 523.62 | 512.70 | −2.0859 % |
+| terminal on/off | 1.240756 | 1.230617 | −0.8171 % |
+| intrinsic on/off (`R_c` = 0) | 1.614570 | 1.581261 | −2.0630 % |
+
+The −0.6023 % line **reproduces §4.6.6's published figure to four decimal
+places from an independently written patch path**. Per 2026-10-02 that is a
+fact about two artefacts rather than a validation; what it establishes is that
+the (4.29) column above is the committed model and not a re-run with drift in
+it.
+
+At the Dirac point the two forms agree to 0.0000 % because the floor supplies
+the entire density there — the one place in this chapter where the charge
+relation does not matter at all, and §4.6.7 already showed it is also the
+place the chapter's off-state numbers come from.
+
+**Every qualitative claim of §§4.3–4.4 survives.** The best literature contact
+still crosses over below the 200 nm channel and the mid- and worst-case
+contacts still do not; the on/off ratio is still between 1 and 2, i.e. still
+not a switch; the channel is still more resistive at neutrality than in the on
+state. §4.4's contact-engineering conclusion and §7.2's "no switch" are
+untouched.
+
+**On/off moves less at the terminals (−0.8171 %) than intrinsically
+(−2.0630 %).** This is the third parameter in three sessions to show that
+structure — the diffusion term (2026-10-08), `n_puddle` (2026-10-09), and now
+the charge relation itself. It is therefore a property of the **device
+topology**, not of any one parameter: the series contact resistance is a
+negative feedback on `I_d` and attenuates whatever moves upstream of it.
+
+#### §4.6 re-derived — and the item was mis-scoped
+
+Under (4.31) the small-signal gate capacitance is **not an independent
+ingredient**: `e·dn/d(dV)` *is* `(1/C_ox + 1/C_Q(n))⁻¹`. So a consistent
+re-derivation moves `C_gs` as well as `I_d`, and `f_T = g_m/(2πC_gs)` sees
+both. Applied separately, at the peak-`f_T` bias, `V_ds` = 0.1 V:
+
+| | on (4.29) | (4.28) charge only | (4.28) charge + `C_Q` |
+|---|---|---|---|
+| peak-`f_T` bias `V_g` (V) | −1.1115 | −1.1992 | **−1.1867** |
+| `f_T` (GHz) | 20.2787 | 19.8734 | 20.2666 |
+| `f_max` (GHz) | 18.5566 | 18.1781 | 18.5495 |
+| `C_gs` (fF) | 0.0767 | 0.0767 | 0.0752 |
+| change in `f_T` | — | **−1.9986 %** | **−0.0594 %** |
+| change in `f_max` | — | −2.0399 % | −0.0386 % |
+
+**The combined −0.06 % is a cancellation, not a smallness.** The charge half
+is −1.9986 % and the capacitance half +1.9392 % — opposite in sign and within
+3 % of each other in magnitude. A re-derivation that changed only the charge
+would have reported −2.0 % and been wrong by a factor of 34; one that reported
+only the combined number would have called item 12 negligible in `f_T` when it
+is in fact two coupled 2 % corrections that happen to oppose. **An item that
+names one of two coupled quantities gets the other one whether or not it asks,
+and the sum is not the way to find out which mattered.**
+
+The capacitance half is small for a reason worth stating: `C_q` at the
+overdrive is 4.500×10⁻¹ F/m² and `C_Q` at `E_F/e` is 1.820×10⁻² F/m², a factor
+of **24.7** apart, but both are ≫ `C_ox` = 3.837×10⁻⁴ F/m², so a factor of 25
+in `C_q` becomes −1.94 % in `C_gs`. `E_F/e` = 0.0773 V is 4.04 % of the 1.91 V
+overdrive, which is the argument error of the previous subsection seen
+directly.
+
+**The peak bias is the sensitive quantity, not the peak value.** `f_T` moves
+0.0594 % in height and 6.76 % in *location* (−1.1115 → −1.1867 V), a ratio of
+**114**. Both peaks sit on the **hole branch** and neither crosses to the
+electron branch, so the open "does the peak-`f_T` bias change branch between
+the two models" question of §4.6.7 is **answered NO for the (4.28)-vs-(4.29)
+pair**; it was asked about the branched-vs-magnitude pair and stays open there.
+
+At the literature-scale geometry (40 µm, 8 fingers) that §4.6.2 and §7.8.1a
+quote: peak `f_T` 20.2787 → 20.2666 GHz, `f_max` at that bias 13.0393 →
+13.0346 GHz, extrinsic `f_T` 3.4423 → 3.3847 GHz, extrinsic `f_max` 2.2105 →
+2.1727 GHz. **§7.8.1a is untouched, and for the right reason**: its verdict is
+structural — that `f_max` is a restatement of `R_total/(R_g+R_s)` — so the
+quantity to check is the ratio, and `f_max/f_T` moves **+0.0228 %**, from
+0.643007 to 0.643154, still below the bottom of Feijoo *et al.*'s 1.3–1.4 band
+that 2026-10-04 showed a *perfect* gate cannot reach. Five levers have now
+been tried — velocity saturation, the perfect contact, the diffusion term, the
+exact charge relation, and its capacitance — and the binding constraint is
+still that `transfer_characteristic()` is a resistor with no output resistance.
+
+#### Three exactness checks failed as first written, and two were wrong in their prose
+
+Continuing 2026-10-09's series, with a new instance of it.
+
+**(a) The quadratic-exponent check failed at `dV` = 10⁻⁴ V**, returning 1.9438
+against a ±0.01 criterion. It did not measure the exponent. The two terms of
+(4.28) are equal at `dV_x = 2·A_F²·C_ox/e` = **6.519 mV**, so 10⁻⁴ V is only
+65× below the crossover, where the correction is O(√(dV/dV_x)) ≈ 12 %. **It
+measured the width of the crossover**, and the repair is to evaluate the limit
+where the limit is and to print `dV_x` so the criterion comes from the model
+instead of from a round number.
+
+**(b) The integral identity failed at 1.1×10⁻⁷ with order 3.49 on a uniform
+grid — and it measured the same 6.519 mV.** The integrand of (4.31) turns over
+inside a layer of width `dV_x` at the lower limit, and a uniform grid over
+[0, 1.2 V] puts only 22 nodes in it even at 4001 points. A grid graded about
+`dV_x` reaches order 3.994 with **12× fewer** points. **Two exactness checks
+written for different purposes, in different sections, both failed by measuring
+the same number** — which is the strongest evidence this thesis has that
+2026-10-09's rule is a rule and not an anecdote.
+
+**(c) "Every number moves by under 2 %" failed at 2.0859 %, and the bound was
+removed rather than widened.** The 2 % was a round number chosen before the
+run and derived from nothing, so widening it to 2.5 % would have been exactly
+the tuned tolerance §7.9 item 15 exists to find. The magnitudes are now
+printed with no threshold on them and the check tests the qualitative claims,
+which are what a re-derivation can actually overturn. **Of 2026-10-09's three
+available repairs — loosen, fix the model, find out what it measured — this
+session used the third twice and the fourth option, delete the criterion, once.**
+
+Two further checks were wrong in their *prose* and failed on it: one asserted
+the capacitance half was the *larger* half (it is 0.970× the charge half), and
+one asserted `f_T` was "two orders below the 100–300 GHz RF-frontend
+requirement" — wrong twice, since 20.3 GHz is about one order below 100 GHz
+and §7.8.1a does not rest on a frequency threshold at all. 2026-09-28
+established that prose is a detector; here it detected the author's own
+checks.
+
+#### A delivery fault found on the way
+
+`contact_resistance_crossover.py` opens with `from graphene_fet_model import
+carrier_density`, so it holds its **own** reference, bound at import time.
+Rebinding `graphene_fet_model.carrier_density` does not reach it, and a
+re-derivation that patched only the owning module would have left §4.4 on
+(4.29) while reporting it as re-derived. This is the 2026-10-03
+frozen-default fault in its monkey-patch form. An **arrival control**
+(2026-09-30's rule) now sits in the module ahead of the §4.4 numbers and fails
+if the patch did not reach the module that computes them.
+
+#### What this section does not claim
+
+1. It does **not** claim (4.29) is less accurate than (4.28). Neither has been
+   compared to measurement. (4.29) is non-exact under the declaration and is
+   now additionally *named* — a quadrature of the exact differential — which
+   is a statement about its derivation, not about its accuracy.
+2. It does **not** claim (4.28) is exact physics. `E_F = ħv_F√(πn)` is the
+   **T = 0** dispersion and carries no thermal broadening; (4.28) is exact
+   with respect to the declaration and the Dirac dispersion only. The
+   compact-model review [arXiv:2209.00388](https://arxiv.org/pdf/2209.00388)
+   uses `C_q ≈ k·c₁·√(1 + (V_c/c₁)²)`, whose `c₁ → 0` limit is exactly (4.30),
+   and `c₁` is the thermal rounding (4.28) drops. That regime is far inside
+   the puddle floor and is stated as a limitation rather than costed.
+3. It does **not** replace Chapter 4's numbers. Every committed number remains
+   a (4.29) number, annotated with its (4.28) value above. The chapter's
+   production path is unchanged and is now carrying a measured, decomposed
+   statement of what that choice costs.
+4. It does **not** touch the hole-branch sign of this chapter's
+   branch-asymmetric results. §4.6.7 made that expressible; it remains
+   unverified.
+5. It does **not** change the floor. `n_puddle` is carried into (4.28)
+   unchanged so the comparison is apples to apples, which means (4.28) + floor
+   is not itself an exact model either.
+
+#### Annotation to §4.6.6 and §4.3, in place
+
+§4.6.6's sentence "(4.29) is the linearisation of (4.28)" and the matching
+wording in `carrier_density()`'s 2026-10-08 annotation are **marked
+superseded where they stand, not rewritten**: (4.29) is the exact differential
+relation of (4.28) used algebraically, compounded with an argument error. No
+number in §4.6.6 changes — the −0.6023 % it published is reproduced here — and
+the superseded wording is kept visible because the shape of the mistake
+(describing a quadrature as a truncation) is the kind that recurs.
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 

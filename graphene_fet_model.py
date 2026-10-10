@@ -109,6 +109,20 @@ def quantum_capacitance(V_g_minus_Vdirac, T=300.0):
 #       factor used below.  The two differ by -0.60 % in I_d at the RF bias.
 #       Chapter 4 keeps the series-factor numbers and states the limitation;
 #       re-deriving on the exact relation is Section 7.9's new top item.
+# AMENDED 2026-10-10 (Section 4.6.8, graphene_exact_charge_rederivation.py,
+# 21/21).  The word "linearised" in (b) is WRONG and is left in place rather
+# than edited out.  The series factor below is the EXACT DERIVATIVE of that
+# relation -- d(dV)/dn = e/C_ox + e/C_Q(n) with C_Q(n) = 2 e sqrt(n)/A_F gives
+# dn/d(dV) = (C_ox/e) C_Q/(C_Q + C_ox), verified an identity to 1 ulp -- used
+# here as though it were algebraic, i.e. a ONE-POINT RECTANGLE RULE for its own
+# integral.  It is a quadrature error, not a truncated expansion, and the two
+# forms do not share a leading order as dV -> 0: (4.28) is quadratic in dV,
+# this form is linear.  Compounded with a SECOND, independent error --
+# quantum_capacitance() below is evaluated at the gate overdrive dV rather
+# than at E_F/e, as the dispersion requires.  At the RF bias the quadrature
+# error alone is +2.6396 % of the charge and the argument error alone is
+# +4.7416 %, against a combined +5.2064 %; they are NOT additive.  The -0.60 %
+# in I_d is unchanged and was reproduced independently.
 def carrier_density(V_g, V_ch=0.0):
     """
     Self-consistent channel sheet carrier density n(V_g, V_ch) [1/m^2],
@@ -128,7 +142,12 @@ def carrier_density(V_g, V_ch=0.0):
     declared to be the QUASI-FERMI potential (see the marker above the def),
     so the exact relation is V_g - V_dirac - V_ch = e*n/C_ox + E_F(n)/e and
     the series factor below is its LINEARISATION, not an additional physical
-    effect on top of an electrostatic drop.  The numbers this function returns
+    effect on top of an electrostatic drop.
+    AMENDED 2026-10-10, Section 4.6.8: read "its exact differential relation,
+    used as though it were algebraic" for "its LINEARISATION" -- see the
+    amended marker above the def for the two errors that composes with and
+    their separately measured sizes.  The clause about it not being an
+    additional physical effect stands.  The numbers this function returns
     are unchanged; what changed is what they are a model OF.  The gap between
     the linearised and exact forms is measured in
     graphene_potential_declaration.py (Section 2) and is -0.60 % in I_d at the
