@@ -1,0 +1,166 @@
+==============================================================================
+FIXING quantum_capacitance()'s ARGUMENT -- Section 7.9 item 16
+and the overflow that had to be fixed first -- item 13
+==============================================================================
+  A_F = 1.166650e-09 V*m    PREFACTOR = 2.354285e-01 F/(m^2 V)
+  C_ox = 3.836815e-04 F/m^2   kT/e = 2.585200e-02 V at T = 300.0 K
+  RF bias of record: V_g = 2.0 V, V_ds = 0.1 V, dV = 1.2 V
+
+SECTION 1.  THE ARGUMENT CANNOT BE FIXED BY CHANGING AN ARGUMENT
+------------------------------------------------------------------------------
+  quantum_capacitance(V) takes a POTENTIAL.  The dispersion needs
+  E_F/e = A_F*sqrt(n), and n is the quantity C_q is being used to
+  compute.  The correct argument is a STATE, so item 16 is a
+  self-consistency problem, not an edit to a call site.  That is
+  why it sat unacted-on for a session while being the largest
+  open cost on Chapter 4.
+
+  At the RF bias, on the committed charge:
+    n = 2.869804e+15 /m^2  ->  E_F/e = 0.062498 V, which is 5.2082 % of the
+    1.2 V overdrive.  C_q at the two arguments:
+      C_q(dV)     = 2.825142e-01 F/m^2
+      C_q(E_F/e)  = 1.575324e-02 F/m^2  (factor 17.934)
+      C_ox        = 3.836815e-04 F/m^2
+  [PASS] the two candidate arguments differ by a factor of ~20, and BOTH give C_q >> C_ox, which is why a factor 20 in C_q is only a few per cent in the charge
+         C_q(E_F/e)/C_ox = 41.06, so the series factor is 0.976223 against 0.998644 -- a 2.2966 % difference in the factor from a 17.9x difference in C_q.  The error is small because the device is NOT quantum-capacitance-limited at this bias, not because the argument is nearly right.
+  [PASS] the self-consistent solve converges to its own fixed point at machine level, so nothing below is an artefact of the iteration
+         max |n - n_es*f(C_q(n))|/|n| = 0.000e+00 over the solve at the RF bias.
+
+SECTION 2.  THE OBVIOUS FIX DELETES THE TEMPERATURE
+------------------------------------------------------------------------------
+  C_Q(n) = 2e*sqrt(n)/A_F is a T = 0 expression.  The committed
+  function is thermally rounded for a stated reason -- its own
+  docstring: "so C_q does not diverge to zero exactly at the
+  neutrality point".  Substituting the dispersion removes that.
+
+   C_q at the Dirac point                        F/m^2
+   committed thermal, at dV = 0         8.43739892e-03
+   T = 0 dispersion, at n = 0           0.00000000e+00
+   thermal at E_F/e, at n = 0           8.43739892e-03
+  [PASS] C_q at the Dirac point has a CLOSED FORM, PREFACTOR*(kT/e)*ln 4, and the thermal-at-E_F/e form reproduces it to the last bit while the dispersion gives exactly zero
+         ln(2(1+cosh 0)) = ln 4 exactly, so C_q(0) = 8.4373989182e-03 F/m^2; the thermal-at-E_F/e form gives it to 0.0 ulp.  The dispersion gives 0, hence a series factor of 0 and an induced charge of EXACTLY 0 at the Dirac point -- the puddle floor would then be supplying 100 % of the density there rather than its committed 99.9 %.  The 2026-10-10 sizing of item 16 used that substitution, so its number is the cost of a fix that is wrong in a second way.
+
+  A sharper statement of the same thing.  With the dispersion,
+  n == 0 is a solution of dn/d(dV) = (C_ox/e)*f(C_Q(n)) through
+  the origin, because f(C_Q(0)) = 0: the initial-value problem is
+  degenerate there.  With the thermal form it is not.  Temperature
+  is what makes the charge relation well-posed at the Dirac point,
+  and that is the physics the obvious fix throws away.
+
+SECTION 3.  ITEM 13 BLOCKS ITEM 16, AND ITEM 13 WAS RANKED LAST
+------------------------------------------------------------------------------
+  The natural exact-limit check on the thermal-at-E_F/e form is
+  T -> 0: it must reproduce the T = 0 dispersion result.  It
+  cannot be run on the committed spelling.  eta = e*V/kT grows as
+  T falls, cosh(eta) overflows, ln(2(1+inf)) = inf, and the series
+  factor returns inf/inf = nan.
+
+    overflow onset:  eta = 709.7827
+    at the RF bias E_F/e = 0.062498 V, that is T = 1.0218 K
+    at T = 300 K it needs V = 18.3493 V of overdrive
+  [PASS] item 13 -- added 2026-10-08, called latent, ranked LAST -- is what gates the exact-limit validation of item 16, the item ranked as the largest open cost
+         the committed spelling returns inf for eta > 709.7827 and the stable one is finite at eta = 1e6.  Latency was measured against the DEVICE bias range, where 18.35 V of overdrive is unreachable, and not against the checks the repository would later want to run.  A defect that cannot be reached by any input the model is used at can still be reached by a VALIDATION of the model, and ranking by reachability missed that.
+  [PASS] the stable spelling is an IDENTITY, not an approximation: |eta| + 2*log1p(exp(-|eta|)) == ln(2(1+cosh eta)) because 2(1+cosh eta) = 4cosh^2(eta/2)
+         worst disagreement over eta in [0, 700] is 1.0 ulp.  So installing it changes no committed number -- the output-neutrality pass item 13 was waiting for is discharged by the algebra, not by a tolerance.
+  [PASS] EXACT LIMIT, now runnable: as T -> 0 the thermal-at-E_F/e form must reproduce the T = 0 dispersion result, and on the committed spelling it returns nan instead
+         committed spelling at T = 1e-03 K: nan.  Stable spelling: 2.7997864949e+15 against the dispersion fixed point 2.7997864949e+15, relative +0.000e+00.  This is the validation item 16 needed and item 13 was preventing.
+
+SECTION 4.  THE COST, RE-MEASURED AGAINST A REFERENCE AT THE SAME
+            TEMPERATURE AS THE MODEL
+------------------------------------------------------------------------------
+  2026-10-10 decomposed (4.29) against (4.28).  (4.28) is a T = 0
+  relation and the committed model is a 300 K one, so each of
+  those three percentages contains a temperature difference as
+  well as the knob it names.  The fix is a 2x2 at ONE temperature:
+  argument in {dV, E_F/e} x quadrature in {rectangle, exact},
+  thermal C_q throughout.
+
+  [PASS] the integrator that supplies the reference is validated against an EXACTLY known value: with the T = 0 dispersion it must reproduce (4.28)'s closed-form root
+         ODE 2.7277845741e+15 vs closed form 2.7277845741e+15, relative -1.488e-14.  Started at dV = 1e-03 V rather than 0 because n == 0 solves the T = 0 problem through the origin (Section 2).
+
+  Raw charge at dV = 1.2 V, all four cells at T = 300 K:
+                                                 n [1/m^2]       vs D_T
+   A   C_q(dV),    rectangle  [committed]   2.86980420e+15      3.0963 %
+   B_T C_q(E_F/e), rectangle                2.80477739e+15      0.7603 %
+   C_T C_q(dV),    exact quadrature         2.85712585e+15      2.6408 %
+   D_T C_q(E_F/e), exact quadrature         2.78361495e+15      0.0000 %
+
+  Attribution, both knobs at 300 K:
+    argument error   (quadrature already exact) = +2.6408 %
+    quadrature error (argument already exact)   = +0.7603 %
+    both wrong                                  = +3.0963 %
+
+  2026-10-10, against the T = 0 relation:
+    argument error = +4.7416 %, quadrature = +2.6396 %, both = +5.2064 %
+  [PASS] every number in the 2026-10-10 decomposition is INFLATED, because a 300 K model was differenced against a T = 0 reference
+         argument +2.6408 % against +4.7416 % (1.80x), quadrature +0.7603 % against +2.6396 % (3.47x), both +3.0963 % against +5.2064 % (1.68x).  The ORDERING survives -- the argument is still the larger error and item 16 is still ahead of the quadrature -- but item 16's headline +4.7416 % does not, and the thesis quotes it.  Superseded in place, not deleted.
+  [PASS] AND A TRAP: the argument error at 300 K (2.6408 %) agrees with the 2026-10-10 QUADRATURE error (2.6396 %) to 0.0012 %, and they are different quantities
+         one is the argument error measured at the model temperature, the other the quadrature error measured at T = 0.  Anyone reading the two sessions in sequence would take the agreement for a reproduction.  By 2026-10-02 a coincidence of two artefacts is not a validation; this is the first time that rule has had to be applied to a NUMERICAL coincidence rather than to a re-run.
+
+SECTION 5.  THE TWO-KNOB CHECK (the 2026-10-10 item), FIRST USE
+------------------------------------------------------------------------------
+  The item was created because a number can be small as a result
+  of two larger numbers opposing, and every check here asks about
+  one quantity at a time.  Its prescribed form: move each input
+  separately, and flag the case where the combined move is SMALLER
+  than either.  Today's instance has the OTHER sign.
+
+   300 K, consistent    arg  -2.2659 %  quad  -0.4418 %  sum  -2.7077 %  both  -3.0033 %  ratio  1.109
+   T = 0 (2026-10-10)   arg  -2.4398 %  quad  -0.4418 %  sum  -2.8816 %  both  -4.9488 %  ratio  1.717
+  [PASS] the two knobs REINFORCE: the combined move is LARGER than the sum of the separate moves, so the check as specified -- flag when the combined move is smaller than either -- would not have flagged it
+         combined/(sum of separate) = 1.1092 at 300 K.  The repair is to report the RATIO and flag any departure from 1 in either direction, not to test for smallness.  The item is amended rather than closed.
+  [PASS] and the INTERACTION MEASURE ITSELF depends on the reference: the T = 0 frame inflates the departure from additivity by 6.6x
+         ratio 1.7174 at T = 0 against 1.1092 at 300 K -- departures from 1 of 0.7174 and 0.1092.  So a two-knob check inherits the reference error of whatever it is differenced against, and must be run at the model's own operating point.  That is a requirement on the item that could only be found by running it.
+
+SECTION 6.  WHAT MOVES IN CHAPTERS 4, 5 AND 6
+------------------------------------------------------------------------------
+  FORM B_T installed, with the arrival control of 2026-09-30 and
+  2026-10-10's both-names rebinding.  Raw charge moves -2.2659 %;
+  what reaches the committed numbers is this:
+
+  [PASS] ARRIVAL CONTROL on the CHARGE patch, which is the name Section 6 gates: it was called inside the block, and it reached contact_resistance_crossover, which holds its own import-time binding
+         255 calls to the corrected charge inside the block; n(3.5 V) moved -1.0212 % and L_x(Pd) moved -1.0212 %.  A patch that had not arrived would have left both at exactly zero, which is what the 2026-10-10 fault looked like.
+  [PASS] and the CAPACITANCE patch is correctly NOT called here, which is why the single-counter draft of this control failed on a healthy run
+         census() computes charge, resistances, currents and ratios and never asks for C_gs, so 0 calls to the corrected C_q is the right answer in this block.  The first draft counted only this name and reported the charge patch as not arrived.  A control must be instrumented on the name it gates; Section 7, which does use C_gs, carries the counter for this one.
+
+                                     (4.29) C_q(dV)      C_q(E_F/e)     change
+   n at 3.5 V [1/m^2]               8170466199606158.000000 8087032466273098.000000   -1.0212 %
+   R_ch at the Dirac point [Ohm]         624.150907      624.150907    0.0000 %
+   L_x Pd [nm]                           314.172721      310.964507   -1.0212 %
+   L_x 300 Ohm.um [nm]                   314.172721      310.964507   -1.0212 %
+   L_x 500 Ohm.um [nm]                   523.621201      518.274178   -1.0212 %
+   terminal on/off                         1.240756        1.235801   -0.3993 %
+   intrinsic on/off                        1.614570        1.598207   -1.0135 %
+   I_d at the RF bias [A]                  0.000087        0.000087   -0.2530 %
+  [PASS] the puddle floor attenuates the raw charge move before it reaches any committed number, which is why item 16 was survivable
+         raw -2.2659 % becomes -1.0212 % in n(3.5 V), a factor 0.451.  R_ch at the Dirac point moves +0.000000 % because the floor supplies the whole density there.
+  [PASS] every qualitative claim of Sections 4.3-4.4 survives the correction
+         the on/off ratio stays between 1 and 2 (1.240756 -> 1.235801), the 200 nm crossover verdict is unchanged (L_x at 300 Ohm.um is 314.17 nm -> 310.96 nm, both above the 200 nm channel), and the resistance ordering by metal is unchanged.  The correction moves numbers and no verdicts.
+
+SECTION 7.  RF FIGURES OF MERIT, AND THE TWO HALVES SEPARATED
+------------------------------------------------------------------------------
+  [PASS] ARRIVAL CONTROL on the CAPACITANCE patch, checked where C_gs is actually used: rf_small_signal_model.gate_capacitance() picked up the corrected C_q without being edited
+         1 calls to the corrected C_q inside the RF sweep, and C_gs at the peak moved -1.8815 %.  The signature was kept identical (overdrive in, F/m^2 out) precisely so that this module would not have to be touched; the control is what confirms that worked.
+  Per-um convention, V_ds = 0.1 V, at the peak-f_T bias:
+                              C_q(dV)   charge only charge + C_gs
+   Vg [V]                     -1.1115       -1.1617       -1.1491
+   fT [GHz]                   20.2787       20.0574       20.4422
+   fmax [GHz]                 18.5566       18.3427       18.7065
+   gm [mS]                    -0.0098       -0.0097       -0.0097
+   Cgs [fF]                    0.0767        0.0767        0.0752
+
+   f_T: charge alone -1.0911 %, the consistent C_gs adds +1.8976 %, total +0.8065 %
+  [PASS] the charge half and the capacitance half of item 16 have OPPOSITE signs in f_T, the same structure 2026-10-10 found for item 12
+         the two halves are -1.0911 % and +1.8976 % and leave +0.8065 %, which is 73.9 % of the charge half.  2026-10-10 recorded that structure as a property of the DEVICE TOPOLOGY rather than of any one parameter, on one instance.  It now has a second, independent instance, which is what that claim needed.
+
+   f_max/f_T = 0.915080 -> 0.915089 (+0.0009 %)
+  [PASS] Section 7.8.1a's structural verdict is untouched by item 16 -- the SIXTH lever tried against it
+         f_max/f_T moves +0.0009 % and stays at 0.9151, still below the 1.3-1.4 band a perfect gate cannot reach.  Saturation, the perfect contact, the diffusion term, the exact charge relation, its capacitance, and now C_q's argument.  The binding constraint is still that transfer_characteristic() is a resistor with no output resistance.
+
+SECTION 8.  FIGURE
+------------------------------------------------------------------------------
+  wrote quantum_capacitance_argument.png
+
+==============================================================================
+CHECKS: 18 passed, 0 failed
+==============================================================================
