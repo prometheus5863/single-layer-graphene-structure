@@ -7615,3 +7615,272 @@ than one commit exist only in the session VM.
 figure; Chapter 4 §4.6.8 with the in-place annotations to §4.6.6, §4.3 and
 `graphene_fet_model.py`; Chapter 7 items 12/15/16 and §7.8.1g; the session
 notes). This AUTOMATION_LOG.md entry makes **5**.
+
+---
+
+## 2026-10-11 — The argument was a state, the item ranked last was the blocker, and the floor and the temperature are the same effect twice
+
+**Target:** §7.9 **item 16**, "fixing `quantum_capacitance()`'s argument" —
+created 2026-10-10 already costed at +4.7416 % of the raw charge at the RF
+bias, the largest cost then open on Chapter 4, and the first item that would
+*move* committed numbers rather than annotate them. Yesterday's note said to
+do it unless something larger appeared. Nothing larger appeared; what appeared
+was inside the item.
+
+**Modules:** `graphene_quantum_capacitance_argument.py` (20 checks, 20 passed,
+six against exactly known values), `graphene_quantum_capacitance_overflow.py`
+(5/5). **Thesis:** §4.6.9 (a)–(h), §4.6.10, §7.9 items 13/16/17/18, §7.10.
+**Figure:** `quantum_capacitance_argument.png`. **Notes:**
+`notes/2026-10-11-the-argument-was-a-state-and-the-item-ranked-last-was-the-blocker.md`.
+
+### 1. The item understated the work, not the size
+
+`quantum_capacitance(V)` takes a potential; the dispersion requires it at
+`E_F/e = A_F·√n`, and `n` is what `C_q` is being used to compute. **The
+correct argument is a state, not a voltage**, so the fix is the
+self-consistent solve (4.32), not an edit to a call site. That is why the
+largest open cost on Chapter 4 sat for a session as a one-line description.
+
+`E_F/e = 0.0625 V` at the RF bias, **5.2082 %** of the 1.2 V overdrive. The
+two candidate arguments put `C_q` a factor **17.9** apart and the series
+factor only **2.2966 %** apart, because both are far above `C_ox`. The error
+is small because **the device is not quantum-capacitance-limited at this
+bias**, not because the argument is nearly right.
+
+### 2. The obvious fix deletes the temperature, and yesterday's number priced it
+
+`C_Q(n) = 2e√n/A_F` is a T = 0 expression. `quantum_capacitance()` is
+thermally rounded for a reason its own docstring states. Substituting the
+dispersion gives `C_q(0) = 0`, a series factor of zero, and an induced charge
+of **exactly zero** at the Dirac point — the floor would supply 100 % of the
+density there instead of 99.9 %. Sharper: with the dispersion, `n ≡ 0` solves
+`dn/d(dV) = (C_ox/e)·f(C_Q(n))` through the origin, so the initial-value
+problem is **degenerate**. With the thermal form it is not. **Temperature is
+what makes the charge relation well-posed at neutrality.**
+
+2026-10-10 sized item 16 with that substitution, so **+4.7416 % was the cost
+of a fix that is wrong in a second way.** A new failure mode for this
+repository's collection: the previous ones were checks that measured the wrong
+thing; this was a *cost estimate that priced the wrong repair*.
+
+The form that keeps the temperature (`B_T`: thermal `C_q` at `E_F/e`, solved
+self-consistently) reproduces `C_q(0) = PREFACTOR·(kT/e)·ln 4` to **0 ulp**
+and reduces to the dispersion as `T → 0`.
+
+### 3. Every number in yesterday's decomposition was inflated
+
+| | vs T = 0 (4.28) | vs 300 K reference | overstated |
+|---|---|---|---|
+| argument error | +4.7416 % | **+2.6408 %** | 1.80× |
+| quadrature error | +2.6396 % | **+0.7603 %** | 3.47× |
+| both wrong | +5.2064 % | **+3.0963 %** | 1.68× |
+
+(4.28) is a T = 0 relation and the model runs at 300 K, so every percentage
+contained a temperature difference as well as the knob it named. The reference
+is the exact integral of the model's own differential relation, solved as an
+IVP and **validated to −1.5e-14 against (4.28)'s closed-form root**. The
+**ordering survives** — the argument is still the larger error, so item 16 was
+ranked correctly — and the magnitudes do not. Annotated in place in four
+locations (§4.6.8's table, `graphene_fet_model.py`'s marker, §7.9 items 12 and
+16).
+
+**The trap.** Today's 300 K *argument* error (+2.6408 %) agrees with
+yesterday's T = 0 *quadrature* error (+2.6396 %) to **0.0012 %**. Different
+quantities, different references; read in sequence it looks like a
+reproduction. 2026-10-02's rule applied for the first time to a **numerical**
+coincidence rather than to a re-run.
+
+### 4. The item ranked last was gating the item ranked largest — item 13 CLOSED
+
+The exact-limit check on `B_T` is `T → 0`, and it could not be run. `η = eV/kT`
+grows as `T` falls, `cosh(η)` overflows at **η = 710.4758**, and the series
+factor returns `inf/inf = nan`. That is item 13 — added 2026-10-08, judged
+latent, **ranked last** because η = 710 needs 18.35 V of overdrive at 300 K.
+At T = 1 K and the ordinary RF bias, η = 719.
+
+> **Latency had been judged against the inputs the model takes, not against
+> the inputs its validations take.**
+
+Now a standing caution on any latency claim and part of item 15's remit. Fixed
+with the identity `ln(2(1+cosh η)) = |η| + 2·log1p(exp(−|η|))` from
+`2(1+cosh x) = 4cosh²(x/2)`, installed in a new `_thermal_rounding()`. With it
+the limit runs: `B_T` reproduces the dispersion fixed point to **7e-16** at
+T = 10⁻³ K, against `nan` before.
+
+### 5. The neutrality pass measured the wrong thing three times
+
+1. **Literal constants.** `scipy`'s `ħ = h/2π = 1.05457181764615647e-34`; the
+   literal `1.054571817e-34` differs at the tenth digit, ~1.2e-9 once squared
+   in the prefactor. The pass reported **3983 of 4003** values differing by up
+   to **1.1e7 ulp**. Sixth instance of 2026-10-09's rule, and the first in
+   which the substituted quantity was a *physical constant* rather than a model
+   parameter.
+2. **Association.** `prefactor·(kT/e)·log(…)` against the module's
+   `(kT/e)·log(…)` then `prefactor·…`. Floating multiplication is not
+   associative; the regrouping alone moved **118 of 400** values by up to 2 ulp.
+3. **A silent no-op.** The patch meant to fix (2) matched nothing and reported
+   success, so draft 2 ran again and was nearly read as confirmed.
+
+> **A function that "restores the old spelling for comparison" is a
+> re-implementation, and every detail of it not copied exactly — the
+> constants, the grouping, the order of operations — becomes part of the
+> difference it reports.**
+
+The repair is not a better transcription but making the changed thing
+**substitutable**: the pass now swaps one function and leaves the rest of the
+call path as shipped code. That form reproduces the direct file-against-file
+result exactly — **4 of 400, 1 ulp** — where all three transcriptions did not.
+
+Stated as a measurement, not as neutrality: `C_q` moves by 1 ulp at 4 of 400
+biases within 0.093 V of the Dirac point; **no committed quantity moves by a
+bit** over 3603 values.
+
+### 6. Two self-corrections inside the session
+
+**(a) A criterion I chose, which failed.** "≤ 1 ulp" held on 11 hand-picked
+values and failed at **2 ulp** on 401. Not widened — 2026-10-10's fourth
+repair applies, and for an *identity* a ulp count cannot answer the question
+that matters. `mpmath` at 60 digits adjudicates, and **the answer is not the
+expected one**: the installed spelling is **strictly worse at 81 of 401
+samples** and better at only 45, with a slightly larger mean error (5.162e-17
+vs 4.643e-17). All it has is the smaller worst case (1.527e-16 vs 1.793e-16).
+**Accuracy is not a reason to install it**; being finite where the other is
+not is the only reason, which is the only reason item 13 ever gave. Recorded
+in §4.6.10 because today's first commit message states the ≤ 1 ulp figure and
+a pushed message cannot be amended.
+
+**(b) An arrival control that failed on a healthy run.** One counter,
+incremented only in the capacitance patch, gating a section that exercises the
+*charge* patch and never asks for `C_gs`. Zero capacitance calls was the right
+answer and the control called it a fault. 2026-10-10's rule in its other
+failure mode: **a control that counts a different arrival from the one it
+gates reports a fault that does not exist.** One counter per patched name now,
+each checked where that name is used.
+
+### 7. What moves
+
+| | (4.29), `C_q(dV)` | `C_q(E_F/e)` | change |
+|---|---|---|---|
+| raw charge at `dV` = 1.2 V (m⁻²) | 2.86980420e15 | 2.80477739e15 | **−2.2659 %** |
+| `n` at 3.5 V (m⁻²) | 8.170466e15 | 8.087032e15 | **−1.0212 %** |
+| `R_ch` at the Dirac point (Ω) | 624.150907 | 624.150907 | **0.0000 %** |
+| `L_x` Pd / 300 / 500 (nm) | 314.17 / 314.17 / 523.62 | 310.96 / 310.96 / 518.27 | −1.0212 % |
+| terminal on/off | 1.240756 | 1.235801 | −0.3993 % |
+| intrinsic on/off | 1.614570 | 1.598207 | −1.0135 % |
+| `I_d` at the RF bias (A) | 8.190217e-05 | 8.169499e-05 | **−0.2530 %** |
+
+The floor attenuates the raw move by **0.451**. Every qualitative claim of
+§§4.3–4.4 survives. **The correction moves numbers and no verdicts.**
+
+`f_T`: charge alone **−1.0911 %**, the consistent `C_gs` **+1.8976 %**, total
+**+0.8065 %** — opposite signs, the **second independent instance** of the
+structure 2026-10-10 recorded on one instance as a property of the device
+*topology*. That claim now has what it needed. `f_max/f_T` moves **+0.0009 %**:
+§7.8.1a untouched by a **sixth** lever, binding constraint still that
+`transfer_characteristic()` is a resistor with no output resistance.
+
+**Item 16 does not close.** The default is still (4.29). Flipping it moves
+every committed number in Chapters 4, 5 and 6 and needs its own session.
+
+### 8. The two-knob check's first use fails in the direction it cannot see
+
+| reference | argument only | quadrature only | sum | both | both/sum |
+|---|---|---|---|---|---|
+| 300 K, consistent | −2.2659 % | −0.4418 % | −2.7077 % | −3.0033 % | **1.109** |
+| T = 0 (2026-10-10) | −2.4398 % | −0.4418 % | −2.8816 % | −4.9488 % | **1.717** |
+
+The knobs **reinforce**, so a check testing whether the combined move is
+*smaller* than either would not have flagged it. It must report the **ratio**
+and flag any departure from 1. And **the interaction measure inherits the
+reference error of whatever it is differenced against**: 0.717 against T = 0
+versus 0.109 at 300 K, an inflation of **6.6×**. A two-knob check must be run
+at the model's own operating point. Amended, not closed → **item 17**.
+
+### 9. Literature, and a new item from it
+
+**Live web search available and used: one search, one fetch, both
+successful.** No PubMed/PMC attempted, per the standing note.
+
+A **second, independent** lineage —
+[the Southampton bilayer-GFET model](https://eprints.soton.ac.uk/366757/1/GFetIEEEtran.pdf)
+— confirms §1 from a different source than 2026-10-10's
+[Pasadas/Jiménez review](https://arxiv.org/pdf/2209.00388): `C_q` is a
+function of the **surface potential**, never of the overdrive, and the layer
+potentials form a **coupled system solved together**. Item 16's claim is now
+held by two groups rather than inferred from one.
+
+But it regularises `C_q` at neutrality with **disorder, not temperature**:
+`C_q,min = e²√n₀/(√π·ħ·v_F)`, with temperature never entering its `C_q`. And
+at this thesis's `n_puddle` the two are **the same size**: 9.710793e-03 against
+8.437399e-03 F m⁻², ratio **1.1509**. They agree exactly at `n₀ = 3.77e15 m⁻²`
+(0.755×) or at **T = 345.28 K** (1.151×), so this is not an accident of one
+parameter — **SiO₂-supported graphene at room temperature sits where disorder
+and temperature regularise `C_q` equally.**
+
+**This thesis applies both**, and the literature form shows they are two
+spellings of one effect at this `n₀`. Using both is a **double count worth
+about a factor 2 in `C_q(0)`**, never costed → **item 18**, the first item on
+that list to arrive from a literature source rather than from an internal
+audit. It would not hold for suspended graphene or at 4 K, which is why
+neither convention is obviously wrong and why the overlap is easy to miss.
+
+### 10. Environment and automation health
+
+Device reachable and folder connected at the first firing. `pip install scipy`
+succeeded again (the device VM still lacks it); `mpmath` was already present
+and served as the 60-digit adjudicator. The whole session ran **on the device
+VM**; nothing crossed the bridge. **Every commit was pushed and verified
+against the GitHub API before the next was written.**
+
+**Not yet covered (candidates for future runs):**
+
+- **COST THE DOUBLE REGULARISATION** — §7.9 **item 18**, created today, and
+  the **first item ever to arrive from a literature source** rather than from
+  an internal audit. The thermal rounding and the puddle floor are the same
+  physical effect to within 15 % at the operating point, and the thesis applies
+  both. Cheapest route in: compare `C_q(0)` and the Dirac-point density under
+  each regularisation alone against both. Ranked first because it is the only
+  open item that could change a *physical* claim rather than a numeric one, and
+  because it reframes the standing `n_puddle` question.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, open. Costed on the right form now
+  (−2.2659 % raw, −1.0212 % after the floor, no verdict moved) and unblocked.
+  Needs a session of its own for transcript regeneration across Chapters 4, 5
+  and 6. Second only because item 18 might change what `B_T` should even be.
+- **A THIRD KNOB: THE ROUNDING FORM** — created today out of §4.6.9's 2×2,
+  which holds the rounding fixed. Fermi–Dirac integrals have never been
+  compared against `ln(2(1+cosh η))` at all. Item 18 is the same question from
+  the other side.
+- **BUILD ITEM 17 AS A SWEEP** — one worked instance and two requirements
+  (report the ratio; run at the model's operating point), still no sweep over
+  committed numbers.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, now **six sessions
+  overdue**, today carrying a sixth worked instance: a ≤ 1 ulp bound chosen
+  before the run, which failed, and whose repair was to let 60-digit
+  arithmetic set the criterion.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the third session;
+  still the cheapest open physics item.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10 with nothing in
+  front of it, untouched for a second session.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **untouched for the fifth session**, and today produced a new instance:
+  `f_max/f_T` used again as the structural verdict's instrument.
+- **MECHANISE the magnitude item** — created 2026-10-03, **six sessions
+  overdue**; items 15 and 17 subsume parts of it.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for the third
+  session.
+- **WHETHER `n_puddle` SHOULD ACTUALLY CHANGE** — still deliberately not an
+  item, and item 18 is now the reason to look at it.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** — still
+  expressible and unverified, untouched for the third session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item, **untouched for TWENTY-ONE
+  consecutive sessions**. Today was again a numerics-and-method session. §7.7
+  gained a sixth instance today and this is the standing one.
+
+**Commits this run:** 4 (the item-16 module with its transcript and figure;
+item 13's installation with its neutrality pass; §§4.6.9–4.6.10 with the
+in-place annotations and §7.9's revisions; the literature section, item 18 and
+the session notes). This AUTOMATION_LOG.md entry makes **5**.
