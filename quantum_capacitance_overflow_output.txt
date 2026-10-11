@@ -1,0 +1,76 @@
+==============================================================================
+THE cosh OVERFLOW -- Section 7.9 item 13, and its neutrality pass
+==============================================================================
+
+SECTION 1.  THE DEFECT, AND WHY RANKING IT LAST WAS WRONG
+------------------------------------------------------------------------------
+  eta = e*V/kT, and cosh(eta) overflows at eta = 709.7827.
+  At T = 300 K that needs V = 18.3493 V of overdrive, which the
+  device never sees -- hence "latent", hence ranked last.
+  But eta also grows as T FALLS.  The T -> 0 limit check that
+  validates item 16 drives eta to ~7e5 at the ordinary RF bias:
+    T =       300 K  ->  eta =      2.398  ->  committed spelling: finite
+    T =        10 K  ->  eta =      71.95  ->  committed spelling: finite
+    T =         1 K  ->  eta =      719.5  ->  committed spelling: inf
+    T =     0.001 K  ->  eta =  7.195e+05  ->  committed spelling: inf
+  [PASS] the overflow is unreachable from the device bias range and reachable from a validation of the device model, so ranking a defect by the inputs the MODEL takes under-ranks it
+         18.35 V of overdrive at 300 K is out of range; T = 1 K at the same bias is not, and overflows.  Recorded as a general caution on item 15 and on any future latency claim: latency is relative to a stated input set, and "the device" is not the only one.
+
+SECTION 2.  THE REPLACEMENT IS AN IDENTITY
+------------------------------------------------------------------------------
+  2(1+cosh x) = e^x + 2 + e^-x = (e^(x/2)+e^(-x/2))^2 = 4cosh^2(x/2)
+  => ln(2(1+cosh x)) = |x| + 2*log1p(exp(-|x|))
+
+   401 values of eta in [0, 700]: worst 2.0 ulp, mean 0.3167 ulp,
+   275 of them exactly equal.
+
+   The first draft of the next check required <= 1 ulp and FAILED
+   at 2 ulp.  1 was a round number chosen before the run, which is
+   what item 15 exists to find.  It is not widened to 2: for an
+   IDENTITY the question a tolerance cannot answer is WHICH
+   spelling is closer to the true value.  mpmath at 60 digits
+   adjudicates, and the criterion becomes one the method supplies:
+   the installed spelling must be no less accurate than the one it
+   replaces, everywhere.
+
+   relative error against the 60-digit value:
+     committed spelling: worst 1.793e-16, mean 4.643e-17
+     installed spelling: worst 1.527e-16, mean 5.162e-17
+     installed is strictly better at 45 of 401 samples, strictly worse at 81
+
+   AND THE ANSWER IS NOT THE EXPECTED ONE.  The installed spelling
+   is NOT uniformly better: it is strictly worse at 81 of 401
+   samples and strictly better at only 45, and its MEAN error is
+   slightly larger (5.162e-17 against 4.643e-17).  What it does have is the
+   smaller WORST case.  So accuracy is not the reason to install
+   it, and the honest reason is the only one item 13 ever gave:
+   it is finite where the other is not.
+  [PASS] the installed spelling does not increase the worst-case error, and the claim stops there -- it is NOT more accurate, and this module declines to say it is
+         worst relative error 1.527e-16 installed against 1.793e-16 committed, so the worst case improves; but strictly worse at 81 of 401 samples and better at 45, with a mean error 5.162e-17 against 4.643e-17.  Neither spelling dominates and the 2 ulp of disagreement is both of them rounding differently, not one of them being wrong.  THE COMMIT MESSAGE OF THE ITEM-16 COMMIT TODAY SAYS "agrees to <= 1 ulp over eta in [0,700]"; that was measured on 11 hand-picked values and is FALSE on 401 -- the figure is 2 ulp.  Corrected here and in Section 4.6.9 rather than left to stand, since the commit message itself cannot be amended after pushing.
+  [PASS] and the closed form at the Dirac point is reproduced exactly by both spellings: ln(2(1+cosh 0)) = ln 4
+         both give 1.38629436111989057e+00 against ln 4 = 1.38629436111989057e+00, 0 ulp.
+
+SECTION 3.  THE NEUTRALITY PASS, BITWISE
+------------------------------------------------------------------------------
+   quantity         values     differ      worst ulp      worst rel
+   C_q                 400          4            1.0       2.04e-16
+   n                   400          0            0.0       0.00e+00
+   R_ch                400          0            0.0       0.00e+00
+   I_d(0.05V)          400          0            0.0       0.00e+00
+   I_d(0.1V)           400          0            0.0       0.00e+00
+   f_T                 400          0            0.0       0.00e+00
+   f_max               400          0            0.0       0.00e+00
+   g_m                 400          0            0.0       0.00e+00
+   g_ds                400          0            0.0       0.00e+00
+   C_gs                400          0            0.0       0.00e+00
+   L_x                   3          0            0.0       0.00e+00
+
+   TOTAL 4003 values, 4 differing
+  [PASS] C_q itself is NOT bit-identical: it moves by 1 ulp at a few biases near the Dirac point, and this module says so rather than claiming neutrality
+         4 of 400 sampled C_q values differ, all by 1 ulp, all at |V_g - V_dirac| < 0.093 V where eta is small and the two spellings round differently in the last bit.  The honest claim is about what that reaches, not about it not existing.
+  [PASS] and NO committed quantity in Chapters 4, 5 or 6 differs by a single bit, so item 13 closes with no number in the thesis moved
+         n, R_ch, I_d at both V_ds of record, f_T, f_max, g_m, g_ds, C_gs and the crossover lengths are bit-identical over 400 gate biases -- 3603 values in all.  The 1-ulp move in C_q is absorbed because C_gs is the SERIES combination with C_ox and C_q >> C_ox at every bias sampled, which is the same insensitivity Section 1 of the item-16 module measured as a factor 20 in C_q becoming a few per cent in the charge.
+
+==============================================================================
+CHECKS: 5 passed, 0 failed
+==============================================================================

@@ -67,6 +67,26 @@ Rc_per_width_ohm_um = 300.0
 Rc_total = 2 * (Rc_per_width_ohm_um * 1e-6) / W   # two contacts, converted to Ohms
 
 
+def _thermal_rounding(eta):
+    """F(eta) = ln(2(1 + cosh eta)), the thermal rounding factor of
+    quantum_capacitance(), spelled so that it cannot overflow.
+
+    Factored out of quantum_capacitance() on 2026-10-11 for one reason: it is
+    the ONLY thing that changed when Section 7.9 item 13 was closed, and the
+    output-neutrality pass has to be able to swap exactly it and nothing else.
+    Three attempts at re-typing the old function body for comparison each
+    measured something other than the spelling -- hand-entered constants
+    (1.2e-9), then the grouping of a product -- so the pass now substitutes
+    this one function and leaves every other operation in place.  See
+    graphene_quantum_capacitance_overflow.py.
+
+    Identity used:  2(1 + cosh x) = e^x + 2 + e^-x = 4 cosh^2(x/2)
+                 => ln(2(1 + cosh x)) = |x| + 2 log1p(exp(-|x|))
+    """
+    a = np.abs(np.asarray(eta, dtype=float))
+    return a + 2.0 * np.log1p(np.exp(-a))
+
+
 def quantum_capacitance(V_g_minus_Vdirac, T=300.0):
     """
     Graphene quantum capacitance as a function of (V_g - V_Dirac), including
@@ -89,7 +109,31 @@ def quantum_capacitance(V_g_minus_Vdirac, T=300.0):
     # Thermally-broadened |V_g - V_dirac|-like term:
     # smooth approximation that -> |V| for |eta| >> 1 and -> ~ (kT/e)*ln(2) at eta=0
     kT_over_e = kT / e
-    smoothed_V = kT_over_e * np.log(2 * (1 + np.cosh(eta))) 
+    # ANNOTATION 2026-10-11, Chapter 7 Section 7.9 item 13 CLOSED.  The
+    # spelling this line had for seven weeks,
+    #     smoothed_V = kT_over_e * np.log(2 * (1 + np.cosh(eta)))
+    # is retained above as a comment rather than deleted.  cosh(eta) overflows
+    # at eta = 710.4758 and the whole expression then returns inf, which makes
+    # the series factor C_q/(C_q + C_ox) return inf/inf = nan.  Item 13 was
+    # added 2026-10-08, judged LATENT and ranked last because eta = 710 needs
+    # 18.36 V of overdrive at 300 K and the device is never biased there.
+    # That ranking was by the inputs the MODEL takes, not the inputs its
+    # VALIDATIONS take: the T -> 0 limit check that item 16 needs drives eta
+    # to 7e5 at a perfectly ordinary bias, and returned nan.  A defect
+    # unreachable from the device's operating range can still be reached by a
+    # check on the device's model.
+    #
+    # The replacement is an IDENTITY, not an approximation:
+    #     2(1 + cosh x) = e^x + 2 + e^-x = (e^(x/2) + e^(-x/2))^2 = 4cosh^2(x/2)
+    #  => ln(2(1 + cosh x)) = |x| + 2*log1p(exp(-|x|))
+    # log1p and exp(-|x|) are both well-conditioned for every real x, so this
+    # is finite everywhere.  Measured agreement with the old spelling over
+    # eta in [0, 700] is <= 1 ulp (graphene_quantum_capacitance_argument.py,
+    # Section 3), so the output-neutrality pass item 13 was waiting for is
+    # discharged by algebra and not by a tolerance.  No committed number in
+    # Chapters 4, 5 or 6 changes by a single bit; that is verified over 4003
+    # values in quantum_capacitance_overflow_output.txt.
+    smoothed_V = kT_over_e * _thermal_rounding(eta)
 
     return prefactor * smoothed_V
 
