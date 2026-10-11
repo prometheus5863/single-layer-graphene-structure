@@ -167,6 +167,22 @@ def quantum_capacitance(V_g_minus_Vdirac, T=300.0):
 # error alone is +2.6396 % of the charge and the argument error alone is
 # +4.7416 %, against a combined +5.2064 %; they are NOT additive.  The -0.60 %
 # in I_d is unchanged and was reproduced independently.
+# AMENDED 2026-10-11 (Section 4.6.9, graphene_quantum_capacitance_argument.py,
+# 18/18).  THOSE THREE PERCENTAGES ARE SUPERSEDED and are left in place rather
+# than edited out.  They were measured against (4.28), a T = 0 relation, while
+# this module runs at 300 K, so each contains a temperature difference as well
+# as the knob it names.  Re-measured in a 2x2 at one temperature: quadrature
+# +0.7603 %, argument +2.6408 %, both +3.0963 % -- overstated by 3.47x, 1.80x
+# and 1.68x.  The ordering stands: the ARGUMENT is still the larger error.
+# Two further things the 2026-10-10 wording did not know.  (i) The argument
+# cannot be fixed by changing an argument: E_F/e depends on n, so the fix is a
+# self-consistent solve (eq. 4.32).  (ii) Substituting the T = 0 dispersion for
+# the thermal form -- which is how the +4.7416 % was obtained -- gives
+# C_q(0) = 0 and an induced charge of exactly zero at the Dirac point, deleting
+# the rounding this function exists for.  The form that keeps the temperature
+# is measured in Section 4.6.9(e): raw charge -2.2659 %, n(3.5 V) -1.0212 %,
+# I_d at the RF bias -0.2530 %, no verdict changed.  THE DEFAULT HERE IS STILL
+# (4.29); flipping it is its own session.
 def carrier_density(V_g, V_ch=0.0):
     """
     Self-consistent channel sheet carrier density n(V_g, V_ch) [1/m^2],

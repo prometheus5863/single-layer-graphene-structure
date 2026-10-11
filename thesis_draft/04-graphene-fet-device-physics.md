@@ -1241,6 +1241,22 @@ none of the work:
 | 1.20 (RF bias) | **+5.2064 %** | **+2.6396 %** | **+4.7416 %** | +7.3812 % |
 | 2.70 | +3.4729 % | +1.7523 % | **+3.2193 %** | +4.9716 % |
 
+> **SUPERSEDED 2026-10-11, §4.6.9(c). Numbers retained, not rewritten.**
+> Every figure in this table is differenced against (4.28), which is a T = 0
+> relation, while the model is a 300 K one — so each of them contains a
+> temperature difference as well as the knob it names. Re-measured in a 2×2
+> at one temperature, the RF-bias row reads **argument +2.6408 %, quadrature
+> +0.7603 %, total +3.0963 %**: this table overstates them by 1.80×, 3.47×
+> and 1.68× respectively. The *ordering* claimed below survives — the
+> argument error is still the larger contributor — and the conclusion that
+> they are not additive survives, though the departure from additivity is
+> 1.109 rather than 1.42 once the reference is at the model's temperature.
+> The mistake is kept visible because its shape (a decomposition measured
+> against a reference at a different operating point) recurs, and because
+> §4.6.9's 300 K argument error of +2.6408 % is numerically within 0.0012 %
+> of this table's quadrature figure, which reads as a reproduction and is not
+> one.
+
 Three things follow. **The argument error is the larger single contributor**
 (+4.74 % against +2.64 % at the RF bias) — which no earlier session could have
 known, because none separated them. **Neither is the explanation on its own.**
@@ -1428,6 +1444,285 @@ relation of (4.28) used algebraically, compounded with an argument error. No
 number in §4.6.6 changes — the −0.6023 % it published is reproduced here — and
 the superseded wording is kept visible because the shape of the mistake
 (describing a quadrature as a truncation) is the kind that recurs.
+
+### 4.6.9 `C_q`'s argument: the fix is a self-consistent solve, the obvious version of it deletes the temperature, and §4.6.8's decomposition was measured against the wrong reference
+
+§4.6.8 named a second error alongside the quadrature error of (4.29) —
+`quantum_capacitance()` is evaluated at the gate overdrive `dV` while the
+dispersion it descends from requires `E_F/e = A_F·√n` — sized it at
+**+4.7416 %** of the raw charge at the RF bias, called it the largest cost
+attached to anything then open on this chapter, and made it §7.9 item 16.
+This section acts on it. **The item's direction is right and all three of its
+numbers are wrong, by factors of 1.68 to 3.47.**
+
+Machine output: `quantum_capacitance_argument_output.txt` (18 checks, 18
+passed, five against exactly known values). Module:
+`graphene_quantum_capacitance_argument.py`. Figure:
+`quantum_capacitance_argument.png`.
+
+#### (a) The argument cannot be fixed by changing an argument
+
+`quantum_capacitance(V)` takes a potential. The quantity it must be evaluated
+at is `E_F/e = A_F·√n`, and `n` is what `C_q` is being used to compute. The
+correct argument is a **state**, not a voltage, so the fix is a
+self-consistent solve
+
+    n = (C_ox·dV/e) · C_q(E_F(n)/e) / (C_q(E_F(n)/e) + C_ox)             (4.32)
+
+and not an edit to a call site. That is the reason the largest open cost on
+this chapter sat for a session as a one-line description: the item as written
+understated the work, not the size.
+
+At the RF bias, on the committed charge, `E_F/e = 0.062498 V` — **5.2082 %** of
+the 1.2 V overdrive — and the two candidate arguments give
+
+| argument | `C_q` (F m⁻²) | `C_q/C_ox` | series factor |
+|---|---|---|---|
+| `dV` = 1.2 V (committed) | 2.825142e-01 | 736.3 | 0.998644 |
+| `E_F/e` = 0.0625 V | 1.575324e-02 | 41.06 | 0.976223 |
+
+A **17.9×** difference in `C_q` is a **2.2966 %** difference in the series
+factor. The reason the error is small is that both values are far above
+`C_ox`, i.e. **the device is not quantum-capacitance-limited at this bias** —
+not that the argument is nearly right. Where it would matter is exactly where
+this chapter has least to say: near the Dirac point, where the puddle floor
+already dominates.
+
+#### (b) The obvious fix is a T = 0 expression, and it deletes the rounding the function exists for
+
+The dispersion `C_Q(n) = 2e√n/A_F` is a zero-temperature result.
+`quantum_capacitance()` is thermally rounded for a stated reason — its own
+docstring says *"so C_q does not diverge to zero exactly at the neutrality
+point"*. Substituting the dispersion removes that:
+
+| | `C_q` at the Dirac point (F m⁻²) |
+|---|---|
+| committed thermal, at `dV` = 0 | 8.43739892e-03 |
+| T = 0 dispersion, at `n` = 0 | **0** |
+| thermal at `E_F/e`, at `n` = 0 | 8.43739892e-03 |
+
+`C_q(0)` has a closed form, `PREFACTOR·(kT/e)·ln 4`, because `ln(2(1+cosh 0)) =
+ln 4` exactly; the thermal-at-`E_F/e` form reproduces it to **0 ulp**. The
+dispersion gives zero, hence a series factor of zero and an induced charge of
+*exactly* zero at the Dirac point — the floor would supply 100 % of the
+density there instead of its committed 99.9 %.
+
+A sharper form of the same statement: with the dispersion, `n ≡ 0` solves
+`dn/d(dV) = (C_ox/e)·f(C_Q(n))` through the origin, so the initial-value
+problem is **degenerate** there. With the thermal form it is not. *Temperature
+is what makes the charge relation well-posed at the Dirac point*, and it is
+what the obvious fix throws away. §4.6.8 sized item 16 with that substitution,
+so **its +4.7416 % is the cost of a fix that is wrong in a second way.**
+
+The form used here, (4.32) with the thermal `C_q` at `E_F/e`, is called `B_T`.
+It keeps the temperature, reduces to the dispersion as `T → 0` (checked, §(d)),
+and keeps a finite `C_q` at neutrality.
+
+#### (c) The decomposition, re-measured at one temperature
+
+(4.28) is a T = 0 relation and the committed model is a 300 K one, so every
+percentage in §4.6.8's 2×2 contains a temperature difference as well as the
+knob it names. The repair is a 2×2 at **one** temperature — argument ∈ {`dV`,
+`E_F/e`} × quadrature ∈ {rectangle, exact} — with the thermal `C_q`
+throughout, and a reference `D_T` obtained by integrating the model's own
+differential relation as an initial-value problem. That integrator is
+validated against an exactly known value: with the dispersion in place of the
+thermal form it must reproduce (4.28)'s closed-form root, and does, to
+**−1.5e-14** relative.
+
+Raw charge at `dV` = 1.2 V:
+
+| | `n` (m⁻²) | vs `D_T` |
+|---|---|---|
+| A `C_q(dV)`, rectangle **(committed)** | 2.86980420e15 | +3.0963 % |
+| `B_T` `C_q(E_F/e)`, rectangle | 2.80477739e15 | +0.7603 % |
+| `C_T` `C_q(dV)`, exact quadrature | 2.85712585e15 | +2.6408 % |
+| `D_T` `C_q(E_F/e)`, exact quadrature | 2.78361495e15 | 0 |
+
+| | §4.6.8, vs T = 0 (4.28) | here, vs 300 K `D_T` | overstated by |
+|---|---|---|---|
+| argument error | +4.7416 % | **+2.6408 %** | 1.80× |
+| quadrature error | +2.6396 % | **+0.7603 %** | 3.47× |
+| both wrong | +5.2064 % | **+3.0963 %** | 1.68× |
+
+§4.6.8's three figures are **marked superseded where they stand and not
+deleted**, per this chapter's standing practice. What survives is the
+*ordering*: the argument error is still the larger of the two, so item 16 is
+still correctly ranked ahead of the quadrature error. What does not survive is
+the headline number this chapter quotes in two places.
+
+**A trap, recorded because it is the kind that is read as a confirmation.**
+Today's argument error at 300 K (+2.6408 %) agrees with §4.6.8's *quadrature*
+error measured at T = 0 (+2.6396 %) to 0.0012 %. They are different quantities
+against different references. Anyone reading the two sections in sequence
+would take the agreement for a reproduction. §4.6.6's rule — that a
+coincidence between two artefacts is not a validation — is applied here for
+the first time to a **numerical** coincidence rather than to a re-run.
+
+#### (d) Item 13 was ranked last, and it is what blocked this section
+
+The natural exact-limit check on `B_T` is `T → 0`: it must reproduce the
+dispersion fixed point. It **could not be run on the committed code**.
+`η = eV/kT` grows as `T` falls, `cosh(η)` overflows at **η = 710.4758**,
+`ln(2(1+∞)) = ∞`, and the series factor returns `∞/∞ = nan`. That is §7.9 item
+13, added 2026-10-08, judged *latent* and ranked **last** because η = 710 needs
+**18.35 V** of overdrive at 300 K, which the device never sees. At T = 1 K and
+the ordinary RF bias, η = 719.
+
+> **Latency was judged against the inputs the model takes, not against the
+> inputs its validations take.** A defect unreachable from a device's
+> operating range can still be reached by a check on that device's model, and
+> ranking by reachability missed it. The item ranked last gated the item
+> ranked as the largest cost.
+
+Item 13 is closed in the same session (§4.6.10). With the overflow-free
+spelling in place the limit runs: at T = 10⁻³ K, `B_T` reproduces the
+dispersion fixed point to **7e-16** relative, against `nan` before.
+
+#### (e) What actually moves
+
+`B_T` installed, with an arrival control on each patched name:
+
+| | (4.29), `C_q(dV)` | `C_q(E_F/e)` | change |
+|---|---|---|---|
+| `n` at 3.5 V (m⁻²) | 8.170466e15 | 8.087032e15 | **−1.0212 %** |
+| `R_ch` at the Dirac point (Ω) | 624.150907 | 624.150907 | **0.0000 %** |
+| `L_x` Pd / 300 / 500 (nm) | 314.17 / 314.17 / 523.62 | 310.96 / 310.96 / 518.27 | −1.0212 % |
+| terminal on/off | 1.240756 | 1.235801 | −0.3993 % |
+| intrinsic on/off | 1.614570 | 1.598207 | −1.0135 % |
+| `I_d` at the RF bias (A) | 8.190217e-05 | 8.169499e-05 | **−0.2530 %** |
+
+The raw charge moves **−2.2659 %** and `n` at 3.5 V moves **−1.0212 %**: the
+puddle floor attenuates by a factor **0.451**, which is why item 16 was
+survivable as a change that moves committed numbers. `R_ch` at the Dirac point
+is unchanged to the printed digit because the floor supplies the whole density
+there.
+
+Every qualitative claim of §§4.3–4.4 survives: the on/off ratio stays between
+1 and 2, `L_x` at 300 Ω·μm stays above the 200 nm channel (314.17 → 310.96 nm),
+and the resistance ordering by metal is unchanged. **The correction moves
+numbers and no verdicts.**
+
+RF, per-μm convention at `V_ds` = 0.1 V:
+
+| | `C_q(dV)` | charge only | charge + `C_gs` |
+|---|---|---|---|
+| peak-`f_T` bias (V) | −1.1115 | −1.1617 | −1.1491 |
+| `f_T` (GHz) | 20.2787 | 20.0574 | 20.4422 |
+| `C_gs` (fF) | 0.0767 | 0.0767 | 0.0752 |
+
+`f_T`: charge alone **−1.0911 %**, the consistent `C_gs` **+1.8976 %**, total
+**+0.8065 %**. Opposite signs again. §4.6.8 found the same structure for item
+12 and recorded it as a property of the **device topology** rather than of any
+one parameter, on a single instance; it now has a second, independent one,
+which is what that claim needed. `f_max/f_T` moves **+0.0009 %** and stays at
+0.9151, so §7.8.1a is untouched by a **sixth** lever.
+
+#### (f) The two-knob check's first use, and it fails in the direction the check cannot see
+
+§4.6.8 created a backlog item for a check that can see a cancellation: move
+each input separately, and flag the case where the combined move is *smaller*
+than either. Its first instance is here, and it has the **opposite** sign.
+
+| reference | argument only | quadrature only | sum | both | both/sum |
+|---|---|---|---|---|---|
+| 300 K, consistent | −2.2659 % | −0.4418 % | −2.7077 % | −3.0033 % | **1.109** |
+| T = 0 (§4.6.8) | −2.4398 % | −0.4418 % | −2.8816 % | −4.9488 % | **1.717** |
+
+The two knobs **reinforce**: the combined move is larger than the sum of the
+separate ones, so a check that tests for smallness would not have flagged it.
+The item is **amended, not closed** — it must report the ratio and flag any
+departure from 1 in either direction.
+
+And a requirement on the item that could only be found by running it: **the
+interaction measure inherits the reference error of whatever it is differenced
+against.** The T = 0 frame puts the departure from additivity at 0.717 where
+the consistent frame puts it at 0.109 — an inflation of **6.6×**. A two-knob
+check must be run at the model's own operating point.
+
+#### (g) What this section does not claim
+
+1. It does **not** install `B_T` as the chapter's charge relation. The default
+   remains (4.29); `B_T` is measured, committed and available. Flipping the
+   default would move every number in Chapters 4, 5 and 6 and is its own
+   session's work, with its own transcript regeneration.
+2. It does **not** claim `D_T` is exact physics. It is the exact integral of
+   *this model's* differential relation at 300 K. The relation itself still
+   uses a phenomenological rounding rather than Fermi–Dirac integrals, and
+   (4.28) remains the T = 0 limit of a standard literature form.
+3. It does **not** re-open §4.6.8's −0.6023 % in `I_d`. That number compared
+   (4.29) against (4.28) and is reproduced unchanged; what is corrected is the
+   *attribution* of the raw-charge error between the two knobs.
+4. It does **not** claim the argument error is negligible where it matters.
+   2.64 % at the RF bias is a statement about a bias where `C_q ≫ C_ox`. The
+   quantum-capacitance-limited regime, where it would be large, is not studied
+   in this chapter.
+
+### 4.6.10 Item 13 closed, and a neutrality pass that measured the wrong thing three times
+
+The rounding factor in `quantum_capacitance()` is now
+`|η| + 2·log1p(exp(−|η|))`, an identity with `ln(2(1+cosh η))` because
+`2(1+cosh x) = 4cosh²(x/2)`, and finite for every real η. The committed line
+is retained as a comment above it.
+
+Machine output: `quantum_capacitance_overflow_output.txt` (5 checks, 5 passed).
+Module: `graphene_quantum_capacitance_overflow.py`.
+
+**The result, stated as a measurement rather than as neutrality.** `C_q`
+itself moves by **1 ulp at 4 of 400** sampled gate biases, all within 0.093 V
+of the Dirac point where η is small and the two spellings round differently in
+the last bit. **No committed quantity moves by a single bit**: `n`, `R_ch`,
+`I_d` at both `V_ds` of record, `f_T`, `f_max`, `g_m`, `g_ds`, `C_gs` and the
+crossover lengths are bit-identical over 3603 values. Saying it that way
+rather than "output-neutral" is §4.6.6's prose-is-a-detector rule applied to
+this section's own summary: a 1-ulp move in the function is a real difference,
+and the claim that survives is about what it reaches.
+
+**The pass failed three times before it measured the spelling.** Each draft
+re-typed the old function body to compare against:
+
+1. `e`, `ħ` and `k_B` entered as literals. `graphene_fet_model` takes them
+   from `scipy.constants`, whose `ħ = h/2π = 1.05457181764615647e-34`; the
+   literal `1.054571817e-34` differs at the tenth digit, squared in the
+   prefactor that is ~1.2e-9, and the pass reported **3983 of 4003** values
+   differing by up to 1.1e7 ulp. Sixth instance of §4.6.7's rule (find out
+   what a failed check measured), and the first in which the substituted
+   quantity was a *physical constant* rather than a model parameter.
+2. Constants fixed, product regrouped as `prefactor·(kT/e)·log(…)` against the
+   module's `smoothed_V = (kT/e)·log(…)` then `prefactor·smoothed_V`. Floating
+   multiplication is not associative; the regrouping alone moved **118 of 400**
+   `C_q` values by up to 2 ulp.
+3. The patch meant to fix the association silently matched nothing, so draft 2
+   ran again and was very nearly read as a confirmed result.
+
+> **A function that "restores the old spelling for comparison" is a
+> re-implementation, and every detail of it not copied exactly — the
+> constants, the grouping, the order of operations — becomes part of the
+> difference it reports.** The repair is not a better transcription. It is to
+> make the thing that changed *substitutable*: `_thermal_rounding()` now holds
+> the single expression item 13 touched, the pass swaps that one function, and
+> the rest of the call path is shipped code running unmodified. That form
+> reproduces the direct file-against-file result exactly — 4 of 400, 1 ulp —
+> where all three transcriptions did not.
+
+**And a correction to this section's own first draft.** It claimed the two
+spellings agree "to ≤ 1 ulp over η ∈ [0, 700]". That was measured on eleven
+hand-picked values; on 401 it is **2 ulp**. The ≤ 1 criterion was a round
+number chosen before the run — precisely what §7.9 item 15 exists to find —
+and it is **not widened to 2**. For an *identity*, a ulp count cannot answer
+the question that matters, so `mpmath` at 60 digits adjudicates, and the answer
+is not the expected one:
+
+| | worst relative error | mean | strictly better | strictly worse |
+|---|---|---|---|---|
+| committed `ln(2(1+cosh η))` | 1.793e-16 | 4.643e-17 | — | — |
+| installed `|η| + 2·log1p(e^−|η|)` | **1.527e-16** | 5.162e-17 | 45 / 401 | **81 / 401** |
+
+The installed spelling is **worse at more samples than it is better**, with a
+slightly larger mean error. All it has is the smaller worst case. **Accuracy is
+therefore not a reason to install it**; being finite where the other is not is
+the only reason, which is the only reason item 13 ever gave. The claim stops
+there.
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 

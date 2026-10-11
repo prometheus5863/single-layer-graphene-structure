@@ -1240,7 +1240,10 @@ Stated as falsifiable items, in order of how much they would move:
    `C_q` evaluated at the overdrive rather than at `E_F/e`. Separated for the
    first time, the argument error (+4.7416 % of the charge at the RF bias) is
    **larger** than the quadrature error (+2.6396 %), and the two are not
-   additive. §§4.3–4.4 move by at most 2.0859 % with every qualitative claim
+   additive. *[Both figures superseded 2026-10-11 — see item 16 and §4.6.9(c):
+   +2.6408 % and +0.7603 % against a reference at the model's own temperature.
+   The "larger" and "not additive" claims both survive; the magnitudes do
+   not.]* §§4.3–4.4 move by at most 2.0859 % with every qualitative claim
    intact. **The item was also mis-scoped**: under the differential identity
    the gate capacitance *is* the charge relation's derivative, so `C_gs` moves
    too, and in `f_T` the charge half (−1.9986 %) and the capacitance half
@@ -1271,6 +1274,28 @@ Stated as falsifiable items, in order of how much they would move:
    for every new caller. The ranking is unchanged for the output-neutrality
    reason above, but the *mitigation* changed: callers outside this module must
    treat non-finite `C_q` as a hard stop rather than as a magnitude.
+   **CLOSED 2026-10-11 (§4.6.10), and the ranking was wrong for a reason worth
+   keeping.** This item was ranked last twice on the grounds that η = 710 needs
+   18.35 V of overdrive, which the device never sees. But η also grows as `T`
+   falls, and the `T → 0` exact-limit check that validates item 16 drives η to
+   7e5 at the ordinary RF bias and returned `nan`: **the item ranked last was
+   gating the item ranked as the largest open cost.** Latency had been judged
+   against the inputs the *model* takes and not against the inputs its
+   *validations* take, and that distinction is now a standing caution on any
+   future latency claim and part of item 15's remit. The fix is the identity
+   `ln(2(1+cosh η)) = |η| + 2·log1p(exp(−|η|))`, from
+   `2(1+cosh x) = 4cosh²(x/2)`, installed in `_thermal_rounding()`. The
+   output-neutrality pass this item had been waiting for is in
+   `graphene_quantum_capacitance_overflow.py`: `C_q` itself moves by 1 ulp at 4
+   of 400 biases near the Dirac point and **no committed quantity moves by a
+   single bit** over 3603 values. Two by-products are recorded in §4.6.10: the
+   pass measured the wrong thing in each of its first three drafts (literal
+   constants, then product regrouping, then a patch that silently matched
+   nothing), which is why the fix is a *substitutable* one-function kernel
+   rather than a transcription; and the installed spelling is **not** more
+   accurate — adjudicated at 60 digits it is strictly worse at 81 of 401
+   samples and better at 45, with only the worst case improved — so being
+   finite is the whole of the case for it.
 14. **Measuring what a declaration costs, as a standing habit** (added
    2026-10-08; the mechanisable form of §4.6.6's second half). A declaration
    that resolves an ambiguity is a promise that the rest of the model belongs
@@ -1331,6 +1356,52 @@ Stated as falsifiable items, in order of how much they would move:
    in this thesis to **move** committed Chapter 4 numbers rather than annotate
    them, and the puddle floor's 4.3× attenuation of charge errors (§4.6.8) is
    the reason that is survivable.
+   **ACTED ON 2026-10-11 (§4.6.9). The direction was right; all three numbers
+   above are wrong, and the item understated the work rather than the size.**
+   (i) The argument cannot be fixed by changing an argument: `E_F/e` depends on
+   `n`, which is what `C_q` is being used to compute, so the fix is the
+   self-consistent solve (4.32). (ii) The +4.7416 % was obtained by
+   substituting the T = 0 dispersion `C_Q(n) = 2e√n/A_F`, which deletes the
+   thermal rounding `quantum_capacitance()` exists for: it gives `C_q(0) = 0`
+   and an induced charge of *exactly* zero at the Dirac point, and makes
+   `n ≡ 0` a solution through the origin — so temperature is what makes the
+   relation well-posed there. (iii) Measured in a 2×2 at **one** temperature,
+   against an initial-value reference validated to −1.5e-14 against (4.28)'s
+   closed form, the argument error is **+2.6408 %** (not +4.7416 %), the
+   quadrature error **+0.7603 %** (not +2.6396 %) and the total **+3.0963 %**
+   (not +5.2064 %): overstated by 1.80×, 3.47× and 1.68×, because a 300 K
+   model had been differenced against a T = 0 relation. The **ordering
+   survives**, so this item remains correctly ranked ahead of the quadrature
+   error. Installed, it moves the raw charge −2.2659 %, `n`(3.5 V) −1.0212 %
+   after the floor's 0.451 attenuation, `I_d` at the RF bias −0.2530 %, `R_ch`
+   at the Dirac point 0.0000 %, and **no verdict at all**; `f_T` moves
+   +0.8065 % as another near-cancellation of a −1.0911 % charge half against a
+   +1.8976 % capacitance half, and `f_max/f_T` +0.0009 %, leaving §7.8.1a
+   untouched by a sixth lever. **The item does not close.** The default in
+   `graphene_fet_model.py` is still (4.29); flipping it moves every committed
+   number in Chapters 4, 5 and 6 and needs its own session with its own
+   transcript regeneration. What changes today is that the flip is now *costed
+   on the right form* and the blocking defect (item 13) is gone. One trap is
+   recorded: today's 300 K argument error (+2.6408 %) sits within 0.0012 % of
+   2026-10-10's T = 0 quadrature error (+2.6396 %), two different quantities
+   that read as a reproduction.
+17. **A two-knob check that reports the ratio, not smallness** (added
+   2026-10-10 as "a check that can see a cancellation", **amended 2026-10-11
+   on its first use**, §4.6.9(f)). Every check in this repository asks about
+   one quantity, so a number that is small because two larger numbers oppose is
+   invisible to all of them. The prescribed form was: move each input
+   separately and flag the case where the combined move is *smaller* than
+   either. Its first instance has the **opposite sign** — the argument and
+   quadrature knobs **reinforce**, combined/(sum of separate) = **1.109** — so
+   the check as specified would not have flagged it. It must report the ratio
+   and flag any departure from 1 in either direction. And a requirement that
+   could only be found by running it: **the interaction measure inherits the
+   reference error of whatever it is differenced against.** The same two knobs
+   give a departure from additivity of 0.717 against the T = 0 relation and
+   0.109 against a 300 K reference — an inflation of **6.6×** — so a two-knob
+   check must be run at the model's own operating point. Still unbuilt as a
+   sweep over every committed number; it now has one worked instance and two
+   requirements.
 
 ---
 
@@ -1338,6 +1409,16 @@ Stated as falsifiable items, in order of how much they would move:
 
 * It does not claim the retracted Section 6.7 contradiction. §7.2.1 states why,
   and the superseded numbers are annotated in place rather than deleted.
+* It does not claim that the error decomposition of §4.6.9(c) is the last word
+  on (4.29). It separates two knobs at the model's own temperature against the
+  exact integral of the model's own differential relation. The relation itself
+  still uses a phenomenological thermal rounding rather than Fermi–Dirac
+  integrals, so a third knob — the rounding form — has never been costed at
+  all, and (4.28) remains the T = 0 limit of a standard literature form.
+* It does not claim that the overflow-free spelling installed in §4.6.10 is
+  more accurate than the one it replaces. Adjudicated at 60 digits it is
+  strictly worse at 81 of 401 samples. The claim is that it is finite
+  everywhere and that no committed number moves by a bit.
 * It does not claim that any number in this thesis is *wrong* as a consequence
   of §7.5.5. Every published sensitivity is stable to 1.3e-8 under refinement.
   The claim is about procedures and instruments, not results.
