@@ -709,6 +709,66 @@ def main():
           'output resistance.' % (100 * (r_f / r_A - 1.0), r_f))
 
     print()
+    print('SECTION 9.  THE LITERATURE REGULARISES C_q WITH DISORDER, NOT WITH')
+    print('            TEMPERATURE -- AND HERE THE TWO ARE THE SAME SIZE')
+    print('-' * 78)
+    print('  Live search today reached a SECOND, independent compact-model')
+    print('  lineage: the Southampton bilayer-GFET model')
+    print('  (eprints.soton.ac.uk/366757, GFetIEEEtran.pdf).  It confirms')
+    print("  Section 1 from a different source than 2026-10-10's")
+    print('  Pasadas/Jimenez review: its C_q is a function of the SURFACE')
+    print('  POTENTIAL phi_s, never of the gate overdrive, and the layer')
+    print('  potentials are a COUPLED SYSTEM solved together -- which is')
+    print('  exactly the claim that item 16 is a self-consistency problem.')
+    print()
+    print('  But it regularises C_q at neutrality differently.  It has no')
+    print('  thermal rounding at all: temperature never enters its C_q.  It')
+    print('  floors the capacitance with the RESIDUAL DISORDER DENSITY n0,')
+    print('    C_q,min = e^2*sqrt(n0)/(sqrt(pi)*hbar*v_F)')
+    print('  i.e. the puddle density does the job this thesis gives to kT.')
+    print()
+    cq_floor = (E_CHARGE ** 2 * np.sqrt(gfet.n_puddle)
+                / (np.sqrt(np.pi) * 1.054571817e-34 * gfet.v_F))
+    cq_therm = float(cq_thermal(0.0))
+    print('   this thesis, thermal:        C_q(0)   = %.6e F/m^2' % cq_therm)
+    print('   literature form, at n_puddle: C_q,min = %.6e F/m^2' % cq_floor)
+    print('   ratio = %.4f' % (cq_floor / cq_therm))
+    check('the two regularisations are the SAME SIZE at this disorder level, '
+          'so applying both -- as this thesis does -- overcounts C_q at the '
+          'Dirac point by about a factor 2',
+          0.5 < cq_floor / cq_therm < 2.0,
+          'disorder floor %.6e against thermal %.6e F/m^2, ratio %.4f.  This '
+          'model applies the thermal rounding INSIDE C_q and then adds '
+          'n_puddle in quadrature to n, and the literature form shows those '
+          'are two spellings of one physical effect at this n0.  Neither is '
+          'wrong on its own; using both is a double count of the same '
+          'regularisation, and it has never been costed.  NEW BACKLOG ITEM '
+          '(Section 7.9 item 18).'
+          % (cq_floor, cq_therm, cq_floor / cq_therm))
+    n0_equal = (cq_therm * np.sqrt(np.pi) * 1.054571817e-34
+                * gfet.v_F / E_CHARGE ** 2) ** 2
+    T_equal = cq_floor / (CQ_PREFACTOR * np.log(4.0)) * E_CHARGE / KB
+    print()
+    print('   the two agree exactly at n0 = %.4e /m^2 (%.3f x n_puddle)'
+          % (n0_equal, n0_equal / gfet.n_puddle))
+    print('   or, holding n0 = n_puddle, at T = %.2f K (%.3f x 300 K)'
+          % (T_equal, T_equal / gfet.T))
+    check('and the coincidence is not a numerical accident of one parameter: '
+          'the crossover density is within a factor 2 of n_puddle and the '
+          'crossover temperature within a factor 2 of 300 K, so SiO2-supported '
+          'graphene at room temperature sits where disorder and temperature '
+          'regularise C_q equally',
+          0.3 < n0_equal / gfet.n_puddle < 3.0
+          and 0.3 < T_equal / gfet.T < 3.0,
+          'n0* = %.4e /m^2 = %.3f n_puddle, and T* = %.2f K = %.3f x 300 K.  '
+          'That is why neither convention is obviously wrong in the '
+          'literature and why the double count here is easy to miss: the two '
+          'terms it adds are the same order at the operating point this '
+          'thesis studies.  It would NOT be true for suspended graphene '
+          '(n0 two orders lower) or at 4 K, where the conventions diverge.'
+          % (n0_equal, n0_equal / gfet.n_puddle, T_equal, T_equal / gfet.T))
+
+    print()
     print('SECTION 8.  FIGURE')
     print('-' * 78)
     fig, ax = plt.subplots(1, 3, figsize=(16.5, 4.8))

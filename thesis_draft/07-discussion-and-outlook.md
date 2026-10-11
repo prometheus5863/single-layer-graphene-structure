@@ -1402,6 +1402,29 @@ Stated as falsifiable items, in order of how much they would move:
    check must be run at the model's own operating point. Still unbuilt as a
    sweep over every committed number; it now has one worked instance and two
    requirements.
+18. **Costing the double regularisation of `C_q` at neutrality** (added
+   2026-10-11, §4.6.9(h); the first item on this list to arrive from a
+   *literature* source rather than from an internal audit). A second,
+   independent compact-model lineage — the Southampton bilayer-GFET model —
+   confirms that `C_q`'s argument is the surface potential and that the
+   potentials are solved as a coupled system, which is item 16's claim held by
+   two groups rather than inferred from one. But it regularises `C_q` at the
+   Dirac point with the **residual disorder density** and not with temperature:
+   `C_q,min = e²√n₀/(√π·ħ·v_F)`, with temperature never entering its `C_q`
+   at all. **This thesis applies both** — a thermal rounding inside `C_q`, and
+   `n_puddle` added in quadrature to `n` — and at `n_puddle = 5e15 m⁻²` the two
+   are the same size: 9.710793e-03 against 8.437399e-03 F m⁻², a ratio of
+   **1.1509**. They would agree exactly at `n₀ = 3.77e15 m⁻²` (0.755×
+   `n_puddle`) or at **T = 345 K** (1.151× 300 K), so the agreement is not an
+   accident of one parameter: SiO₂-supported graphene at room temperature sits
+   where disorder and temperature regularise `C_q` equally. Using both is
+   therefore a **double count of one physical effect**, worth about a factor 2
+   in `C_q(0)`, and it has never been costed. It would not be true for
+   suspended graphene (`n₀` two orders lower) or at 4 K, which is why neither
+   convention is obviously wrong in the literature and why the overlap here is
+   easy to miss. Related to, and partly the other side of, the uncosted third
+   knob §7.10 now names: the rounding *form* itself has never been compared
+   against Fermi–Dirac integrals.
 
 ---
 

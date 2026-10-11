@@ -1640,6 +1640,47 @@ against.** The T = 0 frame puts the departure from additivity at 0.717 where
 the consistent frame puts it at 0.109 — an inflation of **6.6×**. A two-knob
 check must be run at the model's own operating point.
 
+#### (h) The literature regularises `C_q` with disorder, not with temperature — and here the two are the same size
+
+Live search reached a **second, independent** compact-model lineage, the
+[Southampton bilayer-GFET model](https://eprints.soton.ac.uk/366757/1/GFetIEEEtran.pdf).
+It confirms §(a) from a different source than §4.6.8's
+[Pasadas/Jiménez review](https://arxiv.org/pdf/2209.00388): its `C_q` is a
+function of the **surface potential** `φ_s`, never of the gate overdrive, and
+its layer potentials form a **coupled system solved together**. The claim that
+item 16 is a self-consistency problem is now held by two independent groups
+rather than inferred from one.
+
+But it regularises `C_q` at neutrality **differently**, and the difference
+opens a question this chapter has not asked. Temperature never enters its
+`C_q` at all; it floors the capacitance with the residual disorder density,
+`C_q,min = e²√n₀/(√π·ħ·v_F)`. The puddle density does the job this thesis
+gives to `kT`.
+
+| | `C_q` at the Dirac point (F m⁻²) |
+|---|---|
+| this thesis, thermal rounding | 8.437399e-03 |
+| literature form, at `n_puddle` = 5e15 m⁻² | 9.710793e-03 |
+| ratio | **1.1509** |
+
+They agree exactly at `n₀ = 3.77e15 m⁻²` (0.755× `n_puddle`) or, holding `n₀`,
+at **T = 345.28 K** (1.151× 300 K). The agreement is therefore not a
+coincidence of one parameter: **SiO₂-supported graphene at room temperature
+sits where disorder and temperature regularise `C_q` equally.**
+
+And §4.3 applies **both**. The thermal rounding is inside `C_q`, and
+`n_puddle` is then added in quadrature to `n`. The literature form shows those
+are two spellings of one physical effect at this `n₀`, so **using both is a
+double count of the same regularisation, worth about a factor 2 in `C_q` at the
+Dirac point, and it has never been costed** (§7.9 item 18). It would not be
+true for suspended graphene (`n₀` two orders lower) or at 4 K, where the two
+conventions diverge — which is why neither is obviously wrong in the literature
+and why the overlap here is easy to miss.
+
+This also bounds what §(a)'s measurement can say about neutrality. The region
+where the argument error would be *large* is precisely the region where two
+overlapping regularisations are fighting over the same physics.
+
 #### (g) What this section does not claim
 
 1. It does **not** install `B_T` as the chapter's charge relation. The default

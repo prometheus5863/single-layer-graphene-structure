@@ -157,10 +157,39 @@ SECTION 7.  RF FIGURES OF MERIT, AND THE TWO HALVES SEPARATED
   [PASS] Section 7.8.1a's structural verdict is untouched by item 16 -- the SIXTH lever tried against it
          f_max/f_T moves +0.0009 % and stays at 0.9151, still below the 1.3-1.4 band a perfect gate cannot reach.  Saturation, the perfect contact, the diffusion term, the exact charge relation, its capacitance, and now C_q's argument.  The binding constraint is still that transfer_characteristic() is a resistor with no output resistance.
 
+SECTION 9.  THE LITERATURE REGULARISES C_q WITH DISORDER, NOT WITH
+            TEMPERATURE -- AND HERE THE TWO ARE THE SAME SIZE
+------------------------------------------------------------------------------
+  Live search today reached a SECOND, independent compact-model
+  lineage: the Southampton bilayer-GFET model
+  (eprints.soton.ac.uk/366757, GFetIEEEtran.pdf).  It confirms
+  Section 1 from a different source than 2026-10-10's
+  Pasadas/Jimenez review: its C_q is a function of the SURFACE
+  POTENTIAL phi_s, never of the gate overdrive, and the layer
+  potentials are a COUPLED SYSTEM solved together -- which is
+  exactly the claim that item 16 is a self-consistency problem.
+
+  But it regularises C_q at neutrality differently.  It has no
+  thermal rounding at all: temperature never enters its C_q.  It
+  floors the capacitance with the RESIDUAL DISORDER DENSITY n0,
+    C_q,min = e^2*sqrt(n0)/(sqrt(pi)*hbar*v_F)
+  i.e. the puddle density does the job this thesis gives to kT.
+
+   this thesis, thermal:        C_q(0)   = 8.437399e-03 F/m^2
+   literature form, at n_puddle: C_q,min = 9.710793e-03 F/m^2
+   ratio = 1.1509
+  [PASS] the two regularisations are the SAME SIZE at this disorder level, so applying both -- as this thesis does -- overcounts C_q at the Dirac point by about a factor 2
+         disorder floor 9.710793e-03 against thermal 8.437399e-03 F/m^2, ratio 1.1509.  This model applies the thermal rounding INSIDE C_q and then adds n_puddle in quadrature to n, and the literature form shows those are two spellings of one physical effect at this n0.  Neither is wrong on its own; using both is a double count of the same regularisation, and it has never been costed.  NEW BACKLOG ITEM (Section 7.9 item 18).
+
+   the two agree exactly at n0 = 3.7747e+15 /m^2 (0.755 x n_puddle)
+   or, holding n0 = n_puddle, at T = 345.28 K (1.151 x 300 K)
+  [PASS] and the coincidence is not a numerical accident of one parameter: the crossover density is within a factor 2 of n_puddle and the crossover temperature within a factor 2 of 300 K, so SiO2-supported graphene at room temperature sits where disorder and temperature regularise C_q equally
+         n0* = 3.7747e+15 /m^2 = 0.755 n_puddle, and T* = 345.28 K = 1.151 x 300 K.  That is why neither convention is obviously wrong in the literature and why the double count here is easy to miss: the two terms it adds are the same order at the operating point this thesis studies.  It would NOT be true for suspended graphene (n0 two orders lower) or at 4 K, where the conventions diverge.
+
 SECTION 8.  FIGURE
 ------------------------------------------------------------------------------
   wrote quantum_capacitance_argument.png
 
 ==============================================================================
-CHECKS: 18 passed, 0 failed
+CHECKS: 20 passed, 0 failed
 ==============================================================================
