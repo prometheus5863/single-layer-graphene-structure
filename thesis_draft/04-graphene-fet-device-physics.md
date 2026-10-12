@@ -1958,7 +1958,74 @@ exactly `0.0`, so the two expressions reduce to the same floating-point
 operations. The informative version of that check is at moderate `η`, where
 §4.6.10 already adjudicates the identity against 60-digit arithmetic.
 
-#### (f) What survives
+#### (f) The source was read to settle the factor, and it leaves `n₀` undefined — but its own composition law bounds the whole class of error
+
+The one residue of (d) that arithmetic cannot reach is what `n₀` denotes in
+the source. The paper was fetched and read for exactly that, and **it does not
+say.** At zero surface potential it states only that "the channel has been
+reported to have a charge density, `n₀`", cites two references for it, and
+never calls it total, per-species, or a disorder parameter; in its resistance
+section the same symbol is "the minimum charge density". **No degeneracy
+factor appears anywhere in the paper, and it gives no density of states at
+all** — it goes directly from `n` to `C_q`.
+
+> **The comparison is blocked not by disagreement but by the source having
+> left a symbol undefined and delegated it to a citation.** There is no stated
+> convention to convert, so the factor 2 of (d) cannot be reconciled by
+> reading harder; both 1.1509 and 2.3018 stay in the record and neither is
+> installed.
+
+Its fitted values are in the `10¹⁶ m⁻²` range — **1.2e16 m⁻²** for its Test A,
+**2.4×** this thesis's `n_puddle`. That is a second literature anchor on the
+standing `n_puddle` question, and it points the same way as §4.6.7's: this
+thesis's floor may be low rather than high.
+
+What the reading *does* settle is the composition law, and it settles it in
+favour of (b). Their Eq. (3) is
+
+```
+C_q(φ_s) = (C_q,min² + 2h²) / √(C_q,min² + h²),      h = C_q,var/2
+```
+
+which returns `C_q,min` **bitwise** at `φ_s = 0`, tends to `C_q,var` to twelve
+digits when that dominates, and is therefore a **smooth max and not a sum**.
+Its excess over pure max is maximal exactly where the two terms are equal,
+and there it is
+
+```
+sup  C_q / max(C_q,min, C_q,var)  =  1.5/√1.25  =  3/√5  =  1.341640786
+```
+
+measured at `C_var/C_min = 1.000000` over a 200 001-point sweep, against that
+closed form.
+
+Two consequences, both for item 18 and not for the model.
+
+**The literature applies `n₀` twice itself.** Eq. (2) floors `C_q` with it and
+its Drude relation `n = √(n₀² + n*²)` floors the density with it, with no
+temperature anywhere. So the comparison item 18 rested on is not between a
+model that double-counts and one that does not; it is between two
+**allocations of regularisers to quantities**. This thesis spends `kT` on
+`C_q` and `n₀` on `n`; the source spends `n₀` on both.
+
+**And §4.6.9(h)'s intuition was right about where the worst case is and wrong
+about how big it is.** A smooth-max composition is furthest from pure max
+exactly when its two terms are *equal* — which is precisely the condition that
+section identified as holding at this `n₀` and this `T`. That reasoning was
+sound. But at that worst case the excess is `3/√5`, **+34.164 %**, and this
+thesis sits at **+2.5262 %** because its two terms are 2.30:1 rather than 1:1.
+
+> **A quadrature-composed regulariser pair cannot exceed the larger of its two
+> terms by more than 34.2 %. The "factor 2" was unreachable in principle, not
+> merely unmeasured.**
+
+An upper bound on the entire class of error the item named, derived from the
+source's own composition law rather than from this thesis's. It is quoted as
+context for the item's estimate and **not** as a bound on this thesis's own
+arithmetic: the nested spelling of (b) is a different function, and its
++2.5262 % is measured rather than bounded.
+
+#### (g) What survives
 
 Not a double count. What survives is the **reuse of one parameter for two
 jobs**: `n₀` buys the density-of-states broadening in the literature and the

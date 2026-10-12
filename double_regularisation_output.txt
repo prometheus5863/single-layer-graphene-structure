@@ -137,12 +137,69 @@ SECTION 5.  OVERLAPPING-LIMIT VALIDATION AGAINST THE OLD MODEL
   [PASS] both patched names arrived, and neither counter gates a section that does not use its name
          rounding 43, n_puddle 1.
 
-SECTION 6.  FIGURE
+SECTION 6.  THE SOURCE ITSELF COMPOSES ITS REGULARISERS AS A
+            SMOOTH MAX, AND ITS WORST CASE IS 3/sqrt(5)
+------------------------------------------------------------------------------
+  Read today, to settle what n0 denotes.  It does not settle that
+  -- the paper says only that at zero surface potential "the
+  channel has been reported to have a charge density n0", cites
+  two references for it, and never defines it as total, per-
+  species, or a disorder parameter.  No degeneracy factor and no
+  DOS expression appear anywhere in it: it goes straight from n to
+  C_q.  So the exact factor 2 of Section 1 is not a stated
+  convention that can be converted; the residue stands.
+
+  But its Eq. (3) answers a different question, and answers it in
+  favour of Section 3.  It composes the floor with the variable
+  part as
+    C_q(phi) = (C_min^2 + 2 h^2) / sqrt(C_min^2 + h^2),
+    h = C_var/2,   C_var proportional to |phi|
+  which is a SMOOTH MAX and not a sum.
+
+   C_var/C_min     C_q        max(C_min,C_var)   C_q/max
+            0   9.710793e-03   9.710793e-03   1.000000
+       0.0001   9.710793e-03   9.710793e-03   1.000000
+            1   1.302840e-02   9.710793e-03   1.341641
+            2   2.059970e-02   1.942159e-02   1.060660
+           10   9.712660e-02   9.710793e-02   1.000192
+        1e+04   9.710793e+01   9.710793e+01   1.000000
+  [PASS] their Eq. (3) returns C_min EXACTLY at zero surface potential and C_var to 12 digits when C_var dominates, so it is an interpolation between the two and not an addition of them
+         C_q(0) = 9.710792902255e-03 against C_min = 9.710792902255e-03, bitwise; and C_q/C_var -> 1.000000000000 at C_var = 1e6 C_min.
+
+   sup over all C_var of C_q/max(C_min,C_var) = 1.341640786 at C_var/C_min = 1.000000
+   closed form at C_var = C_min: 1.5/sqrt(1.25) = 3/sqrt(5) = 1.341640786
+  [PASS] the maximum excess of their composition over pure max is EXACTLY 3/sqrt(5) = 1.3416408, attained EXACTLY where the two regularisers are equal in size
+         measured 1.341640786 at C_var/C_min = 1.000000 against the closed form 1.341640786.  Setting C_var = C_min in (C_min^2 + 2h^2)/sqrt(C_min^2 + h^2) with h = C_min/2 gives 1.5 C_min^2 / (C_min sqrt(1.25)) = 3 C_min/sqrt(5).
+
+  TWO CONSEQUENCES, both for item 18 rather than for the model.
+
+  (1) The literature applies n0 TWICE itself.  Eq. (2) floors C_q
+      with it and the Drude relation n = sqrt(n0^2 + n*^2) floors
+      the density with it, with no temperature anywhere.  So the
+      comparison is not between a model that double-counts and
+      one that does not: it is between two ALLOCATIONS of
+      regularisers to quantities.  This thesis spends kT on C_q
+      and n0 on n; the source spends n0 on both.
+
+  (2) And yesterday's intuition was right about WHERE the worst
+      case is and wrong about HOW BIG it is.  A smooth-max
+      composition is furthest from pure max exactly when its two
+      terms are equal, which is the condition 2026-10-11
+      identified as holding at this n0 and this T.  At that worst
+      case the excess is 3/sqrt(5), i.e. +34.164 %, and this
+      thesis is at +2.5262 % because its two terms are 2.30:1 and
+      not 1:1.  Neither figure is a factor 2.  The bound a
+      quadrature-composed regulariser pair can reach over the
+      larger of its terms is 1.342, not 2.
+  [PASS] so the "factor 2" was unreachable in principle, not merely unmeasured: a quadrature-composed regulariser pair cannot exceed the larger of its two terms by more than 34.2 %
+         sup = 1.341641, i.e. +34.164 % at equality, against the +2.5262 % this thesis actually incurs and the +100 % the item asserted.  An upper bound on the whole class of error, derived from the source's own composition law.
+
+SECTION 7.  FIGURE
 ------------------------------------------------------------------------------
    wrote double_regularisation.png
 
 ==============================================================================
-CHECKS: 19 passed, 0 failed
+CHECKS: 22 passed, 0 failed
 ==============================================================================
 
 VERDICT -- item 18 CLOSES, and it closes by being wrong twice.

@@ -535,7 +535,99 @@ def main():
                                          arrivals['n_puddle']))
 
     print()
-    print('SECTION 6.  FIGURE')
+    print('SECTION 6.  THE SOURCE ITSELF COMPOSES ITS REGULARISERS AS A')
+    print('            SMOOTH MAX, AND ITS WORST CASE IS 3/sqrt(5)')
+    print('-' * 78)
+    print('  Read today, to settle what n0 denotes.  It does not settle that')
+    print('  -- the paper says only that at zero surface potential "the')
+    print('  channel has been reported to have a charge density n0", cites')
+    print('  two references for it, and never defines it as total, per-')
+    print('  species, or a disorder parameter.  No degeneracy factor and no')
+    print('  DOS expression appear anywhere in it: it goes straight from n to')
+    print('  C_q.  So the exact factor 2 of Section 1 is not a stated')
+    print('  convention that can be converted; the residue stands.')
+    print()
+    print('  But its Eq. (3) answers a different question, and answers it in')
+    print('  favour of Section 3.  It composes the floor with the variable')
+    print('  part as')
+    print('    C_q(phi) = (C_min^2 + 2 h^2) / sqrt(C_min^2 + h^2),')
+    print('    h = C_var/2,   C_var proportional to |phi|')
+    print('  which is a SMOOTH MAX and not a sum.')
+    print()
+    c_min_lit = cq_lit
+
+    def cq_soton(c_var):
+        h = np.asarray(c_var, dtype=float) / 2.0
+        return (c_min_lit ** 2 + 2.0 * h ** 2) / np.sqrt(c_min_lit ** 2 + h ** 2)
+
+    print('   C_var/C_min     C_q        max(C_min,C_var)   C_q/max')
+    for r_ in (0.0, 1e-4, 1.0, 2.0, 10.0, 1e4):
+        cv = r_ * c_min_lit
+        print('   %10.4g   %.6e   %.6e   %.6f'
+              % (r_, one(cq_soton(cv)), max(c_min_lit, cv),
+                 one(cq_soton(cv)) / max(c_min_lit, cv)))
+    check('their Eq. (3) returns C_min EXACTLY at zero surface potential and '
+          'C_var to 12 digits when C_var dominates, so it is an '
+          'interpolation between the two and not an addition of them',
+          one(cq_soton(0.0)) == float(c_min_lit)
+          and abs(one(cq_soton(1e6 * c_min_lit)) / (1e6 * c_min_lit) - 1.0)
+          < 1e-11,
+          'C_q(0) = %.12e against C_min = %.12e, bitwise; and '
+          'C_q/C_var -> %.12f at C_var = 1e6 C_min.'
+          % (one(cq_soton(0.0)), c_min_lit,
+             one(cq_soton(1e6 * c_min_lit)) / (1e6 * c_min_lit)))
+    cv = np.logspace(-8, 2, 200001) * c_min_lit
+    ratio = cq_soton(cv) / np.maximum(c_min_lit, cv)
+    worst = float(ratio.max())
+    at = float(cv[int(ratio.argmax())] / c_min_lit)
+    exact = 3.0 / np.sqrt(5.0)
+    print()
+    print('   sup over all C_var of C_q/max(C_min,C_var) = %.9f at '
+          'C_var/C_min = %.6f' % (worst, at))
+    print('   closed form at C_var = C_min: 1.5/sqrt(1.25) = 3/sqrt(5) = '
+          '%.9f' % exact)
+    check('the maximum excess of their composition over pure max is EXACTLY '
+          '3/sqrt(5) = 1.3416408, attained EXACTLY where the two '
+          'regularisers are equal in size',
+          abs(worst - exact) < 1e-7 and abs(at - 1.0) < 1e-4,
+          'measured %.9f at C_var/C_min = %.6f against the closed form '
+          '%.9f.  Setting C_var = C_min in (C_min^2 + 2h^2)/sqrt(C_min^2 + '
+          'h^2) with h = C_min/2 gives 1.5 C_min^2 / (C_min sqrt(1.25)) = '
+          '3 C_min/sqrt(5).' % (worst, at, exact))
+    print()
+    print('  TWO CONSEQUENCES, both for item 18 rather than for the model.')
+    print()
+    print('  (1) The literature applies n0 TWICE itself.  Eq. (2) floors C_q')
+    print('      with it and the Drude relation n = sqrt(n0^2 + n*^2) floors')
+    print('      the density with it, with no temperature anywhere.  So the')
+    print('      comparison is not between a model that double-counts and')
+    print('      one that does not: it is between two ALLOCATIONS of')
+    print('      regularisers to quantities.  This thesis spends kT on C_q')
+    print('      and n0 on n; the source spends n0 on both.')
+    print()
+    print('  (2) And yesterday\'s intuition was right about WHERE the worst')
+    print('      case is and wrong about HOW BIG it is.  A smooth-max')
+    print('      composition is furthest from pure max exactly when its two')
+    print('      terms are equal, which is the condition 2026-10-11')
+    print('      identified as holding at this n0 and this T.  At that worst')
+    print('      case the excess is 3/sqrt(5), i.e. +34.164 %, and this')
+    print('      thesis is at +%.4f %% because its two terms are 2.30:1 and'
+          % d_on_floor)
+    print('      not 1:1.  Neither figure is a factor 2.  The bound a')
+    print('      quadrature-composed regulariser pair can reach over the')
+    print('      larger of its terms is 1.342, not 2.')
+    check('so the "factor 2" was unreachable in principle, not merely '
+          'unmeasured: a quadrature-composed regulariser pair cannot exceed '
+          'the larger of its two terms by more than 34.2 %',
+          worst < 1.35 and d_on_floor < worst * 100 - 100,
+          'sup = %.6f, i.e. +%.3f %% at equality, against the +%.4f %% this '
+          'thesis actually incurs and the +100 %% the item asserted.  An '
+          'upper bound on the whole class of error, derived from the '
+          'source\'s own composition law.' % (worst, 100 * (worst - 1),
+                                              d_on_floor))
+
+    print()
+    print('SECTION 7.  FIGURE')
     print('-' * 78)
     fig, ax = plt.subplots(1, 3, figsize=(16.5, 4.8))
 

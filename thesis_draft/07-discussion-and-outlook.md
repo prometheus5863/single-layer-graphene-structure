@@ -1486,6 +1486,28 @@ Stated as falsifiable items, in order of how much they would move:
    now reached from two opposite directions (§4.6.7 from the floor being
    2.07× Chapter 3's, item 18 from the literature's use of the same symbol for
    DOS broadening).
+   **AND A BOUND, FROM THE SOURCE'S OWN COMPOSITION LAW** (§4.6.11(f), added
+   the same session after fetching the paper to settle what `n₀` denotes — it
+   does not: the paper cites `n₀` to two references, never calls it total or
+   per-species, carries no degeneracy factor and gives no DOS at all, so the
+   factor 2 of (iii) cannot be reconciled by reading and both figures stay in
+   the record). Its Eq. (3) composes the floor with the gate-driven part as
+   `(C_min² + 2h²)/√(C_min² + h²)`, `h = C_var/2` — a **smooth max, not a
+   sum**: `C_min` bitwise at zero surface potential, `C_var` to twelve digits
+   when that dominates, and an excess over pure max that is maximal exactly
+   where the two terms are **equal**, where it equals `3/√5 = 1.341640786`.
+   So **the literature applies `n₀` twice itself** — Eq. (2) floors `C_q`,
+   `n = √(n₀² + n*²)` floors the density, no temperature anywhere — making
+   this a comparison between two *allocations* of regularisers to quantities
+   rather than between a model that double-counts and one that does not. And
+   the item's intuition was **right about where the worst case is and wrong
+   about how big**: equality is indeed the worst case, and there the excess is
+   **+34.164 %**, against the **+2.5262 %** this thesis incurs at 2.30:1.
+   **A quadrature-composed regulariser pair cannot exceed the larger of its
+   two terms by more than 34.2 %, so the "factor 2" was unreachable in
+   principle and not merely unmeasured.** Also: the source's fitted
+   `n₀ = 1.2e16 m⁻²` is **2.4×** this thesis's `n_puddle`, a second literature
+   anchor on the standing question and pointing the same way as §4.6.7's.
 
 ---
 
