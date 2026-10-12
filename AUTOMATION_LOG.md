@@ -7884,3 +7884,278 @@ against the GitHub API before the next was written.**
 item 13's installation with its neutrality pass; §§4.6.9–4.6.10 with the
 in-place annotations and §7.9's revisions; the literature section, item 18 and
 the session notes). This AUTOMATION_LOG.md entry makes **5**.
+
+---
+
+## 2026-10-12 — item 18 closed by being wrong twice, and the "factor 2" was unreachable in principle
+
+**Session type:** one item, costed and closed. Three commits plus this entry.
+Device reachable and folder connected at the first firing; `pip install scipy`
+succeeded again (the device VM still lacks it); the whole session ran on the
+device VM and nothing crossed the bridge. Every commit was pushed and verified
+against the GitHub API before the next was written.
+
+**Item taken:** §7.9 **item 18** — "costing the double regularisation of `C_q`
+at neutrality". It was ranked **first** for this session because it was the
+only open item that could change a *physical* claim rather than a numeric one,
+and because it was the **first item on that list ever to arrive from a
+literature source** rather than from an internal audit.
+
+It closes. It closes by being wrong twice over, with a third finding that puts
+an upper bound on the entire class of error it described.
+
+### 1. In the committed relation the two regularisers never meet
+
+The premise was "this thesis applies both". For (4.29) that is **false**, and
+the reason is structural rather than numerical.
+
+`C_q`'s argument is the gate overdrive `dV`, and `dV` is never floored, so
+`n_puddle` cannot reach `C_q`. The converse is sharper: `n_eff =
+(C_ox·dV/e)·f(C_q)` has `dV` as a **factor** and `f ∈ (0,1)`, so at `dV = 0`
+the product is zero whatever `f` returns. Measured on the shipped function with
+four `C_q` conventions substituted — the thermal rounding, the T = 0
+dispersion, the Southampton floor, and this thesis's own `C_Q(n_puddle)` —
+`n_eff(0)` is **`0.0` bitwise in all four**, and `carrier_density(V_dirac)`
+returns **exactly** `n_puddle`.
+
+Both halves are checked against **exactly-known values**, `0.0` and
+`n_puddle`, not against tolerances — which is what 2026-09-17 established and
+what a plausible-range check would have passed under either premise.
+
+> **Applying one regulariser to each of two different quantities is a reuse of
+> one parameter for two jobs — a modelling choice to defend. It is not a
+> double count, which is an arithmetic error.**
+
+The generalisable form, new today: **a cross-model comparison establishes that
+two conventions exist; it does not establish that one model contains both.**
+Item 18 was created by comparing two *literature forms* without first asking
+which quantity each term in **this** model reaches.
+
+### 2. Where they do meet, the cost is +2.5262 % and not a factor 2
+
+One spelling does put both regularisers on one quantity: form B_T (item 16)
+with the floor inside `C_q`'s argument, `C_q(E_F(√(n² + n₀²))/e)`. It is the
+most double-counting spelling available and arguably the consistent one.
+
+| `C_q(0)` in form B_T | thermal OFF | thermal ON |
+|---|---|---|
+| floor outside `C_q` | 0.000000000e+00 | 8.437398908e-03 |
+| floor inside `C_q` | 1.942158579e-02 | **1.991221401e-02** |
+
+**both/max = 1.025262**, both/sum = 0.714750; thermal on top of the floor
+**+2.5262 %**, floor on top of thermal +135.9994 %.
+
+> **The "factor 2" was the ratio of the two candidate values. That ratio
+> prices *choosing wrongly between* the conventions; it is not the cost of
+> *applying both*.**
+
+First instance of the 2026-10-06 ratio item — *census every criterion that is
+a ratio* — **in which the ratio was not a criterion but an estimate of a
+magnitude**. Five sessions open as a question about verdicts; it was a
+question about magnitudes too.
+
+And the structural reason, stated as a rule: **two regularisers entering
+through a monotone function of a quadrature sum compose max-like, not
+additively — the larger swallows the smaller.**
+
+Downstream, at the model's own biases (item 17's second requirement):
+
+| `ΔV` | neither | thermal | disorder | both | both/max |
+|---|---|---|---|---|---|
+| 0 V | 5.000000e+15 | 5.000000e+15 | 5.000000e+15 | 5.000000e+15 | 1.000000 |
+| 1.2 V | 5.730515e+15 | 5.732955e+15 | 5.741244e+15 | 5.741709e+15 | 1.000081 |
+| 2.7 V | 8.085749e+15 | 8.087032e+15 | 8.095579e+15 | 8.096222e+15 | 1.000079 |
+
+At the Dirac point **all four agree bitwise** — the quadrature floor on the
+*result* overwrites every `C_q` convention, so **the quantity item 18 was
+created to protect is the one quantity in the model that cannot move.**
+`σ_min = 3.204353268e-04` S/sq in all four, identical to the last bit: no
+committed conductivity, resistance or on/off number in Chapters 4, 5 or 6 is
+exposed at neutrality. At the RF bias the whole double count is **+0.1527 %**
+in `n`, against −1.0212 % for item 16 itself and −0.60 % for the exact charge
+relation. **Real but small, and smaller at the operating point than at
+neutrality — the opposite of how it was ranked.**
+
+Second session running in which **a cost estimate priced something other than
+the repair it named** (2026-10-11's lesson, one level up).
+
+### 3. The floor's own spelling carries an exact factor 2
+
+The Southampton floor `C_q,min = e²√n₀/(√π ħ v_F)` is **exactly half** this
+thesis's own DOS-exact `C_Q(n₀) = 2e²√n₀/(√π ħ v_F) = 2e√n₀/A_F` — **0.000 ulp
+from ½** with one consistent `ħ` — because graphene's `D(E) = 2|E|/(π ħ² v_F²)`
+carries the `g = 4` spin–valley degeneracy and the literature form does not.
+
+So yesterday's ratio **1.1509** is `kT` against the halved spelling; on this
+thesis's own convention it is **2.3018**, and "disorder and temperature
+regularise `C_q` equally here" weakens from *the same size* to *the same
+order*. Yesterday's figure is **annotated in place and not rewritten**, in
+`graphene_quantum_capacitance_argument.py` §9 and in §4.6.9(h).
+
+### 4. Literature: the source never defines `n₀`, and its own composition law bounds the error
+
+**Live search and fetch available and used: one fetch, successful.** No
+PubMed/PMC attempted, per the standing note.
+[`GFetIEEEtran.pdf`](https://eprints.soton.ac.uk/366757/1/GFetIEEEtran.pdf)
+re-read for the one residue arithmetic could not reach: what `n₀` means there.
+
+**It does not say.** At zero surface potential it states only that "the channel
+has been reported to have a charge density, `n₀`", cites two references, and
+never calls it total, per-species, or a disorder parameter. **No degeneracy
+factor appears anywhere and it gives no DOS at all** — it goes straight from
+`n` to `C_q`.
+
+> **The comparison is blocked not by disagreement but by the source having
+> left a symbol undefined and delegated it to a citation.** There is no stated
+> convention to convert; the residue stands and both figures stay in the record.
+
+What the reading *did* settle, in the measurement's favour. Their Eq. (3),
+
+```
+C_q(φ_s) = (C_q,min² + 2h²)/√(C_q,min² + h²),      h = C_q,var/2
+```
+
+returns `C_q,min` **bitwise** at `φ_s = 0`, tends to `C_q,var` to twelve
+digits when that dominates, and is therefore a **smooth max and not a sum**.
+Its excess over pure max is maximal exactly where the two terms are **equal**:
+
+```
+sup C_q/max(C_q,min, C_q,var) = 1.5/√1.25 = 3/√5 = 1.341640786
+```
+
+measured at `C_var/C_min = 1.000000` over 200 001 points against that closed
+form.
+
+**(a) The literature applies `n₀` twice itself** — Eq. (2) floors `C_q`,
+`n = √(n₀² + n*²)` floors the density, no temperature anywhere. So this is a
+comparison between two **allocations** of regularisers to quantities, not
+between a model that double-counts and one that does not. This thesis spends
+`kT` on `C_q` and `n₀` on `n`; the source spends `n₀` on both.
+
+**(b) And yesterday's intuition was right about *where* the worst case is and
+wrong about *how big*.** A smooth-max composition is furthest from pure max
+exactly when its terms are equal — precisely the condition §9 identified at
+this `n₀` and this `T`. That reasoning was sound. But the excess there is
+**+34.164 %**, and this thesis sits at **+2.5262 %** because its terms are
+2.30:1 rather than 1:1.
+
+> **A quadrature-composed regulariser pair cannot exceed the larger of its two
+> terms by more than 34.2 %. The "factor 2" was unreachable in principle, not
+> merely unmeasured.**
+
+An upper bound on the whole class of error the item named, derived from the
+*source's* composition law rather than this thesis's — and quoted as context
+for the item's estimate, not as a bound on this thesis's own nested spelling,
+whose +2.5262 % is measured.
+
+Also: the source's fitted **`n₀ = 1.2e16 m⁻²` is 2.4×** this thesis's
+`n_puddle = 5e15`. A second literature anchor on the standing `n_puddle`
+question, pointing the same way as §4.6.7's: this floor may be **low**.
+
+### 5. Item 17 amended again — and this time the amendment is to the null
+
+Item 17's prescribed form reports combined/(sum of separate) and flags any
+departure from 1. Today's pair gives **0.7148** against that null, a departure
+of 28.5 %, which it would flag as a large interaction. **It is not one.**
+Against `max(alone)` the same measurement is **1.0253**, a departure of 2.53 %.
+
+> **A two-knob check must state which composition law it is testing against,
+> because the same numbers read as a 28.5 % interaction or a 2.5 % one
+> depending on a null that was never chosen explicitly.**
+
+Three requirements now, still unbuilt as a sweep: report the ratio, run it at
+the model's own operating point, name the null.
+
+### 6. And the module's first draft failed its own substitutability check
+
+Recorded because the ordering is new: the check was written **before** the
+measurement, not during a neutrality pass afterwards — the first time that
+ordering has held here.
+
+Draft 1 built its switches on `graphene_diffusion_current_model`'s literal
+`E_CHARGE`/`HBAR` while `quantum_capacitance()` uses `scipy`'s, and reproduced
+the shipped `carrier_density(2.0)` only to **2375 ulp**. **Eighth** instance of
+the 2026-10-09 rule; **second** with a physical constant.
+
+The repair is 2026-10-11's repair and not a better transcription: each switch
+**substitutes one shipped name** — `gfet._thermal_rounding`, `gfet.n_puddle` —
+and leaves the rest of the call path as shipped code, so form A agrees with
+the shipped function at **0 ulp** by construction rather than by care. One
+arrival counter per patched name, each checked at a call that reads that name.
+
+One caveat kept in the output rather than smoothed over: the `T → 0`
+validation reports **exactly** zero departure, which is *weaker* than `1e-16`
+would be, because at `η ~ 10⁷` the term `2·log1p(exp(−η))` underflows to
+exactly `0.0` and the two expressions reduce to the same floating-point
+operations. The informative version of that check is §4.6.10's 60-digit
+adjudication at moderate `η`.
+
+### 7. Environment and automation health
+
+22/22 checks in the new module; `graphene_quantum_capacitance_argument.py`
+re-run after annotation, 20/20 and the check set unchanged against its
+committed transcript. Nothing deleted anywhere: yesterday's §9 numbers, item
+18's premise text and item 17's two earlier forms are all annotated in place.
+
+**Not yet covered (candidates for future runs):**
+
+- **FLIP THE DEFAULT TO `B_T`** — item 16, open, and now **unblocked on both
+  sides**. Costed on the right form (−2.2659 % raw, −1.0212 % after the floor,
+  no verdict moved), its blocking defect gone since 2026-10-11, and the item
+  that was ranked in front of it closed today. It needs a session of its own
+  for transcript regeneration across Chapters 4, 5 and 6. **Ranked first:
+  nothing is now in front of it.**
+- **WHAT `n_puddle` ACTUALLY MEANS** — promoted today from "deliberately not
+  an item" to the top *physics* question on this list after the top one.
+  Reached from three directions now: §4.6.7's floor being 2.07× Chapter 3's,
+  item 18's literature use of the same symbol for DOS broadening, and today's
+  fitted `1.2e16 m⁻²` at 2.4× this thesis's value. The cheapest route in is
+  the two references the Southampton paper delegates `n₀` to, which were not
+  followed today.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — created today. Form
+  B_T with `floor_in_cq=True` was built to *measure* the double count, and
+  whether it is the right physics was never asked. It is the same unexamined
+  question as the one above, from the model's side: the DOS should be evaluated
+  at the density the channel has, and whether the puddle density is part of
+  that density is exactly what "what `n_puddle` means" decides. Costed at
+  +0.1527 % in `n`, so it is cheap to flip and cheap to leave.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched.
+  Fermi–Dirac integrals have never been compared against `ln(2(1+cosh η))` at
+  all. Today's smooth-max finding is a reason to expect the comparison to be
+  small: the rounding form is itself a smooth max between `kT ln4` and `|V|`.
+- **BUILD ITEM 17 AS A SWEEP** — now carrying **three** requirements and two
+  worked instances, still no sweep over committed numbers. The third
+  requirement (name the null) arrived today and is the one that changes what
+  the sweep must *report*, not just where it must run.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, now **seven
+  sessions overdue**. Today adds a seventh worked instance from the other
+  direction: a validation whose departure was *exactly* zero, which looked
+  stronger than a 1e-16 and was weaker.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **untouched for a sixth session**, and today produced its first instance
+  outside its own stated scope: a ratio read as a magnitude rather than used
+  as a criterion. The census as specified would not have caught it.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the fourth session;
+  still the cheapest open physics item.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for a
+  third session.
+- **MECHANISE the magnitude item** — created 2026-10-03, seven sessions
+  overdue; items 15 and 17 subsume parts of it.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for a fourth
+  session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** — still
+  expressible and unverified, untouched for a fourth session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item in the thesis, and now
+  **untouched for TWENTY-TWO consecutive sessions**. Today was again a
+  numerics-and-method session, with one literature fetch that served the
+  numerics rather than the physics. §7.7's unequal-scrutiny finding gained a
+  seventh instance today and this is the standing one.
+
+**Commits this run:** 3 (the module with its transcript and figure; §4.6.11
+with items 17 and 18 annotated and yesterday's §9 annotated in place; the
+literature reading with the smooth-max bound, §4.6.11(f) and the notes file).
+This AUTOMATION_LOG.md entry makes **4**.
