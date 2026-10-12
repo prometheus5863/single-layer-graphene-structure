@@ -768,6 +768,40 @@ def main():
           '(n0 two orders lower) or at 4 K, where the conventions diverge.'
           % (n0_equal, n0_equal / gfet.n_puddle, T_equal, T_equal / gfet.T))
 
+    # ANNOTATION 2026-10-12, Section 7.9 item 18 COSTED AND CLOSED
+    # (graphene_double_regularisation.py, 19/19; thesis Section 4.6.11).
+    # Every number printed above stands and none of it is deleted, but TWO
+    # of its readings do not survive being costed.
+    #
+    #  (a) 'applying both -- as this thesis does -- overcounts C_q at the
+    #      Dirac point by about a factor 2' is FALSE for the committed
+    #      model.  The two regularisers reach DISJOINT quantities: C_q's
+    #      argument in (4.29) is dV and dV is never floored, so n_puddle
+    #      cannot reach C_q; and n_eff = (C_ox*dV/e)*f(C_q) has dV as a
+    #      FACTOR, so n_eff(0) = 0.0 bitwise under every C_q convention and
+    #      the thermal rounding cannot reach the Dirac-point density.  In the
+    #      one spelling where both DO reach C_q -- form B_T with the floor
+    #      inside the argument -- the cost is +2.5262 %, not a factor 2,
+    #      because regularisers entering through a monotone function of a
+    #      quadrature sum compose MAX-LIKE (both/max = 1.025262).  The
+    #      factor 2 was the RATIO OF THE TWO ALTERNATIVES, which prices
+    #      choosing wrongly between them rather than applying both.
+    #
+    #  (b) the ratio 1.1509 is measured against a floor spelled with HALF
+    #      this thesis's own degeneracy convention.  graphene's
+    #      D(E) = 2|E|/(pi hbar^2 v_F^2) carries g = 4 and gives
+    #      C_Q(n) = 2e^2 sqrt(n)/(sqrt(pi) hbar v_F) = 2e sqrt(n)/A_F, of
+    #      which cq_floor above is EXACTLY half (0.000 ulp from 1/2 with one
+    #      consistent hbar).  On this thesis's own convention the ratio is
+    #      2.3018 and 'the same size' weakens to 'the same order'.  1.1509 is
+    #      kept as printed because which spelling is right depends on what n0
+    #      denotes in the source, which is a question for the literature.
+    #
+    #  (c) and cq_floor's hand-entered 1.054571817e-34 is the SAME literal
+    #      A_FERMI carries, so the comparison above was internally
+    #      consistent; mixing scipy's hbar in instead moves it by +6.13e-10
+    #      relative and degrades the exact factor 2 in (b) to ~3e-10.
+
     print()
     print('SECTION 8.  FIGURE')
     print('-' * 78)

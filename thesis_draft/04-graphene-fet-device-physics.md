@@ -1765,6 +1765,210 @@ therefore not a reason to install it**; being finite where the other is not is
 the only reason, which is the only reason item 13 ever gave. The claim stops
 there.
 
+### 4.6.11 The double regularisation, costed: the two regularisers never meet in (4.29), and where they do they compose max-like
+
+Section 7.9 **item 18** was created 2026-10-11 out of a literature reading,
+not out of an internal audit, and it was ranked **first** on the next-run list
+because it was the only open item that could change a *physical* claim rather
+than a numeric one. Its premise was that this chapter regularises `C_q` at
+neutrality with temperature *and* regularises `n` with the disorder density
+`n_puddle`, that at this operating point the two are the same size, and that
+applying both therefore double-counts one physical effect by about a factor 2.
+
+Costing it closes it, and it closes by having been **wrong twice over**. The
+measurement is `graphene_double_regularisation.py`; machine output
+`double_regularisation_output.txt` (19 checks, 19 passed); figure
+`double_regularisation.png`.
+
+#### (a) In the committed relation the two regularisers are disjoint
+
+The premise "this thesis applies both" is false for (4.29), and the reason is
+structural rather than numerical.
+
+`C_q`'s argument in (4.29) is the gate overdrive `dV`, and `dV` is never
+floored. `n_puddle` enters only the final quadrature step
+`n = √(n_eff² + n_puddle²)`, which happens *after* `C_q` has been evaluated.
+So **the disorder regulariser cannot reach `C_q` at all** in the committed
+form.
+
+The converse is the sharper half. The induced charge is
+
+```
+n_eff = (C_ox·dV/e) · f(C_q),      f(C) = C/(C + C_ox) ∈ (0,1)
+```
+
+and `dV` appears as a **factor**. At `dV = 0` the product is zero whatever
+`f` returns, because `f` is bounded. Measured on the shipped function with
+four different `C_q` conventions substituted — the thermal rounding, the T = 0
+dispersion, the Southampton disorder floor, and this thesis's own
+`C_Q(n_puddle)` — `n_eff(0)` is **`0.0` bitwise in all four**, and
+`carrier_density(V_dirac)` returns **exactly** `n_puddle`
+(`5000000000000000.0`, difference `0.0`). So **the thermal regulariser cannot
+reach the Dirac-point density at all.**
+
+Both halves are checked against *exactly-known* values — `0.0` and
+`n_puddle` — and not against a tolerance. That matters here for the reason
+2026-09-17 established and §4.6.10 restated: a plausible-range check on these
+quantities would have passed under either premise.
+
+> **What the committed model does is apply exactly one regulariser to each of
+> two different quantities. That is a reuse of one parameter for two jobs — a
+> modelling choice to defend — and not a double count, which is an arithmetic
+> error.**
+
+Item 18 was created by comparing two *literature forms* without first asking
+which quantity each term in **this** model reaches. The generalisable form:
+a cross-model comparison establishes that two conventions exist; it does not
+establish that one model contains both.
+
+#### (b) The spelling that does double-count, and its size
+
+There is one spelling in which both regularisers reach the same quantity.
+Item 16's correction (form B_T, §4.6.9) makes `C_q` a function of `E_F(n)`;
+place the floor **inside** that argument,
+
+```
+C_q = C_q( E_F( √(n² + n_puddle²) ) / e ),
+```
+
+and the capacitance now carries the thermal rounding and the disorder floor
+at once. This is the most double-counting spelling available, and it is
+arguably the *consistent* one: the channel's density of states should be
+evaluated at the density the channel has.
+
+Measured at the Dirac point, in form B_T:
+
+| | thermal OFF (T = 0) | thermal ON |
+|---|---|---|
+| floor outside `C_q` | 0.000000000e+00 | 8.437398908e-03 |
+| floor inside `C_q` | 1.942158579e-02 | **1.991221401e-02** |
+
+| composition | value |
+|---|---|
+| both / max(alone) | **1.025262** |
+| both / (sum of increments) | 0.714750 |
+| thermal **on top of** the floor | **+2.5262 %** |
+| floor **on top of** thermal | +135.9994 % |
+
+The double count is **+2.5262 %** in `C_q(0)`. It is not a factor 2.
+
+> **The "factor 2" was the ratio of the two candidate values. That ratio is
+> the cost of *choosing wrongly* between the conventions. It is not the cost
+> of *applying both*.**
+
+Those are different quantities and only one of them was the item. Reading one
+for the other is the 2026-10-06 backlog item — *census every criterion that is
+a ratio* — in its **first instance where the ratio was not a criterion but an
+estimate of a magnitude**. The item has been open five sessions as a question
+about verdicts; it turns out to have been a question about magnitudes too.
+
+And the reason the two do not add is worth stating as a rule, because it is a
+property of regularisers and not of these two:
+
+> **Two regularisers that enter through a monotone function of a quadrature
+> sum compose max-like, not additively: the larger swallows the smaller.**
+
+Here `max(8.44e-03, 1.94e-02) = 1.94e-02` and `both = 1.99e-02`, which is
+2.53 % above pure max and 28.5 % *below* the additive null.
+
+#### (c) What it costs downstream, at the model's own biases
+
+Item 17's second requirement — run a two-knob check at the model's own
+operating point, not at a reference that inflates it — applied here:
+
+| `ΔV` | neither | thermal | disorder | both | both/max |
+|---|---|---|---|---|---|
+| 0 V | 5.000000e+15 | 5.000000e+15 | 5.000000e+15 | 5.000000e+15 | 1.000000 |
+| 1.2 V | 5.730515e+15 | 5.732955e+15 | 5.741244e+15 | 5.741709e+15 | 1.000081 |
+| 2.7 V | 8.085749e+15 | 8.087032e+15 | 8.095579e+15 | 8.096222e+15 | 1.000079 |
+
+At the Dirac point **all four conventions agree bitwise**, because every one
+of them is overwritten by the quadrature floor on the *result*. The quantity
+item 18 was created to protect is the one quantity in the model that cannot
+move. `σ_min` is identical to the last bit in all four
+(`3.204353268e-04` S/sq): it is `n_puddle·e·μ` and nothing else, so **no
+committed conductivity, resistance or on/off number in Chapters 4, 5 or 6 is
+exposed to item 18 at neutrality.**
+
+At the RF bias the whole double count is worth **+0.1527 %** in `n`, against
+−1.0212 % for item 16 itself and −0.60 % for the exact charge relation. Item
+18 is **real but small, and it is smaller at the operating point than at
+neutrality** — the opposite of how it was ranked when it was created, and the
+second time in two sessions that a cost estimate has been found to price
+something other than the repair it named (§4.6.9's lesson, one level up).
+
+#### (d) The floor's own spelling carries an exact factor 2
+
+One finding sharpens the comparison rather than the cost, and it is the reason
+yesterday's ratio should not be read as settled. The Southampton floor is
+
+```
+C_q,min = e²√n₀ / (√π·ħ·v_F)
+```
+
+while graphene's density of states, `D(E) = 2|E|/(π ħ² v_F²)`, carries the
+spin–valley degeneracy `g = 4` and gives this thesis's own T = 0 capacitance
+
+```
+C_Q(n) = e² D(E_F) = 2e²√n / (√π·ħ·v_F) = 2e√n / A_F.
+```
+
+**The literature floor is exactly half this thesis's own `C_Q` at the same
+density** — measured at **0.000 ulp from ½** with one consistent `ħ`. It is a
+convention difference, not a numerical one. Whatever its origin — a
+per-species `n₀`, a bilayer convention, a different definition of the residual
+density — it is not a quantity that can be compared against this thesis's `kT`
+before the factor is fixed.
+
+The consequence for yesterday's number: the ratio **1.1509** is `kT` against
+the *halved* spelling. On this thesis's own degeneracy convention it is
+**2.3018**, and the claim "disorder and temperature regularise `C_q` equally
+at this operating point" weakens from *the same size* to *the same order*.
+
+**Yesterday's 1.1509 is not rewritten here, and §4.6.9(h) is annotated rather
+than corrected.** Both figures are reported, because which one is right
+depends on what `n₀` denotes in the source, and that is a question for the
+literature rather than for arithmetic. It is now the only open item on this
+list whose resolution requires reading rather than computing.
+
+#### (e) The module's first draft failed its own substitutability check
+
+Recorded because the check that caught it was written **before** the
+measurement rather than during a neutrality pass afterwards, which is the
+first time that ordering has held in this repository.
+
+Draft 1 built the two switches on `graphene_diffusion_current_model`'s literal
+`E_CHARGE` and `HBAR` while `quantum_capacitance()` uses `scipy`'s, and
+reproduced the shipped `carrier_density(2.0)` only to **2375 ulp**. That is
+the **eighth** instance of the 2026-10-09 rule and the second in which the
+substituted quantity was a *physical constant*.
+
+The repair is 2026-10-11's repair and not a better transcription: each switch
+**substitutes one shipped name** — `gfet._thermal_rounding` for the thermal
+regulariser, `gfet.n_puddle` for the disorder one — and leaves every other
+operation in the shipped call path. Form A reached through the switches is
+then the shipped function, and agrees with it at **0 ulp** by construction
+rather than by care. One arrival counter per patched name, each checked at a
+call that reads that name (§4.6.10's sixth repair).
+
+One caveat is recorded in the output rather than smoothed over: the T → 0
+validation reports a departure of *exactly* zero, which is weaker than
+`1e-16` would be. At `η ~ 10⁷` the term `2·log1p(exp(−η))` underflows to
+exactly `0.0`, so the two expressions reduce to the same floating-point
+operations. The informative version of that check is at moderate `η`, where
+§4.6.10 already adjudicates the identity against 60-digit arithmetic.
+
+#### (f) What survives
+
+Not a double count. What survives is the **reuse of one parameter for two
+jobs**: `n₀` buys the density-of-states broadening in the literature and the
+carrier floor here, and this thesis has never stated which of the two it means
+`n_puddle` to be. That is the standing `n_puddle` question — §4.6.7 reached it
+from the disorder floor being 2.07× Chapter 3's, and item 18 reaches it from
+the opposite direction — and it is still deliberately not an item, because
+changing `n_puddle` moves committed numbers in three chapters and the case for
+changing it has not been made.
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent

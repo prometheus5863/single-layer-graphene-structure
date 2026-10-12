@@ -1402,6 +1402,21 @@ Stated as falsifiable items, in order of how much they would move:
    check must be run at the model's own operating point. Still unbuilt as a
    sweep over every committed number; it now has one worked instance and two
    requirements.
+   **AMENDED AGAIN 2026-10-12 (§4.6.11(b)), on its second use, and the
+   amendment is to the null rather than to the statistic.** The prescribed
+   form reports combined/(sum of separate) and flags any departure from 1.
+   Today's pair — the thermal rounding and the disorder floor, both
+   regularising `C_q` at neutrality — gives **0.7148** against the additive
+   null, a departure of 28.5 %, which the check would flag as a large
+   interaction. It is not one. Regularisers entering through a monotone
+   function of a quadrature sum **compose max-like**, so the additive null is
+   simply the wrong null for them: against `max(alone)` the same measurement
+   is **1.0253**, a departure of 2.53 %, which is the honest size.
+   **A two-knob check must therefore state which composition law it is testing
+   against, because the same numbers read as a 28.5 % interaction or a 2.5 %
+   one depending on a null that was never chosen explicitly.** Three
+   requirements now, and still unbuilt as a sweep: report the ratio, run it at
+   the model's own operating point, and name the null.
 18. **Costing the double regularisation of `C_q` at neutrality** (added
    2026-10-11, §4.6.9(h); the first item on this list to arrive from a
    *literature* source rather than from an internal audit). A second,
@@ -1425,6 +1440,52 @@ Stated as falsifiable items, in order of how much they would move:
    easy to miss. Related to, and partly the other side of, the uncosted third
    knob §7.10 now names: the rounding *form* itself has never been compared
    against Fermi–Dirac integrals.
+
+   **COSTED AND CLOSED 2026-10-12 (§4.6.11). The item was wrong twice over,
+   and the premise above is annotated rather than deleted.**
+   (i) **The committed model does not double-count at all.** The two
+   regularisers reach *disjoint* quantities. `C_q`'s argument in (4.29) is
+   `dV`, and `dV` is never floored, so `n_puddle` cannot reach `C_q`;
+   conversely `n_eff = (C_ox·dV/e)·f(C_q)` has `dV` as a **factor** and
+   `f ∈ (0,1)`, so `n_eff(0) = 0.0` **bitwise** under all four `C_q`
+   conventions tried and `carrier_density(V_dirac)` is **exactly**
+   `n_puddle` — the thermal rounding cannot reach the Dirac-point density.
+   Applying one regulariser to each of two quantities is a **reuse of one
+   parameter for two jobs**, a modelling choice to defend; it is not a double
+   count, which is an arithmetic error. The item was created by comparing two
+   *literature forms* without first asking which quantity each term in **this**
+   model reaches.
+   (ii) **In the one spelling that does double-count the cost is +2.5262 %,
+   not a factor 2.** Form B_T with the floor inside `C_q`'s argument gives
+   `C_q(0) = 1.991221e-02` against 1.942159e-02 for disorder alone and
+   8.437399e-03 for thermal alone: **both/max = 1.025262**, both/sum =
+   0.714750. **Two regularisers entering through a monotone function of a
+   quadrature sum compose max-like, not additively** — the larger swallows the
+   smaller. The "factor 2" above was the **ratio of the two alternatives**,
+   which prices *choosing wrongly between* them and not *applying both*. First
+   instance of the 2026-10-06 ratio item in which the ratio was not a
+   criterion but an estimate of a magnitude. Downstream: **+0.1527 %** in `n`
+   at the RF bias, **0.0000 %** at the Dirac point (bitwise in all four
+   conventions), and `σ_min` identical to the last bit — so **no committed
+   conductivity, resistance or on/off number in Chapters 4, 5 or 6 is exposed
+   to this item at neutrality.** It is real but small, and smaller at the
+   operating point than at neutrality, which is the opposite of how it was
+   ranked.
+   (iii) **And the floor carries an exact factor 2 of its own.** The
+   Southampton `C_q,min = e²√n₀/(√π·ħ·v_F)` is **exactly half** this thesis's
+   own DOS-exact `C_Q(n₀) = 2e²√n₀/(√π·ħ·v_F) = 2e√n₀/A_F` — **0.000 ulp from
+   ½** with one consistent `ħ` — because graphene's `D(E) = 2|E|/(π ħ² v_F²)`
+   carries the `g = 4` spin–valley degeneracy and the literature form does
+   not. So the ratio **1.1509** above is measured against the halved
+   spelling; on this thesis's own convention it is **2.3018** and "the same
+   size" weakens to **"the same order"**. The 1.1509 is **not** rewritten,
+   because which spelling is right depends on what `n₀` denotes in the source
+   — making this the only item on this list whose residue is resolved by
+   *reading* rather than by computing.
+   What survives is not a double count but the standing `n_puddle` question,
+   now reached from two opposite directions (§4.6.7 from the floor being
+   2.07× Chapter 3's, item 18 from the literature's use of the same symbol for
+   DOS broadening).
 
 ---
 
