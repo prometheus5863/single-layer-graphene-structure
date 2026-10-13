@@ -1,0 +1,167 @@
+==============================================================================
+ITEM 16's BLAST RADIUS: the contact model was never in the circuit
+==============================================================================
+
+C_ox        = 3.836815e-04 F/m^2   (90 nm SiO2 back gate)
+C_interface = 2.529768e-02 F/m^2   (3.5 Angstrom vacuum gap)
+ratio C_interface/C_ox = 65.9341
+
+------------------------------------------------------------------------------
+0.  THE INSTRUMENT IS NOT THE PERTURBATION (identity-patch pass)
+------------------------------------------------------------------------------
+
+Every binding below is wrapped with a counting wrapper that calls
+the shipped function and returns its value unchanged.  If any
+number moves by one bit, the counts in Sections 1-2 are measuring
+the wrapper and not the code.
+
+  [PASS] identity wrappers: all 7 n_contact bit-identical (0 ulp)
+         worst departure 0.0 ulp
+  [PASS] identity wrappers: n(3.5 V) bit-identical
+         ulp 0.0
+  [PASS] identity wrappers: C_q(1.2 V) bit-identical
+         ulp 0.0
+  [PASS] identity wrappers: all 4 R_extra bit-identical
+  [PASS] identity wrappers: cd.quantum_capacitance WAS reached (control)
+         11 arrivals -- so a zero in Section 1 is a hole, not a dead path
+
+  arrivals under the identity patch:
+    cd.quantum_capacitance               11
+    crx.carrier_density                   0
+    gfet.carrier_density                  1
+    gfet.quantum_capacitance              2
+
+------------------------------------------------------------------------------
+1.  THE HOLE: on_consistent_argument() never reaches the contact model
+------------------------------------------------------------------------------
+
+  [PASS] the contact model's charge path IS live under the patch (control)
+         11 calls to cd.quantum_capacitance
+  [PASS] of those 11 calls, arrivals at the CORRECTED function == 0 EXACTLY
+         0 corrected arrivals -- on_consistent_argument() rebinds gfet.quantum_capacitance, and cd holds its own import-time reference
+  [PASS] and consequently every n_contact is UNCHANGED, bitwise
+  [PASS] and every Section 4.7 R_extra is UNCHANGED, bitwise
+
+  The harness rebinds gfet.quantum_capacitance.  The contact model
+  holds its own reference, bound at import time, and keeps calling
+  the uncorrected function.  Nothing errors; the numbers simply do
+  not move, and a cost table built this way reads that as "the
+  contact model is insensitive to the argument".  It was absent.
+
+------------------------------------------------------------------------------
+2.  AND CHAPTERS 5 AND 6 ARE NOT IN THE CIRCUIT EITHER
+------------------------------------------------------------------------------
+
+  "Flipping it moves every committed number in Chapters 4, 5 and 6"
+  (AUTOMATION_LOG 2026-10-11 Section 7).  Measured, not read:
+
+    Ch5 interconnects: summary_numbers()                  0 charge-path arrivals
+    Ch5 interconnects: self_check_parallel_limit()        0 charge-path arrivals
+    Ch6 collection: summary_numbers()                     0 charge-path arrivals
+    Ch6 collection: modeled_eqe_by_metal()                0 charge-path arrivals
+    Ch6 signed-carrier: doping_type_table()               0 charge-path arrivals
+    Ch6 signed-carrier: symmetric_pair_table()            0 charge-path arrivals
+    Ch6 signed-carrier: asymmetric_pair_table()           0 charge-path arrivals
+    Ch6 two-contact: symmetric_vs_single_contact_table()  0 charge-path arrivals
+    Ch6 two-contact: asymmetric_pair_table()              0 charge-path arrivals
+  [PASS] Chapters 5 and 6: total charge-path arrivals == 0 EXACTLY
+         0 arrivals -- Chapter 5 imports nothing from the charge model and Chapter 6 imports only mu, METAL_WORK_FUNCTIONS, W_GRAPHENE, lambda_decay
+
+------------------------------------------------------------------------------
+3.  THE SOLVER, VALIDATED AGAINST EXACTLY KNOWN VALUES
+------------------------------------------------------------------------------
+
+  [PASS] (a) C_s = C_ox reproduces committed form B_T at dV = 1.2 V to 1e-8
+         relative gap 2.9667e-11 (1.664e+05 ulp) -- NOT 0 ulp, and the residue is the constants gap of (g), not the solve
+  [PASS] (a2) the SOLVER is qca._fixed_point itself: same C_q -> 0 ulp
+         ulp 0.0
+  [PASS] (b) reproduces 2026-10-11's -1.0212 %% in n at V_g = 3.5 V
+         measured -1.021162 %  (committed -1.0212 %)
+  [PASS] (c) zero null: n_contact(dWF = 0) == 0.0 EXACTLY, form A
+         got -0.0
+  [PASS] (c) zero null: n_contact(dWF = 0) == 0.0 EXACTLY, form B_T
+         got -0.0
+  [PASS] (d) electron/hole antisymmetry bitwise, form A
+         ulp 0.0
+  [PASS] (d) electron/hole antisymmetry bitwise, form B_T
+         ulp 0.0
+  [PASS] (e) large-C_s limit: departure falls by ~10x per decade of C_s (first order in C_q/C_s)
+         gaps 5.251e-04, 5.254e-05, 5.255e-06 ; decade ratios 9.9933, 9.9993 ; C_q/C_s at 1e3 = 2.918e-04 against a measured gap of 5.251e-04
+  [PASS] (e2) the committed cosh spelling returns nan above some C_s (item 13, third sighting)
+         first nan at C_s = 100.0 F/m^2; C_interface = 2.5298e-02 is below it, and the fixed point's worst first-iterate eta in this session is 19.2 against the 710.476 overflow onset
+  [PASS] (f) fixed-point residual <= 1e-12 at all 7 work functions
+         worst 0.000e+00
+  [PASS] (g) the gfet/qca C_q gap is a CONSTANTS gap and is <= 1e-8 relative
+         worst 1.2254e-09 relative (9.477e+06 ulp); prefactor ratio qca/gfet = 1.000000001225439, i.e. the whole gap.  It is OUTSIDE the A->B_T comparison because both forms below call the shipped function.
+  [PASS] (h) contact patch arrival control: cd.quantum_capacitance reached
+         1 arrivals
+
+------------------------------------------------------------------------------
+4.  THE CORRECTION AT THE CONTACT EDGE, PER METAL
+------------------------------------------------------------------------------
+
+        WF(eV)     dV (V)     n_A (m^-2)    n_BT (m^-2)    change E_F/e (V)
+  Ti      4.33      0.170   1.644935e+16   1.541997e+16  -6.2578%    0.1449
+  Cr      4.50     -0.000  -0.000000e+00  -0.000000e+00        --    0.0000   (dWF = 0 exactly)
+  Cu      4.65     -0.150  -1.380517e+16  -1.314672e+16  -4.7696%    0.1338
+  Ni      5.04     -0.540  -7.111301e+16  -6.227844e+16 -12.4233%    0.2911
+  Au      5.10     -0.600  -8.034794e+16  -7.031424e+16 -12.4878%    0.3094
+  Pd      5.12     -0.620  -8.343500e+16  -7.300861e+16 -12.4964%    0.3152
+  Pt      5.65     -1.150  -1.660634e+17  -1.463454e+17 -11.8738%    0.4463
+
+  Range of the correction: 4.7696 % to 12.4964 %.
+  For comparison, the SAME correction in the channel at V_g = 3.5 V
+  is -1.0212 %.  The contact is 4.7x to 12.2x less forgiving.
+
+  Why, in one line: at the contact C_q/(C_q+C_s) runs 0.555-0.806
+  while in the channel at V_g = 3.5 V it is 0.999.  The channel's
+  small series factor is what attenuated item 16 by 0.451; the
+  contact has no such attenuation, and a wider dV to be wrong about.
+
+------------------------------------------------------------------------------
+5.  SECTION 4.7 UNDER THE CORRECTION -- AND THE Pd ROW
+------------------------------------------------------------------------------
+
+          Rc_meas    R_extra A  R_extra B_T    change       R_tr A     R_tr B_T
+  Cu        184.0      971.461      959.236  -1.2583%     -787.461     -775.236
+  Ni        470.0      830.462     1003.490 +20.8352%     -360.462     -533.490
+  Au        519.0      609.159      848.120 +39.2281%      -90.159     -329.120
+  Pd        584.0      533.051      787.276 +47.6925%       50.949     -203.276
+
+  Section 4.10's margin for the Pd row is 9.6 %% in R_extra.
+  The argument correction moves Pd's R_extra by +47.6925 %.
+
+  >>> SIGN FLIPPED: Pd.  The one positive residual in Table 4.7
+  >>> does not survive the correction.  Section 4.10 established
+  >>> that margin as a tolerance to INPUT error; it is consumed
+  >>> here by a KNOWN MODELLING error that was already in the
+  >>> code, and the additive decomposition now fails on 4 of 4
+  >>> metals rather than 3 of 4.
+
+  [PASS] Section 4.7 metal ORDERING by residual is preserved under B_T
+         A: Cu < Ni < Au < Pd   B_T: Cu < Ni < Au < Pd
+  [PASS] Section 4.5 n-type/p-type assignment unchanged for all 7 metals
+
+------------------------------------------------------------------------------
+6.  WHAT ITEM 16 ACTUALLY COSTS, RESTATED
+------------------------------------------------------------------------------
+
+  The 2026-10-11 table is not wrong about the numbers it contains.
+  It is incomplete, and incomplete in a way the harness could not
+  report, because the missing rows are the ones whose binding it
+  never reached.  Restated:
+
+    Ch4 channel (measured 2026-10-11, stands):  n -1.0212 %%, I_d -0.2530 %%
+    Ch4 contact (measured today, new):          n_contact -12.4964 to -4.7696 %
+    Ch4 Section 4.7 R_extra (new):              -1.2583 to +47.6925 %
+    Ch5 interconnects:                          0 arrivals, no change
+    Ch6 photodetectors:                         0 arrivals, no change
+
+  So the flip is a CHAPTER 4 operation, not a three-chapter one --
+  and inside Chapter 4 it reaches two models, not one.
+
+  figure written: contact_argument_blast_radius.png
+
+==============================================================================
+CHECKS: 24 passed, 0 failed
+==============================================================================
