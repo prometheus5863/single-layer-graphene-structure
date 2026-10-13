@@ -8159,3 +8159,236 @@ committed transcript. Nothing deleted anywhere: yesterday's §9 numbers, item
 with items 17 and 18 annotated and yesterday's §9 annotated in place; the
 literature reading with the smooth-max bound, §4.6.11(f) and the notes file).
 This AUTOMATION_LOG.md entry makes **4**.
+
+---
+
+## 2026-10-13 — The harness could not reach the second module, so the item ranked first was costed with half of Chapter 4 switched out
+
+**Target:** §7.9 **item 16**, ranked first since 2026-10-12, carrying the note
+that flipping the default "moves every committed number in Chapters 4, 5 and
+6 and needs its own session". This was that session. **The default is not
+flipped.** The blast radius was measured first, and the sentence is wrong in
+both directions: **smaller across the thesis, larger inside Chapter 4**, and
+inside Chapter 4 it reaches a verdict.
+
+`graphene_contact_argument_blast_radius.py`, **24/24**, with
+`contact_argument_blast_radius_output.txt` and its figure. Thesis §4.6.12,
+plus annotations in place to §4.7 and §4.10.
+
+### 1. The hole: a second module, holding its own import-time reference
+
+`qca.on_consistent_argument()` rebinds `gfet.carrier_density`,
+`gfet.quantum_capacitance` and `crx.carrier_density` — the third added
+2026-10-10 after exactly this class of fault. It does not rebind
+`graphene_contact_doping_model.quantum_capacitance`, bound at import time on
+that module's line 50 and called by `contact_edge_carrier_density()` on line
+105 as `quantum_capacitance(dV, T=T)` with `dV = -(W_metal - W_graphene)` —
+**the item 16 defect verbatim, in a second module, against a work-function
+potential instead of a gate overdrive**.
+
+Measured, not read from the source: under the patch that binding is reached
+**11 times** and **exactly 0** of those calls arrive at the corrected
+function. So **−2.2659 % raw, −1.0212 % in `n`, −0.2530 % in `I_d`** were all
+measured with §§4.5, 4.7 and 4.8 **switched out of the circuit**.
+
+> **Nothing errored and no number moved, which is the whole difficulty: a cost
+> table built through this harness reports a model that was ABSENT as a model
+> that is INSENSITIVE.**
+
+The 2026-10-10 delivery fault was repaired for `crx.carrier_density` and the
+sweep that found it was never re-run across the other modules. **A repair to
+one binding is not a repair to the class.**
+
+### 2. And Chapters 5 and 6 were never in the circuit at all
+
+Same counters, on **nine committed summary routines** —
+`graphene_interconnect_model.summary_numbers()` and
+`self_check_parallel_limit()`, the collection model's `summary_numbers()` and
+`modeled_eqe_by_metal()`, the signed-carrier model's three tables, the
+two-contact model's two. **0 charge-path calls between them.** Chapter 5
+imports nothing from the charge model; Chapter 6 imports `mu`,
+`METAL_WORK_FUNCTIONS`, `W_GRAPHENE`, `lambda_decay` — parameters, not the
+charge path.
+
+> **Item 16 is a Chapter 4 operation that reaches two models, not a
+> three-chapter one that reaches one.** The scope sentence was written from
+> the chapter list and never from a call graph.
+
+### 3. The correction at the contact is 4.7× to 12.2× the channel's
+
+`C_interface = ε₀/3.5 Å = 2.529768e-02 F m⁻²` is **65.93×** `C_ox`, and `C_q`
+is comparable to it rather than small against it: the series factor runs
+**0.555–0.806** at the contact against **0.999** in the channel at 3.5 V. The
+channel's near-unity factor is what attenuated item 16 by 0.451. And the
+potential is 0.15–1.15 V of work-function difference rather than a few hundred
+mV of overdrive — `E_F/e` lands at 0.315 V where `ΔV` is 0.620 V for Pd.
+
+| | Ti | Cu | Ni | Au | Pd | Pt |
+|---|---|---|---|---|---|---|
+| Δn_contact | −6.2578 % | −4.7696 % | −12.4233 % | −12.4878 % | **−12.4964 %** | −11.8738 % |
+
+against **−1.0212 %** in the channel. (Cr has `ΔW_F = 0` exactly and both
+forms return `-0.0`.)
+
+### 4. And it changes a verdict — the one §4.10 had already flagged as fragile
+
+§4.7 reports `R_transmission = Rc,measured − R_extra`, three negative and
+**only Pd positive** at **+50.949 Ω·µm** — the only evidence the additive
+decomposition might survive. §4.10's condition-number audit found that row
+**flips sign on a 9.6 % error in `R_extra`**, Cu's on 81.1 %.
+
+| | Cu | Ni | Au | Pd |
+|---|---|---|---|---|
+| ΔR_extra | −1.2583 % | +20.8352 % | +39.2281 % | **+47.6925 %** |
+| R_tr, form A | −787.461 | −360.462 | −90.159 | **+50.949** |
+| R_tr, form B_T | −775.236 | −533.490 | −329.120 | **−203.276** |
+
+**Five times the margin.** Under form B_T the additive decomposition fails on
+**4 of 4** metals.
+
+> **§4.10's 9.6 % was a margin against INPUT error. It is consumed by a
+> MODELLING error that was already in the committed code. "Pd is the fragile
+> one" was right about which row and wrong about what would break it.**
+
+Unchanged, and checked rather than assumed: the metal ordering by residual
+(Cu < Ni < Au < Pd under both forms) and the n/p type assignment for all
+seven metals. And the direction is the physical one — `n_contact` down means
+a less strongly doped, more resistive junction, so `R_extra` up; Cu is the
+exception at −1.26 % because its contact density sits *below* the 2.0e16 m⁻²
+bulk reference, so reducing it moves the profile toward the bulk.
+
+§4.7's conclusion is **strengthened**: a four-of-four failure fits its stated
+TLM double-count explanation better than three-of-four did.
+
+### 5. Three instrument defects found on the way, all kept in place
+
+**(a) This module's own first draft counted the wrong arrival.** It counted
+calls to the *name* `cd.quantum_capacitance` and asserted zero under the
+patch. They are 11 whether or not anything was substituted into that name.
+
+> **A control that counts calls to a NAME cannot see whether the right
+> FUNCTION is bound to it.** The counter has to live inside the replacement.
+
+**Ninth** instance of the 2026-10-10 rule, **second** in its "counts a
+different arrival from the one it gates" direction.
+
+**(b) Item 13's overflow is closed in the shipped function and open in the
+harness.** `qca.cq_thermal` is still the committed `ln(2(1+cosh η))` spelling
+and still overflows at `η = 710.4758`. A fixed point built on it takes the
+*electrostatic* density as its first iterate, and that iterate grows with the
+series capacitance — so the solver returns `nan` for any `C_s` above
+≈ 100 F m⁻². `C_interface` is 2.53e-02 and the worst first-iterate `η` here is
+**19.2**, so no number is affected. Item 13's lesson for a **third** time:
+*a defect unreachable from the device's operating range is reachable from a
+check on the device's model.* Form B_T is therefore built on the **shipped**
+`gfet.quantum_capacitance`, which also removes a **1.2254e-09** constants gap
+(prefactor ratio `qca/gfet = 1.000000001225439`) from the A→B_T comparison —
+so the two forms differ in the argument and in nothing else by construction,
+not by tolerance. **Ninth** instance of the 2026-10-09 substitutability rule,
+**third** with a physical constant.
+
+**(c) A tolerance chosen before the run failed.** The large-`C_s` limit check
+demanded independence to `1e-9` and measured `5.254e-04`. The limit is
+approached at **first order** in `C_q/C_s`, so no fixed tolerance states what
+it claims. Replaced by the **rate**: the departure must fall by ten per decade
+of `C_s`, measured **9.9933** and **9.9993**. **Item 15's eighth worked
+instance**, repaired the 2026-10-11 way — let the structure set the criterion.
+
+### 6. Validations against exactly known values
+
+The zero null at `ΔW_F = 0` (exactly `-0.0`, both forms); bitwise
+electron/hole antisymmetry `n(W_G+δ) = −n(W_G−δ)` at 0 ulp, both forms; an
+**identity-patch neutrality pass** in which every counted binding is wrapped
+with a wrapper that returns the shipped value and every number must be
+bit-identical — it is, so the counters in §§1–2 are not the perturbation;
+reproduction of 2026-10-11's **−1.0212 %** in `n` at 3.5 V to four decimals
+(−1.021162 %) through this session's own solver; and the solver proved to BE
+`qca._fixed_point` by giving 0 ulp against `qca.n_arg_EF_thermal` when handed
+qca's own `C_q`. The fixed-point residual is **0.000e+00** at all seven work
+functions.
+
+Every patch substitutes **one shipped name** and leaves the rest of the call
+path as shipped code: form A at the contact is the shipped
+`contact_edge_carrier_density()` with no patch at all, form B_T is the same
+function with `cd.quantum_capacitance` rebound, and the solver is
+`qca._fixed_point` run with `gfet.C_ox` substituted by `C_interface` — because
+`qca.series_factor` reads that name at call time, so the contact solve and the
+channel solve are literally the same function.
+
+### 7. Environment and automation health
+
+Device reachable and folder connected at the first firing. `pip install scipy`
+succeeded again (the device VM still lacks it). No web search was needed or
+attempted: today's work was entirely internal. The whole session ran **on the
+device VM**; nothing crossed the bridge. **Every commit was pushed and
+verified against the GitHub API before the next was written.** Nothing was
+deleted: §4.7's table, its "only Pd" sentence and §4.10's 9.6 % are all
+annotated in place.
+
+**Not yet covered (candidates for future runs):**
+
+- **FLIP THE DEFAULT TO `B_T`** — item 16, still open, still **ranked first**,
+  and now **correctly scoped for the first time**. Today removed the reason it
+  kept being deferred (nobody knew what it touched) and added two
+  preconditions nobody knew about: (i) `contact_edge_carrier_density()` must
+  flip in the SAME COMMIT as `carrier_density()`, or Chapter 4 holds a
+  corrected channel against an uncorrected contact; (ii) §4.7's prose and
+  §4.10's annotation need **rewriting, not re-running** — "only Pd gives a
+  small, plausible positive residual" becomes false. It is a Chapter 4
+  operation only: Chapters 5 and 6 are measured at 0 arrivals.
+- **SWEEP EVERY IMPORT-TIME BINDING OF EVERY PATCHED NAME** — created today,
+  and the generalisation of the only defect that has now appeared in three
+  modules. `crx.carrier_density` was repaired 2026-10-10 as a one-off;
+  `cd.quantum_capacitance` was found today by hand. The repo has four
+  module-level bindings of the two charge-path names and nobody has ever
+  enumerated the bindings of `sheet_conductivity`, `n_puddle`, `C_ox`, `mu`,
+  `lambda_decay` or `W_GRAPHENE`, any of which a future audit will want to
+  substitute. Cheapest route: an AST pass over every module, emitting the
+  binding table, with a test that every name a context manager rebinds has
+  ALL of its bindings rebound. **Ranked second**: it is what makes item 16's
+  flip verifiable rather than hopeful.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — created today out of
+  §4.6.12(f). A 12.5 % argument correction was found in a model that assumes a
+  vacuum-like 3.5 Å gap with no interface dipole layer and one
+  `lambda_decay = 250 nm` for every metal. Both are plausibly larger than
+  12.5 % and neither has ever been costed. §4.7 already names the second as a
+  candidate explanation for its negative residuals and left it open.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12, untouched.
+  Three directions converge on it (§4.6.7's floor at 2.07× Chapter 3's, item
+  18's literature use of the symbol for DOS broadening, and the fitted
+  1.2e16 m⁻² at 2.4× this thesis's value). Cheapest route in is the two
+  references the Southampton paper delegates `n₀` to, still not followed.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried from
+  2026-10-12, costed at +0.1527 % in `n`, cheap either way.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched for a
+  second session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances
+  (today's §4.7 table is the third: a two-form comparison run at the model's
+  own operating point with the null stated), still no sweep.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, now **eight
+  sessions overdue**, today carrying its eighth worked instance from today's
+  own check (e).
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  untouched for a **seventh** session.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the fifth session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for a
+  fourth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, eight sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for a fifth
+  session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** — untouched
+  for a fifth session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+- **A second anchor for `Δ_c`, at any separation other than 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item in the thesis, and now
+  **untouched for TWENTY-THREE consecutive sessions**. Today was a
+  scope-and-plumbing session with no literature fetch at all, which is the
+  §7.7 unequal-scrutiny finding in its purest form to date: a day spent
+  entirely on what the code does and none on whether the physics is anchored.
+
+**Commits this run:** 2 (the blast-radius module with its transcript and
+figure; §4.6.12 with §§4.7 and 4.10 annotated in place). This
+AUTOMATION_LOG.md entry makes **3**.
