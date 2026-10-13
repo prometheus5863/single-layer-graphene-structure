@@ -2036,6 +2036,193 @@ the opposite direction — and it is still deliberately not an item, because
 changing `n_puddle` moves committed numbers in three chapters and the case for
 changing it has not been made.
 
+### 4.6.12 Item 16's blast radius, measured: the contact model was outside the harness, Chapters 5 and 6 were never inside it, and Pd's residual does not survive
+
+Section 7.9 item 16 — "flip `quantum_capacitance()`'s argument from the gate
+overdrive to `E_F/e`" — has been ranked first since 2026-10-12, carrying the
+note that flipping it "moves every committed number in Chapters 4, 5 and 6 and
+needs its own session". This is that session, and it does not flip the
+default. It measures the blast radius first, and the blast radius is not what
+that sentence says. It is **smaller across the thesis and larger inside
+Chapter 4**, and inside Chapter 4 it reaches a verdict.
+
+`graphene_contact_argument_blast_radius.py`, 24/24,
+`contact_argument_blast_radius_output.txt`,
+`contact_argument_blast_radius.png`.
+
+#### (a) The harness that sized item 16 could not reach half of Chapter 4
+
+`graphene_quantum_capacitance_argument.on_consistent_argument()` rebinds three
+names: `gfet.carrier_density`, `gfet.quantum_capacitance`, and
+`crx.carrier_density` — the third added 2026-10-10 after exactly this class of
+fault. It does not rebind `graphene_contact_doping_model.quantum_capacitance`,
+which that module bound at import time on its line 50
+
+```python
+from graphene_fet_model import quantum_capacitance, sheet_conductivity, ...
+```
+
+and which `contact_edge_carrier_density()` calls on its line 105 with
+
+```python
+C_q = quantum_capacitance(dV, T=T)        # dV = -(W_metal - W_graphene)
+```
+
+— **exactly the defect item 16 names**, in a second module, against a
+work-function-induced potential instead of a gate overdrive.
+
+Measured rather than read from the source: under `on_consistent_argument()`
+that binding is reached **11 times**, and **exactly zero** of those calls
+arrive at the corrected function. Every cost ever quoted for item 16 —
+−2.2659 % in the raw charge, −1.0212 % in `n` at 3.5 V, −0.2530 % in `I_d`
+(Section 4.6.9(e)) — was therefore measured with Sections 4.5, 4.7 and 4.8
+**switched out of the circuit**.
+
+> **Nothing errored and no number moved, which is the whole difficulty: a cost
+> table built through this harness reports a model that was absent as a model
+> that is insensitive.**
+
+#### (b) And Chapters 5 and 6 were never inside it either
+
+The same counters, on nine committed summary routines —
+`graphene_interconnect_model.summary_numbers()` and
+`self_check_parallel_limit()`, the collection model's `summary_numbers()` and
+`modeled_eqe_by_metal()`, the signed-carrier model's three tables, the
+two-contact model's two — record **0 charge-path calls between them**.
+Chapter 5 imports nothing from the charge model. Chapter 6 imports `mu`,
+`METAL_WORK_FUNCTIONS`, `W_GRAPHENE` and `lambda_decay`: parameters, not the
+charge path.
+
+> **Item 16 is a Chapter 4 operation that reaches two models, not a
+> three-chapter one that reaches one.**
+
+#### (c) The correction is 4.7× to 12.2× larger at the contact
+
+The contact geometry is where the argument error is least forgiving, for two
+compounding reasons.
+
+`C_interface = ε₀/3.5 Å = 2.529768e-02 F m⁻²` is **65.93×** `C_ox`, and `C_q`
+is *comparable* to it rather than small against it: the series factor
+`C_q/(C_q + C_s)` runs **0.555–0.806** at the contact against **0.999** in the
+channel at `V_g = 3.5 V`. The channel's near-unity factor is what attenuated
+item 16 by 0.451 (Section 4.6.9, §7); the contact has no such attenuation.
+And the potential is a work-function difference of 0.15–1.15 V rather than a
+few hundred mV of overdrive, so the gap between `ΔV` and `E_F(n)/e` is wider
+to begin with — `E_F/e` lands at 0.315 V where `ΔV` is 0.620 V for Pd.
+
+| Metal | W_F (eV) | ΔV (V) | n_contact, form A (m⁻²) | form B_T (m⁻²) | change | E_F/e (V) |
+|---|---|---|---|---|---|---|
+| Ti | 4.33 | +0.170 | +1.644935e16 | +1.541997e16 | **−6.2578 %** | 0.1449 |
+| Cr | 4.50 | −0.000 | −0.000000e+00 | −0.000000e+00 | — (ΔW_F = 0 exactly) | 0.0000 |
+| Cu | 4.65 | −0.150 | −1.380517e16 | −1.314672e16 | **−4.7696 %** | 0.1338 |
+| Ni | 5.04 | −0.540 | −7.111301e16 | −6.227844e16 | **−12.4233 %** | 0.2911 |
+| Au | 5.10 | −0.600 | −8.034794e16 | −7.031424e16 | **−12.4878 %** | 0.3094 |
+| Pd | 5.12 | −0.620 | −8.343500e16 | −7.300861e16 | **−12.4964 %** | 0.3152 |
+| Pt | 5.65 | −1.150 | −1.660634e17 | −1.463454e17 | **−11.8738 %** | 0.4463 |
+
+Against **−1.0212 %** for the same correction in the channel.
+
+#### (d) And it changes a verdict — the one Section 4.10 said was fragile
+
+Section 4.7's Table reports `R_transmission = Rc,measured − R_extra` for four
+metals and finds three negative, i.e. unphysical, with **only Pd positive** at
++50.949 Ω·µm. Section 4.10's condition-number audit then found that this one
+positive row — the only evidence the additive decomposition might survive —
+**flips sign on a 9.6 % error in `R_extra`**, while Cu's would need 81.1 %.
+
+The argument correction moves Pd's `R_extra` by **+47.6925 %**, five times
+that margin.
+
+| Metal | Rc, measured | R_extra, form A | R_extra, form B_T | change | R_tr, A | R_tr, B_T |
+|---|---|---|---|---|---|---|
+| Cu | 184.0 | 971.461 | 959.236 | −1.2583 % | −787.461 | −775.236 |
+| Ni | 470.0 | 830.462 | 1003.490 | +20.8352 % | −360.462 | −533.490 |
+| Au | 519.0 | 609.159 | 848.120 | +39.2281 % | −90.159 | −329.120 |
+| Pd | 584.0 | 533.051 | 787.276 | **+47.6925 %** | **+50.949** | **−203.276** |
+
+> **Pd's residual does not survive the correction. Under form B_T the additive
+> decomposition fails on 4 of 4 metals rather than 3 of 4, and Section 4.10's
+> 9.6 % margin — computed as a tolerance to INPUT error — is consumed by a
+> MODELLING error that was already in the committed code.**
+
+Two things that do *not* move, and both were checked rather than assumed: the
+metal ordering by residual (Cu < Ni < Au < Pd under both forms) and the
+n-type/p-type assignment of Section 4.5 for all seven metals.
+
+Note the direction. `R_extra` goes **up** because `n_contact` goes **down**:
+a less strongly doped contact edge is a more resistive one, and the
+doping-profile integral of Section 4.5 integrates `1/σ(n(x))`. Cu is the
+exception at −1.2583 % because Cu's contact density (−1.38e16 m⁻²) is below
+the on-state bulk reference (2.0e16 m⁻²), so reducing it moves the profile
+*toward* the bulk over part of the junction.
+
+#### (e) Why the default is still not flipped
+
+Nothing here is an argument for keeping form A. It is an argument that the
+flip is a larger operation than the item said, and that two of its
+preconditions were discovered today rather than before:
+
+1. `contact_edge_carrier_density()` must be flipped **in the same commit** as
+   `carrier_density()`, or Chapter 4 will hold a corrected channel against an
+   uncorrected contact and Section 4.7 will mix the two.
+2. Section 4.7's text and Section 4.10's annotation both have to be rewritten,
+   not re-run: the prose reasons explicitly from "only Pd gives a small,
+   plausible positive residual", and that sentence becomes false.
+
+#### (f) What this section does not claim
+
+It does not claim form B_T is right. `E_F/e` is the argument the dispersion
+requires and the argument two independent literature lineages use (Sections
+4.6.9(h) and 4.6.11(f)), but the contact model's *other* approximations —
+a vacuum-like 3.5 Å gap with no interface dipole layer, a single
+`lambda_decay` for every metal — are untouched here and are plausibly larger
+than 12 %. What is claimed is narrower and is measured: **the two forms
+differ by 4.7–12.5 % at the contact, the harness that sized item 16 could not
+see that difference, and the difference is large enough to move a verdict
+Section 4.10 had already flagged as the fragile one.**
+
+It also does not claim the Pd flip is the *end* of Table 4.7's story. Under
+form B_T all four rows are negative, which strengthens rather than weakens
+Section 4.7's stated explanation — that TLM-extracted `Rc,measured` already
+absorbs part of the same near-contact region this model integrates
+separately. A four-of-four failure is more consistent with a double count
+than a three-of-four one was.
+
+#### (g) Two instrument defects found on the way, both kept in place
+
+**(i) This section's own first draft counted the wrong arrival.** It counted
+calls to the *name* `cd.quantum_capacitance` and asserted they would be zero
+under the patch. They are 11, whether or not anything was substituted into
+that name. The question is not whether the binding is reached but which
+function is behind it, and the counter has to live inside the *replacement*.
+**Ninth** instance of the 2026-10-10 rule, and the second in its "counts a
+different arrival from the one it gates" direction.
+
+> **A control that counts calls to a name cannot see whether the right
+> function is bound to it.**
+
+**(ii) Item 13's overflow is closed in the shipped function and open in the
+harness.** `qca.cq_thermal` is still the committed `ln(2(1+cosh η))` spelling,
+deliberately retained there, and still overflows at `η = 710.4758`. A fixed
+point built on it takes the *electrostatic* density as its first iterate, and
+that iterate grows with the series capacitance — so the solver returns `nan`
+for any `C_s` above ≈ 100 F m⁻². `C_interface` is 2.53e-02 and the worst
+first-iterate `η` in this session is **19.2**, so no number here is affected.
+But it is item 13's lesson a third time: *a defect unreachable from the
+device's operating range is reachable from a check on the device's model.*
+Form B_T is built here on the **shipped** `gfet.quantum_capacitance`
+accordingly — which also removes a **1.2254e-09** constants gap (prefactor
+ratio `qca/gfet = 1.000000001225439`) from the A→B_T comparison, so the two
+forms differ in the argument and in nothing else by construction.
+
+**(iii) And one tolerance chosen before the run failed.** The
+large-`C_s` limit check demanded `C_s`-independence to `1e-9` and measured
+`5.254e-04`. The limit is approached at **first order** in `C_q/C_s`, so no
+fixed tolerance states what it claims. Replaced by the rate — the departure
+must fall by ten per decade of `C_s`, measured **9.9933** and **9.9993**.
+**Item 15's eighth worked instance**, and the repair is 2026-10-11's: let the
+structure set the criterion.
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent
@@ -2071,6 +2258,25 @@ Rc (`graphene_contact_doping_model.recalibrate_metal_rc()`,
 | Au | 519.0 | 609.2 | **−90.2** |
 | Pd | 584.0 | 533.1 | +51.0 (~9% of total) |
 
+> **Annotation added 2026-10-13 (Section 4.6.12).** No number in the table
+> above is changed or retracted, and the four `R_extra` values remain the
+> committed ones. They are computed through
+> `contact_edge_carrier_density()`, which evaluates `C_q` at the
+> work-function potential rather than at `E_F/e` — the Section 7.9 item 16
+> defect, in a second module, and one that no measurement of item 16 had
+> reached because the harness rebinds `gfet.quantum_capacitance` while this
+> module holds its own import-time reference. Corrected, `R_extra` moves
+> −1.2583 % (Cu), +20.8352 % (Ni), +39.2281 % (Au), **+47.6925 % (Pd)**, and
+> **Pd's +51.0 becomes −203.276**: all four residuals are then negative. The
+> sentence below, "Only Pd gives a small, plausible positive residual", is
+> therefore **true of the committed model and false of the corrected one**,
+> and is left standing with this annotation rather than rewritten, pending
+> the item 16 flip. The ordering of the four metals and the n/p type
+> assignments are unchanged. The section's *conclusion* — that the additive
+> decomposition does not hold — is strengthened, not weakened: a
+> four-of-four failure is more consistent with the TLM double-count
+> explanation given below than a three-of-four one was.
+
 > **Annotation added 2026-09-22 (Section 4.10).** No number in the table
 > above is changed or retracted. A condition-number audit
 > (`graphene_sensitivity_audit.py`) finds that the four rows' **sensitivity
@@ -2083,6 +2289,14 @@ Rc (`graphene_contact_doping_model.recalibrate_metal_rc()`,
 > Section 4.10 gives the full margins and their consequence: the additive
 > decomposition fails robustly, and amplified input error is eliminated as
 > the cause of the negatives.
+>
+> *Amended 2026-10-13 (Section 4.6.12). The 9.6 % figure stands as computed
+> and is not revised. What this annotation did not know is that it is a
+> margin against INPUT error only, and that a known MODELLING error in the
+> same quantity already exceeds it by 5x: correcting `C_q`'s argument in
+> `contact_edge_carrier_density()` moves Pd's `R_extra` by +47.6925 %. The
+> sentence "Pd is the fragile one" was right; the fragility was realised by
+> the model and not by its inputs.*
 
 For three of the four metals, the computed doping-junction contribution
 **alone exceeds the entire measured lumped contact resistance**, which
