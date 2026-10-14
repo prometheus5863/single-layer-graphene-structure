@@ -8392,3 +8392,211 @@ annotated in place.
 **Commits this run:** 2 (the blast-radius module with its transcript and
 figure; §4.6.12 with §§4.7 and 4.10 annotated in place). This
 AUTOMATION_LOG.md entry makes **3**.
+
+---
+
+## 2026-10-14 — Three hand-found bindings were a rate; the class is a runtime object, and only 1 of 22 misses can fire
+
+**Target:** §7.9's **second-ranked** item, "sweep every import-time binding of
+every patched name", created 2026-10-13 on the stated ground that it is "what
+makes item 16's flip verifiable rather than hopeful". It is now largely
+closed, and it corrected a claim this session itself made four commits earlier.
+
+`graphene_import_binding_sweep.py` (**6/6**, with
+`import_binding_sweep_output.txt` and its figure) and
+`graphene_binding_class.py`. Thesis §4.6.13 (new), §7.9 item 19 (new), and an
+annotation to item 16.
+
+### 1. The exposure a hand-maintained list leaves behind
+
+An AST pass over all 53 modules: **149** module-level `from`-imports of
+repository names across **73** distinct `(owner, name)` pairs, of which **25**
+sites are left stale by the repository's **14** hand-listed rebinding sites.
+Three had been found by hand (2026-10-03, 2026-10-10, 2026-10-13). **Twenty-two
+had not.**
+
+Of the ten distinct stale bindings, **seven are measured USED** — the holder's
+own numbers move when only its local copy is perturbed:
+
+| stale binding | holder's own numbers move by | |
+|---|---|---|
+| `cd.quantum_capacitance` | **9.8781** (988 %) | USED |
+| `cd.n_puddle` | 35.764 % | USED |
+| `crx.carrier_density` | 27.007 % | USED |
+| `crx.W` | 27.007 % | USED |
+| `pcm.mu` / `psc.mu` / `ptc.mu` | 9.1743 / 5.3067 / 3.9039 % | USED |
+| `cd.mu`, `cd.C_ox`, `cd.W` | exactly 0 | never reach a number |
+
+> **The usedness measurement needs no manager to be entered, which is what
+> makes it applicable to the ten inline `try/finally` rebinding sites that
+> cannot be entered at all.**
+
+### 2. The repair: a computed class, not a longer list
+
+A list is exactly what was wrong all three times, so the mechanism had to stop
+being one. `from M import n` copies a **reference** at import time, so the set
+to rebind is the set of names that at runtime hold the same **object** —
+discoverable by identity, needing no import graph and no list.
+`graphene_binding_class.rebind()` computes it at entry and is installed at all
+three charge-path sites: `on_consistent_argument`, `on_exact`, and
+`graphene_potential_declaration.main`, which had no second line at all.
+
+**Behaviour unchanged, verified not asserted:** all three committed transcripts
+regenerate **byte-identically**, and each was confirmed byte-reproducible
+*before* the change, so the diff is a control and not a hope.
+
+### 3. The class is necessary and NOT sufficient — and 2026-10-13 said this wrongly
+
+`cd.quantum_capacitance` is deliberately **not** rebound. It is reached at a
+contact where the series capacitance is `C_interface`, **65.93×** `C_ox`, and
+the series factor runs **0.555–0.806** against **0.999** in the channel. The
+object the owner holds after item 16's flip solves for `n` against `C_ox`, so
+copying it to the contact installs a **channel solver at the contact** — a
+different wrong answer, not a repair.
+
+> **2026-10-13's precondition (i) — "`contact_edge_carrier_density()` must flip
+> in the SAME COMMIT as `carrier_density()`" — was written as though one object
+> served both. It does not. Item 16 needs TWO replacements, not one rebinding
+> done in one commit.**
+
+The exclusion lives once, in code, with its reason attached, and `rebind()`
+**refuses an exclusion without a stated reason** — an unstated exclusion is how
+all three 2026-10 faults were introduced.
+
+### 4. And the static count over-reports, which retires this session's own claim
+
+A miss needs the stale holder to be **imported in the patching process**.
+Measured per site in a **fresh interpreter**, so the audit's own imports cannot
+supply the answer: of the 22 remaining static misses the holder is **PRESENT
+for 1** and **ABSENT for 21**. `import graphene_velocity_saturation_model`
+brings in three repository modules and none of the four `mu` holders is among
+them. `graphene_potential_declaration` does not import
+`contact_resistance_crossover` at all.
+
+> **So this morning's commit calling that site "the 2026-10-10 fault
+> unrepaired in a third module" was WRONG ABOUT THIS REPOSITORY while right
+> about the shape. There was no stale binding to leave behind and no wrong
+> number.** The 25 is retained in place as an **upper bound**; the honest
+> standing is three independent axes — **PRESENT, USED, REACHED** — and nothing
+> currently in the repository clears all three. The sweep found a **landmine
+> count, not a defect count.** The one survivor,
+> `blast_radius.series_capacitance` leaving `cd.C_ox` stale, is also measured
+> UNUSED, so it is cosmetic as well.
+
+### 5. Four instrument faults, all four kept in place
+
+**(a) A repair that blinds its own audit is not a repair** — §7.5.4's "created
+by a fix" class in its purest form yet. Retrofitting `rebind()` made the three
+sites it repaired **invisible** to the sweep, whose only notion of a rebinding
+site was `alias.name = ...`, and validation (2) — which exists to keep
+2026-10-13's finding on the record — **failed while nothing was wrong**. The
+sweep now recognises both forms; the validation is rewritten to assert the same
+fact in the form the repair left it in, and its original no-silent-miss clause
+is kept rather than replaced.
+
+**(b) The planted-binding control failed on the instrument.** The module
+scanner skipped every file beginning with an underscore, so the sweep reported
+**zero** bindings in a file it had itself just created with one. **Fourth**
+occurrence here of a control failing on the instrument rather than on the thing
+measured.
+
+**(c) The identity control found a blind spot in the AST rule, and the rule was
+extended rather than the control dropped.** **Twelve** second-order *renaming*
+aliases (`dr.C_OX is gfet.C_ox`, `dr.N0_SHIPPED is gfet.n_puddle`,
+`psc.W_CROSS_VACUUM is cd.W_GRAPHENE`) are invisible to any rule reading import
+statements. What identity yields is not a directed edge but the **equivalence
+class** of names sharing one object — and for "what must a patch rebind", the
+class is the safe criterion and the import graph the unsafe one.
+
+**(d) The arrival counter carries a positive control, so LATENT is a
+measurement.** Both charge-path managers reach `cd` **zero** times under their
+own workloads — agreeing with 2026-10-13 — but a broken counter reads zero too.
+The same counter reads **exactly 7** when `cd` is exercised over its seven
+metals.
+
+### 6. Validations against exactly known values
+
+Six, all passing: 0 misses for the 2026-10-10 pair, and both managers now cover
+it by construction; 2026-10-13's finding surviving as a reasoned exclusion with
+zero silent misses; a planted binding found **1 / 1 / 2** (AST rule, transitive
+rule, identity — the import and the rename); identity-patch neutrality over
+**98** wrapped sites at **0 ulp**; the usedness instrument's own null, a
+perturbation by a factor of exactly 1.0, at **exactly 0**; and the arrival
+counter's positive control at **7 of 7**.
+
+### 7. Environment and automation health
+
+Device reachable and folder connected at the **first** firing; the two later
+firings will find both repositories already carrying today's entry and stop.
+`pip install scipy` succeeded again (the device VM still lacks it). **No web
+search was attempted** — today's work was entirely internal, which is the
+§7.7 unequal-scrutiny finding for a second consecutive session. The whole
+session ran **on the device VM**; nothing crossed the bridge. Every commit was
+pushed and **verified against the GitHub API** before the next was written.
+Nothing was deleted: the morning's 25 and its 27.0 % are both annotated in
+place.
+
+**Not yet covered (candidates for future runs):**
+
+- **FLIP THE DEFAULT TO `B_T`** — item 16, still open, still **ranked first**,
+  and its plumbing preconditions are now **discharged**. What is left is
+  exactly two things, both named: (i) `graphene_contact_doping_model` needs its
+  **own contact-correct replacement**, because today established that the
+  contact cannot take the channel's object — the flip is two replacements, not
+  one rebinding; (ii) §4.7's prose and §4.10's annotation need **rewriting**,
+  since "only Pd gives a small, plausible positive residual" becomes false.
+  Neither is a measurement; both are work.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — created today,
+  **ranked second**, and deliberately not done: `mu`, `W`, `n_puddle` and
+  `C_ox` sites in `graphene_velocity_saturation_model`,
+  `graphene_diffusion_current_model`, `rf_small_signal_model`,
+  `graphene_fmax_shortfall_decomposition`,
+  `graphene_perfect_contact_counterfactual`,
+  `graphene_fet_signed_carrier_model` and `graphene_double_regularisation`.
+  Each is **latent by import today**, so converting one changes nothing until
+  it is not — which is precisely the condition under which it will be
+  forgotten. Cheapest route: convert them all mechanically and require the
+  transcripts to be byte-identical, exactly as today's three were.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — created today.
+  The sweep is a module someone has to run. A test that fails when a *new*
+  hand-listed rebinding site appears, or when a converted site regresses, is
+  what would make today's repair durable. Related to item 17's unbuilt sweep.
+- **A SECOND ANCHOR FOR `Δ_c`, AT ANY SEPARATION OTHER THAN 3.3 Å** — open
+  since 2026-09-21, still the top *physics* item in the thesis, and now
+  **untouched for TWENTY-FOUR consecutive sessions**. Two consecutive sessions
+  have now run entirely inside the code with no literature fetch at all. This
+  is §7.7's unequal-scrutiny finding not as a diagnosis but as a habit.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13: a
+  vacuum-like 3.5 Å gap with no interface dipole layer, and one
+  `lambda_decay = 250 nm` for every metal, both plausibly larger than the
+  12.5 % correction already found and neither ever costed.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12. Three
+  directions converge on it; today adds a fourth datum, that `cd.n_puddle` is
+  measured **USED at 35.8 %** of the contact model's own numbers, so the
+  parameter's meaning is load-bearing in two chapters and not one. Cheapest
+  route in is still the two references the Southampton paper delegates `n₀` to.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`, cheap either way.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched for a
+  third session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, now **nine sessions
+  overdue**.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  untouched for an **eighth** session.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the sixth session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for a
+  fifth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, nine sessions overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for a sixth
+  session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** — untouched
+  for a sixth session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the sweep; the binding-class repair with the
+correction to the sweep's own headline; the thesis). This AUTOMATION_LOG.md
+entry makes **4**.
