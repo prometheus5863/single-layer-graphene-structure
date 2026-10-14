@@ -2223,6 +2223,148 @@ must fall by ten per decade of `C_s`, measured **9.9933** and **9.9993**.
 **Item 15's eighth worked instance**, and the repair is 2026-10-11's: let the
 structure set the criterion.
 
+### 4.6.13 The rebind set is a runtime object: 25 stale sites, 1 that can fire, and a repair that blinded its own audit
+
+§4.6.12 deferred item 16's flip for a stated reason — nobody knew what a
+rebinding of the charge path reaches — and closed by noting that the
+`cd.quantum_capacitance` miss found there had been found **by hand**, as had
+the two before it. Three hand-found instances in ten days is a rate. This
+section measures the exposure that rate implies, and then removes the
+mechanism that produced it.
+
+**(a) What a hand-maintained list leaves behind.** An AST pass over all 53
+modules finds **149** module-level `from`-imports of repository names across
+**73** distinct `(owner, name)` pairs. Against the repository's **14**
+hand-listed rebinding sites (`alias.name = ...`), **25** of those bindings are
+left stale. Three had been found by hand; **22 had not.** The identity classes
+that matter are small and the two that item 16 needs are the smallest:
+
+| name | sites a single `setattr` fails to reach |
+|---|---|
+| `gfet.carrier_density` | 1 (`crx.carrier_density`) |
+| `gfet.quantum_capacitance` | 1 (`cd.quantum_capacitance`) |
+| `gfet.mu` | 4 (`cd`, and Chapter 6's three photodetector modules) |
+| `gfet.W` | 2 (`crx`, `cd`) |
+| `gfet.n_puddle` | 2 (`cd.n_puddle`, `dr.N0_SHIPPED`) |
+| `gfet.C_ox` | 2 (`cd.C_ox`, `dr.C_OX`) |
+| `gfet.sheet_conductivity` | 2 (`crx`, `cd`) |
+
+**(b) Which of them are USED, measured without entering any manager.**
+Perturb **only** the holder's own copy and see whether the holder's own
+numbers move. This is the decomposition that matters, and it needs no
+manager — which is what makes it applicable to the ten inline `try/finally`
+rebinding sites that cannot be entered at all.
+
+| stale binding | max relative change in its holder's numbers | verdict |
+|---|---|---|
+| `cd.quantum_capacitance` | 9.8781 (988 %) | USED |
+| `cd.n_puddle` | 35.764 % | USED |
+| `crx.carrier_density` | 27.007 % | USED |
+| `crx.W` | 27.007 % | USED |
+| `pcm.mu` | 9.1743 % | USED |
+| `psc.mu` | 5.3067 % | USED |
+| `ptc.mu` | 3.9039 % | USED |
+| `cd.mu`, `cd.C_ox`, `cd.W` | exactly 0 | imported, never reaches a number |
+
+**(c) The repair, and why it is a computed class and not a longer list.** A
+list is exactly what was wrong all three times, so the mechanism had to stop
+being one. `from M import n` copies a **reference** at import time, so the set
+of places to rebind is the set of names that at runtime hold the same
+**object** — discoverable by identity, with no import graph, no AST pass and
+no list. `graphene_binding_class.rebind()` computes it at entry and is now
+installed at all three charge-path sites (`on_consistent_argument`,
+`on_exact`, and `graphene_potential_declaration.main`, which had no second
+line at all). Behaviour is unchanged, and that is **verified rather than
+asserted**: all three modules' committed transcripts regenerate
+**byte-identically**, and each was confirmed byte-reproducible *before* the
+change so that the diff is a control and not a hope.
+
+**(d) The class is necessary and not sufficient — item 16 needs two
+replacements, not one rebinding.** `cd.quantum_capacitance` is deliberately
+**not** rebound. It is reached at a contact where the series capacitance is
+`C_interface = 2.529768e-02 F m⁻²`, **65.93×** `C_ox`, and the series factor
+runs **0.555–0.806** against **0.999** in the channel (§4.6.12). The object
+the owner holds after item 16's flip solves for `n` against `C_ox`; copying it
+to the contact installs a **channel solver at the contact**, which is a
+different wrong answer rather than a repair. The contact-correct form is the
+one §4.6.12 measured separately (**−12.4964 %** in `n` for Pd). The exclusion
+lives once, in code, with its reason attached, and `rebind()` **refuses an
+exclusion without a stated reason** — because an unstated exclusion is how all
+three 2026-10 faults were introduced.
+
+**(e) And the static count over-reports, which retires a claim made earlier
+the same day.** A miss needs the stale holder to be **imported in the patching
+process**, and an import graph over the repository cannot see that. Measured
+per rebinding site in a **fresh interpreter**, so that the audit's own imports
+cannot supply the answer: of the 22 remaining static misses the holder is
+**PRESENT for 1** and **ABSENT for 21**. `import
+graphene_velocity_saturation_model` brings in three repository modules and
+none of the four `mu` holders is among them. `graphene_potential_declaration`
+does not import `contact_resistance_crossover` at all — four repository
+modules enter its process and `crx` is not one of them — so the reading of
+that site as "the 2026-10-10 fault unrepaired in a third module" was **wrong
+about this repository while right about the shape**: there was no stale
+binding to leave behind and no wrong number. The single survivor is
+`blast_radius.series_capacitance` leaving `cd.C_ox` stale, and (b) already
+measures `cd.C_ox` as UNUSED, so it is cosmetic too.
+
+> **The 25 is retained in place as an upper bound rather than restated. The
+> honest standing is three independent axes — PRESENT, USED, REACHED — and
+> nothing currently in the repository clears all three. What the sweep found
+> is a landmine count, not a defect count.**
+
+**(f) Four instrument faults, all four kept in place.**
+
+**(i) A repair that blinds its own audit is not a repair** — §7.5.4's "created
+by a fix" class in its purest form yet. Retrofitting `rebind()` made all three
+charge-path sites **invisible** to the sweep, whose only notion of a rebinding
+site was `alias.name = ...`, and the validation that exists to keep
+2026-10-13's finding on the record **failed while nothing was wrong**: the
+manager it names had stopped being a rebinding site in the only sense the
+instrument understood. The sweep now recognises both forms and reports a
+class-complete site as covered by construction with its exclusions listed. The
+validation is rewritten to assert the same fact in the form the repair left it
+in — zero *silent* misses plus one exclusion named with a reason of substance —
+and its original no-silent-miss clause is **kept**, not replaced.
+
+**(ii) The planted-binding control failed on the instrument.** The module
+scanner skipped every file whose name begins with an underscore, so the sweep
+reported **zero** bindings in a file it had itself just created with one. An
+underscore-prefixed module is as importable as any other; the filter was a
+blind spot and not a convention. **Fourth** occurrence in this repository of a
+control failing on the instrument rather than on the thing measured.
+
+**(iii) The identity control found a blind spot in the AST rule, and the rule
+was extended rather than the control dropped.** Twelve second-order
+**renaming** aliases (`dr.C_OX is gfet.C_ox`, `dr.N0_SHIPPED is
+gfet.n_puddle`, `psc.W_CROSS_VACUUM is cd.W_GRAPHENE`) are invisible to any
+rule that reads import statements. Each is a real site. What identity yields
+is not a directed edge but the **equivalence class** of names sharing one
+object, and for the question "what must a patch rebind" the class is the safe
+criterion and the import graph the unsafe one.
+
+**(iv) The arrival counter carries a positive control, so that LATENT is a
+measurement.** Under their own workloads both charge-path managers reach `cd`
+**zero** times, which agrees with §4.6.12's finding that the contact model
+sits outside the harness — but a counter that reads zero because it is broken
+reads the same. The same counter reads **exactly 7** when `cd` is exercised
+over its seven metals.
+
+**(g) Validations against exactly known values, six, all passing.** The
+2026-10-10 repair must show 0 misses (0, and both managers now cover it by
+construction); 2026-10-13's finding must survive as a reasoned exclusion with
+no silent miss (it does); a planted binding must be found exactly once by each
+rule (1, 1, and 2 by identity — the import and the rename); identity-patch
+neutrality over **98** wrapped sites at **0 ulp**; the usedness instrument's
+own null, a perturbation by a factor of exactly 1.0, at **exactly 0**; and the
+arrival counter's positive control at **7 of 7**.
+
+What stays open is named and small: `graphene_contact_doping_model` needs its
+own contact-correct replacement before item 16 can flip, and the eleven
+surviving hand-listed sites outside the charge path are **not** converted,
+because each is latent by import today and converting one changes nothing
+until it is not.
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent

@@ -1385,6 +1385,32 @@ Stated as falsifiable items, in order of how much they would move:
    recorded: today's 300 K argument error (+2.6408 %) sits within 0.0012 % of
    2026-10-10's T = 0 quadrature error (+2.6396 %), two different quantities
    that read as a reproduction.
+   **PRECONDITIONS DISCHARGED 2026-10-14 (§4.6.13), and one of the two was
+   stated wrongly on 2026-10-13.** The flip was deferred on 2026-10-13 for a
+   named reason — nobody knew what a rebinding of the charge path reaches —
+   and that reason is now gone, replaced by a mechanism rather than by a
+   list. (i) The set a patch must reach is the name's **runtime identity
+   class**: every `(module, attribute)` holding the same object, which is
+   discoverable by identity and needs no import graph. `carrier_density`'s
+   class has **2** members, `quantum_capacitance`'s **2**, and all three
+   charge-path rebinding sites in the repository now compute it at entry
+   instead of listing it (`graphene_binding_class.rebind`), verified
+   behaviour-neutral by **byte-identical** regeneration of all three
+   committed transcripts. (ii) **But the flip cannot be a rebinding
+   everywhere.** `graphene_contact_doping_model.quantum_capacitance` is
+   reached at a contact whose series capacitance is `C_interface`, 65.93×
+   `C_ox`, where the series factor runs 0.555–0.806 against 0.999 in the
+   channel; the object the owner would hold after the flip solves for `n`
+   against `C_ox`, so copying it to the contact installs a **channel solver
+   at the contact** — a different wrong answer, not a repair. The flip
+   therefore needs **two** replacements, not one rebinding, and the
+   contact-correct form is the one measured on 2026-10-13 (−12.4964 % in `n`
+   for Pd). The exclusion is recorded in code with its reason attached, and
+   the rebinder **refuses an exclusion without one**, because an unstated
+   exclusion is how all three 2026-10 delivery faults were introduced.
+   The only precondition still open is the one that was never numerical:
+   §4.7's prose and §4.10's annotation have to be **rewritten**, since "only
+   Pd gives a small, plausible positive residual" becomes false.
 17. **A two-knob check that reports the ratio, not smallness** (added
    2026-10-10 as "a check that can see a cancellation", **amended 2026-10-11
    on its first use**, §4.6.9(f)). Every check in this repository asks about
@@ -1508,6 +1534,78 @@ Stated as falsifiable items, in order of how much they would move:
    principle and not merely unmeasured.** Also: the source's fitted
    `n₀ = 1.2e16 m⁻²` is **2.4×** this thesis's `n_puddle`, a second literature
    anchor on the standing question and pointing the same way as §4.6.7's.
+
+19. **Making the rebind set a computed object rather than a remembered
+   list** (added and largely closed 2026-10-14, §4.6.13; the second item on
+   this list to be created by a *rate* rather than by a single finding).
+   Three times in ten days a monkey-patch in this repository reported a model
+   it was not running, each time because a second module held its own
+   import-time reference to the patched name: the frozen-default fault in its
+   monkey-patch form (2026-10-03), `contact_resistance_crossover.carrier_density`
+   (2026-10-10) and `graphene_contact_doping_model.quantum_capacitance`
+   (2026-10-13). Each was repaired by adding one line to one manager, and
+   2026-10-13 stated why that is insufficient — **a repair to one binding is
+   not a repair to the class** — without measuring the exposure. Measured:
+   **149** module-level `from`-imports of repository names across **73**
+   distinct `(owner, name)` pairs, of which **25** sites were left stale by
+   the repository's **14** hand-listed rebinding sites. **Twenty-two of those
+   had never been found by hand.** Of the ten distinct stale bindings, **seven
+   are measured USED** by their own holder — the holder's numbers move when
+   only its local copy is perturbed, which needs no manager to be entered and
+   so covers the ten inline `try/finally` sites that cannot be entered at all:
+   `cd.quantum_capacitance` at 9.88 (988 %), `cd.n_puddle` at 35.8 %,
+   `crx.carrier_density` and `crx.W` at 27.0 %, and the three Chapter 6
+   photodetector modules' `mu` at 9.2 %, 5.3 % and 3.9 %. Three are cosmetic:
+   `cd.mu`, `cd.C_ox` and `cd.W` are imported and never reach a computed
+   number.
+
+   **And the import graph is the wrong instrument, in both directions.**
+   (a) It under-reports. A runtime identity control found **12** second-order
+   *renaming* aliases invisible to any rule that reads import statements
+   (`double_regularisation.C_OX is gfet.C_ox`; `N0_SHIPPED is gfet.n_puddle`;
+   `W_CROSS_VACUUM is W_GRAPHENE`), each a real site a patch of either the
+   owner or the first-order holder leaves untouched. Identity sees them for
+   free, because what it yields is not a directed edge but the **equivalence
+   class** of names sharing one object — and for the question "what must a
+   patch rebind", the class is the safe criterion and the import graph is the
+   unsafe one. (b) It over-reports, and this correction retires a claim made
+   earlier the same day. A miss needs the stale holder to be **imported in the
+   patching process**. Measured per site in a fresh interpreter: of the 22
+   remaining static misses the holder is **PRESENT for 1** and **ABSENT for
+   21**. `import graphene_velocity_saturation_model` brings in three
+   repository modules and none of the four `mu` holders is among them;
+   `graphene_potential_declaration` does not import
+   `contact_resistance_crossover` at all. So the morning's reading of that
+   last site as "the 2026-10-10 fault unrepaired in a third module" was
+   **wrong about this repository while right about the shape**: there was no
+   stale binding to leave behind and no wrong number. The 25 is retained in
+   place as an **upper bound** rather than restated, and the honest standing
+   is **three independent axes** — PRESENT, USED, REACHED — of which nothing
+   currently in the repository clears all three. The exposure is a **landmine
+   count, not a defect count**, which is a weaker claim than the one the
+   morning's commit made and the only one the measurement supports.
+
+   **A third instrument fault, found and fixed in the same session, and it is
+   the §7.5.4 class ("created by a fix") in its purest form yet.** Retrofitting
+   the class-complete rebinder made all three charge-path sites **invisible to
+   the audit**, whose only notion of a rebinding site was `alias.name = ...`;
+   the validation that exists to keep 2026-10-13's finding on the record
+   failed because the manager it names had stopped being a rebinding site in
+   the only sense the instrument understood. **A repair that blinds the audit
+   is not a repair.** The audit now recognises both forms; the validation is
+   rewritten to assert the same fact in the form the repair left it in — zero
+   *silent* misses, plus one exclusion named with a reason of substance — and
+   its original no-silent-miss clause is kept rather than replaced. A fourth
+   instrument fault was caught by the audit's own planted-binding control,
+   which failed while nothing was wrong with the repository: the module
+   scanner skipped every file whose name begins with an underscore, so the
+   sweep reported zero bindings in a file it had itself just created with
+   one. What remains open is small and named: `graphene_contact_doping_model`
+   needs its own contact-correct replacement (item 16(ii)), and the eleven
+   surviving hand-listed rebinding sites outside the charge path — `mu`, `W`,
+   `n_puddle`, `C_ox` — have not been converted, because each is latent by
+   import today and converting a site changes nothing until it is not.
+
 
 ---
 
