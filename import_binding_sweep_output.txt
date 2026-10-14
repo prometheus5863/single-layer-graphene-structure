@@ -1,0 +1,321 @@
+==============================================================================
+IMPORT-BINDING SWEEP -- every module-level alias of every patchable name
+Section 7.9, ranked second on 2026-10-13: the precondition for item 16
+==============================================================================
+
+Repository modules parsed: 53
+
+------------------------------------------------------------------------------
+SECTION 1 -- THE STATIC BINDING TABLE (AST, no import)
+------------------------------------------------------------------------------
+  module-level from-imports of repo names : 149
+  function-level (deferred, SAFE)         : 6
+  `import M as a` module aliases (SAFE)   : 60
+  distinct (owner, name) pairs aliased    : 73
+
+  Every owner.name with MORE THAN ONE live binding -- i.e. every name
+  for which a single `setattr(owner, name, ...)` is NOT sufficient:
+
+  owner.name                         stale holders              n
+  bracketed_root.bracketed_bisect    g_default_scale_audit, g_d 5
+  g_contact_doping_model.METAL_LITERATURE_RC g_sensitivity_audit        1
+  g_contact_doping_model.METAL_WORK_FUNCTIONS g_contact_doping_nonlinear 11
+  g_contact_doping_model.W_GRAPHENE  g_contact_doping_nonlinear 6
+  g_contact_doping_model.junction_extra_resistance g_default_scale_audit, g_e 3
+  g_contact_doping_model.junction_extra_resistance_from_ncontact g_edge_contact_model       1
+  g_contact_doping_model.lambda_decay g_contact_doping_nonlinear 6
+  g_contact_doping_nonlinear_model.CHEMISORBED g_per_metal_crossover_mode 1
+  g_contact_doping_nonlinear_model.D0_SEPARATION g_per_metal_crossover_mode 1
+  g_contact_doping_nonlinear_model.D_EQ g_per_metal_crossover_mode 1
+  g_crossover_sensitivity_model.H_DIFF g_default_scale_audit      1
+  g_crossover_sensitivity_model.N_of g_default_scale_audit      1
+  g_crossover_sensitivity_model.all_asymmetric_pairs g_default_scale_audit      1
+  g_crossover_sensitivity_model.mean_abs_dW g_default_scale_audit      1
+  g_crossover_sensitivity_model.sensitivity g_default_scale_audit      1
+  g_default_scale_audit.H_DIFF       g_covariance_probe_audit   1
+  g_default_scale_audit._bisect_solver g_covariance_probe_audit   1
+  g_default_scale_audit._hdiff_solver g_covariance_probe_audit   1
+  g_default_scale_audit._hdiff_solver_relative g_covariance_probe_audit   1
+  g_default_scale_audit.covariance_deviation g_covariance_probe_audit   1
+  g_default_scale_audit.ulps         g_covariance_probe_audit   1
+  g_fet_model.C_ox                   g_contact_doping_model     1
+  g_fet_model.V_dirac                contact_resistance_crossov 1
+  g_fet_model.W                      contact_resistance_crossov 2
+  g_fet_model.carrier_density        contact_resistance_crossov 1
+  g_fet_model.mu                     g_contact_doping_model, g_ 4
+  g_fet_model.n_puddle               g_contact_doping_model     1
+  g_fet_model.quantum_capacitance    g_contact_doping_model     1
+  g_fet_model.sheet_conductivity     contact_resistance_crossov 2
+  g_fet_model.v_F                    g_edge_contact_model       1
+  g_mutation_arrival_probe.CLASS_ABSENT g_cross_module_delivery_au 1
+  g_mutation_arrival_probe.CLASS_DEAD g_cross_module_delivery_au 1
+  g_mutation_arrival_probe.CLASS_FROZEN g_cross_module_delivery_au 1
+  g_mutation_arrival_probe.CLASS_IMPORT_CONSUMED g_cross_module_delivery_au 1
+  g_mutation_arrival_probe.CLASS_LIVE g_cross_module_delivery_au 1
+  g_mutation_arrival_probe.CLASS_MIXED g_cross_module_delivery_au 1
+  g_mutation_arrival_probe.CLASS_UNUSED g_cross_module_delivery_au 1
+  g_mutation_arrival_probe.classify  g_cross_module_delivery_au 1
+  g_mutation_arrival_probe.require_delivery g_cross_module_delivery_au 1
+  g_per_metal_crossover_model.ELL_RANGE g_differential_crossover_m 1
+  g_per_metal_crossover_model.net_response_dw g_differential_crossover_m 1
+  g_per_metal_crossover_model.usable_metals g_differential_crossover_m 1
+  g_per_metal_crossover_model.w_cross_for_metal g_differential_crossover_m 1
+  g_photodetector_collection_model.E_BIAS g_contact_doping_nonlinear 5
+  g_photodetector_collection_model.TAU_CARRIER g_photodetector_signed_car 2
+  g_photodetector_collection_model.mean_collection_efficiency g_photodetector_two_contac 1
+  g_photodetector_model.EQE_BARE     g_photodetector_collection 2
+  g_photodetector_model.LAMBDA_NM    g_photodetector_collection 1
+  g_photodetector_model.L_channel    g_contact_doping_nonlinear 6
+  g_photodetector_model.TAU_TRANSIT  g_photodetector_collection 2
+  g_photodetector_model.V_bias       g_photodetector_collection 4
+  g_photodetector_model.photoconductive_gain g_plasmonic_photodetector_ 1
+  g_photodetector_model.responsivity_bare g_photodetector_collection 2
+  g_photodetector_nonuniform_illumination_model.T_MASK_MEASURED g_contact_doping_nonlinear 1
+  g_photodetector_nonuniform_illumination_model.collection_kernel g_contact_doping_nonlinear 2
+  g_photodetector_nonuniform_illumination_model.g_shadow_mask g_contact_doping_nonlinear 2
+  g_photodetector_nonuniform_illumination_model.g_uniform g_contact_doping_nonlinear 2
+  g_photodetector_nonuniform_illumination_model.response_per_incident g_contact_doping_nonlinear 2
+  g_photodetector_nonuniform_illumination_model.response_under g_contact_doping_nonlinear 2
+  g_photodetector_signed_carrier_model.N_POINTS g_contact_doping_nonlinear 4
+  g_photodetector_signed_carrier_model.Q_ELECTRON g_contact_doping_nonlinear 3
+  g_photodetector_signed_carrier_model.Q_HOLE g_contact_doping_nonlinear 3
+  g_photodetector_signed_carrier_model.W_CROSS_CHEM g_contact_doping_nonlinear 5
+  g_photodetector_signed_carrier_model.W_CROSS_VACUUM g_photodetector_nonuniform 1
+  g_photodetector_signed_carrier_model._transport g_contact_doping_nonlinear 3
+  g_photodetector_signed_carrier_model.net_response g_crossover_sensitivity_mo 4
+  g_photodetector_signed_carrier_model.signed_offset g_contact_doping_nonlinear 5
+  g_photodetector_signed_carrier_model.total_field g_contact_doping_nonlinear 3
+  g_photodetector_two_contact_model.net_response g_photodetector_signed_car 1
+  g_sensitivity_audit.W_AUDIT_NM     g_log_sensitivity_step_aud 1
+  g_sensitivity_audit._lambda_imp    g_log_sensitivity_step_aud 1
+  g_sensitivity_audit._rho_propagated g_log_sensitivity_step_aud 1
+  g_sensitivity_audit.log_sensitivity g_covariance_probe_audit,  3
+
+  Total names requiring a multi-site rebind: 73
+  Total stale sites across those names     : 149
+
+------------------------------------------------------------------------------
+SECTION 2 -- THE SAME TABLE BY RUNTIME OBJECT IDENTITY (the control)
+------------------------------------------------------------------------------
+  modules imported: 42 of 42
+  static (importable subset): 149   runtime: 164   agreed: 149
+  seen at RUNTIME but not statically (identity coincidence, or a
+  binding this AST pass cannot see -- each one is a blind spot):
+      graphene_contact_doping_model.W_GRAPHENE  is  graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM
+      graphene_contact_doping_nonlinear_model.W_GRAPHENE  is  graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM
+      graphene_covariance_probe_audit.H_DIFF  is  graphene_crossover_sensitivity_model.H_DIFF
+      graphene_crossover_sensitivity_model.H_DIFF  is  graphene_default_scale_audit.H_DIFF
+      graphene_crossover_sensitivity_model.W_GRAPHENE  is  graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM
+      graphene_dead_name_sweep.CLASS_DEAD  is  graphene_mutation_arrival_probe.CLASS_DEAD
+      graphene_dead_name_sweep.CLASS_LIVE  is  graphene_mutation_arrival_probe.CLASS_LIVE
+      graphene_double_regularisation.C_OX  is  graphene_fet_model.C_ox
+      graphene_double_regularisation.N0_SHIPPED  is  graphene_fet_model.n_puddle
+      graphene_per_metal_crossover_model.W_GRAPHENE  is  graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM
+      graphene_photodetector_collection_model.W_GRAPHENE  is  graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM
+      graphene_photodetector_nonuniform_illumination_model.W_CROSS_VACUUM  is  graphene_contact_doping_model.W_GRAPHENE
+      graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM  is  graphene_contact_doping_model.W_GRAPHENE
+      graphene_photodetector_signed_carrier_model.W_GRAPHENE  is  graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM
+      graphene_photodetector_two_contact_model.W_GRAPHENE  is  graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM
+
+------------------------------------------------------------------------------
+SECTION 3 -- EVERY REBINDING SITE, AND WHAT IT FAILS TO COVER
+------------------------------------------------------------------------------
+  rebinding site (module.function)                     rebnd  MISS
+  g_band_structure_audit.result_2_why_it_survived          1     0
+  g_contact_argument_blast_radius.contact_on_consisten     1     0
+  g_contact_argument_blast_radius.series_capacitance       1     1
+  g_diffusion_current_model._at_literature_geometry        2     2
+  g_diffusion_current_model.main                           1     4
+  g_double_regularisation.regularisers                     2     1
+  g_exact_charge_rederivation.on_exact                     3     1
+  g_exact_charge_rederivation.onoff                        1     0
+  g_fet_signed_carrier_model.intrinsic_onoff_at            2     1
+  g_fet_signed_carrier_model.onoff_at                      1     1
+  g_fmax_shortfall_decomposition.__enter__                 2     2
+  g_perfect_contact_counterfactual.at_literature_geome     2     2
+  g_potential_declaration.main                             1     1
+  g_quantum_capacitance_argument.on_consistent_argumen     3     1
+  g_quantum_capacitance_overflow.main                      1     0
+  g_velocity_saturation_model._at_literature_geometry      2     2
+  g_velocity_saturation_model.main                         2     4
+  rf_small_signal_model.compute_fT_fmax                    2     2
+  rf_small_signal_model.plot_fT_fmax                       1     0
+
+  TOTAL STATIC MISSES: 25, across 14 rebinding sites
+
+  site                                         stale binding it leaves behind
+  g_contact_argument_blast_radius.series_capac g_contact_doping_model.C_ox  (shadows g_fet_model.C_ox)
+  g_diffusion_current_model._at_literature_geo contact_resistance_crossover.W  (shadows g_fet_model.W)
+  g_diffusion_current_model._at_literature_geo g_contact_doping_model.W  (shadows g_fet_model.W)
+  g_diffusion_current_model.main               g_contact_doping_model.mu  (shadows g_fet_model.mu)
+  g_diffusion_current_model.main               g_photodetector_collection_model.mu  (shadows g_fet_model.mu)
+  g_diffusion_current_model.main               g_photodetector_signed_carrier_model.mu  (shadows g_fet_model.mu)
+  g_diffusion_current_model.main               g_photodetector_two_contact_model.mu  (shadows g_fet_model.mu)
+  g_double_regularisation.regularisers         g_contact_doping_model.n_puddle  (shadows g_fet_model.n_puddle)
+  g_exact_charge_rederivation.on_exact         g_contact_doping_model.quantum_capacitance  (shadows g_fet_model.quantum_capacitance)
+  g_fet_signed_carrier_model.intrinsic_onoff_a g_contact_doping_model.n_puddle  (shadows g_fet_model.n_puddle)
+  g_fet_signed_carrier_model.onoff_at          g_contact_doping_model.n_puddle  (shadows g_fet_model.n_puddle)
+  g_fmax_shortfall_decomposition.__enter__     contact_resistance_crossover.W  (shadows g_fet_model.W)
+  g_fmax_shortfall_decomposition.__enter__     g_contact_doping_model.W  (shadows g_fet_model.W)
+  g_perfect_contact_counterfactual.at_literatu contact_resistance_crossover.W  (shadows g_fet_model.W)
+  g_perfect_contact_counterfactual.at_literatu g_contact_doping_model.W  (shadows g_fet_model.W)
+  g_potential_declaration.main                 contact_resistance_crossover.carrier_density  (shadows g_fet_model.carrier_density)
+  g_quantum_capacitance_argument.on_consistent g_contact_doping_model.quantum_capacitance  (shadows g_fet_model.quantum_capacitance)
+  g_velocity_saturation_model._at_literature_g contact_resistance_crossover.W  (shadows g_fet_model.W)
+  g_velocity_saturation_model._at_literature_g g_contact_doping_model.W  (shadows g_fet_model.W)
+  g_velocity_saturation_model.main             g_contact_doping_model.mu  (shadows g_fet_model.mu)
+  g_velocity_saturation_model.main             g_photodetector_collection_model.mu  (shadows g_fet_model.mu)
+  g_velocity_saturation_model.main             g_photodetector_signed_carrier_model.mu  (shadows g_fet_model.mu)
+  g_velocity_saturation_model.main             g_photodetector_two_contact_model.mu  (shadows g_fet_model.mu)
+  rf_small_signal_model.compute_fT_fmax        contact_resistance_crossover.W  (shadows g_fet_model.W)
+  rf_small_signal_model.compute_fT_fmax        g_contact_doping_model.W  (shadows g_fet_model.W)
+
+------------------------------------------------------------------------------
+SECTION 1b -- THE BLIND SPOT SECTION 2 FOUND, AND ITS REPAIR
+------------------------------------------------------------------------------
+  transitive (renaming) aliases the first AST rule could not see: 12
+      graphene_double_regularisation.A_FERMI                     <- graphene_diffusion_current_model.A_FERMI
+      graphene_double_regularisation.C_OX                        <- graphene_fet_model.C_ox
+      graphene_double_regularisation.HBAR_REPO                   <- graphene_diffusion_current_model.HBAR
+      graphene_double_regularisation.N0_SHIPPED                  <- graphene_fet_model.n_puddle
+      graphene_exact_charge_rederivation.A_FERMI                 <- graphene_diffusion_current_model.A_FERMI
+      graphene_exact_charge_rederivation.CQ_PREFACTOR            <- graphene_diffusion_current_model.CQ_PREFACTOR
+      graphene_exact_charge_rederivation.VDS_RF                  <- graphene_diffusion_current_model.VDS_REF
+      graphene_fet_signed_carrier_model.A_FERMI                  <- graphene_diffusion_current_model.A_FERMI
+      graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM <- graphene_contact_doping_model.W_GRAPHENE
+      graphene_quantum_capacitance_argument.A_FERMI              <- graphene_diffusion_current_model.A_FERMI
+      graphene_quantum_capacitance_argument.CQ_PREFACTOR         <- graphene_diffusion_current_model.CQ_PREFACTOR
+      graphene_quantum_capacitance_argument.VDS_RF               <- graphene_diffusion_current_model.VDS_REF
+
+  These are REAL bindings, not identity coincidences: each is a
+  module-level `NEW = OLD` whose value a patch of either the owner
+  or the first-order holder leaves untouched.
+
+  reconciliation, with the traced-name set made symmetric:
+    static directed edges 161, runtime identity pairs 173, agreed 161
+
+  The 12 remaining runtime-only pairs are not a defect in either
+  method.  Runtime identity does not yield a DIRECTED edge; it yields
+  the EQUIVALENCE CLASS of every name that currently shares one
+  object.  Where a class has more members than the import graph has
+  edges into it, the extra members are still sites a patch must
+  rebind -- so for the question this module exists to answer, the
+  class is the safe criterion and the import graph is the unsafe one.
+
+  patch target                                 complete rebind set (identity class)
+  g_contact_doping_model.METAL_WORK_FUNCTIONS  11 sites: g_contact_doping_nonlinear_model.METAL_WORK_FUNCTIONS, g_crossover_sensitivity_model.METAL_WORK_FUNCTIONS, g_default_scale_audit.METAL_WORK_FUNCTIONS, g_differential_crossover_model.METAL_WORK_FUNCTIO
+  g_contact_doping_model.W_GRAPHENE            8 sites: g_contact_doping_nonlinear_model.W_GRAPHENE, g_crossover_sensitivity_model.W_GRAPHENE, g_per_metal_crossover_model.W_GRAPHENE, g_photodetector_collection_model.W_GRAPHENE, g_photodetector_nonuniform_i
+  g_photodetector_signed_carrier_model.W_CROSS_VACUUM 8 sites: g_contact_doping_model.W_GRAPHENE, g_contact_doping_nonlinear_model.W_GRAPHENE, g_crossover_sensitivity_model.W_GRAPHENE, g_per_metal_crossover_model.W_GRAPHENE, g_photodetector_collection_model.W_GRA
+  g_contact_doping_model.lambda_decay          6 sites: g_contact_doping_nonlinear_model.lambda_decay, g_edge_contact_model.lambda_decay, g_per_metal_crossover_model.lambda_decay, g_photodetector_collection_model.lambda_decay, g_photodetector_signed_carrie
+  g_photodetector_model.L_channel              6 sites: g_contact_doping_nonlinear_model.L_channel, g_per_metal_crossover_model.L_channel, g_photodetector_collection_model.L_channel, g_photodetector_nonuniform_illumination_model.L_channel, g_photodetector_
+  bracketed_root.bracketed_bisect              5 sites: g_default_scale_audit.bracketed_bisect, g_differential_crossover_model.bracketed_bisect, g_log_sensitivity_step_audit.bracketed_bisect, g_per_metal_crossover_model.bracketed_bisect, g_rootfinder_audit
+  g_photodetector_collection_model.E_BIAS      5 sites: g_contact_doping_nonlinear_model.E_BIAS, g_per_metal_crossover_model.E_BIAS, g_photodetector_nonuniform_illumination_model.E_BIAS, g_photodetector_signed_carrier_model.E_BIAS, g_photodetector_two_cont
+  g_photodetector_signed_carrier_model.W_CROSS_CHEM 5 sites: g_contact_doping_nonlinear_model.W_CROSS_CHEM, g_crossover_sensitivity_model.W_CROSS_CHEM, g_differential_crossover_model.W_CROSS_CHEM, g_per_metal_crossover_model.W_CROSS_CHEM, g_photodetector_nonuni
+  g_photodetector_signed_carrier_model.signed_offset 5 sites: g_contact_doping_nonlinear_model.signed_offset, g_crossover_sensitivity_model.signed_offset, g_differential_crossover_model.signed_offset, g_per_metal_crossover_model.signed_offset, g_photodetector_no
+  g_diffusion_current_model.A_FERMI            4 sites: g_double_regularisation.A_FERMI, g_exact_charge_rederivation.A_FERMI, g_fet_signed_carrier_model.A_FERMI, g_quantum_capacitance_argument.A_FERMI
+  g_fet_model.mu                               4 sites: g_contact_doping_model.mu, g_photodetector_collection_model.mu, g_photodetector_signed_carrier_model.mu, g_photodetector_two_contact_model.mu
+  g_photodetector_model.V_bias                 4 sites: g_photodetector_collection_model.V_bias, g_photodetector_nonuniform_illumination_model.V_bias, g_photodetector_signed_carrier_model.V_bias, g_photodetector_two_contact_model.V_bias
+  g_photodetector_signed_carrier_model.N_POINTS 4 sites: g_contact_doping_nonlinear_model.N_POINTS, g_crossover_sensitivity_model.N_POINTS, g_per_metal_crossover_model.N_POINTS, g_photodetector_nonuniform_illumination_model.N_POINTS
+  g_photodetector_signed_carrier_model.net_response 4 sites: g_crossover_sensitivity_model.net_response, g_differential_crossover_model.net_response, g_per_metal_crossover_model.net_response, g_photodetector_nonuniform_illumination_model.signed_net_response
+  g_contact_doping_model.junction_extra_resistance 3 sites: g_default_scale_audit.junction_extra_resistance, g_edge_contact_model.junction_extra_resistance, g_sensitivity_audit.junction_extra_resistance
+  g_photodetector_signed_carrier_model.Q_ELECTRON 3 sites: g_contact_doping_nonlinear_model.Q_ELECTRON, g_per_metal_crossover_model.Q_ELECTRON, g_photodetector_nonuniform_illumination_model.Q_ELECTRON
+  g_photodetector_signed_carrier_model.Q_HOLE  3 sites: g_contact_doping_nonlinear_model.Q_HOLE, g_per_metal_crossover_model.Q_HOLE, g_photodetector_nonuniform_illumination_model.Q_HOLE
+  g_photodetector_signed_carrier_model._transport 3 sites: g_contact_doping_nonlinear_model._transport, g_per_metal_crossover_model._transport, g_photodetector_nonuniform_illumination_model._transport
+  g_photodetector_signed_carrier_model.total_field 3 sites: g_contact_doping_nonlinear_model.total_field, g_per_metal_crossover_model.total_field, g_photodetector_nonuniform_illumination_model.total_field
+  g_sensitivity_audit.log_sensitivity          3 sites: g_covariance_probe_audit.log_sensitivity, g_default_scale_audit.log_sensitivity, g_log_sensitivity_step_audit.log_sensitivity
+  g_crossover_sensitivity_model.H_DIFF         2 sites: g_covariance_probe_audit.H_DIFF, g_default_scale_audit.H_DIFF
+  g_default_scale_audit.H_DIFF                 2 sites: g_covariance_probe_audit.H_DIFF, g_crossover_sensitivity_model.H_DIFF
+  g_diffusion_current_model.CQ_PREFACTOR       2 sites: g_exact_charge_rederivation.CQ_PREFACTOR, g_quantum_capacitance_argument.CQ_PREFACTOR
+  g_diffusion_current_model.VDS_REF            2 sites: g_exact_charge_rederivation.VDS_RF, g_quantum_capacitance_argument.VDS_RF
+  g_fet_model.C_ox                             2 sites: g_contact_doping_model.C_ox, g_double_regularisation.C_OX
+  g_fet_model.W                                2 sites: contact_resistance_crossover.W, g_contact_doping_model.W
+  g_fet_model.n_puddle                         2 sites: g_contact_doping_model.n_puddle, g_double_regularisation.N0_SHIPPED
+  g_fet_model.sheet_conductivity               2 sites: contact_resistance_crossover.sheet_conductivity, g_contact_doping_model.sheet_conductivity
+  g_mutation_arrival_probe.CLASS_DEAD          2 sites: g_cross_module_delivery_audit.CLASS_DEAD, g_dead_name_sweep.CLASS_DEAD
+  g_mutation_arrival_probe.CLASS_LIVE          2 sites: g_cross_module_delivery_audit.CLASS_LIVE, g_dead_name_sweep.CLASS_LIVE
+  g_photodetector_collection_model.TAU_CARRIER 2 sites: g_photodetector_signed_carrier_model.TAU_CARRIER, g_photodetector_two_contact_model.TAU_CARRIER
+  g_photodetector_model.EQE_BARE               2 sites: g_photodetector_collection_model.EQE_BARE, g_plasmonic_photodetector_model.EQE_BARE
+  g_photodetector_model.TAU_TRANSIT            2 sites: g_photodetector_collection_model.TAU_TRANSIT, g_plasmonic_photodetector_model.TAU_TRANSIT
+  g_photodetector_model.responsivity_bare      2 sites: g_photodetector_collection_model.responsivity_bare, g_plasmonic_photodetector_model.responsivity_bare
+  g_photodetector_nonuniform_illumination_model.collection_kernel 2 sites: g_contact_doping_nonlinear_model.linear_collection_kernel, g_crossover_sensitivity_model.collection_kernel
+  g_photodetector_nonuniform_illumination_model.g_shadow_mask 2 sites: g_contact_doping_nonlinear_model.g_shadow_mask, g_crossover_sensitivity_model.g_shadow_mask
+  g_photodetector_nonuniform_illumination_model.g_uniform 2 sites: g_contact_doping_nonlinear_model.g_uniform, g_crossover_sensitivity_model.g_uniform
+  g_photodetector_nonuniform_illumination_model.response_per_incident 2 sites: g_contact_doping_nonlinear_model.response_per_incident, g_crossover_sensitivity_model.response_per_incident
+  g_photodetector_nonuniform_illumination_model.response_under 2 sites: g_contact_doping_nonlinear_model.response_under, g_crossover_sensitivity_model.response_under
+
+------------------------------------------------------------------------------
+SECTION 4a -- IS THE STALE BINDING USED?  (measured, per holder)
+------------------------------------------------------------------------------
+  holders with a probe: 5 (contact_resistance_crossover, g_contact_doping_model, g_photodetector_collection_model, g_photodetector_signed_carrier_model, g_photodetector_two_contact_model)
+
+  stale binding                                  max rel dn verdict
+  g_contact_doping_model.C_ox                    0          UNUSED -- the miss is cosmetic
+  contact_resistance_crossover.W                 2.7007e-01 USED -- the miss changes this holders numbers
+  g_contact_doping_model.W                       0          UNUSED -- the miss is cosmetic
+  g_contact_doping_model.mu                      0          UNUSED -- the miss is cosmetic
+  g_photodetector_collection_model.mu            9.1743e-02 USED -- the miss changes this holders numbers
+  g_photodetector_signed_carrier_model.mu        5.3067e-02 USED -- the miss changes this holders numbers
+  g_photodetector_two_contact_model.mu           3.9039e-02 USED -- the miss changes this holders numbers
+  g_contact_doping_model.n_puddle                3.5764e-01 USED -- the miss changes this holders numbers
+  g_contact_doping_model.quantum_capacitance     9.8781e+00 USED -- the miss changes this holders numbers
+  contact_resistance_crossover.carrier_density   2.7007e-01 USED -- the miss changes this holders numbers
+
+------------------------------------------------------------------------------
+SECTION 4b -- DOES THE PATCHED RUN REACH IT?  (arrival counters)
+------------------------------------------------------------------------------
+  Only the four rebinding sites that are enterable context managers
+  can be measured this way; the other ten are inline try/finally
+  blocks inside a function and are reported UNENTERABLE rather than
+  assumed either way.
+
+  graphene_quantum_capacitance_argument.on_consisten g_contact_doping_model.quantum_capacitance LATENT: never reached by this workload
+  graphene_exact_charge_rederivation.on_exact        g_contact_doping_model.quantum_capacitance LATENT: never reached by this workload
+  graphene_double_regularisation.regularisers(floor= g_contact_doping_model.n_puddle not countable (float)
+  graphene_contact_argument_blast_radius.contact_on_consis no static miss
+
+------------------------------------------------------------------------------
+SECTION 5 -- VALIDATIONS AGAINST EXACTLY KNOWN VALUES
+------------------------------------------------------------------------------
+  Six, and three of them are fixed exactly by this repository's own
+  history rather than by a tolerance chosen here.
+
+  [PASS] (1) the 2026-10-10 repair of crx.carrier_density shows 0 misses in both managers that received it
+         found 0; expected exactly 0
+  [PASS] (2) 2026-10-13's hand-found miss reproduced, and is the only one in on_consistent_argument
+         found [('graphene_contact_doping_model', 'quantum_capacitance')]
+  [PASS] (3) a planted binding is found exactly once by the AST rule, once by the transitive rule, and twice by identity
+         static 1 (expected 1), transitive 1 (expected 1), identity 2 (expected 2: the import and the rename)
+  [PASS] (4) identity-patch neutrality over 98 wrapped sites: every probe bit-identical
+         worst departure 0 ulp; required exactly 0
+  [PASS] (5) the usedness instrument's own null: a perturbation by a factor of exactly 1.0 moves nothing
+         worst 0; required exactly 0
+  [PASS] (6) positive control: the SAME counter that read 0 in Section 4b reads exactly 7 when the holder is exercised
+         counted 7 of an exactly known 7
+
+------------------------------------------------------------------------------
+SECTION 6 -- WHAT THIS MEANS FOR ITEM 16
+------------------------------------------------------------------------------
+  Item 16 flips the default to form B_T.  Whatever installs it must
+  reach every member of the identity class of BOTH charge-path names,
+  not the two that history happens to have found by hand.  Measured
+  here: 7 of the 10 distinct stale bindings are USED by their own
+  holder, so each is a number that would silently not move.
+
+  And one of them cannot be repaired by rebinding at all.
+  cd.quantum_capacitance is reached at a contact whose capacitance is
+  C_interface, while the replacement the owner holds solves for n with
+  C_ox.  Closing that miss with the owner's object would install a
+  channel solver at the contact -- a DIFFERENT wrong answer, not a
+  repair.  2026-10-13 measured the contact-correct form separately
+  (-12.4964 % in n for Pd); it is not the object this sweep would
+  copy.  So the sweep's output is two rules, not one:
+
+    (i)  every member of the identity class must be rebound; and
+    (ii) a holder that uses the name at a DIFFERENT operating point
+         needs its OWN replacement, not the owner's.
+
+  figure written: import_binding_sweep.png
+
+==============================================================================
+CHECKS: 6 passed, 0 failed
+==============================================================================
