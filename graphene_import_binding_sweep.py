@@ -220,6 +220,68 @@ def rebind_sites(modnames):
     return out
 
 
+
+def class_rebind_sites(modnames, aliases):
+    """Every `<bc>.rebind(<module alias>, '<name>', ...)` call site.
+
+    ADDED 2026-10-14, in the same session that created the thing it looks for,
+    and for a reason worth stating: the first version of this sweep found the
+    repository's rebinding sites by looking for `alias.attr = ...`.  Replacing
+    three of those with graphene_binding_class.rebind() made them INVISIBLE to
+    the sweep, and validation (2) -- which exists to keep 2026-10-13's
+    hand-found miss on the record -- failed because the manager it names had
+    stopped being a rebinding site in the only sense the sweep understood.
+
+    A repair that blinds the audit is not a repair.  So the sweep now sees
+    both forms, and reports a class-complete site as covered BY CONSTRUCTION
+    with its exclusions listed, rather than as absent.
+    """
+    out = []
+    alias_of = {}
+    for holder, alias, owner in aliases:
+        alias_of.setdefault(holder, {})[alias] = owner
+    for m in modnames:
+        path = os.path.join(REPO, m + '.py')
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                tree = ast.parse(f.read(), filename=path)
+        except (SyntaxError, UnicodeDecodeError):
+            continue
+        parents = {}
+        for node in ast.walk(tree):
+            for ch in ast.iter_child_nodes(node):
+                parents[id(ch)] = node
+
+        def enclosing(node):
+            cur = node
+            while id(cur) in parents:
+                cur = parents[id(cur)]
+                if isinstance(cur, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    return cur.name
+            return '<module>'
+
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            fn = node.func
+            if not (isinstance(fn, ast.Attribute) and fn.attr == 'rebind'
+                    and isinstance(fn.value, ast.Name)):
+                continue
+            if alias_of.get(m, {}).get(fn.value.id) != 'graphene_binding_class':
+                continue
+            if len(node.args) < 2:
+                continue
+            a0, a1 = node.args[0], node.args[1]
+            owner = (alias_of.get(m, {}).get(a0.id)
+                     if isinstance(a0, ast.Name) else None)
+            name = a1.value if isinstance(a1, ast.Constant) else None
+            if owner is None or not isinstance(name, str):
+                continue
+            excl = [k.arg for k in node.keywords if k.arg == 'exclude_reasons']
+            out.append((m, enclosing(node), owner, name, bool(excl),
+                        node.lineno))
+    return out
+
 # ---------------------------------------------------------------------------
 # Section 2: the runtime binding table, by object identity
 # ---------------------------------------------------------------------------
@@ -555,7 +617,23 @@ def sections_1_to_3():
             continue                 # not a repo-module attribute assignment
         groups.setdefault((holder, func), set()).add((owner, name))
 
+    class_sites = class_rebind_sites(mods_all, aliases)
+    print('  CLASS-COMPLETE rebinding sites (graphene_binding_class.rebind):')
+    print('  these cover their required set by construction -- the class is')
+    print('  computed at entry -- so they contribute no miss, and what matters')
+    print('  about them is their EXCLUSIONS, listed with the reason in')
+    print('  graphene_binding_class.CONTACT_OPERATING_POINT.')
+    print()
+    print('  %-52s %-26s %s' % ('site', 'name', 'exclusions?'))
+    for holder, func, owner, name, excl, lineno in sorted(class_sites):
+        print('  %-52s %-26s %s'
+              % (('%s.%s' % (holder.replace('graphene_', 'g_'), func))[:52],
+                 '%s.%s' % (owner.replace('graphene_', 'g_'), name),
+                 'yes' if excl else 'none'))
+    print('  class-complete sites: %d' % len(class_sites))
+    print()
     miss_table = []
+    print('  HAND-LISTED rebinding sites (`alias.name = ...`), and their misses:')
     print('  %-52s %5s %5s' % ('rebinding site (module.function)', 'rebnd', 'MISS'))
     for (holder, func), pairs in sorted(groups.items()):
         covered = set(pairs)
@@ -574,13 +652,20 @@ def sections_1_to_3():
     print()
     print('  TOTAL STATIC MISSES: %d, across %d rebinding sites'
           % (len(miss_table), len(set((a, b) for a, b, _c, _d, _e, _f in miss_table))))
+    print('  ANNOTATION, same day: this total is an UPPER BOUND and the number')
+    print('  is retained rather than replaced.  A static import graph asks')
+    print('  whether the repository contains a second binding; a miss needs the')
+    print('  holder to be IMPORTED IN THE PATCHING PROCESS.  Section 4c measures')
+    print('  that per site, and it removes rows -- including the one this section')
+    print('  calls the third unrepaired instance of the 2026-10-10 fault.')
     print()
     print('  %-44s %s' % ('site', 'stale binding it leaves behind'))
     for holder, func, owner, oname, h, l in miss_table:
         print('  %-44s %s.%s  (shadows %s.%s)'
               % (('%s.%s' % (holder.replace('graphene_', 'g_'), func))[:44],
                  h.replace('graphene_', 'g_'), l, owner.replace('graphene_', 'g_'), oname))
-    return mods, bindings, by_owner, miss_table, groups, alias_map
+    return (mods, bindings, by_owner, miss_table, groups, alias_map,
+            class_sites)
 
 
 # ---------------------------------------------------------------------------
@@ -715,7 +800,8 @@ def reachability(mods, mod_name, mgr_name, kwargs, stale, workload):
 
 
 def sections_1_to_4():
-    mods, bindings, by_owner, miss_table, groups, alias_map = sections_1_to_3()
+    (mods, bindings, by_owner, miss_table, groups, alias_map,
+     class_sites) = sections_1_to_3()
 
     # -- Section 1b / 2 reconciliation -------------------------------------
     print()
@@ -858,7 +944,89 @@ def sections_1_to_4():
                       % (label[:50], '%s.%s' % (h.replace('graphene_', 'g_'), l),
                          verdict))
                 reach_rows.append((label, '%s.%s' % (h, l), n))
-    return mods, bindings, by_owner, miss_table, probes, used, trans, reach_rows
+    return (mods, bindings, by_owner, miss_table, probes, used, trans,
+            reach_rows, class_sites)
+
+
+# ---------------------------------------------------------------------------
+# Section 4c: is the stale holder even IMPORTED where the patch happens?
+# ---------------------------------------------------------------------------
+
+def imported_universe(mod_name):
+    """The repository modules present after `import mod_name`, in a fresh
+    interpreter.
+
+    A subprocess rather than this process, because this one has already
+    imported half the repository for Sections 2 and 4a-b; asking it which
+    modules a patch site can see would give the sweep's own import list.
+    That is the 2026-09-30 arrival rule applied to a static question: the
+    instrument must not be what makes the answer true.
+    """
+    import subprocess
+    code = ('import sys, importlib\n'
+            'importlib.import_module(%r)\n'
+            'import os\n'
+            'REPO = %r\n'
+            'out = []\n'
+            'for n, m in list(sys.modules.items()):\n'
+            '    f = getattr(m, "__file__", None)\n'
+            '    if f and os.path.dirname(os.path.abspath(f)) == REPO:\n'
+            '        out.append(n)\n'
+            'print(" ".join(sorted(out)))\n') % (mod_name, REPO)
+    try:
+        r = subprocess.run([sys.executable, '-c', code], cwd=REPO,
+                           capture_output=True, text=True, timeout=600)
+    except subprocess.TimeoutExpired:
+        return None
+    if r.returncode != 0:
+        return None
+    return set(r.stdout.split())
+
+
+def section_4c(miss_table):
+    print()
+    print('-' * 78)
+    print('SECTION 4c -- IS THE STALE HOLDER IMPORTED WHERE THE PATCH HAPPENS?')
+    print('-' * 78)
+    print('  Section 3 counts a miss whenever the REPOSITORY holds a second')
+    print('  binding.  A miss can only fire if the holder is in the patching')
+    print('  process\'s sys.modules.  Measured here in a fresh interpreter per')
+    print('  rebinding-site module, so the sweep\'s own imports cannot supply')
+    print('  the answer.')
+    print()
+    sites = sorted(set(r[0] for r in miss_table))
+    present = {}
+    for m in sites:
+        u = imported_universe(m)
+        present[m] = u
+        if u is None:
+            print('  %-46s import failed or timed out (reported, not hidden)' % m)
+        else:
+            print('  %-46s %d repo modules in process' % (m, len(u)))
+    print()
+    print('  %-44s %-30s %s' % ('rebinding site', 'stale holder', 'verdict'))
+    real, absent, unknown = [], [], []
+    for holder, func, owner, oname, h, l in miss_table:
+        u = present.get(holder)
+        if u is None:
+            unknown.append((holder, func, h, l))
+            v = 'UNKNOWN'
+        elif h in u:
+            real.append((holder, func, h, l))
+            v = 'PRESENT -- a real candidate'
+        else:
+            absent.append((holder, func, h, l))
+            v = 'ABSENT -- cannot fire in this process'
+        print('  %-44s %-30s %s'
+              % (('%s.%s' % (holder.replace('graphene_', 'g_'), func))[:44],
+                 ('%s.%s' % (h.replace('graphene_', 'g_'), l))[:30], v))
+    print()
+    print('  Of Section 3\'s %d static misses: %d have the holder PRESENT, %d'
+          % (len(miss_table), len(real), len(absent)))
+    print('  have it ABSENT, %d unknown.  Section 3\'s total stands as written'
+          % len(unknown))
+    print('  and is an upper bound; this is the subset that can fire.')
+    return real, absent, unknown
 
 
 # ---------------------------------------------------------------------------
@@ -868,7 +1036,8 @@ def sections_1_to_4():
 PLANT_NAME = '_binding_sweep_planted_probe'
 
 
-def validations(mods, bindings, by_owner, miss_table, probes, trans):
+def validations(mods, bindings, by_owner, miss_table, probes, trans,
+                class_sites):
     print()
     print('-' * 78)
     print('SECTION 5 -- VALIDATIONS AGAINST EXACTLY KNOWN VALUES')
@@ -877,28 +1046,45 @@ def validations(mods, bindings, by_owner, miss_table, probes, trans):
     print('  history rather than by a tolerance chosen here.')
     print()
 
-    # (1) The 2026-10-10 repair must show ZERO misses for its pair.
+    # (1) The 2026-10-10 repair must still be covered -- now by construction.
+    MGRS = (('graphene_quantum_capacitance_argument', 'on_consistent_argument'),
+            ('graphene_exact_charge_rederivation', 'on_exact'))
     cd_misses = [r for r in miss_table
-                 if r[5] == 'carrier_density'
-                 and (r[0], r[1]) in (
-                     ('graphene_quantum_capacitance_argument',
-                      'on_consistent_argument'),
-                     ('graphene_exact_charge_rederivation', 'on_exact'))]
-    check('(1) the 2026-10-10 repair of crx.carrier_density shows 0 misses '
-          'in both managers that received it',
-          len(cd_misses) == 0,
-          'found %d; expected exactly 0' % len(cd_misses))
+                 if r[5] == 'carrier_density' and (r[0], r[1]) in MGRS]
+    cd_class = [c for c in class_sites
+                if (c[0], c[1]) in MGRS and c[3] == 'carrier_density']
+    check('(1) the 2026-10-10 repair of crx.carrier_density: 0 misses in both '
+          'managers, and both now cover it class-completely',
+          len(cd_misses) == 0 and len(cd_class) == 2,
+          'misses %d (expected 0), class-complete sites %d (expected 2)'
+          % (len(cd_misses), len(cd_class)))
 
-    # (2) The 2026-10-13 hand-found miss must be REPRODUCED, and be the only
-    #     one in that manager.
+    # (2) The 2026-10-13 hand-found miss, kept on the record after its
+    #     manager stopped being a hand-listed site.  REWRITTEN 2026-10-14:
+    #     this check used to assert that on_consistent_argument left exactly
+    #     cd.quantum_capacitance stale.  It now asserts the same FACT in the
+    #     form the repair left it in -- the manager rebinds the class, and
+    #     that one member is excluded by name with a stated reason.  The
+    #     original form is not deleted: it is the first clause below, which
+    #     still requires zero SILENT misses.
+    import graphene_binding_class as bc_mod
     qca_misses = [(r[4], r[5]) for r in miss_table
-                  if (r[0], r[1]) == ('graphene_quantum_capacitance_argument',
-                                      'on_consistent_argument')]
-    check('(2) 2026-10-13\'s hand-found miss reproduced, and is the only one '
-          'in on_consistent_argument',
-          qca_misses == [('graphene_contact_doping_model',
-                          'quantum_capacitance')],
-          'found %r' % (qca_misses,))
+                  if (r[0], r[1]) == MGRS[0]]
+    qca_class_qc = [c for c in class_sites
+                    if (c[0], c[1]) == MGRS[0] and c[3] == 'quantum_capacitance']
+    key = ('graphene_contact_doping_model', 'quantum_capacitance')
+    reason = bc_mod.CONTACT_OPERATING_POINT.get(key, '')
+    check('(2) 2026-10-13\'s hand-found miss is on the record as a REASONED '
+          'exclusion, not as a silent miss',
+          (qca_misses == []
+           and len(qca_class_qc) == 1 and qca_class_qc[0][4] is True
+           and list(bc_mod.CONTACT_OPERATING_POINT) == [key]
+           and len(reason) > 80),
+          'silent misses %r; class-complete C_q sites %d with exclusions=%r; '
+          'CONTACT_OPERATING_POINT keys %r; reason %d chars'
+          % (qca_misses, len(qca_class_qc),
+             qca_class_qc[0][4] if qca_class_qc else None,
+             list(bc_mod.CONTACT_OPERATING_POINT), len(reason)))
 
     # (3) A planted binding must be found exactly once, by both methods.
     path = os.path.join(REPO, PLANT_NAME + '.py')
@@ -1054,13 +1240,23 @@ def make_figure(by_owner, trans, miss_table, used, reach_rows,
 
 def main():
     (mods, bindings, by_owner, miss_table, probes, used, trans,
-     reach_rows) = sections_1_to_4()
-    validations(mods, bindings, by_owner, miss_table, probes, trans)
+     reach_rows, class_sites) = sections_1_to_4()
+    real, absent, unknown = section_4c(miss_table)
+    validations(mods, bindings, by_owner, miss_table, probes, trans,
+                class_sites)
     print()
     print('-' * 78)
     print('SECTION 6 -- WHAT THIS MEANS FOR ITEM 16')
     print('-' * 78)
     live_used = [(h, l) for (h, l), v in used.items() if v]
+    print('  Three axes, and a miss has to clear all three to be a defect:')
+    print('    PRESENT (4c)  the holder is imported where the patch runs: %d of %d'
+          % (len(real), len(miss_table)))
+    print('    USED    (4a)  the holder\'s own numbers depend on its copy')
+    print('    REACHED (4b)  the patched run actually calls it')
+    print('  Section 3\'s %d is the static count and is kept as the upper'
+          ' bound.' % len(miss_table))
+    print()
     print('  Item 16 flips the default to form B_T.  Whatever installs it must')
     print('  reach every member of the identity class of BOTH charge-path names,')
     print('  not the two that history happens to have found by hand.  Measured')

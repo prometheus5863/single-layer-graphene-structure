@@ -3,14 +3,14 @@ IMPORT-BINDING SWEEP -- every module-level alias of every patchable name
 Section 7.9, ranked second on 2026-10-13: the precondition for item 16
 ==============================================================================
 
-Repository modules parsed: 53
+Repository modules parsed: 54
 
 ------------------------------------------------------------------------------
 SECTION 1 -- THE STATIC BINDING TABLE (AST, no import)
 ------------------------------------------------------------------------------
   module-level from-imports of repo names : 149
   function-level (deferred, SAFE)         : 6
-  `import M as a` module aliases (SAFE)   : 60
+  `import M as a` module aliases (SAFE)   : 64
   distinct (owner, name) pairs aliased    : 73
 
   Every owner.name with MORE THAN ONE live binding -- i.e. every name
@@ -97,7 +97,7 @@ SECTION 1 -- THE STATIC BINDING TABLE (AST, no import)
 ------------------------------------------------------------------------------
 SECTION 2 -- THE SAME TABLE BY RUNTIME OBJECT IDENTITY (the control)
 ------------------------------------------------------------------------------
-  modules imported: 42 of 42
+  modules imported: 44 of 44
   static (importable subset): 149   runtime: 164   agreed: 149
   seen at RUNTIME but not statically (identity coincidence, or a
   binding this AST pass cannot see -- each one is a blind spot):
@@ -120,6 +120,21 @@ SECTION 2 -- THE SAME TABLE BY RUNTIME OBJECT IDENTITY (the control)
 ------------------------------------------------------------------------------
 SECTION 3 -- EVERY REBINDING SITE, AND WHAT IT FAILS TO COVER
 ------------------------------------------------------------------------------
+  CLASS-COMPLETE rebinding sites (graphene_binding_class.rebind):
+  these cover their required set by construction -- the class is
+  computed at entry -- so they contribute no miss, and what matters
+  about them is their EXCLUSIONS, listed with the reason in
+  graphene_binding_class.CONTACT_OPERATING_POINT.
+
+  site                                                 name                       exclusions?
+  g_exact_charge_rederivation.on_exact                 g_fet_model.carrier_density none
+  g_exact_charge_rederivation.on_exact                 g_fet_model.quantum_capacitance yes
+  g_potential_declaration.main                         g_fet_model.carrier_density none
+  g_quantum_capacitance_argument.on_consistent_argumen g_fet_model.carrier_density none
+  g_quantum_capacitance_argument.on_consistent_argumen g_fet_model.quantum_capacitance yes
+  class-complete sites: 5
+
+  HAND-LISTED rebinding sites (`alias.name = ...`), and their misses:
   rebinding site (module.function)                     rebnd  MISS
   g_band_structure_audit.result_2_why_it_survived          1     0
   g_contact_argument_blast_radius.contact_on_consisten     1     0
@@ -127,21 +142,24 @@ SECTION 3 -- EVERY REBINDING SITE, AND WHAT IT FAILS TO COVER
   g_diffusion_current_model._at_literature_geometry        2     2
   g_diffusion_current_model.main                           1     4
   g_double_regularisation.regularisers                     2     1
-  g_exact_charge_rederivation.on_exact                     3     1
   g_exact_charge_rederivation.onoff                        1     0
   g_fet_signed_carrier_model.intrinsic_onoff_at            2     1
   g_fet_signed_carrier_model.onoff_at                      1     1
   g_fmax_shortfall_decomposition.__enter__                 2     2
   g_perfect_contact_counterfactual.at_literature_geome     2     2
-  g_potential_declaration.main                             1     1
-  g_quantum_capacitance_argument.on_consistent_argumen     3     1
   g_quantum_capacitance_overflow.main                      1     0
   g_velocity_saturation_model._at_literature_geometry      2     2
   g_velocity_saturation_model.main                         2     4
   rf_small_signal_model.compute_fT_fmax                    2     2
   rf_small_signal_model.plot_fT_fmax                       1     0
 
-  TOTAL STATIC MISSES: 25, across 14 rebinding sites
+  TOTAL STATIC MISSES: 22, across 11 rebinding sites
+  ANNOTATION, same day: this total is an UPPER BOUND and the number
+  is retained rather than replaced.  A static import graph asks
+  whether the repository contains a second binding; a miss needs the
+  holder to be IMPORTED IN THE PATCHING PROCESS.  Section 4c measures
+  that per site, and it removes rows -- including the one this section
+  calls the third unrepaired instance of the 2026-10-10 fault.
 
   site                                         stale binding it leaves behind
   g_contact_argument_blast_radius.series_capac g_contact_doping_model.C_ox  (shadows g_fet_model.C_ox)
@@ -152,15 +170,12 @@ SECTION 3 -- EVERY REBINDING SITE, AND WHAT IT FAILS TO COVER
   g_diffusion_current_model.main               g_photodetector_signed_carrier_model.mu  (shadows g_fet_model.mu)
   g_diffusion_current_model.main               g_photodetector_two_contact_model.mu  (shadows g_fet_model.mu)
   g_double_regularisation.regularisers         g_contact_doping_model.n_puddle  (shadows g_fet_model.n_puddle)
-  g_exact_charge_rederivation.on_exact         g_contact_doping_model.quantum_capacitance  (shadows g_fet_model.quantum_capacitance)
   g_fet_signed_carrier_model.intrinsic_onoff_a g_contact_doping_model.n_puddle  (shadows g_fet_model.n_puddle)
   g_fet_signed_carrier_model.onoff_at          g_contact_doping_model.n_puddle  (shadows g_fet_model.n_puddle)
   g_fmax_shortfall_decomposition.__enter__     contact_resistance_crossover.W  (shadows g_fet_model.W)
   g_fmax_shortfall_decomposition.__enter__     g_contact_doping_model.W  (shadows g_fet_model.W)
   g_perfect_contact_counterfactual.at_literatu contact_resistance_crossover.W  (shadows g_fet_model.W)
   g_perfect_contact_counterfactual.at_literatu g_contact_doping_model.W  (shadows g_fet_model.W)
-  g_potential_declaration.main                 contact_resistance_crossover.carrier_density  (shadows g_fet_model.carrier_density)
-  g_quantum_capacitance_argument.on_consistent g_contact_doping_model.quantum_capacitance  (shadows g_fet_model.quantum_capacitance)
   g_velocity_saturation_model._at_literature_g contact_resistance_crossover.W  (shadows g_fet_model.W)
   g_velocity_saturation_model._at_literature_g g_contact_doping_model.W  (shadows g_fet_model.W)
   g_velocity_saturation_model.main             g_contact_doping_model.mu  (shadows g_fet_model.mu)
@@ -257,8 +272,6 @@ SECTION 4a -- IS THE STALE BINDING USED?  (measured, per holder)
   g_photodetector_signed_carrier_model.mu        5.3067e-02 USED -- the miss changes this holders numbers
   g_photodetector_two_contact_model.mu           3.9039e-02 USED -- the miss changes this holders numbers
   g_contact_doping_model.n_puddle                3.5764e-01 USED -- the miss changes this holders numbers
-  g_contact_doping_model.quantum_capacitance     9.8781e+00 USED -- the miss changes this holders numbers
-  contact_resistance_crossover.carrier_density   2.7007e-01 USED -- the miss changes this holders numbers
 
 ------------------------------------------------------------------------------
 SECTION 4b -- DOES THE PATCHED RUN REACH IT?  (arrival counters)
@@ -268,10 +281,56 @@ SECTION 4b -- DOES THE PATCHED RUN REACH IT?  (arrival counters)
   blocks inside a function and are reported UNENTERABLE rather than
   assumed either way.
 
-  graphene_quantum_capacitance_argument.on_consisten g_contact_doping_model.quantum_capacitance LATENT: never reached by this workload
-  graphene_exact_charge_rederivation.on_exact        g_contact_doping_model.quantum_capacitance LATENT: never reached by this workload
+  graphene_quantum_capacitance_argument.on_consistent_argu no static miss
+  graphene_exact_charge_rederivation.on_exact              no static miss
   graphene_double_regularisation.regularisers(floor= g_contact_doping_model.n_puddle not countable (float)
   graphene_contact_argument_blast_radius.contact_on_consis no static miss
+
+------------------------------------------------------------------------------
+SECTION 4c -- IS THE STALE HOLDER IMPORTED WHERE THE PATCH HAPPENS?
+------------------------------------------------------------------------------
+  Section 3 counts a miss whenever the REPOSITORY holds a second
+  binding.  A miss can only fire if the holder is in the patching
+  process's sys.modules.  Measured here in a fresh interpreter per
+  rebinding-site module, so the sweep's own imports cannot supply
+  the answer.
+
+  graphene_contact_argument_blast_radius         11 repo modules in process
+  graphene_diffusion_current_model               4 repo modules in process
+  graphene_double_regularisation                 5 repo modules in process
+  graphene_fet_signed_carrier_model              5 repo modules in process
+  graphene_fmax_shortfall_decomposition          3 repo modules in process
+  graphene_perfect_contact_counterfactual        4 repo modules in process
+  graphene_velocity_saturation_model             3 repo modules in process
+  rf_small_signal_model                          2 repo modules in process
+
+  rebinding site                               stale holder                   verdict
+  g_contact_argument_blast_radius.series_capac g_contact_doping_model.C_ox    PRESENT -- a real candidate
+  g_diffusion_current_model._at_literature_geo contact_resistance_crossover.W ABSENT -- cannot fire in this process
+  g_diffusion_current_model._at_literature_geo g_contact_doping_model.W       ABSENT -- cannot fire in this process
+  g_diffusion_current_model.main               g_contact_doping_model.mu      ABSENT -- cannot fire in this process
+  g_diffusion_current_model.main               g_photodetector_collection_mod ABSENT -- cannot fire in this process
+  g_diffusion_current_model.main               g_photodetector_signed_carrier ABSENT -- cannot fire in this process
+  g_diffusion_current_model.main               g_photodetector_two_contact_mo ABSENT -- cannot fire in this process
+  g_double_regularisation.regularisers         g_contact_doping_model.n_puddl ABSENT -- cannot fire in this process
+  g_fet_signed_carrier_model.intrinsic_onoff_a g_contact_doping_model.n_puddl ABSENT -- cannot fire in this process
+  g_fet_signed_carrier_model.onoff_at          g_contact_doping_model.n_puddl ABSENT -- cannot fire in this process
+  g_fmax_shortfall_decomposition.__enter__     contact_resistance_crossover.W ABSENT -- cannot fire in this process
+  g_fmax_shortfall_decomposition.__enter__     g_contact_doping_model.W       ABSENT -- cannot fire in this process
+  g_perfect_contact_counterfactual.at_literatu contact_resistance_crossover.W ABSENT -- cannot fire in this process
+  g_perfect_contact_counterfactual.at_literatu g_contact_doping_model.W       ABSENT -- cannot fire in this process
+  g_velocity_saturation_model._at_literature_g contact_resistance_crossover.W ABSENT -- cannot fire in this process
+  g_velocity_saturation_model._at_literature_g g_contact_doping_model.W       ABSENT -- cannot fire in this process
+  g_velocity_saturation_model.main             g_contact_doping_model.mu      ABSENT -- cannot fire in this process
+  g_velocity_saturation_model.main             g_photodetector_collection_mod ABSENT -- cannot fire in this process
+  g_velocity_saturation_model.main             g_photodetector_signed_carrier ABSENT -- cannot fire in this process
+  g_velocity_saturation_model.main             g_photodetector_two_contact_mo ABSENT -- cannot fire in this process
+  rf_small_signal_model.compute_fT_fmax        contact_resistance_crossover.W ABSENT -- cannot fire in this process
+  rf_small_signal_model.compute_fT_fmax        g_contact_doping_model.W       ABSENT -- cannot fire in this process
+
+  Of Section 3's 22 static misses: 1 have the holder PRESENT, 21
+  have it ABSENT, 0 unknown.  Section 3's total stands as written
+  and is an upper bound; this is the subset that can fire.
 
 ------------------------------------------------------------------------------
 SECTION 5 -- VALIDATIONS AGAINST EXACTLY KNOWN VALUES
@@ -279,10 +338,10 @@ SECTION 5 -- VALIDATIONS AGAINST EXACTLY KNOWN VALUES
   Six, and three of them are fixed exactly by this repository's own
   history rather than by a tolerance chosen here.
 
-  [PASS] (1) the 2026-10-10 repair of crx.carrier_density shows 0 misses in both managers that received it
-         found 0; expected exactly 0
-  [PASS] (2) 2026-10-13's hand-found miss reproduced, and is the only one in on_consistent_argument
-         found [('graphene_contact_doping_model', 'quantum_capacitance')]
+  [PASS] (1) the 2026-10-10 repair of crx.carrier_density: 0 misses in both managers, and both now cover it class-completely
+         misses 0 (expected 0), class-complete sites 2 (expected 2)
+  [PASS] (2) 2026-10-13's hand-found miss is on the record as a REASONED exclusion, not as a silent miss
+         silent misses []; class-complete C_q sites 1 with exclusions=True; CONTACT_OPERATING_POINT keys [('graphene_contact_doping_model', 'quantum_capacitance')]; reason 361 chars
   [PASS] (3) a planted binding is found exactly once by the AST rule, once by the transitive rule, and twice by identity
          static 1 (expected 1), transitive 1 (expected 1), identity 2 (expected 2: the import and the rename)
   [PASS] (4) identity-patch neutrality over 98 wrapped sites: every probe bit-identical
@@ -295,10 +354,16 @@ SECTION 5 -- VALIDATIONS AGAINST EXACTLY KNOWN VALUES
 ------------------------------------------------------------------------------
 SECTION 6 -- WHAT THIS MEANS FOR ITEM 16
 ------------------------------------------------------------------------------
+  Three axes, and a miss has to clear all three to be a defect:
+    PRESENT (4c)  the holder is imported where the patch runs: 1 of 22
+    USED    (4a)  the holder's own numbers depend on its copy
+    REACHED (4b)  the patched run actually calls it
+  Section 3's 22 is the static count and is kept as the upper bound.
+
   Item 16 flips the default to form B_T.  Whatever installs it must
   reach every member of the identity class of BOTH charge-path names,
   not the two that history happens to have found by hand.  Measured
-  here: 7 of the 10 distinct stale bindings are USED by their own
+  here: 5 of the 8 distinct stale bindings are USED by their own
   holder, so each is a number that would silently not move.
 
   And one of them cannot be repaired by rebinding at all.

@@ -97,6 +97,7 @@ import numpy as np
 
 import graphene_fet_model as gfet
 import graphene_diffusion_current_model as dd
+import graphene_binding_class as bc
 
 E_CHARGE = dd.E_CHARGE if hasattr(dd, 'E_CHARGE') else 1.602176634e-19
 KT_OVER_E = 1.380649e-23 * gfet.T / E_CHARGE   # thermal voltage [V]
@@ -256,15 +257,35 @@ def main():
     print('  2c  AND IN I_d ITSELF, by running Eq. (4) on (D1).  carrier_density')
     print('      is replaced by the (D1) form with the same puddle floor and')
     print('      nothing else changed:')
-    original = gfet.carrier_density
-    try:
-        gfet.carrier_density = lambda V_g, V_ch=0.0: n_total_qf(
-            np.asarray(V_g, dtype=float) - np.asarray(V_ch, dtype=float)
-            - gfet.V_dirac)
+    # REWRITTEN 2026-10-14.  This was a bare `gfet.carrier_density = ...`,
+    # and 2026-10-14's static import-binding sweep flagged it as the third
+    # unrepaired instance of the 2026-10-10 delivery fault: the repository
+    # contains contact_resistance_crossover.carrier_density, a second
+    # import-time binding of the same object, and this block did not rebind
+    # it.  Measured USED at 27.0 % of crx's own numbers.
+    #
+    # The runtime check CORRECTS that reading, and the correction is recorded
+    # here rather than quietly: contact_resistance_crossover is NOT IMPORTED
+    # in this module's process.  `import graphene_potential_declaration`
+    # brings in four repository modules and crx is not among them, so in this
+    # run the identity class of carrier_density has exactly ONE member and
+    # there was no stale binding to leave behind.  A static import graph
+    # cannot see that; it over-reports a miss whose holder is absent.  See
+    # graphene_import_binding_sweep.py Section 4c, added the same day, which
+    # measures presence per rebinding site and annotates Section 3's total in
+    # place rather than restating it.
+    #
+    # The rebind is class-complete anyway.  Not because a miss exists today,
+    # but because the cost of being right either way is one call: if this
+    # module ever imports crx -- directly, or through a module that does --
+    # the fault appears with no diagnostic, which is how it appeared three
+    # times already.
+    with bc.rebind(gfet, 'carrier_density',
+                   lambda V_g, V_ch=0.0: n_total_qf(
+                       np.asarray(V_g, dtype=float)
+                       - np.asarray(V_ch, dtype=float) - gfet.V_dirac)):
         Id_D1 = float(dd.transfer_characteristic_dd(np.array([V_g_rf]),
                                                     Vds=Vds_rf, lam=0.0)[0])
-    finally:
-        gfet.carrier_density = original
     cost = 100.0 * (Id_D1 - Id0_t) / Id0_t
     print('      I_d on (D2), lambda = 0 : %.6e A   (committed)' % Id0_t)
     print('      I_d on (D1), lambda = 0 : %.6e A   (declared exactly)' % Id_D1)

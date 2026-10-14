@@ -57,6 +57,7 @@ import graphene_fet_signed_carrier_model as sc
 import rf_small_signal_model as rf
 import contact_resistance_crossover as crx
 import graphene_exact_charge_rederivation as X
+import graphene_binding_class as bc
 
 E_CHARGE = 1.602176634e-19
 KB = 1.380649e-23
@@ -209,22 +210,40 @@ def on_consistent_argument(capacitance=True):
     found those two halves nearly cancel in f_T, and a single combined number
     would hide that.
 
-    Both the owning module's name and contact_resistance_crossover's
-    import-time binding are rebound -- the 2026-10-10 delivery fault.
+    REWRITTEN 2026-10-14.  The two lines this manager used to carry --
+    `gfet.carrier_density` and `crx.carrier_density` -- were a hand-maintained
+    list, and a hand-maintained list is exactly what was wrong in all three of
+    the 2026-10 delivery faults.  The sweep of 2026-10-14 measured what such a
+    list leaves behind repository-wide (25 stale sites at 14 rebinding sites,
+    22 of them never found by hand) and its finding (i) is that the set to
+    rebind is the name's RUNTIME IDENTITY CLASS, which is discoverable and
+    needs no list.  graphene_binding_class.rebind() computes it at entry, so
+    any binding of these names added in future is rebound automatically
+    instead of being found by the next audit.
+
+    The two names this installs are NOT symmetric, and that is finding (ii):
+    `carrier_density`'s class is rebound whole, while
+    `graphene_contact_doping_model.quantum_capacitance` is excluded BY NAME
+    with its reason recorded in bc.CONTACT_OPERATING_POINT -- it is reached at
+    a contact whose series capacitance is C_interface, and the replacement
+    installed here solves for n against C_ox.  Copying this object there
+    would be a different wrong answer, not a repair.
+
+    Behaviour is unchanged by the rewrite: the class of `carrier_density` is
+    exactly {gfet, crx} and the class of `quantum_capacitance` minus the
+    exclusion is exactly {gfet}, i.e. precisely the three sites the old lines
+    named.  That is verified by transcript rather than asserted -- this
+    module's committed output reproduces byte-identically across the change.
     """
-    cd_saved, qc_saved, crx_saved = (gfet.carrier_density,
-                                     gfet.quantum_capacitance,
-                                     crx.carrier_density)
-    try:
-        gfet.carrier_density = _carrier_density_consistent
-        crx.carrier_density = _carrier_density_consistent
+    with contextlib.ExitStack() as stack:
+        stack.enter_context(bc.rebind(gfet, 'carrier_density',
+                                      _carrier_density_consistent))
         if capacitance:
-            gfet.quantum_capacitance = _quantum_capacitance_consistent
+            stack.enter_context(
+                bc.rebind(gfet, 'quantum_capacitance',
+                          _quantum_capacitance_consistent,
+                          exclude_reasons=bc.CONTACT_OPERATING_POINT))
         yield
-    finally:
-        gfet.carrier_density = cd_saved
-        gfet.quantum_capacitance = qc_saved
-        crx.carrier_density = crx_saved
 
 
 def crossover_lengths(metals=(('Pd', None), ('300', 300.0), ('500', 500.0))):

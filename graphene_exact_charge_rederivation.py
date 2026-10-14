@@ -109,6 +109,7 @@ import graphene_diffusion_current_model as dd
 import graphene_fet_signed_carrier_model as sc
 import rf_small_signal_model as rf
 import contact_resistance_crossover as crx
+import graphene_binding_class as bc
 
 E_CHARGE = 1.602176634e-19
 A_FERMI = dd.A_FERMI                 # E_F/e = A_FERMI*sqrt(n)
@@ -292,26 +293,40 @@ def on_exact(capacitance=True):
     capacitance consistent with (4.28).  The two are separated because they
     move f_T in different ways and a single combined number would hide that.
     """
-    cd_saved = gfet.carrier_density
-    qc_saved = gfet.quantum_capacitance
-    # contact_resistance_crossover.py does `from graphene_fet_model import
-    # carrier_density`, so it holds its OWN reference, bound at import time.
-    # Rebinding only `gfet.carrier_density` leaves Section 4.4 silently on
-    # (4.29) while this file reports it as re-derived -- the 2026-10-03
-    # frozen-default fault in its monkey-patch form.  Both names are rebound,
-    # and Section 3 carries an ARRIVAL CONTROL (2026-09-30's rule) that fails
-    # if the patch did not reach the module where the number is computed.
-    crx_saved = crx.carrier_density
-    try:
-        gfet.carrier_density = _carrier_density_exact
-        crx.carrier_density = _carrier_density_exact
+    # REWRITTEN 2026-10-14.  The comment this manager carried is kept below,
+    # because it is the record of the 2026-10-10 fault and of why
+    # contact_resistance_crossover was added by hand:
+    #
+    #   "contact_resistance_crossover.py does `from graphene_fet_model import
+    #    carrier_density`, so it holds its OWN reference, bound at import
+    #    time.  Rebinding only `gfet.carrier_density` leaves Section 4.4
+    #    silently on (4.29) while this file reports it as re-derived -- the
+    #    2026-10-03 frozen-default fault in its monkey-patch form."
+    #
+    # What changed is the mechanism, not the intent.  The hand-added line was
+    # correct for the binding it names and said nothing about the rest of the
+    # class; 2026-10-14's sweep found that this manager ALSO left
+    # graphene_contact_doping_model.quantum_capacitance stale -- the same
+    # miss found by hand in graphene_quantum_capacitance_argument.py a day
+    # earlier, in a module nobody had looked at.  The class is now computed
+    # at entry by graphene_binding_class.rebind(), so a future binding is
+    # covered without a future audit.
+    #
+    # cd.quantum_capacitance is NOT rebound, and the reason is recorded once
+    # in bc.CONTACT_OPERATING_POINT rather than re-argued here: it is reached
+    # at a contact whose series capacitance is C_interface, while the object
+    # installed here is a C_ox solve.  Section 3's ARRIVAL CONTROL
+    # (2026-09-30's rule) is unchanged and still fails if the patch did not
+    # reach the module where the number is computed.
+    with contextlib.ExitStack() as stack:
+        stack.enter_context(bc.rebind(gfet, 'carrier_density',
+                                      _carrier_density_exact))
         if capacitance:
-            gfet.quantum_capacitance = _quantum_capacitance_consistent
+            stack.enter_context(
+                bc.rebind(gfet, 'quantum_capacitance',
+                          _quantum_capacitance_consistent,
+                          exclude_reasons=bc.CONTACT_OPERATING_POINT))
         yield
-    finally:
-        gfet.carrier_density = cd_saved
-        gfet.quantum_capacitance = qc_saved
-        crx.carrier_density = crx_saved
 
 
 def peak_rf(Vds=VDS_RF, W=None, N_fingers=1, extrinsic=False, n_vg=400):
