@@ -1,0 +1,65 @@
+========================================================================
+THE SECOND ANCHOR FOR Delta_c -- found, and it is a bound
+========================================================================
+Source: Khomyakov et al., Phys. Rev. B 79, 195425 (2009),
+        arXiv:0902.1203, Sections III.2 and III.3.
+Anchor 1: Delta_c(3.3 A) = 0.9 eV      (used since 2026-09-21)
+Anchor 2: Delta_c(5.0 A) <= epsilon     (NEW -- stated in words)
+
+VALIDATIONS (exactly known values, not plausible ranges)
+  [PASS] epsilon = DC_ANCHOR gives ell_max = +inf EXACTLY
+         ell_max(0.9 eV) = inf
+  [PASS] planted-ell round trip over 65 values, worst error <= 4 ulp
+         worst 2 ulp at ell = 1.1250 A
+  [PASS] anchor untouched across the surviving window, bitwise
+         Delta_c(3.3 A, ell) == 0.9 for 61/61 ell in [0.300, 0.7024] A
+  [PASS] d_far = D_ANCHOR gives ell_max = 0 EXACTLY
+         ell_max at zero span = 0.0
+  [PASS] ell_max strictly increasing in epsilon over 97 values
+         ell_max spans 0.4466 -> 1.1303 A
+  [PASS] exclusion counter reads exactly 0 at the top and 1 at the bottom
+         f(eps=0.2898 eV) = 0.0 ; f(eps=0.0031 eV) = 1.0
+
+THE BOUND, AS A FAMILY OVER epsilon (the paper quantifies none)
+  eps / eV     ell_max / A    excluded     ELL_DEFAULT survives?
+  0.200        1.1303         30.8 %       yes
+  0.150        0.9488         45.9 %       yes
+  0.100        0.7737         60.5 %       yes
+  0.080        0.7024         66.5 %       yes   <- paper
+  0.050        0.5882         76.0 %       NO
+  0.020        0.4466         87.8 %       NO
+
+WHAT THE SWEPT RANGE IMPLIES AT 5.0 A (the forward direction)
+  ell / A          Delta_c(5.0 A) / eV crossover W_0(5.0 A) / eV
+  0.3000           0.0031             4.5031    (bottom of range)
+  0.6000           0.0529             4.5529    (COMMITTED DEFAULT)
+  0.7024           0.0800             4.5800    (the new bound)
+  1.5000           0.2898             4.7898    (top of range)
+  W_G = 4.50 eV.  "crossover ~ W_G at 5.0 A" is the source's own
+  description of the large-separation limit; the top of the swept
+  range puts it 0.2898 eV above W_G, which is not that.
+
+PER-METAL EFFECT OF RESTRICTING ell TO (0, 0.7024 A]
+  metal  d_eq/A   W_0 @0.3A   W_0 @bound  W_0 @1.5A   verdict moves?
+  Ti     2.10     53.6383     9.4686      6.5030      no  [extrapolated]
+  Cu     3.26     5.5284      5.4527      5.4243      no
+  Ni     2.05     62.5501     9.8352      6.5709      no  [extrapolated]
+  Au     3.31     5.3705      5.3873      5.3940      no
+  Pd     2.30     29.7285     8.2374      6.2530      no  [extrapolated]
+  Pt     3.30     5.4000      5.4000      5.4000      no
+  No metal's n/p verdict changes between the old top of the
+  swept range and the new bound.  The bound tightens the error
+  bar on W_0 and leaves every doping sign where it was.
+
+Wrote second_anchor_bound.png
+
+========================================================================
+SUMMARY
+  ell <= 0.7024 A at the paper's own 0.08 eV scale.
+  66.5 % of the committed swept range is excluded by the source.
+  The committed default ELL_DEFAULT = 0.6 A survives (checked, not assumed).
+  Metals whose n/p verdict moves: none
+  The item stays OPEN for a two-sided constraint: nothing here
+  bounds ell from below.
+  Validations: 6 passed, 0 failed
+========================================================================
