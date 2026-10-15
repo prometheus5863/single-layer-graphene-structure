@@ -2365,6 +2365,176 @@ surviving hand-listed sites outside the charge path are **not** converted,
 because each is latent by import today and converting one changes nothing
 until it is not.
 
+### 4.6.14 The contact gets a replacement instead of an exclusion, and the identity class turns out to span two operating points
+
+Section 7.9 item 16 — flip `quantum_capacitance()`'s argument from the gate
+overdrive to `E_F/e` — has been the first-ranked open item on this chapter
+since 2026-10-10. §4.6.13 reduced its blockers to exactly two, of which the
+first was:
+
+> `graphene_contact_doping_model` needs its **own** contact-correct
+> replacement, because the contact cannot take the channel's object. The flip
+> is two replacements, not one rebinding.
+
+**That blocker is now discharged.** What follows is the discharge, and the
+structural finding that came out of attempting it. Neither flips the default:
+item 16 remains open, and what has been removed is the reason it could not be
+flipped.
+
+#### (a) A measurement harness is not a replacement
+
+The contact-correct numbers were not unknown. §4.6.12 measured them a
+fortnight before, on 2026-10-13: the correction at the contact edge runs
+**−4.7696 %** (Cu) to **−12.4964 %** (Pd) in `n`, against **−1.0212 %** for
+the same correction in the channel at `V_g = 3.5 V`. The contact is **4.7× to
+12.2× less forgiving**, because its series factor `C_q/(C_q + C_s)` runs
+**0.555–0.806** where the channel's is **0.999**, and it has a wider `dV` to
+be wrong about.
+
+Having the numbers was not having the object, for three reasons, and only the
+third was a surprise:
+
+1. **The object belonged to the audit.** It lived inside
+   `graphene_contact_argument_blast_radius`, so nothing outside that module
+   could install it. Item 16's flip had no second object to install even
+   though its size was known to four decimal places.
+2. **The harness rebound by hand.** A single assignment,
+   `cd.quantum_capacitance = ...` — precisely the mechanism §4.6.13 retired
+   for the channel after measuring that hand-listed rebinding leaves **25**
+   stale sites at **14** listed sites, **22** of which no audit had ever
+   found. The contact half was still on the retired mechanism.
+3. **And the replacement mechanism could not express what the contact needed.**
+
+#### (b) Identity answers *which names move together* and does not answer *to what*
+
+`bc.rebind()` — §4.6.13's repair — computes a name's runtime **identity
+class**, the set of names that hold the same object, and gives every member
+**the same replacement**. Its one escape hatch is `CONTACT_OPERATING_POINT`:
+leave this member alone, with a reason recorded. So its vocabulary is
+`{same replacement, left alone}`, and it has no word for *rebind this member
+to a **different** object* — which is exactly what the contact requires the
+moment it has an object of its own.
+
+Measured at call time, the class is:
+
+| member | operating point | series capacitance | series factor |
+|---|---|---|---|
+| `graphene_fet_model.quantum_capacitance` | channel | `C_ox` | 0.999 |
+| `graphene_contact_doping_model.quantum_capacitance` | contact | `C_interface` = 65.93 × `C_ox` | 0.555–0.806 |
+
+> **Two names can hold one object and still sit at two operating points. An
+> operating point is not something identity can see, so the class must be
+> PARTITIONED by one — and the partition has to come from the caller.**
+
+This is a limitation of §4.6.13's repair discovered by trying to use it, not a
+defect in it. The repair's claim — that the set of names to rebind is
+computable and needs no list — survives intact; what fails is the implicit
+assumption that one class takes one replacement.
+
+`bc.rebind_by_operating_point()` is that generalisation. `bc.rebind()` is
+**left untouched**, and all three transcripts it owns regenerate
+byte-identically. The new function takes a map from class member to
+`(replacement, reason)`, where `replacement = None` expresses §4.6.13's
+exclusion in the same vocabulary rather than as a separate mechanism, and the
+`reason` is mandatory in both cases.
+
+The refusal carries across in the form the same lesson takes here. §4.6.13
+refuses an **exclusion without a stated reason**, because an unstated
+exclusion is how all three of the 2026-10 delivery faults were introduced.
+This refuses an **unassigned class member**:
+
+> **Silently leaving a member at the shipped object is the identical fault,
+> reached by omission from a map instead of omission from a list. The whole
+> value of computing the class is that the omission is detectable, so it is
+> detected: the manager raises and rebinds nothing.**
+
+#### (c) The emptiness that discharges the precondition
+
+`on_consistent_argument_everywhere()` installs the charge relation and **both**
+capacitance operating points together, and its left-alone set is **empty** —
+four sites installed, zero left at the shipped object:
+
+```
+graphene_fet_model.carrier_density                     channel
+contact_resistance_crossover.carrier_density           channel
+graphene_fet_model.quantum_capacitance                 channel  (C_ox)
+graphene_contact_doping_model.quantum_capacitance      contact  (C_interface)
+```
+
+The emptiness is **asserted by the mechanism, not by this section**: the
+manager refuses to open if any member of either class is unassigned, and a
+negative control plants a missing member and requires the refusal to fire.
+Without that control, an empty left-alone set and a mechanism that never
+checks would read identically — the 2026-10-14 rule that a null result is a
+measurement only when the instrument carries a control.
+
+#### (d) Validations against exactly known values
+
+Nine checks, 9/9, five of them against values known exactly rather than
+plausible ranges:
+
+| check | value required | result |
+|---|---|---|
+| `ΔWF = 0` → `n = 0` under **both** forms | exactly 0 | `−0.0` / `−0.0` |
+| form `B_T` odd in `dV` | **0 ulp** | 0 ulp over 5 offsets |
+| new machinery fed the **OLD** argument vs shipped | bitwise | **0 ulp**, all 7 metals |
+| quantum limit `n = 4(dV/A_F)²`, error order in `1/C_s` | ratio exactly 100 | **100.000** at `C_s × 100` |
+| today's owned object vs §4.6.12's independent construction | bitwise | **0 ulp**, all 7 metals |
+| planted unassigned member | must raise | raises |
+| three arrival counters | positive control on each | 1 / 19 / 1 |
+
+The third is the one that makes the rest mean anything. Feeding the new code
+path a `C_q` that ignores `n` and returns the shipped function at the **old**
+argument reproduces the shipped `contact_edge_carrier_density()` **bitwise**
+over all seven metals. That is what establishes that form A and form `B_T` at
+the contact differ in `C_q`'s **argument** and in nothing else — no second
+solver, no second set of constants, no altered series factor. Without it,
+every per-metal number in §4.6.12 and here could be the residue of some other
+difference between two implementations. The fourth is the honest form of a
+closed-form check: at finite `C_s` the solve differs from the limit by
+`O(C_q/C_s)`, so a single threshold would be a plausible-range check wearing a
+closed form's clothes, and the exact statement is the **convergence order**.
+
+#### (e) And the first draft of one check misattributed a real defect
+
+The oddness check (second row) was first written through the shipped
+`contact_edge_carrier_density()` rather than on the solver, and **failed at 3
+ulp**. It then failed at **2–3 ulp under form A as well**, which is what
+identified the cause:
+
+> **The shipped function's own `dWF = work_function_metal - W_GRAPHENE` is not
+> antisymmetric in double precision.** `(4.5 + 0.05) − 4.5 =
+> 0.050000000000000266`, while `(4.5 − 0.05) − 4.5 = −0.04999999999999982`.
+> The solver is exactly odd; the work-function subtraction is not.
+
+So a pre-existing 2–3 ulp asymmetry in the shipped contact model was briefly
+read as a defect introduced by the new solver. It is kept as its own
+validation row rather than quietly dropped, because this is §4.6.6's rule for
+the second time in two sessions: **a check that reads two knobs at once
+attributes the effect to the wrong one.** The defect is cosmetic at 2–3 ulp
+against a 12 % physical effect, and it is now on the record instead of being
+unknown.
+
+#### (f) What this does and does not settle
+
+| | standing |
+|---|---|
+| Precondition (i) — the contact's own object | **DISCHARGED** |
+| Precondition (ii) — §4.7's prose and §4.10's annotation | **OPEN**; writing, not plumbing |
+| Item 16 itself — flipping the default | **OPEN**; nothing here flips it |
+
+§4.7's prose becomes false under the flip — "only Pd gives a small, plausible
+positive residual" cannot survive a 12.4964 % correction to Pd's `n_contact`
+— and §4.10's conditioning annotation inherits that. Both are rewritten under
+item 16 proper, not here, and §4.6.12's numbers stay annotated in place rather
+than replaced.
+
+Module: `graphene_contact_consistent_argument.py`. Machine output:
+`contact_consistent_argument_output.txt`. Figure:
+`contact_consistent_argument.png`. Mechanism:
+`graphene_binding_class.rebind_by_operating_point()`.
+
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent

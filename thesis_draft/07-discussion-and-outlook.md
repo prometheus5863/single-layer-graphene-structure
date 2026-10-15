@@ -1090,6 +1090,39 @@ Stated as falsifiable items, in order of how much they would move:
    is the top *physics* item in this thesis — open since 2026-09-21 and
    untouched for seven consecutive working sessions while the numerical thread
    ran.
+   **ACTED ON 2026-10-15, after twenty-four consecutive sessions untouched.
+   The item NARROWS and does not close, and it narrows in a way the item did
+   not anticipate: the second anchor is in the source, stated in words, as an
+   INEQUALITY rather than a number.** Khomyakov et al. introduce the
+   short-range term `Δ_c(d) = e^(−γd)(a₀ + a₁d + a₂d²)` as their Eq. 4 and
+   **never evaluate it numerically in the text** — no `γ`, no `aᵢ`, no `Δ_c`
+   tabulated at any separation — so twenty-four sessions of looking for a
+   second `(d, Δ_c)` pair were looking for something the paper does not
+   contain. What it does contain is a **second separation**: its
+   charge-transfer calculation is run at `d = 5.0 Å` as well as at
+   `d_eq ≈ 3.3 Å`, and of the far one it says the crossover "decreases to its
+   expected value, `W_M ∼ W_G`, for large separations". Through
+   `W_0(d) = W_G + Δ_c(d)` that is exactly `Δ_c(5.0 Å) ≤ ε`, which inverts to
+   a bound on the swept parameter of (N1):
+   `ℓ ≤ (5.0 Å − 3.3 Å)/ln(0.9 eV/ε)`. At the only small energy scale the
+   paper attaches to "small" nearby — its 0.08 eV — this gives
+   **`ℓ ≤ 0.7024 Å`, excluding 66.5 % of the committed sweep range
+   [0.3, 1.5] Å**; the top of that range would put the 5.0 Å crossover
+   **0.2898 eV above `W_G`**, which is not "≈ `W_G`" under any reading. The
+   committed default `ℓ = 0.6 Å` **survives**, and that was not guaranteed:
+   it was chosen as "the midpoint of the swept range", a choice with no
+   physics in it, and it lands inside the surviving window by luck. **No
+   doping verdict moves** — the sign of `W_M − W_0` is identical at the bound
+   and at the old top of the range for all six metals with a tabulated
+   `d_eq` — so this is a **tightening of the error bar on `W_0`, not a
+   correction**, and Section 6.12's margin table is unchanged. What stays
+   open is a **two-sided** constraint: nothing here bounds `ℓ` from below,
+   and the cheapest remaining route is digitising the paper's Fig. 4 upper
+   point set, which the fetch could not retrieve (it truncated three times at
+   the opening of Sec. III.3). Six exact validations, 6/6, including a
+   planted-`ℓ` round trip at 2 ulp and a positive control on the exclusion
+   counter. See `notes/2026-10-15-the-second-anchor-exists-and-it-is-an-inequality.md`,
+   `graphene_second_anchor_bound.py`.
 2. **A description of Ti, Ni and Pd that does not go through work function.**
    Three independent failures are on record for these chemisorbed metals: the
    nonlinear doping relation excludes them (`d_eq < d_0`), the anchored
@@ -1358,6 +1391,19 @@ Stated as falsifiable items, in order of how much they would move:
    the reason that is survivable.
    **ACTED ON 2026-10-11 (§4.6.9). The direction was right; all three numbers
    above are wrong, and the item understated the work rather than the size.**
+   **PRECONDITION (i) DISCHARGED 2026-10-15 (§4.6.14).** The contact now owns
+   a contact-correct replacement instead of being an exclusion, so the flip's
+   two replacements both exist. Getting there required generalising §4.6.13's
+   mechanism: `quantum_capacitance`'s runtime identity class spans **two
+   operating points** — the channel's `C_ox` and the contact's `C_interface`
+   (65.93×) — and identity answers *which names move together* without
+   answering *to what*, so the class has to be partitioned by operating point
+   and the partition has to come from the caller. The composed manager now
+   leaves **nothing** at the shipped object (four sites installed, zero left
+   alone, asserted by the mechanism and backed by a negative control).
+   **What remains is exactly precondition (ii) — §4.7's prose and §4.10's
+   annotation — which is writing, not plumbing.** The item is still OPEN and
+   the default is still unflipped.
    (i) The argument cannot be fixed by changing an argument: `E_F/e` depends on
    `n`, which is what `C_q` is being used to compute, so the fix is the
    self-consistent solve (4.32). (ii) The +4.7416 % was obtained by
@@ -1605,6 +1651,22 @@ Stated as falsifiable items, in order of how much they would move:
    surviving hand-listed rebinding sites outside the charge path — `mu`, `W`,
    `n_puddle`, `C_ox` — have not been converted, because each is latent by
    import today and converting a site changes nothing until it is not.
+   **ANNOTATION 2026-10-15 (§4.6.14). The first of those two is now done, and
+   doing it found a limitation of this item's own repair.** The repair gives
+   every member of an identity class the same replacement, with one escape
+   hatch that leaves a member alone for a stated reason; its vocabulary is
+   therefore `{same replacement, left alone}` and it cannot say *rebind this
+   member to a different object*. That is what a contact with a replacement of
+   its own needs, so `bc.rebind_by_operating_point()` was added alongside
+   `bc.rebind()` (which is **untouched**, and whose three transcripts
+   regenerate byte-identically). **The claim this item makes — that the
+   rebind set is computable and needs no list — survives intact; what fails is
+   the unstated assumption that one class takes one replacement.** The
+   refusal carries across in the form the lesson takes here: an **unassigned
+   class member** is refused exactly as an unstated exclusion is, because
+   silently leaving a member at the shipped object is the identical fault
+   reached by omission from a map instead of from a list. The eleven
+   hand-listed sites outside the charge path are still unconverted.
 
 
 ---
