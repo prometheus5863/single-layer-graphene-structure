@@ -8600,3 +8600,259 @@ place.
 **Commits this run:** 3 (the sweep; the binding-class repair with the
 correction to the sweep's own headline; the thesis). This AUTOMATION_LOG.md
 entry makes **4**.
+
+---
+
+## 2026-10-15 — The second anchor was an inequality all along, and identity cannot see an operating point
+
+**Target:** the two items the 2026-10-14 entry ranked first and named as the
+standing habit problem. The **top physics item** (a second anchor for `Δ_c`,
+open since 2026-09-21, **twenty-four consecutive sessions untouched**, with two
+consecutive sessions having run with no literature fetch at all) and **item
+16's precondition (i)** (the contact's own contact-correct replacement). Both
+moved; neither closed; and each turned out to be a different thing from what
+its own description said.
+
+`graphene_second_anchor_bound.py` (**6/6**), `graphene_contact_consistent_argument.py`
+(**9/9**), a new `bc.rebind_by_operating_point()`, thesis §4.6.14 (new), and
+annotations to §7.9 items 1, 16 and 19.
+
+### 1. The second anchor exists, it is at 5.0 Å, and it is stated in words
+
+The item asked for a second `(d, Δ_c)` pair. **There is none, and there was
+never going to be one.** Khomyakov et al., *Phys. Rev. B* **79**, 195425
+(2009), [arXiv:0902.1203](https://arxiv.org/abs/0902.1203) — the same paper
+(N1)'s single anchor comes from — introduce the short-range term
+
+```
+Δ_c(d) = e^(−γd)(a₀ + a₁d + a₂d²)                               (their Eq. 4)
+```
+
+in Section III.3 **symbolically and never evaluate it numerically in the
+text**: no `γ`, no `aᵢ`, no `Δ_c` tabulated at any separation. Section III.3
+disposes of it with "|Δ_c(d)| becomes negligible for large d anyway", which is
+why the paper does not need the numbers and the reader cannot have them.
+
+> **Twenty-four sessions carried an item whose cheapest route was a search that
+> cannot succeed. Recording that is the part of today's finding with the
+> longest shelf life.**
+
+What the paper *does* contain is a **second separation**. Its charge-transfer
+calculation is run at **`d = 5.0 Å`** as well as at `d_eq ≈ 3.3 Å` (Fig. 4's
+two point sets), and of the far one Section III.2 says the crossover
+"decreases to its expected value, `W_M ∼ W_G`, for large separations". Through
+`W_0(d) = W_G + Δ_c(d)`, that sentence **is** `Δ_c(5.0 Å) ≤ ε` for an `ε` the
+paper never quantifies.
+
+### 2. Which bounds the swept parameter, and excludes two thirds of the range
+
+```
+ℓ ≤ ℓ_max(ε) = (5.0 Å − 3.3 Å) / ln(0.9 eV / ε)
+```
+
+Reported as a **family** over `ε`, because the paper quantifies none:
+
+| `ε` / eV | `ℓ_max` / Å | sweep excluded | `ELL_DEFAULT = 0.6 Å` survives? |
+|---|---|---|---|
+| 0.20 | 1.1303 | 30.8 % | yes |
+| 0.10 | 0.7737 | 60.5 % | yes |
+| **0.08** | **0.7024** | **66.5 %** | **yes** ← the paper's own scale |
+| 0.05 | 0.5882 | 76.0 % | **NO** |
+| 0.02 | 0.4466 | 87.8 % | **NO** |
+
+`ε = 0.08 eV` is **borrowed from a sentence about a different quantity** (the
+non-rigid-shift correction the paper then neglects) — it is the only number
+the paper attaches to "small" nearby, and the table exists so that nothing
+rests on the borrowing. Read forward, the top of the committed sweep puts the
+5.0 Å crossover **0.2898 eV above `W_G`**, which is not "≈ `W_G`" under any
+reading of the source.
+
+**The committed `ELL_DEFAULT = 0.6 Å` survives — by luck.** It was set as "the
+midpoint of the swept range", a choice with no physics in it; had the midpoint
+been 0.9 Å it would now be excluded. It is checked against literature for the
+first time rather than merely stated.
+
+**And no doping verdict moves.** Measured across the six metals with a
+tabulated `d_eq`, the sign of `W_M − W_0` is identical at the bound and at the
+old top of the range. **So this is a tightening of the error bar on `W_0`, not
+a correction:** no committed number in Chapter 4 or Chapter 6 moves, Section
+6.12's margin table is unchanged, and nothing was rewritten on its strength.
+
+The item **narrows** rather than closes. Still open: a **two-sided**
+constraint — nothing here bounds `ℓ` from below and the lower half of the
+range survives untouched.
+
+### 3. The contact gets a replacement, and identity turns out to be the wrong criterion for *to what*
+
+Item 16's precondition (i) is **discharged**. The contact-correct numbers were
+already measured (2026-10-13, −4.7696 % to −12.4964 % in `n`, against
+−1.0212 % in the channel), and having them was not having an object, for three
+reasons of which only the third was a surprise: the object belonged to the
+audit; the harness rebound by hand, the mechanism 2026-10-14 retired; and —
+
+> **`bc.rebind()`'s vocabulary is `{same replacement, left alone}`. It has no
+> word for "rebind this member to a DIFFERENT object", which is exactly what a
+> contact with an object of its own needs. IDENTITY ANSWERS WHICH NAMES MOVE
+> TOGETHER AND DOES NOT ANSWER TO WHAT.**
+
+`quantum_capacitance`'s class spans the channel (`C_ox`, series factor 0.999)
+and the contact (`C_interface` = 65.93 × `C_ox`, series factor 0.555–0.806).
+An operating point is not something identity can see, so the class must be
+**partitioned** by one and the partition must come from the caller.
+`bc.rebind_by_operating_point()` does that; `bc.rebind()` is **untouched** and
+its three transcripts regenerate **byte-identically**. 2026-10-14's refusal
+carries across in the form the same lesson takes here: there an exclusion
+without a stated reason is refused, here an **unassigned class member** is,
+because silently leaving a member at the shipped object is the identical fault
+reached by omission from a map instead of from a list.
+
+`on_consistent_argument_everywhere()` now installs four sites with an **empty**
+left-alone set, asserted by the mechanism and backed by a negative control
+that plants a missing member and requires the refusal to fire.
+
+**2026-10-14's finding (ii) is thereby superseded in its mechanism and upheld
+in its physics.** It said the contact must be *excluded* because the channel's
+object would be wrong there. That is still true; what is no longer true is
+that exclusion is the only thing the mechanism can do about it. The exclusion
+in `bc.CONTACT_OPERATING_POINT` is retained in place, with its reason, rather
+than deleted.
+
+### 4. Validations against exactly known values
+
+Fifteen across the two modules, all passing. The five that carry weight:
+
+- **The new machinery fed the OLD argument reproduces the shipped
+  `contact_edge_carrier_density()` bitwise over all seven metals (0 ulp).**
+  This is what establishes that form A and form `B_T` at the contact differ in
+  `C_q`'s **argument** and in nothing else. Without it every per-metal number
+  could be the residue of some other difference between two implementations.
+- **Today's owned object equals 2026-10-13's independent construction at 0 ulp
+  over seven metals.** Two constructions of the same physics that disagree are
+  one too many.
+- **The quantum limit `n = 4(dV/A_F)²` approached at first order in `1/C_s`,
+  error ratio exactly 100.000 when `C_s` is raised 100×.** At finite `C_s` the
+  solve differs from the limit by `O(C_q/C_s)`, so a single threshold would
+  have been a plausible-range check wearing a closed form's clothes; the exact
+  statement is the **convergence order**.
+- **A planted-`ℓ` round trip through the bound's inversion, 65 values, worst 2
+  ulp**, and a **positive control on the exclusion counter** reading exactly
+  0.0 at the top of the range and exactly 1.0 at the bottom — without which
+  §2's "no verdict moves" and a broken counter would read identically.
+- `ΔWF = 0` → `n = 0` **exactly** under both forms, and form `B_T` **odd in
+  `dV` at 0 ulp**.
+
+### 5. Two instrument faults, both kept in place
+
+**(a) A check that read two knobs attributed the effect to the wrong one —
+second consecutive session.** The oddness check was first written through the
+shipped `contact_edge_carrier_density()` and failed at **3 ulp**. It then
+failed at **2–3 ulp under form A as well**, which located the cause: the
+shipped `dWF = work_function_metal - W_GRAPHENE` is **not antisymmetric in
+double precision** — `(4.5+0.05)−4.5 = 0.050000000000000266` against
+`(4.5−0.05)−4.5 = −0.04999999999999982`. The solver is exactly odd. A
+pre-existing defect in the shipped contact model was briefly read as one
+introduced today; it is cosmetic at 2–3 ulp against a 12 % effect, and it is
+kept as its own validation row rather than dropped.
+
+**(b) A closed-form check that was a tolerance check.** Draft (d) asserted
+`n = 4(dV/A_F)²` to `1e-9` at one large `C_s` and failed at `2.3e-8` — because
+the deviation is a real `O(C_q/C_s)` physical remainder, not numerical error.
+The threshold was the defect, not the solver. Replaced by the convergence-order
+form above.
+
+### 6. Environment and automation health
+
+Device reachable and folder connected at the **first** firing of the day
+(08:17 UTC); the later firings will find both repositories carrying today's
+entry and stop. `scipy` was already importable in the device VM this session
+(the first session not to need `pip install scipy`). **Live web search WAS used
+— the first literature fetch in three sessions**, and it is the reason §1
+exists; §7.7's unequal-scrutiny habit is interrupted rather than cured.
+`arXiv:0902.1203` was read through the ar5iv HTML rendering, which
+**truncated three times** at the opening of Section III.3 — including at
+explicit character offsets of 38 000 and 52 000 — so Table 1's remainder and
+Fig. 4's point values were **never retrieved**, and §1's claim that the fitted
+coefficients are absent is a claim about the **retrieved portion**. No
+PubMed/PMC fetch was attempted (three logged reCAPTCHA occurrences). The whole
+session ran **on the device VM** except the literature fetch; nothing else
+crossed the bridge. Nothing was deleted.
+
+**Not yet covered (candidates for future runs):**
+
+- **FLIP THE DEFAULT TO `B_T`** — item 16, still open, still **ranked first**,
+  and now blocked on **exactly one thing, which is writing**: precondition
+  (ii), §4.7's prose and §4.10's annotation. "Only Pd gives a small,
+  plausible positive residual" cannot survive a −12.4964 % correction to Pd's
+  `n_contact`. Both preconditions for the *plumbing* are discharged and
+  `on_consistent_argument_everywhere()` exists; what is left is rewriting two
+  passages and then flipping. **Cheapest route: do precondition (ii) and the
+  flip in the same session, since the prose is only rewritable once the new
+  numbers are the committed ones.**
+- **A LOWER BOUND ON `ℓ` — THE TWO-SIDED HALF OF THE SECOND ANCHOR** —
+  created today, **ranked second**, and the top *physics* item now that the
+  upper bound exists. Cheapest route named: **digitise Fig. 4's upper (5.0 Å)
+  point set** in `arXiv:0902.1203`, which turns the verbal "≈ `W_G`" into a
+  number with an error bar and bounds `ℓ` from both sides. The fetch could not
+  retrieve the figure today; a PDF-page read of that figure is the obvious
+  route and is one of the few genuine reasons to cross the bridge to the cloud
+  sandbox.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — sharpened today. (N1) is
+  outside its regime for Ti, Ni and Pd (`d_eq` = 2.05–2.30 Å < `d_0`)
+  whatever `ℓ` is, and today's bound does not rescue them: `W_0(Ni) = 62.5 eV`
+  at `ℓ = 0.3 Å` is (N1) diverging, not a prediction. These three metals are
+  §7.9 item 2 and contact A of *both* Chapter 6 headline pairs, so the
+  divergence is load-bearing.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, untouched. `mu`, `W`, `n_puddle`, `C_ox` sites in
+  `graphene_velocity_saturation_model`, `graphene_diffusion_current_model`,
+  `rf_small_signal_model`, `graphene_fmax_shortfall_decomposition`,
+  `graphene_perfect_contact_counterfactual`,
+  `graphene_fet_signed_carrier_model`, `graphene_double_regularisation`. Each
+  is latent by import, so converting one changes nothing until it is not —
+  precisely the condition under which it is forgotten. **Today adds a reason
+  to do them with the new mechanism rather than the old: `mu` and `W` are read
+  at both the channel and the contact, so at least two of the eleven are
+  operating-point-split exactly as `quantum_capacitance` was, and converting
+  them with `bc.rebind()` would install one object across two operating
+  points — the fault §4.6.14 was written to prevent.**
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried from
+  2026-10-14. Now wants a fourth column: whether a class member's operating
+  point is assigned. Related to item 17's unbuilt sweep.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — created
+  today, cosmetic, and deliberately ranked low. Worth a line in item 15's
+  tolerance audit rather than a session.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13: a
+  vacuum-like 3.5 Å gap with no interface dipole layer, and one
+  `lambda_decay = 250 nm` for every metal, both plausibly larger than the
+  12.5 % correction already found and neither ever costed. **Today raises its
+  rank: the contact's series factor is 0.555–0.806, so the contact is where
+  the model is least forgiving and also where it is least examined.**
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12; four
+  directions now converge on it. Cheapest route in is still the two
+  references the Southampton paper delegates `n₀` to.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`, cheap either way.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched for a
+  fourth session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, now **ten sessions
+  overdue**, and today produced a second instance of the exact fault it
+  targets (§5(b): a threshold that was the defect).
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  untouched for a **ninth** session.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the seventh session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for a
+  sixth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, ten sessions overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for a seventh
+  session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  untouched for a seventh session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the second anchor as a bound; the contact's own
+replacement and the operating-point partition; the thesis). This
+AUTOMATION_LOG.md entry makes **4**.
