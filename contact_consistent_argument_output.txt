@@ -1,0 +1,53 @@
+==========================================================================
+ITEM 16 PRECONDITION (i): the contact's own contact-correct object
+==========================================================================
+The identity class of quantum_capacitance, at call time:
+    graphene_contact_doping_model.quantum_capacitance
+    graphene_fet_model.quantum_capacitance
+  -- two members, TWO operating points.  bc.rebind() can give them
+     one object or leave one alone; it cannot give them two.
+
+VALIDATIONS
+  [PASS] (a) EXACT: dWF = 0 gives n = 0 under both forms
+         form A -0.0, form B_T -0.0
+  [PASS] (b) EXACT: form B_T is odd in dV, 0 ulp over 5 offsets
+         worst 0 ulp
+  [PASS] (b2) the 3-ulp antisymmetry defect is the SHIPPED dWF subtraction, not form B_T -- it is present under form A too
+         form A 2 ulp, form B_T 3 ulp, solver itself 0 ulp
+  [PASS] (c) EXACT: new machinery + OLD argument == shipped, bitwise over 7 metals
+         worst 0 ulp -- so A vs B_T differs in the ARGUMENT alone
+  [PASS] (d) EXACT CLOSED FORM: quantum limit is n = 4(dV/A_F)^2, approached at first order in 1/C_s
+         closed form 1.129697e+18; rel dev 2.308e-08 -> 2.308e-10 as C_s x100, ratio 100.000 (exactly 100 expected)
+  [PASS] (e) EXACT: today's owned object == 2026-10-13's construction, bitwise over 7 metals
+         worst 0 ulp
+  [PASS] (f) the composed manager leaves NOTHING at the shipped object
+         4 installed, 0 left alone: contact_resistance_crossover.carrier_density, graphene_contact_doping_model.quantum_capacitance, graphene_fet_model.carrier_density, graphene_fet_model.quantum_capacitance
+  [PASS] (g) NEGATIVE CONTROL: an unassigned class member is refused
+         identity class of graphene_fet_model
+  [PASS] (h) POSITIVE CONTROL: all three patched names reach their counters
+         {'cq_contact': 1, 'cq_channel': 19, 'charge_channel': 1}
+
+THE CONTACT CORRECTION, THROUGH THE OWNED OBJECT
+  metal WF/eV    dV/V      n_A (m^-2)      n_BT (m^-2)     change     vs 2026-10-13
+  Ti    4.33     0.170     1.644935e+16    1.541997e+16    -6.2578%   identical
+  Cr    4.50     -0.000    -0.000000e+00   -0.000000e+00   --         (dWF = 0 exactly)
+  Cu    4.65     -0.150    -1.380517e+16   -1.314672e+16   -4.7696%   identical
+  Ni    5.04     -0.540    -7.111301e+16   -6.227844e+16   -12.4233%  identical
+  Au    5.10     -0.600    -8.034794e+16   -7.031424e+16   -12.4878%  identical
+  Pd    5.12     -0.620    -8.343500e+16   -7.300861e+16   -12.4964%  identical
+  Pt    5.65     -1.150    -1.660634e+17   -1.463454e+17   -11.8738%  identical
+  Range: -12.4964 % to -4.7696 %.  The channel's same correction at V_g = 3.5 V is -1.0212 %, so the contact is 12.2x to 4.7x less forgiving.
+
+Wrote contact_consistent_argument.png
+
+==========================================================================
+STANDING
+  Precondition (i) DISCHARGED: the contact owns a replacement, the
+  class is partitioned by operating point, and the composed manager
+  leaves nothing at the shipped object (0 left alone, asserted by
+  the mechanism and backed by a negative control).
+  Precondition (ii) STILL OPEN: Section 4.7's prose and Section
+  4.10's annotation.  That is writing, not plumbing.
+  ITEM 16 ITSELF STILL OPEN.  Nothing here flips the default.
+  Validations: 9 passed, 0 failed
+==========================================================================

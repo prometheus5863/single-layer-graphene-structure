@@ -168,3 +168,90 @@ def describe(owner, name, exclude_reasons=None):
         lines.append('    EXCLUDED %s.%s' % (mname, attr))
         lines.append('        %s' % why)
     return '\n'.join(lines)
+
+
+# ---------------------------------------------------------------------------
+# THE CLASS IS NOT ALWAYS ONE OPERATING POINT -- added 2026-10-15
+# ---------------------------------------------------------------------------
+#
+# `rebind()` above treats the identity class as the set of names that must
+# receive THE SAME replacement, and `CONTACT_OPERATING_POINT` handles the one
+# member for which that was false by LEAVING IT ALONE with a reason.  That was
+# right while the contact had no replacement of its own.  It stops being right
+# the moment it does: `graphene_contact_doping_model.quantum_capacitance` must
+# then be rebound to a DIFFERENT object, not excluded, and `rebind()` has no
+# way to say that -- its vocabulary is {same replacement, left alone}.
+#
+# The generalisation is that identity answers "which names move together" and
+# does NOT answer "to what".  Two names can hold one object and still sit at
+# two operating points: `quantum_capacitance`'s class spans the channel, where
+# the series capacitance is C_ox, and the contact, where it is C_interface --
+# 65.93x larger, with a series factor of 0.555-0.806 against the channel's
+# 0.999.  Identity cannot see an operating point, so the class must be
+# PARTITIONED by one, and the partition has to come from the caller.
+#
+# What carries over from 2026-10-14 is the refusal, in the form the same
+# lesson takes here.  There, an exclusion without a stated reason was refused,
+# because an unstated exclusion is how all three 2026-10 delivery faults were
+# introduced.  Here, an UNASSIGNED class member is refused: silently leaving a
+# member at the shipped object is exactly the fault, just reached by omission
+# from a map instead of omission from a list.
+
+class UnassignedClassMember(RuntimeError):
+    """A member of the identity class was given neither a replacement nor a
+    stated reason for being left alone."""
+
+
+@contextlib.contextmanager
+def rebind_by_operating_point(owner, name, assignment, report=None):
+    """Rebind each member of `owner.name`'s identity class to ITS OWN object.
+
+    assignment: {(module_name, attr): (replacement, reason)}.  `replacement`
+        may be None, which means "leave this member at the shipped object" --
+        i.e. `rebind()`'s exclusion, expressed in the same vocabulary.  The
+        `reason` is mandatory in both cases.
+
+    Every member of the class computed at entry must appear in `assignment`,
+    or `UnassignedClassMember` is raised and NOTHING is rebound.  A map that
+    silently omits a member is the 2026-10-14 fault reached by omission from a
+    map rather than from a list, and the whole point of computing the class is
+    that the omission is detectable.
+
+    report: optional callable(installed, left_alone) where `installed` is a
+        list of (site, reason) and `left_alone` likewise.
+    """
+    sites = set(identity_class(owner, name))
+    missing = sorted(sites - set(assignment))
+    if missing:
+        raise UnassignedClassMember(
+            'identity class of %s.%s has %d member(s) with no assignment: %s.'
+            '  Give each a (replacement, reason); use (None, reason) to leave '
+            'one at the shipped object.'
+            % (owner.__name__, name, len(missing), ', '.join(
+                '%s.%s' % m for m in missing)))
+    for site, spec in sorted(assignment.items()):
+        if not (isinstance(spec, tuple) and len(spec) == 2):
+            raise UnassignedClassMember(
+                'assignment for %s.%s must be a (replacement, reason) pair'
+                % site)
+        if not spec[1]:
+            raise UnassignedClassMember(
+                'assignment for %s.%s has no stated reason' % site)
+    mods = repo_module_objects()
+    installed, left_alone, saved = [], [], []
+    try:
+        for site in sorted(sites):
+            replacement, reason = assignment[site]
+            if replacement is None:
+                left_alone.append((site, reason))
+                continue
+            mname, attr = site
+            saved.append((mname, attr, getattr(mods[mname], attr)))
+            setattr(mods[mname], attr, replacement)
+            installed.append((site, reason))
+        if report is not None:
+            report(installed, left_alone)
+        yield installed, left_alone
+    finally:
+        for mname, attr, obj in reversed(saved):
+            setattr(mods[mname], attr, obj)
