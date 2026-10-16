@@ -81,10 +81,11 @@ The audit, mutation and census modules live beside the models in `src/` (classed
 `graphene_pristine_transcript_audit.py` re-runs registered suites in a clean clone of the committed state and
 compares their output with the committed transcripts.
 
-**Reproducibility as of this commit.** 19 of the 34 committed transcripts are reproduced byte-for-byte by the
-current code; 7 are stale, 5 differ in the last digits, and 3 are records rather than outputs (docs/INVENTORY.md
-§3). Six committed figures likewise differ from what the current code draws. Five audits currently report FAIL verdicts on their own checks (four exit 1; the pristine-transcript audit reports 3 FAILs and exits 0). These are listed in
-[`PUBLICATION_PLAN.md`](PUBLICATION_PLAN.md) and were deliberately not changed by the reorganisation.
+**Reproducibility as of this commit.** 23 of the 35 committed transcripts are reproduced byte-for-byte by the
+current code; 4 are stale, 5 differ in the last digits, and 3 are records or non-deterministic by design
+(docs/INVENTORY.md §3, §8). Five committed figures likewise differ from what the current code draws. Four audits
+exit 1 on their own FAIL verdicts, and the pristine-transcript audit reports 2 FAILs while exiting 0. These are
+listed in [`PUBLICATION_PLAN.md`](PUBLICATION_PLAN.md) and were deliberately not changed by the reorganisation.
 
 ## Known limitations
 
@@ -98,7 +99,7 @@ current code; 7 are stale, 5 differ in the last digits, and 3 are records rather
 * **Nearest-neighbour tight binding only** (§2.3, §2.9): no next-nearest-neighbour hopping, no trigonal
   warping, no substrate or strain.
 * **No RF claim**, for the reasons above (§7.8.1a–g).
-* **The `C_q`-argument correction (item 16) is costed but not yet the default** (§4.6.12–4.6.14), so the
+* **The `C_q`-argument correction (item 16) is costed but not yet the default** (§4.6.12–4.6.15), so the
   committed Ch 4 numbers are form A.
 * **The interconnect model is analytic on both sides**: a phenomenological specularity for graphene and an
   isotropic, liner-subtracted cross-section for copper (§5.2, §5.5.4).

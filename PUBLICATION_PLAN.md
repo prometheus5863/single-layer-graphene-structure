@@ -194,7 +194,7 @@ analyst.
 **What is missing.** (i) A coding of every correction of record in `AUTOMATION_LOG.md` and `notes/` into the
 five classes by someone other than the pipeline (the author, blind to Ch 7's assignments, then compared);
 counts per class, detection latency in sessions, and which detector caught each. (ii) The repository's own
-current state as data: at HEAD 15 of 34 committed transcripts do not reproduce and 3 standing audits fail
+current state as data: at `main` 77a2f3a, 12 of 35 committed transcripts do not reproduce and 3 standing audits fail
 (docs/INVENTORY.md §3) — that the verification layer itself drifts is the most important result and must be
 in the paper. (iii) A clear AI-use methods section (below). (iv) Position against (2) explicitly.
 
@@ -217,7 +217,7 @@ exist, and it is the one candidate whose closest competitors are months, not yea
 **Assessment: no-go.** JOSS requires an obvious research application with evidence of research use, a
 public development history, tests and CI, and excludes "a one-off tool for a single analysis"; its 2026
 policy permits generative AI with a mandatory disclosure section. This repository has no tests directory, CI
-only as of this PR, 15 of 34 transcripts not reproducing, a flat module layout, and one user. Revisit only if
+only as of this PR, 12 of 35 transcripts not reproducing, a flat module layout, and one user. Revisit only if
 another group uses the contact or photodetector models.
 
 ---
@@ -253,14 +253,14 @@ Thesis writing runs alongside; the plan assumes ~50 % of each week on it.
 
 ## What to stop doing
 
-**Stop adding §4.6.x audit sub-sections by default.** §4.6 now runs from 4.6.1 to 4.6.14 and Ch 4 is ~26k words;
-most of 4.6.5–4.6.14 is the item-16/`C_q`-argument thread and the audits of the instruments used to cost it. It
+**Stop adding §4.6.x audit sub-sections by default.** §4.6 now runs from 4.6.1 to 4.6.15 (4.6.15 was added on `main` the same day this plan was written) and Ch 4 is ~27k words;
+most of 4.6.5–4.6.15 is the item-16/`C_q`-argument thread and the audits of the instruments used to cost it. It
 records real defects found and fixed, but it reads as a lab notebook inside a chapter. Recommendations:
 
 * **Thesis body (Ch 4) keeps:** §4.1–4.5 (model), §4.6 core RF result with §4.6.2's resistance-ratio finding
   stated once, §4.7 and §4.10 (the negative result and its conditioning), §4.8, and a one-page summary of the
   item-16 correction and its effect on §4.7 (4 of 4 negative).
-* **Move to an appendix ("Verification record for Chapter 4"):** §4.6.1, §4.6.5–4.6.11 and §4.6.13–4.6.14 in
+* **Move to an appendix ("Verification record for Chapter 4"):** §4.6.1, §4.6.5–4.6.11 and §4.6.13–4.6.15 in
   their current form, unchanged, so the annotate-don't-rewrite rule still holds — the body points to them.
 * **Move to the paper-D track (as data, not as thesis text):** §4.6.12–4.6.13's import-binding and blast-radius
   measurements, and §7.5–7.7's taxonomy.
@@ -315,20 +315,24 @@ Remove Claude from any author list; credit it in the disclosure.
 
 Logged, not fixed: Phases 1–2 made no physics or numeric change.
 
-1. **15 of 34 committed transcripts do not reproduce at HEAD** in the recorded environment (docs/INVENTORY.md
-   §2–3). STALE (7): `cross_module_delivery_audit`, `dead_name_sweep`, `mutation_arrival_probe`,
-   `figure_provenance_audit`, `log_sensitivity_step_audit`, `potential_census`, `potential_declaration`
-   (overflow onset 18.3493 V → 40.0000 V after the item-13 fix). DRIFT (5): `default_scale_probe_audit`,
-   `quantum_capacitance_overflow`, `quantum_capacitance_argument`, `fet_signed_carrier`, `rootfinder_audit`.
-   Records (2): `audit_output.txt`, `sensitivity_converged_output.txt`. By design (1): `pristine_transcript_audit`.
-2. **Three standing audits FAIL at HEAD.** `graphene_dead_name_sweep.py`: 1 DEAD constant
+1. **Committed transcripts that do not reproduce.** At `2a72139`: 15 of 34 (docs/INVENTORY.md §2–3) — STALE (7):
+   `cross_module_delivery_audit`, `dead_name_sweep`, `mutation_arrival_probe`, `figure_provenance_audit`,
+   `log_sensitivity_step_audit`, `potential_census`, `potential_declaration` (overflow onset 18.3493 V →
+   40.0000 V after the item-13 fix); DRIFT (5): `default_scale_probe_audit`, `quantum_capacitance_overflow`,
+   `quantum_capacitance_argument`, `fet_signed_carrier`, `rootfinder_audit`; records (2): `audit_output.txt`,
+   `sensitivity_converged_output.txt`; by design (1): `pristine_transcript_audit`. The 2026-10-16 session on
+   `main` regenerated three of the stale ones; **at `77a2f3a`: 12 of 35** (§8) — and it made a new one stale,
+   `import_binding_sweep`, by adding a module the sweep counts.
+2. **Three standing audits FAIL** (at both commits). `graphene_dead_name_sweep.py`: 1 DEAD constant
    (`CHANNEL_POTENTIAL_READINGS`, `graphene_potential_census_audit.py:310`) and 12 unsupported CROSS_MODULE
    resolutions. `graphene_mutation_arrival_probe.py`: 8 MIXED + 2 FROZEN captured defaults in modules added
    after 2026-09-30. `graphene_potential_census_audit.py`: potential-like names missing from
    `POTENTIAL_REGISTRY`. (`graphene_quantum_capacitance_overflow.py` also exits 1, on a FAIL it declares
    deliberately.)
-3. **`graphene_pristine_transcript_audit.py` exits 0 while reporting 3 of 10 checks FAIL** (2 suites ERROR,
-   3 STALE, 1 DRIFT), so no caller relying on the exit code would notice.
+3. **`graphene_pristine_transcript_audit.py` exits 0 while reporting FAIL checks** — 3 of 10 at `2a72139`,
+   2 of 13 at `77a2f3a` (1 STALE, 1 DRIFT) — so no caller relying on the exit code notices. The 2026-10-16 log
+   entry records "13 IDENTICAL, 0 STALE" for this audit; in the reference environment it is 11 IDENTICAL and
+   1 STALE, so that session's run and this one were not in the same environment.
 4. **`requirements.txt` could not run the code** (numpy 1.24.3 lacks `np.trapezoid` and has no wheel for the
    Python ≥ 3.12 the code needs). Fixed in Phase 1 because it is packaging, not physics.
 5. **Two writers for one file.** `generate_plots.py` and `graphene_band_structure.py` both wrote
@@ -354,12 +358,12 @@ Logged, not fixed: Phases 1–2 made no physics or numeric change.
 12. **Six canonical outputs were never committed** (`fermi_surface.png`, `linear_dispersion.png`,
     `mobility_vs_temperature.png`, `conductance_map.png`, `klein_tunneling.png`, `optical_properties.png`);
     they are now in `results/`.
-13. **Six committed figures are stale against the code that claims to produce them** (pixels differ from a
-    HEAD regeneration that is itself bit-reproducible): `log_sensitivity_step_audit.png` (25 % of pixels),
+13. **Committed figures stale against the code that claims to produce them** (pixels differ from a HEAD
+    regeneration that is itself bit-reproducible): `log_sensitivity_step_audit.png` (25 % of pixels),
     `velocity_saturation_model.png` (15 %), `differential_crossover.png` (14 %),
-    `perfect_contact_counterfactual.png` (13 %), `gds_quadrature_audit.png` (2 %),
-    `cross_module_delivery_audit.png` (0.6 %). The committed versions are kept; `scripts/reproduce_all.py`
-    regenerates the current ones.
+    `perfect_contact_counterfactual.png` (13 %), `gds_quadrature_audit.png` (2 %); a sixth,
+    `cross_module_delivery_audit.png`, was regenerated on `main` on 2026-10-16. The committed versions are kept;
+    `scripts/reproduce_all.py` regenerates the current ones.
 14. **Five legacy demo scripts cannot leave `src/` without changing three audit transcripts**, because those
     audits count every `*.py` in their directory (`docs/INVENTORY.md` §6). This is a design coupling, not a
     bug, but it means the audits' populations are defined by a directory listing rather than a declaration.

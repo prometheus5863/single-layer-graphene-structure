@@ -488,3 +488,25 @@ The first attempt failed on exactly three rows — `figure_provenance_audit`, `i
 changed it (56 → 51, 55 → 50). That is what §6 is about; the legacy scripts went back to `src/` and the second
 run passed. As note 2026-10-02 says, this proves the reorganisation changed nothing; it does not prove the
 outputs are correct, and §3 lists the ones that already disagree with their committed transcripts.
+
+## 8. Update after merging `main` @ `77a2f3a` (2026-10-16 automation session)
+
+The daily session that ran on `main` while this branch was open regenerated five transcripts and added one
+module (`graphene_frozen_default_semantics.py`, Ch 4). Sections 2–5 above describe `2a72139`; at `77a2f3a`,
+re-measured in the same reference environment:
+
+* **23 of 35** committed transcripts reproduce byte-for-byte (was 19 of 34). Not reproducing: STALE 4 —
+  `import_binding_sweep` (it prints the module count, and the new module changed it: the session that added a
+  file made this transcript stale), `log_sensitivity_step_audit`, `potential_census`, `potential_declaration`;
+  DRIFT 5 — `default_scale_probe_audit`, `fet_signed_carrier`, `quantum_capacitance_argument`,
+  `quantum_capacitance_overflow`, `rootfinder_audit`; records 2; non-deterministic by design 1.
+* **Five committed figures** differ from regeneration (was six; `cross_module_delivery_audit.png` was
+  regenerated on main).
+* The pristine-transcript audit now reports 11 IDENTICAL, 1 NUMERIC_DRIFT, 1 STALE, 0 ERROR, 2 suites exiting
+  nonzero by design, and **2 of 13 checks FAIL** — while still exiting 0. The 2026-10-16 log entry records
+  "13 IDENTICAL, 0 STALE"; in the reference environment `graphene_log_sensitivity_step_audit.py` is STALE and
+  `graphene_rootfinder_audit.py` drifts, so that run was not in this environment.
+* Exit 1 on their own FAIL verdicts: `graphene_dead_name_sweep.py`, `graphene_mutation_arrival_probe.py`,
+  `graphene_potential_census_audit.py`, `graphene_quantum_capacitance_overflow.py` — unchanged.
+
+`docs/baseline_hashes.txt` was re-taken at `77a2f3a` and Checkpoint 1 re-run against it on the merged branch (§7 procedure): **105 identical, 0 mismatched**, 13 legacy rows skipped; the pristine audit's stdout again differs only in commit id, working-tree list and timings.
