@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "single-layer-graphene-structure"
+version = "0.1.0"
+description = "Compact device models of single-layer graphene (contacts/FETs, interconnects, photodetectors) with a verification layer"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Harsh Vardhan Gururani" }]
+requires-python = ">=3.12"   # PEP 701 f-strings are used; see AUTOMATION_LOG 2026-10-07
+dependencies = [
+    "numpy==2.5.3",
+    "scipy==1.18.1",
+    "matplotlib==3.10.9",
+    "sympy==1.12",
+    "mpmath==1.4.1",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+packages = ["graphene"]
+# The model and audit modules are deliberately flat top-level modules in src/
+# (docs/INVENTORY.md, "Layout decision"); list them so `pip install -e .`
+# makes every one importable by its existing name.
+py-modules = [
+    "bracketed_root",
+    "contact_resistance_crossover",
+    "graphene_band_structure",
+    "graphene_band_structure_audit",
+    "graphene_binding_class",
+    "graphene_contact_argument_blast_radius",
+    "graphene_contact_consistent_argument",
+    "graphene_contact_doping_model",
+    "graphene_contact_doping_nonlinear_model",
+    "graphene_covariance_probe_audit",
+    "graphene_cross_module_delivery_audit",
+    "graphene_crossover_sensitivity_model",
+    "graphene_dead_name_sweep",
+    "graphene_default_scale_audit",
+    "graphene_differential_crossover_model",
+    "graphene_diffusion_current_model",
+    "graphene_diffusion_mutation",
+    "graphene_double_regularisation",
+    "graphene_edge_contact_model",
+    "graphene_exact_charge_rederivation",
+    "graphene_fet_model",
+    "graphene_fet_signed_carrier_model",
+    "graphene_figure_provenance_audit",
+    "graphene_fmax_shortfall_decomposition",
+    "graphene_gds_quadrature_audit",
+    "graphene_import_binding_sweep",
+    "graphene_interconnect_model",
+    "graphene_log_sensitivity_step_audit",
+    "graphene_mutation_arrival_probe",
+    "graphene_per_metal_crossover_model",
+    "graphene_perfect_contact_counterfactual",
+    "graphene_perfect_contact_mutation",
+    "graphene_photodetector_collection_model",
+    "graphene_photodetector_model",
+    "graphene_photodetector_nonuniform_illumination_model",
+    "graphene_photodetector_signed_carrier_model",
+    "graphene_photodetector_two_contact_model",
+    "graphene_plasmonic_photodetector_model",
+    "graphene_potential_census_audit",
+    "graphene_potential_declaration",
+    "graphene_pristine_transcript_audit",
+    "graphene_quantum_capacitance_argument",
+    "graphene_quantum_capacitance_overflow",
+    "graphene_rootfinder_audit",
+    "graphene_second_anchor_bound",
+    "graphene_sensitivity_audit",
+    "graphene_transport_optical_audit",
+    "graphene_transport_properties",
+    "graphene_velocity_saturation_model",
+    "graphene_velocity_saturation_mutation",
+    "rf_small_signal_model",]
