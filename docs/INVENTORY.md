@@ -466,3 +466,25 @@ explicit module manifest instead of a directory glob; (2) move legacy scripts ou
 transcripts in the same commit, annotating the population change; (3) move audits to `audits/`; (4) only then
 split models into subpackages, with `import X as y` (attribute lookup) rather than `from X import name` at every
 cross-module site.
+
+## 7. Checkpoint 1 (after the reorganisation)
+
+Fresh clone of `reorg/structure-and-readme`, clean venv (`pip install -r requirements.txt && pip install -e .`),
+`python scripts/reproduce_all.py --check`:
+
+```
+CHECK against docs/baseline_hashes.txt: 104 identical, 0 mismatched, 13 legacy rows skipped
+  note: stdout:graphene_pristine_transcript_audit.py: differs (non-deterministic by construction)
+```
+
+Every text transcript matches the baseline byte-for-byte and every PNG matches byte-for-byte (no metadata-only
+differences occurred, so no pixel comparison was needed). The pristine-transcript audit's stdout differs only
+in the commit id, the working-tree list and per-suite timings; its per-suite verdicts are identical to the
+baseline's (7 IDENTICAL, 1 NUMERIC_DRIFT, 3 STALE, 2 ERROR). The 13 skipped rows are the outputs of the five
+legacy scripts, which are not regenerated.
+
+The first attempt failed on exactly three rows — `figure_provenance_audit`, `import_binding_sweep` and
+`potential_census_audit` each print a count of the `*.py` files beside them, and moving the legacy scripts out
+changed it (56 → 51, 55 → 50). That is what §6 is about; the legacy scripts went back to `src/` and the second
+run passed. As note 2026-10-02 says, this proves the reorganisation changed nothing; it does not prove the
+outputs are correct, and §3 lists the ones that already disagree with their committed transcripts.

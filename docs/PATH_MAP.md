@@ -1,6 +1,6 @@
 # Path map: 2026-10-16 reorganisation
 
-Every file that moved, old → new. All moves were made with `git mv`, so `git log --follow <new path>` shows the full history. Outputs listed under *new outputs* did not exist in the repository before; they are what the canonical modules produce and were previously either uncommitted or shadowed by `legacy/generate_plots.py`.
+Every file that moved, old → new. All moves were made with `git mv`, so `git log --follow <new path>` shows the full history. Outputs listed under *new outputs* did not exist in the repository before; they are what the canonical modules produce and were previously either uncommitted or shadowed by `generate_plots.py` (legacy).
 
 | old | new |
 |---|---|
@@ -144,3 +144,20 @@ Every file that moved, old → new. All moves were made with `git mv`, so `git l
 | `graphene_velocity_saturation_mutation.py` | `src/graphene_velocity_saturation_mutation.py` |
 | `rf_small_signal_model.py` | `src/rf_small_signal_model.py` |
 | `thesis_draft` | `thesis/` |
+
+## New outputs (added 2026-10-16)
+
+Produced by the canonical modules at HEAD and committed for the first time. Before the move the first five
+were written to the root but never committed; the last three names were taken by `generate_plots.py`'s
+versions, which are now in `legacy/figures/`.
+
+| file | producer |
+|---|---|
+| `results/figures/ch2/fermi_surface.png` | `src/graphene_band_structure.py` |
+| `results/figures/ch3/conductance_map.png` | `src/graphene_transport_properties.py` |
+| `results/figures/ch3/klein_tunneling.png` | `src/graphene_transport_properties.py` |
+| `results/figures/ch3/linear_dispersion.png` | `src/graphene_transport_properties.py` |
+| `results/figures/ch3/mobility_vs_temperature.png` | `src/graphene_transport_properties.py` |
+| `results/figures/ch2/honeycomb_lattice.png` | `src/graphene_band_structure.py` |
+| `results/figures/ch3/quantum_hall_effect.png` | `src/graphene_transport_properties.py` |
+| `results/figures/ch3/optical_properties.png` | `src/graphene_transport_properties.py` |
