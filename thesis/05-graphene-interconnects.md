@@ -122,7 +122,7 @@ genuinely different (bare-wire vs. process-realistic) questions.
 ## 5.3 Results
 
 Running the model (`graphene_interconnect_model.py`, reproducible via
-`python graphene_interconnect_model.py`) gives two qualitatively
+`python src/graphene_interconnect_model.py`) gives two qualitatively
 different outcomes depending on assumed edge quality, and — as of the
 2026-08-28 update — a materially different picture once the copper
 baseline itself is made more realistic:
