@@ -10,7 +10,7 @@ each run can pick up where the last one left off without repeating work.
 > | old (flat root) | new |
 > |---|---|
 > | `<module>.py` (model, audit and helper modules) | `src/<module>.py` — still one flat directory, same names |
-> | `generate_plots.py`, `simple_graphene_plots.py`, `summary.py`, `main.py`, `initialize_repo.py` | `legacy/` |
+> | `generate_plots.py`, `simple_graphene_plots.py`, `summary.py`, `main.py`, `initialize_repo.py` | `src/` too, classed *legacy* in `docs/INVENTORY.md` and never run by `scripts/reproduce_all.py` (moving them out would change the file counts several audits print) |
 > | `<figure>.png` | `results/figures/<chapter>/<figure>.png` (chapter = producing module's) |
 > | `<name>_output.txt` | `results/transcripts/<chapter>/<name>_output.txt` |
 > | `*_simple.png`, `test_plot.png`, and the committed `honeycomb_lattice.png`, `quantum_hall_effect.png`, `optical_absorption.png` (all `generate_plots.py`'s) | `legacy/figures/` |

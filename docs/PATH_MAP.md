@@ -13,11 +13,11 @@ Every file that moved, old → new. All moves were made with `git mv`, so `git l
 | `quantum_hall_effect.png` | `legacy/figures/quantum_hall_effect.png` |
 | `quantum_hall_simple.png` | `legacy/figures/quantum_hall_simple.png` |
 | `test_plot.png` | `legacy/figures/test_plot.png` |
-| `generate_plots.py` | `legacy/generate_plots.py` |
-| `initialize_repo.py` | `legacy/initialize_repo.py` |
-| `main.py` | `legacy/main.py` |
-| `simple_graphene_plots.py` | `legacy/simple_graphene_plots.py` |
-| `summary.py` | `legacy/summary.py` |
+| `generate_plots.py` | `src/generate_plots.py` (legacy) |
+| `initialize_repo.py` | `src/initialize_repo.py` (legacy) |
+| `main.py` | `src/main.py` (legacy) |
+| `simple_graphene_plots.py` | `src/simple_graphene_plots.py` (legacy) |
+| `summary.py` | `src/summary.py` (legacy) |
 | `default_scale_audit.png` | `results/figures/audits/default_scale_audit.png` |
 | `default_scale_probe_audit.png` | `results/figures/audits/default_scale_probe_audit.png` |
 | `figure_provenance_audit.png` | `results/figures/audits/figure_provenance_audit.png` |

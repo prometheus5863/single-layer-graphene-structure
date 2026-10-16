@@ -49,6 +49,12 @@ STDOUT_TRANSCRIPT = {
     "graphene_transport_optical_audit.py": "results/transcripts/ch3/transport_optical_audit_output.txt",
     "rf_small_signal_model.py": "results/transcripts/ch4/rf_small_signal_output.txt",
 }
+# Superseded demo scripts. They stay in src/ only because several audits count
+# every *.py in that directory and print the count (docs/INVENTORY.md section 6);
+# they are not part of the results and are never run here.
+LEGACY = {"generate_plots.py", "simple_graphene_plots.py", "summary.py",
+          "initialize_repo.py", "main.py"}
+
 # Committed transcripts that are NOT regenerated, because they are records,
 # not outputs (docs/INVENTORY.md section 3).
 NOT_REGENERATED = {"audit_output.txt", "sensitivity_converged_output.txt"}
@@ -167,7 +173,7 @@ def main():
     ap.add_argument("--only", nargs="*")
     ap.add_argument("--report", help="write a JSON run report here")
     a = ap.parse_args()
-    modules = sorted(f for f in os.listdir(SRC) if f.endswith(".py"))
+    modules = sorted(f for f in os.listdir(SRC) if f.endswith(".py") and f not in LEGACY)
     if a.only:
         modules = [m for m in modules if m in a.only]
     report = run(modules)
