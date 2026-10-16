@@ -153,27 +153,48 @@ def _frozen_sites_static(module, name):
     except (OSError, TypeError, SyntaxError):
         return []
     sites = []
-    for node in ast.walk(tree):
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            continue
-        a = node.args
-        positional = list(zip(
-            [x.arg for x in a.args[len(a.args) - len(a.defaults):]],
-            a.defaults,
-            range(len(a.defaults)),
-        ))
-        for pname, dflt, idx in positional:
-            for sub in ast.walk(dflt):
-                if isinstance(sub, ast.Name) and sub.id == name:
-                    sites.append((node.name, pname, 'positional', idx))
-                    break
-        for kwarg, dflt in zip(a.kwonlyargs, a.kw_defaults):
-            if dflt is None:
-                continue
-            for sub in ast.walk(dflt):
-                if isinstance(sub, ast.Name) and sub.id == name:
-                    sites.append((node.name, kwarg, 'kwonly', kwarg))
-                    break
+
+    # AMENDED 2026-10-16 (graphene_frozen_default_semantics.py).  This used
+    # ast.walk, which finds every `def` and discards the one thing the
+    # confirmation step below turns out to need: WHICH SCOPE ENCLOSES IT.
+    # A `def` in the module body or in a class body executes once, at import,
+    # so its captured default is FROZEN.  A `def` in a FUNCTION body
+    # re-executes on every call of that function, so its captured default is
+    # re-evaluated and a rebinding ARRIVES -- it is not an inert knob at all.
+    # Measured in both directions, and for a class defined inside a function,
+    # in that module's Section 1.  Each site now carries `in_function_body`.
+    # Fifth tuple field, appended rather than inserted, so existing readers
+    # that unpack the first four or index [0] are unaffected.
+    def descend(node, in_func):
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                a = child.args
+                positional = list(zip(
+                    [x.arg for x in a.args[len(a.args) - len(a.defaults):]],
+                    a.defaults,
+                    range(len(a.defaults)),
+                ))
+                for pname, dflt, idx in positional:
+                    for sub in ast.walk(dflt):
+                        if isinstance(sub, ast.Name) and sub.id == name:
+                            sites.append((child.name, pname, 'positional',
+                                          idx, in_func))
+                            break
+                for kwarg, dflt in zip(a.kwonlyargs, a.kw_defaults):
+                    if dflt is None:
+                        continue
+                    for sub in ast.walk(dflt):
+                        if isinstance(sub, ast.Name) and sub.id == name:
+                            sites.append((child.name, kwarg, 'kwonly',
+                                          kwarg, in_func))
+                            break
+                descend(child, True)
+            elif isinstance(child, ast.ClassDef):
+                descend(child, in_func)
+            else:
+                descend(child, in_func)
+
+    descend(tree, False)
     return sites
 
 
@@ -226,10 +247,34 @@ def classify(module, name):
     # A function listed as a frozen site is only *actually* frozen if it is the
     # object currently bound in the module (a later redefinition or a decorator
     # can have replaced it), so confirm the capture at run time as well.
+    # AMENDED 2026-10-16.  This loop used to `continue` whenever getattr
+    # could not resolve the function, which silently discarded every site
+    # whose `def` is not a module attribute -- with no row, no class and no
+    # reason.  That is the same signature as the fault being censused: a true
+    # site omitted without trace.  The resolution failure now gets a verdict
+    # from the SCOPE instead:
+    #   resolvable          -> confirmed, with the default object itself
+    #   unresolvable, in a function body -> LIVE, and reported as such
+    #   unresolvable, not in a function body (a class body, or a name the
+    #                        module shadowed) -> still FROZEN by the static
+    #                        evidence, which getattr merely cannot reach, and
+    #                        reported as unresolved rather than dropped
+    # The frozen COUNT is unchanged by this amendment -- the repository's one
+    # unresolvable site is function-nested and was always correctly excluded
+    # from it.  What changes is that it is now named.
     confirmed = []
-    for fname, pname, kind, idx in frozen:
+    live_by_scope = []
+    frozen_unresolved = []
+    for fname, pname, kind, idx, in_func in frozen:
         fn = getattr(module, fname, None)
         if not isinstance(fn, types.FunctionType):
+            if in_func:
+                live_by_scope.append((fname, pname, 'def re-executes per '
+                                      'call of its enclosing function'))
+            else:
+                frozen_unresolved.append((fname, pname, 'def executes once '
+                                          'at import but is not a module '
+                                          'attribute'))
             continue
         if kind == 'positional':
             defaults = fn.__defaults__ or ()
@@ -239,12 +284,15 @@ def classify(module, name):
             kwd = fn.__kwdefaults__ or {}
             if pname in kwd:
                 confirmed.append((fname, pname, kwd[pname]))
+    # A site frozen by static evidence is frozen whether or not getattr can
+    # reach it, so it counts toward the verdict.
+    frozen_total = confirmed + frozen_unresolved
     body_read = _read_in_module_body(module, name) if present else False
     if not present:
         verdict = CLASS_ABSENT
-    elif confirmed and live:
+    elif frozen_total and live:
         verdict = CLASS_MIXED
-    elif confirmed:
+    elif frozen_total:
         verdict = CLASS_FROZEN
     elif live:
         verdict = CLASS_LIVE
@@ -258,6 +306,8 @@ def classify(module, name):
         'present': present,
         'verdict': verdict,
         'frozen_sites': confirmed,
+        'frozen_unresolved': frozen_unresolved,
+        'live_by_scope': live_by_scope,
         'live_readers': live,
         'body_read': body_read,
         'current_value': getattr(module, name, None),
@@ -631,9 +681,17 @@ def repo_wide_frozen_census(paths=None):
             continue
         for name in sorted(captured):
             info = classify(mod, name)
-            rows.append((path, name, info['verdict'],
-                         '%d frozen / %d live' % (len(info['frozen_sites']),
-                                                  len(info['live_readers']))))
+            # AMENDED 2026-10-16: the detail string now carries the two
+            # classes the confirmation step used to drop.  The FIRST token
+            # remains the frozen count, which is what external readers parse.
+            n_frozen = len(info['frozen_sites']) + len(info['frozen_unresolved'])
+            detail = '%d frozen / %d live' % (n_frozen,
+                                              len(info['live_readers']))
+            if info['live_by_scope']:
+                detail += ' / %d rescoped-live' % len(info['live_by_scope'])
+            if info['frozen_unresolved']:
+                detail += ' / %d unresolved-frozen' % len(info['frozen_unresolved'])
+            rows.append((path, name, info['verdict'], detail))
     return rows
 
 

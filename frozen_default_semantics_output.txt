@@ -115,15 +115,23 @@ SECTION 4 -- the silent drop, demonstrated on the real site
   [PASS] D2 classify() drops exactly that site, and only it
          dropped = ['_R_harmonic'], expected {'_R_harmonic'}
   [PASS] D3 the drop is by module-attribute resolution, as diagnosed
-         getattr(graphene_velocity_saturation_model, '_R_harmonic') is a NoneType -- not a FunctionType, so the confirmation loop `continue`s with no row and no reason recorded
+         getattr(graphene_velocity_saturation_model, '_R_harmonic') is a NoneType -- not a FunctionType, so the confirmation loop cannot read a default off it.  Before this session's amendment that was a bare `continue`: no row, no reason.  Now the scope decides, which is what D4 checks.
+  classify() now reports it as : live_by_scope = ['_R_harmonic']
+  [PASS] D4 the drop is closed: the site is now NAMED, not discarded
+         classify()['live_by_scope'] carries '_R_harmonic' with a reason, where before it carried nothing at all
+  [PASS] D5 and it is still not counted as frozen -- the amendment is count-neutral
+         a live capture must not become a frozen one by being reported; Section 3 R2 is the repository-wide form of the same statement
 
-  Consequence.  This dropped site happens to deserve dropping: it
-  is live, as Section 1 V2 measured.  But it was dropped for being
-  unresolvable, not for being live, and nothing is reported either
-  way.  Section 1 V7 shows the same line drops a CLASS-body
-  capture, which is frozen -- so the next case of this shape is
-  undercounted, and an instrument that silently omits a true site
-  has the same signature as the fault it censuses.
+  Consequence.  This site happens to deserve excluding: it is
+  live, as Section 1 V2 measured.  But it used to be excluded for
+  being unresolvable rather than for being live, and nothing was
+  reported either way.  Section 1 V7 shows the same line also
+  dropped a CLASS-body capture, which is FROZEN -- so the next
+  case of that shape would have been undercounted, and an
+  instrument that silently omits a true site has the same
+  signature as the fault it censuses.  That is why the fix is a
+  verdict from the scope and not a widening of the resolver:
+  resolvability was never the question being asked.
 
 --------------------------------------------------------------------------
 SECTION 5 -- the arbiter censuses itself
@@ -140,8 +148,10 @@ SUMMARY
   On 2026-10-04 all three censuses read zero.  The count of the
   FAULT is 20, not 21, and this is the first time the repository has
   had that number for a stated reason rather than by coincidence.
-  NOT done here: converting the 20, and patching classify() so it
-  reports a scope-based class instead of dropping what it cannot
-  resolve.  Both are named in AUTOMATION_LOG as the next items.
-  Validations: 22 passed, 0 failed
+  classify() is amended in the same session to report an
+  unresolvable site by scope instead of discarding it, and the
+  amendment is count-neutral (D4, D5).
+  NOT done here: converting the 20 genuine inert knobs, which is
+  ranked first in AUTOMATION_LOG for the next run.
+  Validations: 24 passed, 0 failed
 ==========================================================================

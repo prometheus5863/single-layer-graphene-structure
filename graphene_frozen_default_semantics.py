@@ -69,6 +69,18 @@ So the two censuses are not both wrong, and neither is simply right:
     dropped by the same line and would be frozen, so the accident does not
     generalise -- it is wrong in the undercounting direction for the next
     case rather than this one.
+    FIXED 2026-10-16, in the same session and the next commit.
+    `_frozen_sites_static` now records whether a FUNCTION body encloses each
+    `def`, and `classify()` gives an unresolvable site a verdict from that
+    scope instead of discarding it: function-enclosed -> `live_by_scope`,
+    otherwise -> `frozen_unresolved`, which still counts as frozen because
+    the static evidence stands and getattr merely cannot reach it.  The
+    amendment is COUNT-NEUTRAL -- the repository's frozen total is 20 before
+    and after, because its one unresolvable site is function-nested and was
+    always correctly excluded from that total.  What changes is that it is
+    named.  Verified by Section 4 D4/D5 below and by the diff of the suite's
+    own output, which differs in exactly the two lines that carry the new
+    `1 rescoped-live` annotation.
 
 WHY UNDERCOUNTING IS THE DANGEROUS DIRECTION HERE.  The signature of this
 fault class is that a mutation silently fails to arrive and the audit reports
@@ -89,7 +101,9 @@ recording rather than quietly fixing.  THE CRITERION IS NOT DEPTH.  IT IS
 WHETHER ANY ENCLOSING SCOPE IS A FUNCTION BODY.
 
 WHAT THIS MODULE DOES NOT DO.  It does not convert the 20 genuine inert
-knobs, and it does not patch `classify()`.  It establishes the semantics,
+knobs.  (The first version of this paragraph also said it does not patch
+`classify()`; that was done later the same session, as recorded above, and
+this module is where the fix is checked.)  It establishes the semantics,
 reconciles the censuses to zero residue, and leaves the repository with a
 count of the fault that is correct for a stated reason for the first time.
 Converting 21 captures as one class would have rewritten a live capture into
@@ -547,16 +561,37 @@ def section4_locate_the_drop(live_rows):
     check('D3 the drop is by module-attribute resolution, as diagnosed',
           not isinstance(getattr(mod, leaf, None), types.FunctionType),
           'getattr(%s, %r) is a %s -- not a FunctionType, so the '
-          'confirmation loop `continue`s with no row and no reason recorded'
+          'confirmation loop cannot read a default off it.  Before this '
+          "session's amendment that was a bare `continue`: no row, no "
+          'reason.  Now the scope decides, which is what D4 checks.'
           % (modname, leaf, type(getattr(mod, leaf, None)).__name__))
+
+    # The amendment, verified from the side that found the defect.
+    rescoped = {r[0] for r in info.get('live_by_scope', ())}
+    unresolved_frozen = {r[0] for r in info.get('frozen_unresolved', ())}
+    print('  classify() now reports it as : live_by_scope = %s'
+          % (sorted(rescoped) or 'None'))
+    check('D4 the drop is closed: the site is now NAMED, not discarded',
+          leaf in rescoped,
+          "classify()['live_by_scope'] carries %r with a reason, where "
+          'before it carried nothing at all' % leaf)
+    check('D5 and it is still not counted as frozen -- the amendment is '
+          'count-neutral',
+          leaf not in (confirmed_names and set(confirmed_names) or set())
+          and leaf not in unresolved_frozen,
+          'a live capture must not become a frozen one by being reported; '
+          'Section 3 R2 is the repository-wide form of the same statement')
     print()
-    print('  Consequence.  This dropped site happens to deserve dropping: it')
-    print('  is live, as Section 1 V2 measured.  But it was dropped for being')
-    print('  unresolvable, not for being live, and nothing is reported either')
-    print('  way.  Section 1 V7 shows the same line drops a CLASS-body')
-    print('  capture, which is frozen -- so the next case of this shape is')
-    print('  undercounted, and an instrument that silently omits a true site')
-    print('  has the same signature as the fault it censuses.')
+    print('  Consequence.  This site happens to deserve excluding: it is')
+    print('  live, as Section 1 V2 measured.  But it used to be excluded for')
+    print('  being unresolvable rather than for being live, and nothing was')
+    print('  reported either way.  Section 1 V7 shows the same line also')
+    print('  dropped a CLASS-body capture, which is FROZEN -- so the next')
+    print('  case of that shape would have been undercounted, and an')
+    print('  instrument that silently omits a true site has the same')
+    print('  signature as the fault it censuses.  That is why the fix is a')
+    print('  verdict from the scope and not a widening of the resolver:')
+    print('  resolvability was never the question being asked.')
 
 
 # ---------------------------------------------------------------------------
@@ -606,10 +641,12 @@ def main():
     print('  FAULT is %d, not %d, and this is the first time the repository has'
           % (len(frozen_rows), len(frozen_rows) + len(live_rows)))
     print('  had that number for a stated reason rather than by coincidence.')
-    print('  NOT done here: converting the %d, and patching classify() so it'
+    print('  classify() is amended in the same session to report an')
+    print('  unresolvable site by scope instead of discarding it, and the')
+    print('  amendment is count-neutral (D4, D5).')
+    print('  NOT done here: converting the %d genuine inert knobs, which is'
           % len(frozen_rows))
-    print('  reports a scope-based class instead of dropping what it cannot')
-    print('  resolve.  Both are named in AUTOMATION_LOG as the next items.')
+    print('  ranked first in AUTOMATION_LOG for the next run.')
     print('  Validations: %d passed, %d failed' % (passed, failed))
     print('=' * 74)
     return 0 if failed == 0 else 1
