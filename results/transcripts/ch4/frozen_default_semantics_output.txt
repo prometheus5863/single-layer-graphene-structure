@@ -1,0 +1,157 @@
+==========================================================================
+FROZEN-DEFAULT SEMANTICS -- 2026-10-16
+A captured default is frozen unless a FUNCTION body encloses its def.
+Reconciling three censuses that have disagreed since 2026-10-04.
+==========================================================================
+
+--------------------------------------------------------------------------
+SECTION 1 -- the classes, established against exactly known values
+--------------------------------------------------------------------------
+  before rebinding, K = 1.0
+    at_module_level()            = 1.0
+    InClassBody().as_a_method()  = 1.0   (def in a CLASS body)
+    enclosing()                  = 1.0   (def in a FUNCTION body)
+    literal_default()            = 7.0
+  [PASS] all four arms agree before the rebinding
+         a probe whose arms already disagree cannot attribute a later difference to the rebinding
+  after  rebinding, K = 99.0
+    at_module_level()            = 1.0   <-- did NOT arrive
+    InClassBody().as_a_method()  = 1.0   <-- did NOT arrive
+    enclosing()                  = 99.0  <-- DID arrive
+    literal_default()            = 7.0
+  [PASS] V1  a capture in the MODULE body is FROZEN: exactly the old value
+         at_module_level() == 1.0 exactly after K was set to 99.0 -- equality, not a tolerance: it is the same object
+  [PASS] V2  a capture in a FUNCTION body is LIVE: exactly the new value
+         enclosing() == 99.0 exactly -- the inner `def` re-executed and re-evaluated K
+  [PASS] V3  a capture in a CLASS body is FROZEN, not live
+         as_a_method() == 1.0 exactly.  THIS IS WHAT THE FIRST DRAFT OF THIS MODULE GOT WRONG by classifying on nesting depth: a class body is nested and executes once anyway
+  [PASS] V4  so the criterion is "enclosed by a FUNCTION body", not depth
+         the module-body and class-body arms agree with each other and disagree with the function-body arm; depth would have split them the other way, 1 against 2
+  [PASS] V5  control: a literal default is untouched by the rebinding
+         so a census reporting it would be reporting a non-capture
+  [PASS] V6  control: the getattr confirmation has a real job
+         a rebound module attribute no longer carries the captured default, so confirming static sites at run time is correct and must be preserved by any fix to the nested case
+  [PASS] V7  a CLASS-body capture is also invisible to getattr(module, ...)
+         frozen in fact, and dropped by the same line that drops the live nested one -- so classify() would UNDERCOUNT a real inert knob of this shape.  The repository has none today; that is luck, not a property of the mechanism
+
+--------------------------------------------------------------------------
+SECTION 2 -- positive and negative controls on the arbiter itself
+09-30's rule: a census that cannot fail certifies nothing.
+--------------------------------------------------------------------------
+    FROZEN  one                                    x    <- A
+    FROZEN  two                                    x    <- A
+    FROZEN  two                                    y    <- B
+    FROZEN  Holder.method                          x    <- A
+    FROZEN  Holder.Inner.deeper                    y    <- B
+    LIVE    outer.inner_a                          x    <- A
+    LIVE    outer.inner_b                          y    <- B
+    LIVE    outer.LocalClass.method_in_local_class x    <- A
+  [PASS] C1 the arbiter finds exactly the planted FROZEN captures
+         expected 5 (one.x, two.x, two.y, Holder.method.x, Holder.Inner.deeper.y), got 5
+  [PASS] C2 the arbiter finds exactly the planted LIVE captures
+         expected 3 (inner_a.x, inner_b.y, and the method of a class defined INSIDE outer()), got 3
+  [PASS] C3 a method in a top-level class body is FROZEN
+         the case the first draft of this module classified as live
+  [PASS] C4 a method nested two class bodies deep is still FROZEN
+         depth 2 and frozen: depth carries no information here
+  [PASS] C5 a method of a class defined inside a function is LIVE
+         the `class` statement itself re-executes, so the capture does too -- a depth rule and a class rule both get this wrong
+  [PASS] C6 the arbiter reports NO literal default
+         literal_only(x=3.0, y="s") captures no module-level name
+
+--------------------------------------------------------------------------
+SECTION 3 -- the two standing censuses, reconciled over one path set
+--------------------------------------------------------------------------
+  python files in repository                : 57
+  minus mutation_arrival_probe's exclusions : 53
+    excluded: initialize_repo, main, generate_plots, graphene_mutation_arrival_probe
+
+  instrument                                           count
+  ---------------------------------------------------- -----
+  graphene_figure_provenance_audit.census                 21   syntactic: every `def f(p=GLOBAL)`
+  mutation_arrival_probe confirmed frozen sites           20   semantic: sites confirmed at run time
+  arbiter: FROZEN captures (the inert knobs)              20   this module, not enclosed by a function
+  arbiter: LIVE captures (not the fault)                   1   this module, enclosed by a function
+  [PASS] R1 the arbiter reproduces the SYNTACTIC census exactly
+         arbiter total 21 vs figure_provenance 21 -- two independent AST passes over the same files
+  [PASS] R2 the arbiter reproduces the SEMANTIC census exactly
+         arbiter FROZEN 20 vs mutation_arrival_probe confirmed 20
+  [PASS] R3 the discrepancy is EXACTLY the live captures -- zero residue
+         21 - 20 = 1, and the arbiter finds 1 live capture(s).  A reconciliation with a remainder would mean a third cause is present and unaccounted for.
+  [PASS] R4 and they agree PER (file, constant), not only in total
+         10 name(s) compared, 0 disagreement(s)
+
+  class-body captures in the repository today : 0
+    reported, not asserted.  This is the shape that is FROZEN and
+    invisible to getattr(module, name) at the same time, so it is
+    the shape on which classify()'s accident fails.  There are
+    none today; that is luck, not a property of the mechanism.
+
+  the LIVE capture(s) -- counted by figure_provenance, dropped
+  silently by mutation_arrival_probe, and live in fact:
+    graphene_velocity_saturation_model.py          line 589
+        main._R_harmonic(n_quad=N_QUAD)
+
+  per-file split of the 21 syntactic captures:
+    file                                             total  FROZEN    LIVE
+    graphene_diffusion_current_model.py                  5       5       0
+    graphene_exact_charge_rederivation.py                3       3       0
+    graphene_perfect_contact_counterfactual.py           2       2       0
+    graphene_second_anchor_bound.py                      2       2       0
+    graphene_velocity_saturation_model.py                9       8       1
+
+--------------------------------------------------------------------------
+SECTION 4 -- the silent drop, demonstrated on the real site
+--------------------------------------------------------------------------
+  module   : graphene_velocity_saturation_model
+  constant : N_QUAD
+  site     : main._R_harmonic(n_quad=N_QUAD) at line 589
+  _frozen_sites_static finds 2 site(s): _R_harmonic, _channel_integrals
+  classify() confirms        1 site(s): _channel_integrals
+  dropped                   : _R_harmonic
+  verdict reported          : MIXED
+  [PASS] D1 the static pass sees the site
+         _R_harmonic is found in the source by _frozen_sites_static
+  [PASS] D2 classify() drops exactly that site, and only it
+         dropped = ['_R_harmonic'], expected {'_R_harmonic'}
+  [PASS] D3 the drop is by module-attribute resolution, as diagnosed
+         getattr(graphene_velocity_saturation_model, '_R_harmonic') is a NoneType -- not a FunctionType, so the confirmation loop cannot read a default off it.  Before this session's amendment that was a bare `continue`: no row, no reason.  Now the scope decides, which is what D4 checks.
+  classify() now reports it as : live_by_scope = ['_R_harmonic']
+  [PASS] D4 the drop is closed: the site is now NAMED, not discarded
+         classify()['live_by_scope'] carries '_R_harmonic' with a reason, where before it carried nothing at all
+  [PASS] D5 and it is still not counted as frozen -- the amendment is count-neutral
+         a live capture must not become a frozen one by being reported; Section 3 R2 is the repository-wide form of the same statement
+
+  Consequence.  This site happens to deserve excluding: it is
+  live, as Section 1 V2 measured.  But it used to be excluded for
+  being unresolvable rather than for being live, and nothing was
+  reported either way.  Section 1 V7 shows the same line also
+  dropped a CLASS-body capture, which is FROZEN -- so the next
+  case of that shape would have been undercounted, and an
+  instrument that silently omits a true site has the same
+  signature as the fault it censuses.  That is why the fix is a
+  verdict from the scope and not a widening of the resolver:
+  resolvability was never the question being asked.
+
+--------------------------------------------------------------------------
+SECTION 5 -- the arbiter censuses itself
+--------------------------------------------------------------------------
+  captures found in graphene_frozen_default_semantics.py: 0
+  [PASS] S1 this module introduces no capture of either class
+         PROBE_EXCLUDES is read by name at the one place it is used and never as a parameter default -- a module that censuses a pattern and then contains it would be the 2026-09-28 band-structure fault in a new costume
+
+==========================================================================
+SUMMARY
+  syntactic captures in the repository today : 21
+    FROZEN -- the genuine inert knobs          : 20
+    LIVE   -- re-evaluated, not the fault      : 1
+  On 2026-10-04 all three censuses read zero.  The count of the
+  FAULT is 20, not 21, and this is the first time the repository has
+  had that number for a stated reason rather than by coincidence.
+  classify() is amended in the same session to report an
+  unresolvable site by scope instead of discarding it, and the
+  amendment is count-neutral (D4, D5).
+  NOT done here: converting the 20 genuine inert knobs, which is
+  ranked first in AUTOMATION_LOG for the next run.
+  Validations: 24 passed, 0 failed
+==========================================================================

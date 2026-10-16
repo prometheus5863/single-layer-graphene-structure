@@ -16,12 +16,19 @@ SECTION 1 -- positive control on the sweep itself
   [PASS] every EXEMPT row carries a reason
 
 SECTION 2 -- the sweep over this repository
+  CROSS_MODULE  graphene_binding_class.py                      CONTACT_OPERATING_POINT          line 68    graphene_exact_charge_rederivation.py,gr
+  CROSS_MODULE  graphene_contact_consistent_argument.py        E_CHARGE                         line 88    graphene_contact_argument_blast_radius.p
   CROSS_MODULE  graphene_contact_doping_nonlinear_model.py     CHEMISORBED                      line 95    graphene_per_metal_crossover_model.py
   CROSS_MODULE  graphene_contact_doping_nonlinear_model.py     D_CHEM_PHYS                      line 82    graphene_dead_name_sweep.py
+  CROSS_MODULE  graphene_diffusion_current_model.py            HBAR                             line 181   graphene_band_structure_audit.py,graphen
+  BODY_ONLY     graphene_fet_signed_carrier_model.py           H_PLANCK                         line 89    
   CROSS_MODULE  graphene_mutation_arrival_probe.py             CLASS_UNUSED                     line 101   graphene_cross_module_delivery_audit.py
   EXEMPT        graphene_plasmonic_photodetector_model.py      FANG_ANTENNA_TEST_WAVELENGTH_NM  line 126   descriptive-only literature point -- Fan
-  totals: {'CROSS_MODULE': 3, 'EXEMPT': 1, 'LIVE': 129}
-  [PASS] no module-level constant in this repository is DEAD  -- 4 found and dispositioned 2026-10-01: PASSI_RC_DIRAC_OHM_UM given a reader, DELIVERED given a reader, D_CHEM_PHYS given an agreement check, FANG_ANTENNA_TEST_WAVELENGTH_NM declared exempt
+  DEAD          graphene_potential_census_audit.py             CHANNEL_POTENTIAL_READINGS       line 310   
+  CROSS_MODULE  graphene_quantum_capacitance_argument.py       A_OX                             line 66    graphene_exact_charge_rederivation.py
+  BODY_ONLY     graphene_velocity_saturation_model.py          HBAR_OMEGA_EV                    line 178   
+  totals: {'BODY_ONLY': 2, 'CROSS_MODULE': 7, 'DEAD': 1, 'EXEMPT': 1, 'LIVE': 216}
+  [FAIL] no module-level constant in this repository is DEAD  -- 1 dead
 
 SECTION 2b -- is every CROSS_MODULE resolution supported by an IMPORT?
 ----------------------------------------------------------------------
@@ -29,17 +36,41 @@ SECTION 2b -- is every CROSS_MODULE resolution supported by an IMPORT?
   references its NAME.  That is a liveness claim only if the other
   module can reach this one.  10-01 fixed the mention-vs-use half of
   this loophole (text search -> AST) and left the same-spelling half.
-  CROSS_MODULE rows: 3   unsupported: 0
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_contact_argument_blast_radius.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_diffusion_current_model.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_exact_charge_rederivation.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_fet_signed_carrier_model.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_perfect_contact_counterfactual.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_potential_declaration.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_quantum_capacitance_argument.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_quantum_capacitance_overflow.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_velocity_saturation_model.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_diffusion_current_model.py            HBAR                     line 181    graphene_band_structure_audit.py does not import graphene_diffusion_current_model.py
+    UNSUPPORTED  graphene_diffusion_current_model.py            HBAR                     line 181    graphene_velocity_saturation_model.py does not import graphene_diffusion_current_model.py
+    UNSUPPORTED  graphene_quantum_capacitance_argument.py       A_OX                     line 66     graphene_exact_charge_rederivation.py does not import graphene_quantum_capacitance_argument.py
+  CROSS_MODULE rows: 7   unsupported: 12
   [PASS] 2b positive control: a resolution with no import is reported  -- a synthetic CROSS_MODULE row naming a module that does not exist and
 therefore imports nothing must be flagged; got 1
-  [PASS] every CROSS_MODULE resolution is supported by a real import  -- an unsupported resolution is a HIDDEN DEAD name: nothing that can
+  [FAIL] every CROSS_MODULE resolution is supported by a real import  -- an unsupported resolution is a HIDDEN DEAD name: nothing that can
 see the constant reads it, and the sweep calls it alive because an
 unrelated module spells something the same way.
-
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_contact_argument_blast_radius.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_diffusion_current_model.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_exact_charge_rederivation.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_fet_signed_carrier_model.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_perfect_contact_counterfactual.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_potential_declaration.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_quantum_capacitance_argument.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_quantum_capacitance_overflow.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_velocity_saturation_model.py does not import graphene_contact_consistent_argument.py
+  graphene_diffusion_current_model.py.HBAR <- graphene_band_structure_audit.py does not import graphene_diffusion_current_model.py
+  graphene_diffusion_current_model.py.HBAR <- graphene_velocity_saturation_model.py does not import graphene_diffusion_current_model.py
+  graphene_quantum_capacitance_argument.py.A_OX <- graphene_exact_charge_rederivation.py does not import graphene_quantum_capacitance_argument.py
 
 ----------------------------------------------------------------------
 SECTION 3 -- the inverted detector: prose names it, no code reads it
-  0 constant(s) named in prose and read by no function.
+  graphene_binding_class.py                      CONTACT_OPERATING_POINT          line 68
+  1 constant(s) named in prose and read by no function.
   This is a REPORT, not an assertion: a docstring may mention a
   constant it does not depend on.  What it must not do is cite one
   as an input.  Every row here is read by SOMETHING (see Section 2)
@@ -56,5 +87,5 @@ SECTION 4 -- one literature value, two definitions
   a check rather than a comment.
 
 ==============================================================================
-TOTAL: 8 passed, 0 failed
+TOTAL: 6 passed, 2 failed
 ==============================================================================

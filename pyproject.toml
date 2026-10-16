@@ -47,6 +47,7 @@ py-modules = [
     "graphene_exact_charge_rederivation",
     "graphene_fet_model",
     "graphene_fet_signed_carrier_model",
+    "graphene_frozen_default_semantics",
     "graphene_figure_provenance_audit",
     "graphene_fmax_shortfall_decomposition",
     "graphene_gds_quadrature_audit",

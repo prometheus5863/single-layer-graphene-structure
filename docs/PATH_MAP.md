@@ -144,6 +144,8 @@ Every file that moved, old → new. All moves were made with `git mv`, so `git l
 | `graphene_velocity_saturation_mutation.py` | `src/graphene_velocity_saturation_mutation.py` |
 | `rf_small_signal_model.py` | `src/rf_small_signal_model.py` |
 | `thesis_draft` | `thesis/` |
+| `graphene_frozen_default_semantics.py` (added on main 2026-10-16, moved at merge) | `src/graphene_frozen_default_semantics.py` |
+| `frozen_default_semantics_output.txt` (same) | `results/transcripts/ch4/frozen_default_semantics_output.txt` |
 
 ## New outputs (added 2026-10-16)
 

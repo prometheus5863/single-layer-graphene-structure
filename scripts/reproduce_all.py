@@ -34,6 +34,7 @@ STDOUT_TRANSCRIPT = {
     "graphene_double_regularisation.py": "results/transcripts/ch4/double_regularisation_output.txt",
     "graphene_exact_charge_rederivation.py": "results/transcripts/ch4/exact_charge_rederivation_output.txt",
     "graphene_fet_signed_carrier_model.py": "results/transcripts/ch4/fet_signed_carrier_output.txt",
+    "graphene_frozen_default_semantics.py": "results/transcripts/ch4/frozen_default_semantics_output.txt",
     "graphene_figure_provenance_audit.py": "results/transcripts/audits/figure_provenance_audit_output.txt",
     "graphene_fmax_shortfall_decomposition.py": "results/transcripts/ch4/fmax_shortfall_decomposition_output.txt",
     "graphene_gds_quadrature_audit.py": "results/transcripts/ch4/gds_quadrature_audit_output.txt",
