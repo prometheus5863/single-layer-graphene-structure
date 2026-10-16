@@ -1404,6 +1404,23 @@ Stated as falsifiable items, in order of how much they would move:
    **What remains is exactly precondition (ii) — §4.7's prose and §4.10's
    annotation — which is writing, not plumbing.** The item is still OPEN and
    the default is still unflipped.
+   **A PRECONDITION (iii) FOUND AND DISCHARGED 2026-10-16 (§4.6.15), WHICH NO
+   ENTRY ABOVE HAD LISTED.** The flip's blast radius is established by
+   regenerating committed transcripts and reading what moved, and the
+   instrument of record for that is `graphene_pristine_transcript_audit.py`.
+   At the start of 2026-10-16 that instrument — unrun since 2026-10-04 —
+   reported **four of its own subjects STALE or ERROR**. A flip measured
+   against that baseline could not have distinguished its own blast radius
+   from twelve days of accumulated drift, so the word "exactly" in the
+   sentence above was wrong when it was written: two preconditions were known
+   and a third was in force unnoticed. It is discharged — 13 IDENTICAL, 0
+   STALE, 0 NUMERIC_DRIFT, 0 ERROR — but the baseline now carries **two
+   deliberately red suites** (item 20's 20 inert knobs and four dead names),
+   and a flip run over a baseline with two failing guards would again mix its
+   own effect with theirs. **This is why item 20 is ranked ahead of this
+   item** despite this one carrying the larger physics cost: the ordering is a
+   measurement constraint, not a change of priority. Preconditions (i) and
+   (ii) are unaffected.
    (i) The argument cannot be fixed by changing an argument: `E_F/e` depends on
    `n`, which is what `C_q` is being used to compute, so the fix is the
    self-consistent solve (4.32). (ii) The +4.7416 % was obtained by
@@ -1667,6 +1684,43 @@ Stated as falsifiable items, in order of how much they would move:
    silently leaving a member at the shipped object is the identical fault
    reached by omission from a map instead of from a list. The eleven
    hand-listed sites outside the charge path are still unconverted.
+
+20. **Converting the 20 inert knobs, and the four dead names behind them**
+   (added 2026-10-16, §4.6.15; the third item on this list created by a
+   *rate* rather than by a finding, and the first created by three
+   instruments agreeing that they had not been read). On 2026-10-04 the
+   inert-knob census — a module-level constant captured as a function
+   parameter default, where the default binds once when the `def` executes,
+   so a rebinding never arrives and a mutation audit reports a pass while
+   measuring nothing — was driven to **zero**. Twelve days later it reads
+   **21 syntactic captures**, in front of three separate censuses, none of
+   which was being read; the committed transcripts of all three were last
+   written on that same 2026-10-04, and so was the transcript of the
+   instrument whose only purpose is to notice that
+   (`graphene_pristine_transcript_audit.py`). That instrument, asked today,
+   reported four of its own subjects STALE or ERROR without being prompted.
+   The 21 is **not** the count of the fault. Measured against exactly known
+   values, a `def` in the module body or a **class** body executes once at
+   import and its capture is FROZEN, while a `def` in a **function** body
+   re-executes on every call of that function and its capture is **LIVE** —
+   so the syntactic pattern is two classes with opposite behaviour under the
+   one operation this repository uses to deliver every change. The split is
+   **20 FROZEN + 1 LIVE**, reconciled to zero residue against both standing
+   censuses and per `(file, constant)` as well as in total. What remains:
+   **convert the 20**, which is mechanical and was deliberately not done in
+   the session that specified it, because converting 21 as one class would
+   have rewritten a live capture for no reason and recorded it as a fix. In
+   the same twelve days `graphene_dead_name_sweep.py` went red on **one
+   genuinely DEAD name** (`graphene_potential_census_audit.CHANNEL_POTENTIAL_READINGS`)
+   and **three hidden dead names** — CROSS_MODULE resolutions resolved on
+   *spelling* whose claimed readers do not import the module at all
+   (`graphene_contact_consistent_argument.E_CHARGE`, added by the preceding
+   session; `graphene_diffusion_current_model.HBAR`;
+   `graphene_quantum_capacitance_argument.A_OX`), over 12 unsupported rows.
+   The 2026-10-01 precedent for dispositioning a dead name — give it a
+   reader, or declare it exempt with a stated reason — applies to all four.
+   **Ranked first for the next run**, ahead of item 16, for a reason
+   internal to item 16: see its precondition (iii).
 
 
 ---

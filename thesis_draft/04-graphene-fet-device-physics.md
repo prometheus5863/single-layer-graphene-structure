@@ -2535,6 +2535,184 @@ Module: `graphene_contact_consistent_argument.py`. Machine output:
 `graphene_binding_class.rebind_by_operating_point()`.
 
 
+### 4.6.15 The inert-knob census was counting a syntactic pattern for a semantic fault, and three instruments had been dark for twelve days
+
+Sections 4.6.13 and 4.6.14 built the machinery item 16's flip needs: an
+identity class computed at run time, and a partition of that class by
+operating point. Both deliver a change the same way everything in this
+repository does — by **rebinding a name**. That makes one question
+load-bearing for every result in Chapters 4 to 6 that was ever established
+by mutation: *which readers does a rebinding actually reach?*
+
+Since 2026-09-28 the known answer has had one documented exception, the
+**inert knob**:
+
+```
+K = 1.0
+def f(x=K): ...          # x's default is bound when `def` executes
+```
+
+A rebinding of `K` never reaches `f`, so a mutation audit that rebinds `K`
+and watches `f` measures nothing and reports a pass. Three separate
+instruments census the pattern —
+`graphene_figure_provenance_audit.census()` (Section C),
+`graphene_mutation_arrival_probe.repo_wide_frozen_census()` (Section 7b),
+and `graphene_cross_module_delivery_audit` for the cross-module subset.
+
+#### (a) All three transcripts were written on the same day, and none of them has been read since
+
+The committed transcripts read **0**, **0** (an empty census behind a
+`[PASS]` on "no module-level constant is captured as a default anywhere")
+and **8**. All three were last written **2026-10-04**. Run today they read
+**21**, **20** and **16**.
+
+> **A fault class that 2026-10-04 drove to zero regrew over twelve days in
+> front of three censuses, none of which was being read — and the fourth
+> instrument whose only purpose is to notice exactly that
+> (`graphene_pristine_transcript_audit.py`, "A COMMITTED TRANSCRIPT IS A
+> CLAIM ABOUT THE CODE BESIDE IT") was last run on the same day.** Asked
+> today, unprompted, it reported four of its subjects STALE or ERROR.
+
+This is §7.7's unequal-scrutiny habit one level out. The repository has
+spent three weeks learning that a guard which is not run is not a guard;
+what it had not noticed is that the rule applies to the guard that checks
+the guards.
+
+#### (b) 21 against 20 is not a rounding difference
+
+Over one path set both censuses name the **same five files**, and **four of
+the five agree exactly**. They differ by one occurrence, in
+`graphene_velocity_saturation_model.py` at line 589 —
+`_R_harmonic(V_g, V_hi, n_quad=N_QUAD)`, defined **inside the body of
+another function**. Measured rather than asserted, in all three
+configurations, against exactly known values:
+
+| where the `def` is | when the `def` statement executes | captured default |
+|---|---|---|
+| module body | once, at import | **FROZEN** |
+| class body | once, at import | **FROZEN** |
+| function body | on **every call** of that function | **LIVE** |
+
+With `K` rebound 1.0 → 99.0: the module-level arm returns exactly 1.0, the
+class-body arm exactly 1.0, the function-nested arm exactly 99.0.
+
+> **THE SYNTACTIC PATTERN `def f(x=K)` IS TWO CLASSES WITH OPPOSITE
+> BEHAVIOUR UNDER THE ONE OPERATION THIS REPOSITORY USES TO DELIVER
+> CHANGES. A FUNCTION-NESTED CAPTURE IS NOT AN INERT KNOB. IT IS LIVE.**
+
+So neither census is simply right:
+
+- **figure_provenance's 21** counts the syntax correctly and over-counts the
+  **fault** by exactly the live captures. Its own historical figures — "49
+  occurrences across 14 files, 14 of them inside the audit modules … 37
+  remain, and the 13 in audit modules are the next run's top item" — are
+  syntactic counts of a class that is not uniformly the fault, and have
+  never been split into the two.
+- **mutation_arrival_probe's 20** counts the fault correctly **for the wrong
+  reason**. Its `classify()` confirmed each statically-found site with
+  `getattr(module, fname)` — added correctly, to drop a function a later
+  redefinition or decorator had replaced — and a function-nested function is
+  not a module attribute, so the site was dropped **silently**: no row, no
+  class, no reason. The right verdict by an accident of resolution.
+
+The accident does not generalise. The same line also drops a **class-body**
+capture, which is *frozen* — so the next capture of that shape would have
+been **undercounted**, and undercounting is the dangerous direction here: an
+instrument that silently omits a true site has the identical signature to the
+fault being censused. The repository contains no class-body capture today;
+that is luck, not a property of the mechanism.
+
+#### (c) Reconciled to zero residue
+
+```
+21 syntactic  =  20 FROZEN (the genuine inert knobs)  +  1 LIVE
+```
+
+Four checks, because a reconciliation that leaves a remainder means a third
+cause is present and unaccounted for: the arbiter reproduces
+figure_provenance's total exactly (R1), mutation_arrival_probe's confirmed
+total exactly (R2), accounts for the whole gap with nothing left over (R3),
+and agrees **per `(file, constant)`** rather than only in total (R4 — added
+because two totals can agree while the rows behind them disagree in
+compensating directions; it is the only check that catches a single dropped
+row).
+
+Per file: `graphene_velocity_saturation_model` 9 = 8 + 1,
+`graphene_diffusion_current_model` 5 = 5 + 0,
+`graphene_exact_charge_rederivation` 3 = 3 + 0,
+`graphene_perfect_contact_counterfactual` 2 = 2 + 0,
+`graphene_second_anchor_bound` 2 = 2 + 0 — the last of these added by the
+session immediately before this one.
+
+#### (d) The repairs, and the one deliberately not made
+
+`classify()` now takes the verdict from the **scope** instead of discarding
+what it cannot resolve: function-enclosed → `live_by_scope`, otherwise →
+`frozen_unresolved`, which still counts as frozen because the static evidence
+stands and `getattr` merely cannot reach it. The fix is a verdict from the
+scope and **not a widening of the resolver**, because resolvability was never
+the question being asked. The amendment is **count-neutral** — the frozen
+total is 20 before and after, and the suite's own output differs in exactly
+the two lines that now carry `1 rescoped-live`. The `getattr` confirmation's
+original purpose is preserved, not removed: a module attribute rebound after
+import genuinely no longer carries the captured default (V6).
+
+The pristine audit needed its own repair, created by this session's decision
+rather than inherited. Every suite here ends `return 0 if failed == 0 else
+1`, so **a red guard is a nonzero exit by design** — and `run_suite`
+discarded stdout on any nonzero exit and reported `ERROR` without comparing
+the transcript at all. Tolerable while every suite was green; not tolerable
+once this repository began committing red transcripts in preference to stale
+green ones, since two suites would then have had transcripts nothing checks,
+permanently. ERROR is now reserved for a run producing no usable stdout, and
+a new check requires a transcript's own `TOTAL: N passed, M failed` line to
+agree with its suite's exit code — the two being independent claims about one
+run, which contradicted each other for the whole of the twelve days.
+
+**Not done here, and the reason matters more than the omission.** The 20
+genuine inert knobs are not converted. Converting 21 captures as one class
+would have rewritten a live capture into a `None`-sentinel for no reason and
+recorded it as a fix; the work is ranked first for the next run and is now
+**specified correctly for the first time** — 20, not 21, with the live one
+named so it is not converted by mistake.
+
+#### (e) A defect in this section's own instrument, kept on the record
+
+The first draft of `graphene_frozen_default_semantics.py` classified by
+**nesting depth**: depth 0 frozen, depth ≥ 1 live. Its own control planted a
+method in a class body, called it depth 1, and asserted *in prose* that it
+was therefore not an inert knob. A class body executes once at import, so
+that is wrong — and the repository contains no class-body capture, so the
+draft's count would have been right **by luck**, which is the same luck
+`classify()` was running on. That is what made it worth recording rather than
+quietly fixing. Controls C3/C4/C5 now pin all three cases, including a class
+defined *inside* a function, where a depth rule and a class rule both get it
+wrong.
+
+#### (f) What this means for item 16
+
+The flip's blast radius is established by regenerating committed transcripts
+and reading what moved. The instrument of record for that is the pristine
+transcript audit — which, at the start of this session, reported four of its
+own subjects STALE or ERROR.
+
+> **A flip measured against that baseline could not have distinguished its own
+> blast radius from twelve days of accumulated drift. That is a precondition
+> (iii) for item 16 that no entry had listed, and it is discharged here: 13
+> IDENTICAL, 0 STALE, 0 NUMERIC_DRIFT, 0 ERROR.**
+
+Module: `graphene_frozen_default_semantics.py` (**24/24**). Machine output:
+`frozen_default_semantics_output.txt`. Amended:
+`graphene_mutation_arrival_probe.py`,
+`graphene_pristine_transcript_audit.py`. Mutation-tested outside the
+repository, so the instrument and the measurement do not move together: the
+depth rule restored fails C1–C4; every capture called frozen fails C1, C2,
+C5, R2, R3, R4; one frozen row dropped fails only R2 and R4; `run_suite`
+reverted fails C7; and the 2026-10-04 transcript restored verbatim over
+today's red guard fails the new consistency check **by name**.
+
+
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent
