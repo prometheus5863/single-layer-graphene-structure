@@ -243,11 +243,23 @@ def run_suite(clone, module):
         p = subprocess.run([sys.executable, module], cwd=clone, env=env,
                            capture_output=True, text=True, timeout=SUITE_TIMEOUT_S)
     except subprocess.TimeoutExpired:
-        return None, SUITE_TIMEOUT_S, "timeout after %ds" % SUITE_TIMEOUT_S
+        return None, SUITE_TIMEOUT_S, "timeout after %ds" % SUITE_TIMEOUT_S, None
     dt = time.time() - t0
-    if p.returncode != 0:
-        return None, dt, "exit %d: %s" % (p.returncode, p.stderr.strip()[-300:])
-    return p.stdout, dt, None
+    # AMENDED 2026-10-16.  This used to discard p.stdout whenever the exit
+    # code was nonzero and report ERROR, which conflated two different
+    # things: a suite that CRASHED, and a suite that RAN to completion and
+    # reported a failing guard.  Every suite here ends with
+    # `return 0 if failed == 0 else 1`, so a red guard is a nonzero exit by
+    # design -- and the transcript of exactly the suite most worth watching
+    # was never compared at all.  That became load-bearing the same day this
+    # repository began deliberately committing red transcripts (see
+    # mutation_arrival_probe and dead_name_sweep).  A run is now ERROR only
+    # if it produced NO usable stdout; otherwise the transcript is compared
+    # as always and the exit code is carried alongside the verdict.
+    if not p.stdout:
+        return None, dt, "exit %d (no stdout): %s" % (
+            p.returncode, p.stderr.strip()[-300:]), p.returncode
+    return p.stdout, dt, None, p.returncode
 
 
 def main():
@@ -287,17 +299,19 @@ def main():
         print("-" * 74)
         results = {}
         cached = {}
+        exits = {}
         for module, transcript in SUITES:
             if not os.path.exists(os.path.join(clone, module)):
                 results[module] = ("MISSING", 0.0, ["not present at this commit"])
                 print("  %-44s MISSING" % module)
                 continue
-            out, dt, err = run_suite(clone, module)
+            out, dt, err, rc = run_suite(clone, module)
             if err is not None:
                 results[module] = ("ERROR", dt, [err])
                 print("  %-44s ERROR    %6.1fs  %s" % (module, dt, err[:60]))
                 continue
             cached[module] = out
+            exits[module] = rc
             if transcript is None:
                 results[module] = ("RAN", dt, ["no committed transcript to compare"])
                 print("  %-44s RAN      %6.1fs  (no transcript)" % (module, dt))
@@ -311,7 +325,8 @@ def main():
                 committed_text = fh.read()
             verdict, evidence = classify(committed_text, out)
             results[module] = (verdict, dt, evidence)
-            print("  %-44s %-14s %6.1fs" % (module, verdict, dt))
+            tag = "" if rc == 0 else "  exit %d (guard red, transcript still checked)" % rc
+            print("  %-44s %-14s %6.1fs%s" % (module, verdict, dt, tag))
             for e in evidence[:6]:
                 print("        " + e)
 
@@ -436,7 +451,7 @@ def main():
                            "    builtins.print('INJECTED-DEFECT')\n") + mutated
                 with open(src_path, "w") as fh:
                     fh.write(mutated)
-                out2, _, err2 = run_suite(scratch, dmod)
+                out2, _, err2, _rc2 = run_suite(scratch, dmod)
                 if err2 is not None:
                     check("C6 the mutated donor still runs", False, err2[:200])
                 else:
@@ -449,6 +464,35 @@ def main():
             else:
                 check("C6 a mutation site was found in the donor", False)
 
+        # C7 -- the path added 2026-10-16: a suite that exits NONZERO but
+        # ran to completion must have its stdout kept and its transcript
+        # compared, not be written off as ERROR.  Before the amendment this
+        # control fails, because run_suite returned None for any nonzero
+        # exit.  Synthetic, so it does not depend on which real suite
+        # happens to be red today.
+        c7dir = tempfile.mkdtemp(prefix="graphene_pristine_c7_")
+        c7mod = "red_suite.py"
+        c7text = "LINE ONE\nvalue 3.000000000000\nTOTAL: 1 passed, 1 failed\n"
+        with open(os.path.join(c7dir, c7mod), "w") as fh:
+            fh.write("import sys\n"
+                     "sys.stdout.write(%r)\n"
+                     "raise SystemExit(1)\n" % c7text)
+        out7, _dt7, err7, rc7 = run_suite(c7dir, c7mod)
+        check("C7 a suite that exits nonzero still yields its stdout",
+              err7 is None and out7 == c7text and rc7 == 1,
+              "exit %r, stdout kept: %s -- a red guard is a nonzero exit BY "
+              "DESIGN in every suite here (`return 0 if failed == 0 else 1`), "
+              "so discarding its output means never checking the transcript "
+              "of the suite most worth watching"
+              % (rc7, out7 is not None))
+        if out7 is not None:
+            v7, _ = classify(c7text, out7)
+            check("C7b and its transcript is then compared like any other",
+                  v7 == "IDENTICAL",
+                  "a red suite can be byte-reproducible; red and STALE are "
+                  "independent properties and this audit asks only about the "
+                  "second.  got %s" % v7)
+
         # ------------------------------------------------------------------
         print("\n" + "-" * 74)
         print("SECTION 4 -- the standing requirement")
@@ -458,13 +502,46 @@ def main():
         errored = sorted(m for m, (v, _, _) in results.items() if v in ("ERROR", "NO_FILE", "MISSING"))
         ident = sorted(m for m, (v, _, _) in results.items() if v == "IDENTICAL")
 
+        red = sorted(m for m, rc in exits.items() if rc not in (0, None))
         print("  IDENTICAL      %2d   %s" % (len(ident), ", ".join(s[:34] for s in ident)))
         print("  NUMERIC_DRIFT  %2d   %s" % (len(drift), ", ".join(drift)))
         print("  STALE          %2d   %s" % (len(stale), ", ".join(stale)))
         print("  ERROR/MISSING  %2d   %s" % (len(errored), ", ".join(errored)))
+        print("  exited nonzero %2d   %s" % (len(red), ", ".join(red)))
+        print("    (a red guard is not a stale transcript -- reported, and")
+        print("     checked for CONSISTENCY with the transcript below)")
 
         check("no suite fails to complete in a pristine clone", not errored,
               "\n".join("%s: %s" % (m, results[m][2][0]) for m in errored))
+
+        # A committed transcript and its suite's exit code are two claims
+        # about the same run, and they can contradict each other.  This is
+        # the check that would have caught 2026-10-04 -> 2026-10-15 directly:
+        # a transcript reading "0 failed" beside code that exits 1.
+        contradictions = []
+        for module, transcript in SUITES:
+            rc = exits.get(module)
+            if rc is None or transcript is None:
+                continue
+            tpath = os.path.join(clone, transcript)
+            if not os.path.exists(tpath):
+                continue
+            with open(tpath) as fh:
+                ttext = fh.read()
+            m = re.search(r"TOTAL:?\s+(\d+)\s+passed,\s+(\d+)\s+failed", ttext)
+            if not m:
+                continue
+            claimed_failed = int(m.group(2))
+            if (claimed_failed > 0) != (rc != 0):
+                contradictions.append(
+                    "%s: transcript claims %d failed, suite exits %d"
+                    % (module, claimed_failed, rc))
+        check("every transcript's own pass/fail summary agrees with its "
+              "suite's exit code", not contradictions,
+              "a transcript saying '0 failed' beside code that exits nonzero "
+              "is the exact state this repository shipped from 2026-10-04 to "
+              "2026-10-15, and no check here could see it:\n"
+              + "\n".join("  " + c for c in contradictions))
         check("no committed transcript is STALE", not stale,
               "a STALE transcript is a claim about code that is no longer here;\n"
               "it cannot be seen by `git status`, because the transcript is\n"
