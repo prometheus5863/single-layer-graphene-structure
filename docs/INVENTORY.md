@@ -428,3 +428,41 @@ Total wall time 32.5 min. Exit code 1 means the script ran to completion and rep
 | `summary.py` | 0 | 0.1 |
 | `initialize_repo.py` | not run | — |
 | `main.py` | not run | — |
+
+## 6. Layout decision (Phase 1)
+
+The brief's target layout splits physical models into a `src/graphene/<topic>/` package and moves every
+audit into `audits/`, "adjusting only if the inventory gives a concrete reason". It does. The verification
+layer is coupled to the flat layout by construction:
+
+* `graphene_dead_name_sweep.py`, `graphene_import_binding_sweep.py`, `graphene_cross_module_delivery_audit.py`,
+  `graphene_potential_census_audit.py`, `graphene_figure_provenance_audit.py`,
+  `graphene_log_sensitivity_step_audit.py` and `graphene_mutation_arrival_probe.py` enumerate `*.py` **in
+  their own directory** (via `__file__` or the working directory), and several print the count or the
+  per-file results into their transcripts.
+* The three mutation harnesses copy named sibling modules into a temporary directory and run them there;
+  `graphene_pristine_transcript_audit.py` runs registered suites inside a fresh clone.
+* 56 import edges bind values at import time (§4); renaming modules into a package rewrites every one of them,
+  which is exactly the stale-binding failure class of §4.6.12–4.6.13.
+
+Splitting models from audits would therefore change **what the audits measure** — their population and their
+printed line numbers — not just where files sit. That is not a pure reorganisation. Checkpoint 1 confirmed it
+directly: moving only the five legacy demo scripts out of the directory changed two transcripts
+(`figure_provenance_audit`: "of 56 Python files" → "of 51"; `import_binding_sweep`: "modules parsed: 56" → "51").
+
+So in this PR:
+
+* every module, including the five legacy demos, is in **one flat `src/` directory** under its old name;
+  legacy scripts are classed *legacy* here and skipped by `scripts/reproduce_all.py`;
+* infrastructure that must not be counted by the audits lives in the `src/graphene/` package
+  (`graphene.paths.results_path`), which the `*.py` globs do not see;
+* the import of `results_path` is appended to each module's first import line, so **no source line moves**
+  (several audits print line numbers);
+* `constants.py` is **not** introduced: replacing module-local constants with imports is a change to the
+  binding graph, i.e. to the thing §4.6.13's audits measure.
+
+The package split is still the right end state. It should be its own PR, in this order: (1) give the audits an
+explicit module manifest instead of a directory glob; (2) move legacy scripts out and regenerate the affected
+transcripts in the same commit, annotating the population change; (3) move audits to `audits/`; (4) only then
+split models into subpackages, with `import X as y` (attribute lookup) rather than `from X import name` at every
+cross-module site.
