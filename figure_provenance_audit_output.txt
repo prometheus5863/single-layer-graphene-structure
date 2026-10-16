@@ -158,7 +158,12 @@ SECTION C -- repository-wide census of the inert-knob pattern
     must NOT report g(y=1.0), a literal default: PASS
     reported from the control snippet: [('f', 'y', 'FOO_DEFAULT'), ('f', 'z', 'BAR')]
 
-  0 occurrences across 0 of 38 Python files in the repository:
+  21 occurrences across 5 of 57 Python files in the repository:
+    graphene_velocity_saturation_model.py                 9
+    graphene_diffusion_current_model.py                   5
+    graphene_exact_charge_rederivation.py                 3
+    graphene_perfect_contact_counterfactual.py            2
+    graphene_second_anchor_bound.py                       2
 
   Ranked by consequence, the ones that matter most are the ones in
   AUDIT modules, because this repository audits by mutation:

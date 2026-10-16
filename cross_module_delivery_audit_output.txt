@@ -38,12 +38,12 @@ SECTION 2 -- and why that pass could not have been a clean bill
     rf_figures_of_merit                gfet.mu /2                     graphene_fet_model.mu
     rf_figures_of_merit                gfet.n_puddle -> same          graphene_fet_model.n_puddle
 
-  cross-module captured defaults found in the repository: 8
+  cross-module captured defaults found in the repository: 16
   of which, targets the provenance audit actually rebinds: 0
   [PASS] the docstring's claim about HISTORY holds of the pinned pre-fix blob c0c620acd113   [pre-fix blob contains the frozen signature: True; working tree contains it: False; working tree is late-bound: True]
   [PASS] the cross-module question is now asked at all (it was not before)
   [PASS] no remaining cross-module patch target is captured as a frozen default (was 1: rf_small_signal_model.gate_resistance)
-  NOTE: 4 setattr call(s) with a computed name -- the census cannot be complete by construction: [('graphene_figure_provenance_audit.py', 173), ('graphene_figure_provenance_audit.py', 175), ('graphene_fmax_shortfall_decomposition.py', 533), ('graphene_fmax_shortfall_decomposition.py', 537)]
+  NOTE: 20 setattr call(s) with a computed name -- the census cannot be complete by construction: [('graphene_binding_class.py', 149), ('graphene_binding_class.py', 155), ('graphene_binding_class.py', 250), ('graphene_binding_class.py', 257), ('graphene_contact_argument_blast_radius.py', 241), ('graphene_contact_argument_blast_radius.py', 246), ('graphene_figure_provenance_audit.py', 173), ('graphene_figure_provenance_audit.py', 175), ('graphene_fmax_shortfall_decomposition.py', 533), ('graphene_fmax_shortfall_decomposition.py', 537), ('graphene_import_binding_sweep.py', 377), ('graphene_import_binding_sweep.py', 380), ('graphene_import_binding_sweep.py', 750), ('graphene_import_binding_sweep.py', 753), ('graphene_import_binding_sweep.py', 414), ('graphene_import_binding_sweep.py', 418), ('graphene_import_binding_sweep.py', 504), ('graphene_import_binding_sweep.py', 508), ('graphene_import_binding_sweep.py', 790), ('graphene_import_binding_sweep.py', 794)]
 
 ------------------------------------------------------------------------------
 SECTION 3 -- the measured consequence
@@ -93,6 +93,10 @@ SECTION 6 -- census: every cross-module captured default, split by
              whether anything in the repository rebinds the name
 ------------------------------------------------------------------------------
     file                               function                   line   captures                                       status
+    graphene_diffusion_current_model.py _at_literature_geometry    382    rf_small_signal_model.N_FINGERS_RF             dormant
+    graphene_diffusion_current_model.py _at_literature_geometry    382    rf_small_signal_model.W_RF                     dormant
+    graphene_diffusion_current_model.py _dd_integrals              249    graphene_velocity_saturation_model.OMEGA_OP    dormant
+    graphene_diffusion_current_model.py _dd_integrals              249    numpy.pi  (in expr)                            dormant
     graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.W_calibration_nm   dormant
     graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.lambda_bulk_nm     dormant
     graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.p_default          dormant
@@ -101,8 +105,12 @@ SECTION 6 -- census: every cross-module captured default, split by
     graphene_sensitivity_audit.py      _rho_terms                 274    graphene_interconnect_model.lambda_bulk_nm     dormant
     graphene_sensitivity_audit.py      _rho_terms                 274    graphene_interconnect_model.p_default          dormant
     graphene_sensitivity_audit.py      _rho_terms                 274    graphene_interconnect_model.rho_bulk_uohm_cm   dormant
+    graphene_velocity_saturation_model.py _at_literature_geometry    364    rf_small_signal_model.N_FINGERS_RF             dormant
+    graphene_velocity_saturation_model.py _at_literature_geometry    364    rf_small_signal_model.W_RF                     dormant
+    graphene_velocity_saturation_model.py _channel_integrals         232    numpy.pi  (in expr)                            dormant
+    graphene_velocity_saturation_model.py v_sat_of_n                 222    numpy.pi  (in expr)                            dormant
 
-  8 captures, 0 live faults, 8 dormant
+  16 captures, 0 live faults, 16 dormant
   Dormant is not "safe": it means no call site rebinds the name TODAY.
   Eight of these are graphene_sensitivity_audit.py, which perturbs by
   passing keywords explicitly; a single future setattr converts all of
