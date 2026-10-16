@@ -115,7 +115,7 @@ DISCRIMINATE, which is a finding about validation cases and not about
 defaults.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 
 from bracketed_root import bracketed_bisect
 from graphene_sensitivity_audit import log_sensitivity
@@ -1007,7 +1007,7 @@ def make_plot():
     fig.suptitle("Numeric-default scale audit, 2026-09-25 -- H_DIFF sits 3.5 decades above its own plateau",
                  fontsize=11)
     fig.tight_layout(rect=[0,0,1,0.94])
-    fig.savefig("default_scale_audit.png",dpi=140)
+    fig.savefig(results_path('audits', "default_scale_audit.png"),dpi=140)
     return "default_scale_audit.png"
 
 

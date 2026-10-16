@@ -48,7 +48,7 @@ constant (09-25 item 10: an absolute tolerance is a hidden scale claim).
 Nothing existing is rewritten by this module.  It measures, and reports.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -722,7 +722,7 @@ def make_figure(step_out, quad_out, ns, prop, gaps, path="gds_quadrature_audit.p
     fig.suptitle("Two entangled defaults behind $g_{ds}$: a finite-difference "
                  "step and a quadrature resolution", fontsize=12)
     fig.tight_layout(rect=[0, 0, 1, 0.94])
-    fig.savefig(path, dpi=150)
+    fig.savefig(results_path('ch4', path), dpi=150)
     plt.close(fig)
     print(f"\n  figure written: {path}")
 

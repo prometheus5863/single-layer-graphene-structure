@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 
@@ -193,7 +193,7 @@ def plot_band_structure():
     ax.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('band_structure.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch2', 'band_structure.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 def fermi_surface_grid_centre():
@@ -261,7 +261,7 @@ def plot_fermi_surface():
     plt.colorbar(contour)
     plt.axis('equal')
     plt.tight_layout()
-    plt.savefig('fermi_surface.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch2', 'fermi_surface.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 def calculate_density_of_states():
@@ -310,7 +310,7 @@ def plot_density_of_states():
     ax.axvline(x=0, color='k', linestyle='--', alpha=0.5, label='Dirac Point')
     ax.legend()
     plt.tight_layout()
-    plt.savefig('density_of_states.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch2', 'density_of_states.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 def visualize_unit_cell():
@@ -369,7 +369,7 @@ def visualize_unit_cell():
     ax.grid(True, alpha=0.3)
     ax.set_aspect('equal')
     plt.tight_layout()
-    plt.savefig('honeycomb_lattice.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch2', 'honeycomb_lattice.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 if __name__ == "__main__":

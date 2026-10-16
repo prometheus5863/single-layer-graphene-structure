@@ -162,7 +162,7 @@ Run:  python3 graphene_velocity_saturation_model.py
 Writes: velocity_saturation_model.png, velocity_saturation_output.txt
 """
 
-import os
+import os; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import sys
 import numpy as np
 import matplotlib
@@ -1029,7 +1029,7 @@ def main():
                  fontsize=11)
     fig.tight_layout()
     if not _FAST:
-        fig.savefig("velocity_saturation_model.png", dpi=150)
+        fig.savefig(results_path('ch4', "velocity_saturation_model.png"), dpi=150)
         say("  wrote velocity_saturation_model.png")
     else:
         say("  (fast mode: figure not written)")
@@ -1053,7 +1053,7 @@ def main():
     if _FAIL:
         say(f"  FAILED CHECKS: {', '.join(_FAIL)}")
     if not _FAST:
-        with open("velocity_saturation_output.txt", "w") as fh:
+        with open(results_path('ch4', "velocity_saturation_output.txt"), "w") as fh:
             fh.write("\n".join(_LINES) + "\n")
     return 1 if _FAIL else 0
 

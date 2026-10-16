@@ -43,7 +43,7 @@ contact-doping junction, on top of (not replacing) the lumped Rc_total
 already used elsewhere in this thesis's device models.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 from scipy.constants import e, epsilon_0
 
@@ -328,7 +328,7 @@ def plot_rc_recalibration():
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3, axis='y')
     plt.tight_layout()
-    plt.savefig('rc_recalibration.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'rc_recalibration.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
     return results
 
@@ -426,7 +426,7 @@ def plot_doping_profiles_and_resistance():
     axes[1].grid(True, alpha=0.3, axis='y')
 
     plt.tight_layout()
-    plt.savefig('contact_doping_profile.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'contact_doping_profile.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
     return results

@@ -143,7 +143,7 @@ Writes: perfect_contact_counterfactual_output.txt
         perfect_contact_counterfactual.png
 """
 
-import os
+import os; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 
 import numpy as np
 import matplotlib
@@ -958,7 +958,7 @@ def main():
                      "40 um / 8 fingers, $V_{ds}=0.1$ V unless shown",
                      fontsize=10)
         fig.tight_layout()
-        fig.savefig("perfect_contact_counterfactual.png", dpi=150)
+        fig.savefig(results_path('ch4', "perfect_contact_counterfactual.png"), dpi=150)
         plt.close(fig)
 
     at_literature_geometry(sec9)
@@ -986,7 +986,7 @@ def main():
            100 * (coh["ratio"] / base["ratio"] - 1)))
     say("=" * 78)
 
-    with open("perfect_contact_counterfactual_output.txt", "w") as fh:
+    with open(results_path('ch4', "perfect_contact_counterfactual_output.txt"), "w") as fh:
         fh.write("\n".join(_LINES) + "\n")
 
     return 1 if _FAIL else 0

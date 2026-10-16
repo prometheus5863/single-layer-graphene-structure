@@ -129,7 +129,7 @@ Outputs: fmax_shortfall_decomposition.png,
          session per the 2026-10-03 wiring rule).
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 
 import graphene_fet_model as gfet
@@ -704,7 +704,7 @@ def plot_decomposition(d, rows):
     ax.grid(True, alpha=0.25)
 
     plt.tight_layout()
-    plt.savefig('fmax_shortfall_decomposition.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'fmax_shortfall_decomposition.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 

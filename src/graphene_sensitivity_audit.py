@@ -55,7 +55,7 @@ WHAT IS AND IS NOT CLAIMED
   reports kappa and a HYPOTHETICAL 5% bar, labelled as hypothetical.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -653,7 +653,7 @@ def plot_audit(famA, famC_prop, famD, fname="sensitivity_audit.png"):
                  "(2026-09-22): which computed quantities are near-cancellations?",
                  fontsize=11)
     fig.tight_layout(rect=(0, 0, 1, 0.94))
-    fig.savefig(fname, dpi=150)
+    fig.savefig(results_path('ch4', fname), dpi=150)
     print(f"\nFigure written: {fname}")
 
 

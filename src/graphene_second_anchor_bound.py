@@ -76,7 +76,7 @@ known value.  There are six, including a planted-ell round trip that the
 inversion must recover and two degenerate limits that must be exact.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -348,7 +348,7 @@ def plot_bound():
                  'at $d=5.0$ \\AA\\ as an inequality, not a number',
                  fontsize=11)
     fig.tight_layout(rect=(0, 0, 1, 0.95))
-    fig.savefig('second_anchor_bound.png', dpi=150)
+    fig.savefig(results_path('ch7', 'second_anchor_bound.png'), dpi=150)
     plt.close(fig)
     print('\nWrote second_anchor_bound.png')
 

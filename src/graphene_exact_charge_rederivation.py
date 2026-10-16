@@ -97,7 +97,7 @@ Run:  python graphene_exact_charge_rederivation.py
 Writes: exact_charge_rederivation.png, exact_charge_rederivation_output.txt
 """
 
-import contextlib
+import contextlib; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 
 import numpy as np
 import matplotlib
@@ -1093,7 +1093,7 @@ def make_figure(rows, pk_committed, pk_charge, pk_full):
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('exact_charge_rederivation.png', dpi=200,
+    plt.savefig(results_path('ch4', 'exact_charge_rederivation.png'), dpi=200,
                 bbox_inches='tight')
     plt.close(fig)
 

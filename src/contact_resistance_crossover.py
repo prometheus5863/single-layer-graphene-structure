@@ -31,7 +31,7 @@ is unrelated; contact-resistance literature range (~110-500 Ohm.um) is the
 same range already used and cited in graphene_fet_model.py.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 
 from graphene_fet_model import (
@@ -109,7 +109,7 @@ def plot_crossover():
     axes[1].set_ylim(0, 100)
 
     plt.tight_layout()
-    plt.savefig('contact_resistance_crossover.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'contact_resistance_crossover.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
     return crossover_report

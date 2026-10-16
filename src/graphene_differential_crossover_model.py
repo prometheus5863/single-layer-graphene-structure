@@ -52,7 +52,7 @@ NOT CLAIMED
   threshold plus a statement that it is unreachable -- weaker, and honest.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -639,7 +639,7 @@ def make_plot(path="differential_crossover.png"):
     ax.grid(alpha=0.3)
 
     fig.tight_layout()
-    fig.savefig(path, dpi=150)
+    fig.savefig(results_path('ch6', path), dpi=150)
     print(f"\nsaved {path}")
     return path
 

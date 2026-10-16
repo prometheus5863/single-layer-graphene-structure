@@ -41,7 +41,7 @@ notes/2026-09-22-how-far-can-the-crossover-move.md BEFORE this file existed
 (note in 235b420).  check_predictions() scores them mechanically.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -705,7 +705,7 @@ def make_plots(fname="crossover_sensitivity.png"):
     axes[2].legend(fontsize=8)
 
     fig.tight_layout()
-    fig.savefig(fname, dpi=150)
+    fig.savefig(results_path('ch6', fname), dpi=150)
     print(f"\nwrote {fname}")
     return fname
 

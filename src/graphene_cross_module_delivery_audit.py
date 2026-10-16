@@ -89,7 +89,7 @@ distinction is a fact about the call sites, not about the captures, and a
 single future `setattr` would convert all eight.
 """
 
-import ast
+import ast; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import glob
 import importlib
 import io
@@ -762,7 +762,7 @@ def make_figure(res, census_rows, exact_checks):
                  % (len(census_rows), n_fault, n_dorm, n_exact, len(exact_checks)),
                  fontsize=11)
     plt.tight_layout(rect=(0, 0, 1, 0.94))
-    plt.savefig('cross_module_delivery_audit.png', dpi=200, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'cross_module_delivery_audit.png'), dpi=200, bbox_inches='tight')
     plt.close(fig)
     print('  wrote cross_module_delivery_audit.png')
 

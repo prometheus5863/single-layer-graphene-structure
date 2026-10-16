@@ -72,7 +72,7 @@ n = 4(dV/A_F)^2 that the solver must hit, a cross-construction agreement with
 arrival counter.
 """
 
-import contextlib
+import contextlib; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 
 import numpy as np
 import matplotlib
@@ -501,7 +501,7 @@ def plot_contact_correction(per_metal):
     fig.suptitle("Item 16's precondition (i): the contact now has a "
                  "replacement of its own, not an exclusion", fontsize=11)
     fig.tight_layout(rect=(0, 0, 1, 0.95))
-    fig.savefig('contact_consistent_argument.png', dpi=150)
+    fig.savefig(results_path('ch4', 'contact_consistent_argument.png'), dpi=150)
     plt.close(fig)
     print('\nWrote contact_consistent_argument.png')
 

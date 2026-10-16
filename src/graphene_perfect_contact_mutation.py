@@ -58,7 +58,7 @@ Run:    python3 graphene_perfect_contact_mutation.py
 Writes: perfect_contact_mutation_output.txt
 """
 
-import os
+import os; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import re
 import shutil
 import subprocess
@@ -132,7 +132,7 @@ def main():
         print(s)
 
     def write():
-        with open(os.path.join(here,
+        with open(results_path('ch4',
                   "perfect_contact_mutation_output.txt"), "w") as fh:
             fh.write("\n".join(lines) + "\n")
 

@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 from scipy.constants import hbar, h, e, Boltzmann as kB
 import matplotlib.patches as patches
@@ -47,7 +47,7 @@ def plot_linear_dispersion():
     ax.axhline(y=0, color='k', linestyle='--', alpha=0.5)
     ax.axvline(x=0, color='k', linestyle='--', alpha=0.5)
     plt.tight_layout()
-    plt.savefig('linear_dispersion.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch3', 'linear_dispersion.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 def quantum_hall_conductance(B_field_range, n_carriers_range):
@@ -87,7 +87,7 @@ def plot_quantum_hall_effect():
     ax_twin.set_ylim(ax.get_ylim()[0] / (4*e**2/hbar), ax.get_ylim()[1] / (4*e**2/hbar))
     
     plt.tight_layout()
-    plt.savefig('quantum_hall_effect.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch3', 'quantum_hall_effect.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 def calculate_mobility_vs_temperature(T_range, scattering_mechanisms=True):
@@ -142,7 +142,7 @@ def plot_mobility_vs_temperature():
     ax.grid(True, alpha=0.3)
     ax.legend()
     plt.tight_layout()
-    plt.savefig('mobility_vs_temperature.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch3', 'mobility_vs_temperature.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 def calculate_quantum_conductance():
@@ -201,7 +201,7 @@ def plot_conductance_map(Vg_range, Vd_range):
     ax.set_title('Conductance Map of Graphene Field-Effect Transistor')
     plt.colorbar(im, label='Conductance (a.u.)')
     plt.tight_layout()
-    plt.savefig('conductance_map.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch3', 'conductance_map.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 def plot_klein_tunneling():
@@ -242,7 +242,7 @@ def plot_klein_tunneling():
     ax.grid(True, alpha=0.3)
     ax.legend()
     plt.tight_layout()
-    plt.savefig('klein_tunneling.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch3', 'klein_tunneling.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 def calculate_optical_conductivity(freq_range):
@@ -317,7 +317,7 @@ def plot_optical_absorption():
     ax2.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('optical_properties.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch3', 'optical_properties.png'), dpi=300, bbox_inches='tight')
     plt.show()
 
 if __name__ == "__main__":

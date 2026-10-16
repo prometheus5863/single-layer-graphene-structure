@@ -63,7 +63,7 @@ resistance/pad-capacitance revision and the corrected f_max vs. f_T
 framing (f_max > f_T is not itself unphysical -- see Feijoo et al. 2016).
 """
 
-import warnings
+import warnings; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -372,7 +372,7 @@ def plot_fT_fmax():
     axes[2].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('rf_figures_of_merit.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'rf_figures_of_merit.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 

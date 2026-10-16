@@ -48,7 +48,7 @@ qualitatively (the large-hole, area-loss-dominated branch) and where it is
 NOT expected to (the small-hole branch of their non-monotonic trend).
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 from scipy.constants import hbar, e
 
@@ -234,7 +234,7 @@ def plot_edge_vs_top_and_patterned():
     axes[1].set_ylim(0, 700)
 
     plt.tight_layout()
-    plt.savefig('edge_vs_top_contact.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'edge_vs_top_contact.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
     return R_extra_top, R_extra_edge

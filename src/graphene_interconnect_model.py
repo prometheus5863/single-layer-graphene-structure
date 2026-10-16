@@ -82,7 +82,7 @@ notes) alongside the original 3 nm TaN/Co case. See
 notes/2026-08-29-liner-parallel-conduction-and-thin-liner-scenarios.md.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 
 # ---------------------------------------------------------------------------
@@ -436,7 +436,7 @@ def plot_resistivity_vs_linewidth():
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig('interconnect_resistivity_vs_linewidth.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch5', 'interconnect_resistivity_vs_linewidth.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 

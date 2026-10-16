@@ -240,7 +240,7 @@ def run_suite(clone, module):
     import time
     t0 = time.time()
     try:
-        p = subprocess.run([sys.executable, module], cwd=clone, env=env,
+        p = subprocess.run([sys.executable, module], cwd=os.path.join(clone, 'src'), env=env,
                            capture_output=True, text=True, timeout=SUITE_TIMEOUT_S)
     except subprocess.TimeoutExpired:
         return None, SUITE_TIMEOUT_S, "timeout after %ds" % SUITE_TIMEOUT_S
@@ -251,7 +251,7 @@ def run_suite(clone, module):
 
 
 def main():
-    repo = os.path.dirname(os.path.abspath(__file__))
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # src/ -> repository root (2026-10-16 reorg)
     # Runtime assertion, not a comment: this module must not audit itself.
     assert SELF not in [m for m, _ in SUITES], (
         "%s is listed in SUITES: it would run inside its own pristine clone "
@@ -288,7 +288,7 @@ def main():
         results = {}
         cached = {}
         for module, transcript in SUITES:
-            if not os.path.exists(os.path.join(clone, module)):
+            if not os.path.exists(os.path.join(clone, 'src', module)):
                 results[module] = ("MISSING", 0.0, ["not present at this commit"])
                 print("  %-44s MISSING" % module)
                 continue
@@ -302,7 +302,7 @@ def main():
                 results[module] = ("RAN", dt, ["no committed transcript to compare"])
                 print("  %-44s RAN      %6.1fs  (no transcript)" % (module, dt))
                 continue
-            tpath = os.path.join(clone, transcript)
+            tpath = next(iter(__import__('glob').glob(os.path.join(clone, 'results', 'transcripts', '*', transcript))), os.path.join(clone, transcript))
             if not os.path.exists(tpath):
                 results[module] = ("NO_FILE", dt, [transcript + " absent"])
                 print("  %-44s NO_FILE  %6.1fs" % (module, dt))
@@ -424,7 +424,7 @@ def main():
             # tests that a real code change actually reaches a real verdict.
             scratch = os.path.join(tmp, "mutated")
             make_pristine_clone(repo, commit, scratch)
-            src_path = os.path.join(scratch, dmod)
+            src_path = os.path.join(scratch, 'src', dmod)
             with open(src_path) as fh:
                 src = fh.read()
             mutated = src.replace("print(", "print_SHIM(", 1)
@@ -440,7 +440,7 @@ def main():
                 if err2 is not None:
                     check("C6 the mutated donor still runs", False, err2[:200])
                 else:
-                    with open(os.path.join(scratch, dtr)) as fh:
+                    with open(next(iter(__import__('glob').glob(os.path.join(scratch, 'results', 'transcripts', '*', dtr))), os.path.join(scratch, dtr))) as fh:
                         ctext = fh.read()
                     v, _ = classify(ctext, out2)
                     check("C6 an injected defect stops the verdict being IDENTICAL",

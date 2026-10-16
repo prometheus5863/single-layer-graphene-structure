@@ -25,7 +25,7 @@ Run:  python3 graphene_velocity_saturation_mutation.py
 Writes: velocity_saturation_mutation_output.txt
 """
 
-import os
+import os; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import re
 import shutil
 import subprocess
@@ -116,7 +116,7 @@ def main():
     if not ctrl_a_ok:
         say("  control A failed; every mutant verdict below would be "
             "meaningless.  Stopping.")
-        with open(os.path.join(here,
+        with open(results_path('ch4',
                   "velocity_saturation_mutation_output.txt"), "w") as fh:
             fh.write("\n".join(lines) + "\n")
         return 1
@@ -199,7 +199,7 @@ def main():
 
     if bad:
         say(f"  PROBLEM TAGS: {', '.join(bad)}")
-    with open(os.path.join(here,
+    with open(results_path('ch4',
               "velocity_saturation_mutation_output.txt"), "w") as fh:
         fh.write("\n".join(lines) + "\n")
     return 1 if bad else 0

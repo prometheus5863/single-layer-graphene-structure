@@ -167,7 +167,7 @@ Run:  python3 graphene_diffusion_current_model.py
 Writes: diffusion_current_model.png, diffusion_current_output.txt
 """
 
-import os
+import os; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -937,7 +937,7 @@ def main():
     ax.grid(alpha=0.3, which="both")
 
     plt.tight_layout()
-    plt.savefig("diffusion_current_model.png", dpi=300, bbox_inches="tight")
+    plt.savefig(results_path('ch4', "diffusion_current_model.png"), dpi=300, bbox_inches="tight")
     plt.close(fig)
     say("  wrote diffusion_current_model.png")
 
@@ -966,7 +966,7 @@ def main():
     say("                                   differ by exactly this term "
         "(Section 6)")
 
-    with open("diffusion_current_output.txt", "w") as fh:
+    with open(results_path('ch4', "diffusion_current_output.txt"), "w") as fh:
         fh.write("\n".join(_LINES) + "\n")
     return 1 if _FAIL else 0
 

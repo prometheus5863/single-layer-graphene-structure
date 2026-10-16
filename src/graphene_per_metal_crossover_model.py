@@ -45,7 +45,7 @@ WHAT IS AND IS NOT CLAIMED
   distinction that caught real bugs on 2026-09-17 and 2026-09-19.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -523,7 +523,7 @@ def make_plot(path="per_metal_crossover.png"):
     ax.grid(alpha=0.3)
 
     fig.tight_layout()
-    fig.savefig(path, dpi=150)
+    fig.savefig(results_path('ch6', path), dpi=150)
     plt.close(fig)
     return path
 

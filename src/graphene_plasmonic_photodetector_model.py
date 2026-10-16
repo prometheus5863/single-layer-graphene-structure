@@ -74,7 +74,7 @@ measured value, following this repo's established practice (e.g. the
 fill fractions).
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 
 from graphene_photodetector_model import (
@@ -222,7 +222,7 @@ def plot_plasmonic_enhancement():
         "see module docstring)",
         fontsize=10.5)
     fig.tight_layout(rect=[0, 0, 1, 0.90])
-    fig.savefig("plasmonic_photodetector_enhancement.png", dpi=150)
+    fig.savefig(results_path('ch6', "plasmonic_photodetector_enhancement.png"), dpi=150)
     print("Saved plasmonic_photodetector_enhancement.png")
 
 

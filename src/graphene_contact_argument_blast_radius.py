@@ -82,7 +82,7 @@ Run:  python3 graphene_contact_argument_blast_radius.py
 Writes: contact_argument_blast_radius_output.txt, contact_argument_blast_radius.png
 """
 
-import contextlib
+import contextlib; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import io
 import sys
 
@@ -743,7 +743,7 @@ def main():
     fig.suptitle('Item 16\'s blast radius: the contact model was outside the harness',
                  fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.95))
-    fig.savefig('contact_argument_blast_radius.png', dpi=150)
+    fig.savefig(results_path('ch4', 'contact_argument_blast_radius.png'), dpi=150)
     print('  figure written: contact_argument_blast_radius.png')
     print()
 
@@ -774,6 +774,6 @@ if __name__ == '__main__':
         rc = main()
     finally:
         sys.stdout = old
-    with open('contact_argument_blast_radius_output.txt', 'w') as f:
+    with open(results_path('ch4', 'contact_argument_blast_radius_output.txt'), 'w') as f:
         f.write(buf.getvalue())
     sys.exit(rc)

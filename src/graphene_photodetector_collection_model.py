@@ -55,7 +55,7 @@ notes/2026-09-07-spatial-photocarrier-collection-model.md):
   Section 6.6 for this as an explicit open item, not a resolved one).
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 
 from graphene_contact_doping_model import METAL_WORK_FUNCTIONS, W_GRAPHENE, lambda_decay
@@ -202,7 +202,7 @@ def plot_collection_profiles_and_eqe():
     ax2.grid(True, alpha=0.3, axis='y')
 
     plt.tight_layout()
-    plt.savefig('photodetector_collection_efficiency_by_metal.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch6', 'photodetector_collection_efficiency_by_metal.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
     return results

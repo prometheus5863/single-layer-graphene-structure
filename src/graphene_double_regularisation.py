@@ -62,7 +62,7 @@ Run:  python3 graphene_double_regularisation.py
 Writes double_regularisation_output.txt and double_regularisation.png.
 """
 
-import contextlib
+import contextlib; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 
 import numpy as np
 import matplotlib
@@ -683,7 +683,7 @@ def main():
                  'form (4.29), and compose max-like where they are not',
                  fontsize=11)
     fig.tight_layout(rect=(0, 0, 1, 0.94))
-    fig.savefig('double_regularisation.png', dpi=150)
+    fig.savefig(results_path('ch4', 'double_regularisation.png'), dpi=150)
     print('   wrote double_regularisation.png')
 
     print()

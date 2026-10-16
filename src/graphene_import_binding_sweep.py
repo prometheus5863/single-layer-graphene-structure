@@ -65,7 +65,7 @@ WHAT THIS MODULE DOES
              binding in a throwaway module must be found exactly once.
 """
 
-import ast
+import ast; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import contextlib
 import importlib
 import io
@@ -1234,7 +1234,7 @@ def make_figure(by_owner, trans, miss_table, used, reach_rows,
     fig.suptitle('Import-binding sweep: a repair to one binding is not a repair '
                  'to the class', fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.94))
-    fig.savefig(fname, dpi=150)
+    fig.savefig(results_path('audits', fname), dpi=150)
     print('  figure written: %s' % fname)
 
 
@@ -1306,6 +1306,6 @@ if __name__ == '__main__':
         rc = main()
     finally:
         sys.stdout = old
-    with open('import_binding_sweep_output.txt', 'w') as f:
+    with open(results_path('audits', 'import_binding_sweep_output.txt'), 'w') as f:
         f.write(buf.getvalue())
     sys.exit(rc)

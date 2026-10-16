@@ -72,7 +72,7 @@ So one function separates the two estimators by a closed form at every step,
 and a second lets the blind spots of `conv` be located to machine precision
 rather than estimated.
 """
-import math
+import math; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import re
 import numpy as np
 
@@ -802,7 +802,7 @@ def make_figure(q3, q4rows, q9, fname="log_sensitivity_step_audit.png"):
     ax[1, 1].grid(alpha=0.3, axis="x", which="both")
 
     fig.tight_layout()
-    fig.savefig(fname, dpi=140)
+    fig.savefig(results_path('audits', fname), dpi=140)
     print(f"\n[figure written: {fname}]")
 
 

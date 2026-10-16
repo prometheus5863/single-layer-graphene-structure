@@ -44,7 +44,7 @@ Validation policy follows 2026-09-17: at least one check against a value that
 is known exactly, not a plausible-range check.  There are five here.
 """
 
-import contextlib
+import contextlib; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 
 import numpy as np
 import matplotlib
@@ -871,7 +871,7 @@ def main():
     fig.suptitle("Section 7.9 item 16: fixing $C_q$'s argument, and the "
                  'temperature the obvious fix deletes', fontsize=11)
     fig.tight_layout()
-    fig.savefig('quantum_capacitance_argument.png', dpi=150)
+    fig.savefig(results_path('ch4', 'quantum_capacitance_argument.png'), dpi=150)
     print('  wrote quantum_capacitance_argument.png')
 
     print()

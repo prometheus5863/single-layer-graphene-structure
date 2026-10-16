@@ -68,7 +68,7 @@ mutating it moves the oracle and freezes the measurement.
 Run: python3 graphene_figure_provenance_audit.py
 """
 
-import importlib
+import importlib; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import io
 import sys
 
@@ -624,7 +624,7 @@ def make_figure(record):
         Patch(color='#6d8fb8', label='MUST_NOT_CHANGE null control, held at 0'),
     ], fontsize=8, loc='lower right')
     plt.tight_layout()
-    plt.savefig('figure_provenance_audit.png', dpi=200, bbox_inches='tight')
+    plt.savefig(results_path('audits', 'figure_provenance_audit.png'), dpi=200, bbox_inches='tight')
     plt.close(fig)
     print('  wrote figure_provenance_audit.png')
 

@@ -77,7 +77,7 @@ Run:  python graphene_fet_signed_carrier_model.py
 Writes: fet_signed_carrier_model.png, fet_signed_carrier_output.txt (via tee)
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -353,7 +353,7 @@ def make_figure(Vds_demo=0.5):
     ax.grid(True, alpha=0.3, which='both')
 
     plt.tight_layout()
-    plt.savefig('fet_signed_carrier_model.png', dpi=200, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'fet_signed_carrier_model.png'), dpi=200, bbox_inches='tight')
     plt.close(fig)
 
 

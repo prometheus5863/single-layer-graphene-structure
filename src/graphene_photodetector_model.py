@@ -57,7 +57,7 @@ citations. Anchor data points used below:
   - Extended trap-lifetime photogating: tau ~= 1 s,   R ~= 1e10  A/W
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 from scipy.constants import e, h, c
 
@@ -264,7 +264,7 @@ def plot_responsivity_tradeoff():
     ax2.grid(True, which='both', axis='y', alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('photodetector_responsivity_gain_tradeoff.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch6', 'photodetector_responsivity_gain_tradeoff.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 

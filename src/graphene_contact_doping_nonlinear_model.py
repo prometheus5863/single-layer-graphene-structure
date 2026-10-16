@@ -60,7 +60,7 @@ WHAT IS AND IS NOT CLAIMED
   are not characterised by their work function alone.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 from scipy.constants import e, epsilon_0, hbar
 
@@ -571,7 +571,7 @@ def make_plots(fname="contact_doping_nonlinear_relation.png"):
     ax.set_title("Ti/Pt: compression, no reversal")
     ax.legend(fontsize=9); ax.grid(alpha=0.3)
 
-    fig.tight_layout(); fig.savefig(fname, dpi=150)
+    fig.tight_layout(); fig.savefig(results_path('ch6', fname), dpi=150)
     print(f"\nwrote {fname}")
     return fname
 

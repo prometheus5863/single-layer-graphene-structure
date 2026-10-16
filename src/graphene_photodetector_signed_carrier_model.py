@@ -152,7 +152,7 @@ STATED SIMPLIFICATIONS (unchanged from 2026-09-17 unless noted)
 4. No photogain, photo-thermoelectric or bolometric contribution.
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 
 from graphene_contact_doping_model import METAL_WORK_FUNCTIONS, W_GRAPHENE, lambda_decay
@@ -569,7 +569,7 @@ def make_plots(fname="photodetector_signed_carrier_response.png",
     ax.grid(alpha=0.3)
 
     fig.tight_layout()
-    fig.savefig(fname, dpi=150)
+    fig.savefig(results_path('ch6', fname), dpi=150)
     print(f"\nsaved {fname}")
     return fname
 

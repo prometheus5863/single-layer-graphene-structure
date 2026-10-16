@@ -33,7 +33,7 @@ for full citations and discussion):
     Nature Sci. Rep. 2024 s41598-024-58360-9)
 """
 
-import numpy as np
+import numpy as np; from graphene.paths import results_path  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import matplotlib.pyplot as plt
 from scipy.constants import e, hbar, epsilon_0, Boltzmann as kB
 
@@ -304,7 +304,7 @@ def plot_quantum_capacitance():
     ax.legend()
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig('quantum_capacitance.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'quantum_capacitance.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 
@@ -343,7 +343,7 @@ def plot_transfer_characteristics():
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('gfet_transfer_characteristics.png', dpi=300, bbox_inches='tight')
+    plt.savefig(results_path('ch4', 'gfet_transfer_characteristics.png'), dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 
