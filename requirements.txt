@@ -1,4 +1,17 @@
-numpy==1.24.3
-matplotlib==3.7.1
-scipy==1.10.1
+# Exact environment the committed results were produced and verified in
+# (AUTOMATION_LOG 2026-10-06/07; docs/baseline_hashes.txt). Python >= 3.12.
+numpy==2.5.3
+scipy==1.18.1
+matplotlib==3.10.9
 sympy==1.12
+mpmath==1.4.1
+# matplotlib's transitive pins, so PNG bytes are reproducible
+contourpy==1.4.0
+cycler==0.12.1
+fonttools==4.67.0
+kiwisolver==1.5.1
+packaging==26.3
+pillow==12.3.0
+pyparsing==3.3.3
+python-dateutil==2.9.0.post0
+six==1.17.0

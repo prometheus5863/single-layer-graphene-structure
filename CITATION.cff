@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use these models or the verification layer, please cite them as below."
+title: "Single-layer graphene device models: contacts, interconnects and photodetectors, with an explicit verification layer"
+type: software
+authors:
+  - family-names: Gururani
+    given-names: Harsh Vardhan
+    affiliation: "Department of Physics, Indian Institute of Technology (BHU) Varanasi"
+repository-code: "https://github.com/prometheus5863/single-layer-graphene-structure"
+license: MIT
+version: "0.1.0"
+date-released: "2026-10-16"
+abstract: >-
+  Compact, analytical device models of single-layer graphene (back-gated FET
+  and metal contacts, interconnect resistivity versus linewidth, two-contact
+  photodetectors), validated against exactly known limits and published data,
+  together with the audit scripts that check them. Not DFT or NEGF. Developed
+  as the computational part of an M.Tech thesis; parts of the code and text
+  were drafted with an AI assistant (Claude, Anthropic) under the author's
+  direction and review.
+keywords:
+  - graphene
+  - compact model
+  - contact resistance
+  - photodetector
+  - interconnect
+  - verification

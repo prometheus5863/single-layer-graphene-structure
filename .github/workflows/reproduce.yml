@@ -1,0 +1,42 @@
+name: reproduce
+
+# Regenerates every figure and transcript from a clean environment and compares
+# them with docs/baseline_hashes.txt. A pass proves the code still produces the
+# recorded outputs; it does not prove those outputs are correct.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the pristine-transcript audit clones the committed state; cross-module audit reads pinned blobs
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"   # baseline: 3.13.16
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Regenerate and compare with baseline
+        run: python scripts/reproduce_all.py --check --report reproduce_report.json
+
+      - name: Upload run report and regenerated results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproduce-output
+          path: |
+            reproduce_report.json
+            results/
