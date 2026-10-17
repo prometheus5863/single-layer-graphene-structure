@@ -9130,3 +9130,306 @@ nothing crossed the bridge. Nothing was deleted.
 `classify()`'s scope verdict and the first red transcript; the three
 remaining stale transcripts; the pristine audit's red/crashed conflation; its
 regenerated transcript; the thesis). This AUTOMATION_LOG.md entry makes **7**.
+
+---
+
+## 2026-10-17 — The pattern was also two spellings, the census that could see the other one has been reporting it as "dormant" for sessions, and this session claimed its finding was invisible
+
+**Status:** Item 20 cleared, and the half of the fault class it did not cover
+found, converted, and then found to have been on the record all along.
+
+**Entry point.** Yesterday ranked item 20 first for a measurement reason — the
+baseline carried two deliberately red suites, so a flip run over it would mix
+its own effect with theirs. That ordering held: today is the conversion, and
+the baseline it leaves is clean.
+
+### 1. Item 20, cleared: the 20 inert knobs converted
+
+`def f(p=CONST)` → `p=None` plus a body read, at exactly the 20 FROZEN sites,
+leaving alone the one LIVE capture (`main._R_harmonic`,
+graphene_velocity_saturation_model line 589) that yesterday's module
+separated out. Per file: diffusion_current 5, exact_charge_rederivation 3,
+perfect_contact_counterfactual 2, second_anchor_bound 2,
+velocity_saturation 8 of 9.
+
+**An independent AST pass, written for this session, reproduced the arbiter's
+split before any edit** — 21 total, 20 frozen, the LIVE one at line 589 — so
+the site list the conversion ran on is not the arbiter's output taken on
+trust. Yesterday's requirement was that each affected transcript regenerate
+**byte-identically**, and all five do; the four fast ones were also confirmed
+to reproduce their *committed* transcripts before the edit, so "identical"
+means identical to the claim on disk.
+
+### 2. The same fault in a second spelling, which no census this repository
+reconciles was counting
+
+All three reconciled censuses resolve a default by looking for an `ast.Name`
+whose identifier is a module-level **`ast.Assign`** target in the same file.
+`import x as y` is an `ast.Import`, so `y` is never in that set, and
+
+    import other as o
+    def f(x=o.K): ...
+
+is outside all three — while being frozen by exactly the same mechanism.
+Thirteen such sites, in three files: graphene_sensitivity_audit 8
+(`icm.rho_bulk_uohm_cm`, `p_default`, …), graphene_diffusion_current_model 3
+(`vsat.OMEGA_OP`, `rf.W_RF`, `rf.N_FINGERS_RF`), graphene_velocity_saturation
+2 (`rf.W_RF`, `rf.N_FINGERS_RF`). **So the inert-knob total for 2026-10-16 was
+20 + 13 = 33, not 20**, and the "census reads zero" of 2026-10-01 and
+2026-10-04 — and of this morning's own commit — was a statement about one of
+two spellings.
+
+New suite `graphene_attribute_default_capture.py`, **committed RED (25/2)
+with its transcript before the conversion**, so the before/after is two
+transcripts rather than one claim that a repair worked; green at **34/0**
+after. That was only possible because 2026-10-16 stopped `run_suite`
+reporting a nonzero exit as ERROR with its transcript uncompared — the
+amendment earning its keep one day later.
+
+**The two worst sites are the two whose docstrings deny them.**
+`graphene_velocity_saturation_model._at_literature_geometry` carried
+`W=rf.W_RF, N_fingers=rf.N_FINGERS_RF` under *"Late binding throughout — **no
+module-level name is captured as a default** (the 2026-10-03 frozen-default
+bug, and the 2026-10-04 repeat of it)"*. **True as written and false in
+substance**: no module-level *name* was captured, because what was captured
+was an *attribute*. The claim was audited by spelling, passed, and the thing
+it was auditing for was in the signature it annotates. Its twin in
+graphene_diffusion_current_model says *"Late binding only — the 2026-10-03
+frozen-default fault"* over the same two defaults. Both sentences are **kept
+verbatim** inside the corrected docstrings with the date and the reason.
+Section 4 measures the repaired function taking `W = 7e-06` while a
+reproduction of the old signature keeps `4e-05`, exactly.
+
+### 3. THE RETRACTION — and it is this session's own claim being retracted
+
+The first two commits today state that **no census here has ever been able to
+see the attribute spelling. That is false.**
+`graphene_cross_module_delivery_audit`'s Section 6 has censused exactly this
+pattern since it was written — **16 rows in its committed transcript** — its
+`cross_module_captures()` docstring states the `classify()` frame problem the
+new suite's Section 5 re-derives from scratch, and its own prose already
+reads: *"Dormant is not 'safe': it means no call site rebinds the name TODAY.
+Eight of these are graphene_sensitivity_audit.py, which perturbs by passing
+keywords explicitly; a single future setattr converts all of them at once,
+which is why they are enumerated rather than dismissed."* Three of Section
+5's conclusions were reached independently and claimed as new. It was
+falsified by running the suites this session's own conversion invalidated —
+i.e. by the repository's own standing instruments, not by a review.
+
+**What survives the retraction, which is not nothing:**
+
+1. **The repair.** Those rows were "enumerated rather than dismissed" and then
+   left in place across sessions. 13 are converted today. A census that
+   enumerates a fault indefinitely without it ever being repaired is
+   2026-10-02's fault — a repair built and not connected — in slow motion, and
+   it is the one failure mode this repository has not yet named for itself.
+2. **The two false docstrings.** cross_module_delivery_audit lists
+   `_at_literature_geometry` twice as `dormant` and does not notice that both
+   functions' docstrings explicitly deny being captures.
+3. **The reconciliation nobody did.** 2026-10-16 named three instruments as
+   censusing "the pattern", reconciled 21 against 20 *to the occurrence*, and
+   recorded the third as agreeing at a **different number** — 8 committed, 16
+   live — without reconciling it. 8 and 16 are not reconcilable against 21 and
+   20 **because they count a different spelling**. The session that split the
+   pattern into two *classes* (frozen/live by scope) did not notice it was
+   also two *spellings*, and the 2026-10-04 "agreement" of 0, 0 and 8 was
+   agreement read **across a partition**. New Section 3b asserts it, and T4
+   reconciles the committed 16 exactly: **13 constants + 3 `2.0 / np.pi` rows,
+   no remainder** — the `np.pi` three left alone and named, since nothing
+   rebinds `np.pi`.
+4. **The mechanism.** cross_module_delivery_audit censuses the spelling; it
+   does not establish its semantics. Section 1 does, against exactly known
+   values: module-body attribute capture FROZEN, class-body FROZEN,
+   function-body LIVE, **body read LIVE** — so the fault is the default and
+   not cross-module access, which is what makes the sentinel the right fix —
+   and `setattr` and `mod.attr =` the same mutation. **A7 is the decisive
+   one**: the shipped Name census is handed a file whose only content is this
+   pattern and required to report 0. It does.
+
+### 4. Three defects in this session's own work, all caught by checks
+
+- **R1's first draft** counted the suite's own Section-4 scaffolding in the
+  repository total and **FAILED**. R1 now excludes SELF.
+- **S1's first draft** asserted zero captures in the suite file and **FAILED**
+  on the same two rows.
+- **Section 4's reproduction, written as a nested `def` in the suite file, was
+  a real cross-module captured default in the tree.** Because Section 4
+  rebinds `rf.W_RF`, cross_module_delivery_audit's census classified it **LIVE
+  FAULT** and turned that suite **red, 25/0 → 23/1, on this module's own
+  scaffolding.** It is a temp plant now, and S1b is strengthened from "no
+  FROZEN capture" to "no capture of either class": **passing one's own
+  self-census is not the same as not planting the pattern in the tree other
+  audits read.** That is a new rule, and it generalises past this file.
+- A first Section 5 used a **textual grep** for the rebinding route and
+  reported "no" for all thirteen; the route is `setattr(mod, name, v)` over
+  *computed* mod and name in seven modules here, so the grep answered a weaker
+  question. Replaced by putting the question to the repository's own oracle,
+  on a plant.
+
+### 5. The suite that would have gone vacuous, and the baseline that fixes it
+
+The first draft had, in a sharper form, the exact defect it was written
+about: **once the conversion landed, R1/R2 and the whole of Section 5 passed
+vacuously over an empty row set, and the SUMMARY's "20 + 13 = 33" recomputed
+itself to "20 + 0 = 20"** — a transcript that erases its own finding the
+moment the finding is acted on, which is precisely how the Name census came
+to be read as a clean bill of health for five sessions. Three fixes:
+`BASELINE_2026_10_17` records the 13 by (file, qualname, param, default
+expression) with **no line numbers** (a baseline that goes stale on an
+unrelated edit teaches the operator to ignore it); **R4** requires every one
+to be gone — *a count can be satisfied by the wrong 13* — and **R5** is the
+standing half, no attribute capture may appear that the baseline did not
+name; Section 5 measures the oracle's frame on a **plant**, where it cannot
+evaporate; and R1/R2 say in their own detail lines that they read vacuously
+today.
+
+### 6. Six transcripts regenerated, every one of which changes
+
+| transcript | before | after |
+|---|---|---|
+| mutation_arrival_probe | 32 / 2, "10 site-groups remaining", 8 MIXED | **33 / 1**, 1 site-group, 0 MIXED |
+| cross_module_delivery_audit | 25 / 0, census 16 | 25 / 0, census **3** |
+| figure_provenance_audit | 21 occurrences in 5 files | **1 in 1** |
+| frozen_default_semantics | 21 syntactic / 20 frozen | **1 / 0** |
+| dead_name_sweep | 6 / 2 | 6 / 2, rows changed |
+| log_sensitivity_step_audit | STALE at HEAD | regenerated |
+
+`graphene_frozen_default_semantics.py`'s SUMMARY is **amended rather than left
+to print a stale sentence**: it used to end *"NOT done here: converting the N
+genuine inert knobs, ranked first in AUTOMATION_LOG for the next run"*, which
+at N = 0 reads as an instruction to convert nothing, and its *"all three
+censuses read zero"* line is now followed by **READ THIS NUMBER NARROWLY** and
+the cross-reference to the other spelling. That sentence is the exact form of
+words today's finding is about, sitting in the transcript of the module that
+established the count.
+
+**`graphene_pristine_transcript_audit` was run, twice.** The first run is what
+found five STALE transcripts; after the regenerations it is **13 passed, 0
+failed — 15 suites IDENTICAL, 0 STALE, 0 NUMERIC_DRIFT, 0 ERROR**, the first
+fully clean baseline since 2026-10-04, with the new suite registered in
+`SUITES` in the same commit that created it (the 2026-10-03 wiring rule) and
+IDENTICAL on its first registered run.
+
+### 7. Environment and automation health
+
+Device reachable and folder connected at the **second** firing (10:3x UTC);
+04:30 found it asleep. **Two environment facts worth carrying forward.**
+First, `scipy` was again absent in the device VM and was `pip install`ed
+(1.15.3) — second session in a row, so the 2026-10-15 note that it is present
+should be treated as false. Second, **background processes do not survive a
+`device_bash` call**: `setsid nohup … &` was tried three times and every
+child was reaped at the call boundary, so the 180 s per-call cap is a **hard**
+cap on any single command. `graphene_velocity_saturation_model.py` takes 5
+minutes, so its pristine-vs-converted pair was run in the **cloud sandbox**,
+with the converted sources there confirmed by **sha256** to be the same bytes
+as the ones committed; its pristine run also reproduced the committed
+transcript exactly, on a different scipy (1.18.1). Nothing else crossed the
+bridge and nothing was deleted. **No live web search was used and none was
+needed:** this session touched no physics and made no claim about the
+literature — the second such session, and §7.7's unequal-scrutiny habit is
+therefore untouched rather than cured. One artifact recorded: the clone was
+`--depth 30`, and mutation_arrival_probe's T_HOP measurement reads a pinned
+blob with `git cat-file`, which **failed with CalledProcessError(128) in a
+shallow clone and silently lost four checks behind the failure**. The clone
+was unshallowed before anything was committed.
+
+**Not yet covered (candidates for future runs):**
+
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD — AUDIT EVERY
+  "DORMANT", "ENUMERATED" AND "REPORTED, NOT ASSERTED" ROW IN THE
+  REPOSITORY** — created today and **ranked first**, because it is the
+  generalisation of today's retraction and the one failure mode this
+  repository has not named for itself. cross_module_delivery_audit's 16 rows
+  sat behind a `[PASS]` with the correct diagnosis written beside them, and
+  nothing converted them until a session arrived at the same finding from the
+  other direction and claimed it was new. The work: sweep every suite for a
+  row that is *reported* rather than *checked*, and for each either turn it
+  into a check with a baseline (today's R4/R5 shape) or record a stated reason
+  it must stay a report. Cheapest entry: `grep` for `dormant`, `reported, not
+  asserted`, `enumerated`, `NOTE:` across the suites — the
+  cross_module_delivery_audit NOTE about 20 computed-name `setattr` calls
+  ("the census cannot be complete by construction") is a second instance
+  already visible.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — created today from §4's third defect, and the rule is wider than
+  the file that generated it. Every suite here plants controls; the check
+  should be mechanical, not a habit. Candidate: a guard that runs each
+  suite's *own* arbiter plus every *other* census over the suite files.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, now **ranked second**. Yesterday's
+  reason for ranking it behind item 20 is discharged: item 20 is done and the
+  baseline is clean of staleness *and* of deliberate red, so a flip run's
+  effect is now separable from everything else. Preconditions (i) and (iii)
+  were already discharged; **(ii) — §4.7's prose and §4.10's annotation — is
+  still untouched and is still writing, not plumbing.** "Only Pd gives a
+  small, plausible positive residual" cannot survive a −12.4964 % correction
+  to Pd's `n_contact`. **Cheapest route unchanged: precondition (ii) and the
+  flip in the same session**, and there is now nothing ahead of it on
+  measurement grounds.
+- **A LOWER BOUND ON `ℓ` — THE TWO-SIDED HALF OF THE SECOND ANCHOR** — carried
+  from 2026-10-15, untouched for a third session, and still the top *physics*
+  item. Cheapest route named there: digitise Fig. 4's upper (5.0 Å) point set
+  in `arXiv:0902.1203`. The ar5iv HTML truncated three times, so a **PDF-page
+  read of that figure** remains one of the few genuine reasons to cross the
+  bridge to the cloud sandbox — and today establishes a second: any suite over
+  ~170 s.
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** — their computational results have
+  been complete for weeks. This is the largest remaining block of pure
+  writing and has now gone three sessions without being touched, while four
+  consecutive sessions have gone to instrument work. Worth ranking against
+  item 16 deliberately rather than by default.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried, untouched. (N1) is
+  outside its regime for Ti, Ni and Pd (`d_eq` = 2.05–2.30 Å < `d_0`) whatever
+  `ℓ` is; `W_0(Ni) = 62.5 eV` at `ℓ = 0.3 Å` is (N1) diverging, not a
+  prediction. §7.9 item 2, and contact A of *both* Chapter 6 headline pairs.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, untouched today, and
+  `dead_name_sweep` is still red 6/2 on exactly them.
+  `graphene_potential_census_audit.CHANNEL_POTENTIAL_READINGS` (genuinely
+  DEAD) plus three **hidden** dead names whose CROSS_MODULE resolutions
+  resolved on *spelling*: `graphene_contact_consistent_argument.E_CHARGE`,
+  `graphene_diffusion_current_model.HBAR`,
+  `graphene_quantum_capacitance_argument.A_OX`. The 2026-10-01 precedent
+  applies: give a reader, or declare exempt with a stated reason. **Today
+  sharpens why this one matters:** the hidden three are the same
+  resolve-on-spelling loophole as the docstrings in §2, one layer down.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, untouched for a third session. Today adds a third way a site's
+  conversion can arrive or not: by import, by the scope of its `def`, and now
+  by **spelling**.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried, and it
+  is an instance of the item ranked first above.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twelve sessions
+  overdue**. Today produced no new instance; every check added today is an
+  exact equality.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, a line in item 15's audit rather than a session.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13: a
+  vacuum-like 3.5 Å gap with no interface dipole layer, and one
+  `lambda_decay = 250 nm` for every metal, both plausibly larger than the
+  12.5 % correction already found and neither ever costed.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12; four
+  directions converge on it.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched for a
+  sixth session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  untouched for an **eleventh** session.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the ninth session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for an
+  eighth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twelve sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for a ninth
+  session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  untouched for a ninth session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 5 (the 20-knob conversion; the new suite committed red;
+the 13-site conversion and the two corrected docstrings; the retraction, the
+suite restructure and six regenerated transcripts; the clean pristine
+baseline). This AUTOMATION_LOG.md entry makes **6**.
