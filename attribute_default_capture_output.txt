@@ -1,0 +1,248 @@
+==========================================================================
+ATTRIBUTE-DEFAULT CAPTURE -- 2026-10-17
+`def f(p=alias.ATTR)` is frozen exactly as `def f(p=NAME)` is,
+and no census in this repository has ever been able to see it.
+==========================================================================
+
+--------------------------------------------------------------------------
+SECTION 1 -- the semantics, established against exactly known values
+Equality, not a tolerance: before the rebinding every arm must be the
+same object, and after it the frozen arms must be the SAME object still.
+--------------------------------------------------------------------------
+  before rebinding, probe_src.K = 1.0
+    attr_default()            = 1.0   (def in the MODULE body)
+    body_read()               = 1.0   (attribute read in a BODY)
+    enclosing()               = 1.0   (def in a FUNCTION body)
+    Holder().method()         = 1.0   (def in a CLASS body)
+    literal_default()         = 7.0
+  [PASS] A0 all four capture arms agree before the rebinding
+        a probe whose arms already disagree cannot attribute a later difference to the
+        rebinding -- yesterday's V1 requirement, restated for the attribute spelling
+  after  rebinding, probe_src.K = 99.0  (delivered by setattr)
+    attr_default()            = 1.0   <-- did NOT arrive
+    body_read()               = 99.0  <-- DID arrive
+    enclosing()               = 99.0  <-- DID arrive
+    Holder().method()         = 1.0   <-- did NOT arrive
+    literal_default()         = 7.0
+  [PASS] A1 `def f(x=other.K)` in a MODULE body is FROZEN
+        attr_default() == 1.0 exactly after probe_src.K was set to 99.0.  The default
+        expression `probe_src.K` was evaluated once, when the `def` executed, and what
+        the function carries is the VALUE, not the attribute.
+  [PASS] A2 the same attribute read in a BODY is LIVE
+        body_read() == 99.0 exactly.  So the fault is in the DEFAULT and not in
+        cross-module attribute access -- which is why the fix is a None sentinel and a
+        body read, exactly as for the Name spelling.
+  [PASS] A3 a capture in a FUNCTION body is LIVE here too
+        enclosing() == 99.0 exactly: the inner `def` re-executes per call and
+        re-evaluates probe_src.K.  Yesterday's scope rule is MEASURED for this
+        spelling rather than carried over on the assumption that it must hold.
+  [PASS] A4 a capture in a CLASS body is FROZEN, not live
+        Holder().method() == 1.0 exactly.  A class body executes once at import, so
+        nesting in one freezes just as the module body does -- the case yesterday's
+        first draft got wrong by classifying on nesting depth.
+  [PASS] A5 control: a literal default is untouched by the rebinding
+        so a census reporting it would be reporting a non-capture
+  [PASS] A6 control: setattr() and `mod.attr =` are the same mutation
+        both arrive at a body read, so Section 5 may treat either spelling as the
+        rebinding route without distinguishing them
+  the shipped Name-only census over probe_use.py : 0 row(s)
+  this module's attribute arbiter over the same  : 3 row(s)  (2 FROZEN, 1 LIVE)
+  [PASS] A7 the shipped census is BLIND to every one of these sites
+        graphene_figure_provenance_audit.census() reports 0 over a file whose only
+        content is this pattern -- both of the FROZEN arms A1 and A4 just measured, and
+        the LIVE one from A3.
+        Its `module_globals` is built from `ast.Assign` targets, and `import probe_src`
+        is an `ast.Import`, so `probe_src` is never in it.  This is the blindness
+        stated, measured, on a file where the right answer is known by construction.
+
+--------------------------------------------------------------------------
+SECTION 2 -- controls on the arbiter
+09-30's rule: a census that cannot fail certifies nothing.
+--------------------------------------------------------------------------
+    FROZEN  a                                      x          os.sep
+    FROZEN  b                                      x          system.maxsize
+    FROZEN  Holder.m                               x          os.sep
+    FROZEN  Holder.Inner.deeper                    x          system.maxsize
+    LIVE    outer.nested                           x          os.sep
+    LIVE    outer.LocalClass.method_in_local_class x          os.sep
+  [PASS] C1 the arbiter finds exactly the planted FROZEN captures
+        expected 4, got 4
+  [PASS] C2 the arbiter finds exactly the planted LIVE captures
+        including the method of a class defined INSIDE outer(), where the `class`
+        statement itself re-executes so the capture does too
+  [PASS] C3 a method two CLASS bodies deep is still FROZEN
+        depth 2 and frozen: depth carries no information here either
+  [PASS] C4 a Name default is NOT reported by this arbiter
+        b(y=LOCAL) is the OTHER spelling, counted by the shipped census.  The two
+        censuses must PARTITION the fault, not overlap it, or Section 3's total
+        double-counts.
+  [PASS] C5 a literal default is not reported
+        literal_only(x=3.0, y="s") captures no module attribute
+  [PASS] C6 an attribute of a NON-module is not reported
+        LOCAL.bit_length is an attribute of a float, not of an imported module; it is
+        frozen too, but it is not the cross-module delivery fault this censuses and
+        claiming it would inflate the count
+
+--------------------------------------------------------------------------
+SECTION 3 -- the repository today, and the two censuses added up
+The two spellings partition the fault (C4), so the inert-knob total is
+their sum -- and the Name census has been reported ALONE for five sessions.
+--------------------------------------------------------------------------
+  python files in repository (minus the probe exclusions) : 54
+
+    spelling                                  total  FROZEN   LIVE
+    ---------------------------------------- ------ ------- ------
+    def f(p=NAME)        -- shipped census       1       -      -
+    def f(p=alias.ATTR)  -- this module         13      13      0
+      + this module's own scaffolding            2       0      2
+
+    note: the shipped census is SYNTACTIC and does not split FROZEN
+          from LIVE; yesterday's module did that for it, and this
+          morning's commit converted all 20 of its FROZEN rows, which
+          is why its total now stands at 1 (the single LIVE capture
+          at graphene_velocity_saturation_model.py line 589).
+
+    per-file, the attribute captures:
+    file                                             sites  FROZEN
+      graphene_attribute_default_capture.py              2       0
+      graphene_diffusion_current_model.py                3       3
+      graphene_sensitivity_audit.py                      8       8
+      graphene_velocity_saturation_model.py              2       2
+
+      graphene_attribute_default_capture.py     :532  section4_rf_sites._old_style W=rf.W_RF      -> rf_small_signal_model
+      graphene_attribute_default_capture.py     :532  section4_rf_sites._old_style N_fingers=rf.N_FINGERS_RF -> rf_small_signal_model
+      graphene_diffusion_current_model.py       :249  _dd_integrals            omega_op=vsat.OMEGA_OP -> graphene_velocity_saturation_model
+      graphene_diffusion_current_model.py       :392  _at_literature_geometry  W=rf.W_RF      -> rf_small_signal_model
+      graphene_diffusion_current_model.py       :392  _at_literature_geometry  N_fingers=rf.N_FINGERS_RF -> rf_small_signal_model
+      graphene_sensitivity_audit.py             :216  _calib_terms             rho_cal=icm.rho_calibration_uohm_cm -> graphene_interconnect_model
+      graphene_sensitivity_audit.py             :216  _calib_terms             rho_bulk=icm.rho_bulk_uohm_cm -> graphene_interconnect_model
+      graphene_sensitivity_audit.py             :216  _calib_terms             p=icm.p_default -> graphene_interconnect_model
+      graphene_sensitivity_audit.py             :216  _calib_terms             W_cal=icm.W_calibration_nm -> graphene_interconnect_model
+      graphene_sensitivity_audit.py             :216  _calib_terms             lam_bulk=icm.lambda_bulk_nm -> graphene_interconnect_model
+      graphene_sensitivity_audit.py             :274  _rho_terms               p=icm.p_default -> graphene_interconnect_model
+      graphene_sensitivity_audit.py             :274  _rho_terms               rho_bulk=icm.rho_bulk_uohm_cm -> graphene_interconnect_model
+      graphene_sensitivity_audit.py             :274  _rho_terms               lam_bulk=icm.lambda_bulk_nm -> graphene_interconnect_model
+      graphene_velocity_saturation_model.py     :380  _at_literature_geometry  W=rf.W_RF      -> rf_small_signal_model
+      graphene_velocity_saturation_model.py     :380  _at_literature_geometry  N_fingers=rf.N_FINGERS_RF -> rf_small_signal_model
+  [PASS] R1 every attribute capture in the repository is FROZEN
+        none of the 13 is enclosed by a function body, so none of them is the LIVE
+        class A3 measured -- the whole set is the fault.  This module's own 2 are
+        excluded and answered for in Section 6; the first draft of R1 counted them and
+        FAILED, which is the right behaviour from a check and is recorded rather than
+        quietly reworded.
+  [PASS] R2 and not one of them appears in the shipped census
+        the repository-wide form of A7: the two row sets are disjoint, so no site is
+        counted twice and 13 sites are counted by nothing that was being read
+  [PASS] R3 the shipped census is down to its one LIVE capture
+        this morning's conversion is still in force; if this fails, a Name capture
+        regrew between that commit and this one and the TOTAL below is understated
+
+--------------------------------------------------------------------------
+SECTION 4 -- the docstring that is true by spelling and false in substance
+Measured on graphene_velocity_saturation_model._at_literature_geometry,
+not on a plant.
+--------------------------------------------------------------------------
+  rf.W_RF as shipped                      : 4e-05
+  rebound to                              : 7e-06
+  reproduction of the HEAD~1 signature saw : W = 4e-05, N_fingers = 8
+  the CONVERTED function saw              : W = 4e-05, N_fingers = 8
+  [PASS] F1 the removed signature did NOT see the rebinding
+        W == 4e-05 exactly -- the value frozen when THIS module was imported, which is
+        the value rf.W_RF had then.  A caller rebinding rf.W_RF to study the RF
+        geometry would have been handed the shipped geometry and no indication of it.
+  [FAIL] F2 the converted function DOES see it, exactly
+        W == 7e-06 and N_fingers == 97 exactly: late binding, as the docstring always
+        said it was
+  [FAIL] F3 and the two differ by the whole rebinding, with no residue
+        the pair is exactly (old value, new value); a third number here would mean
+        something else in the call path also moved
+  [PASS] F4 the geometry and both constants are restored after the call
+        _at_literature_geometry's finally-block is intact; this check exists because
+        F2 would also pass if the function simply leaked the new geometry
+
+--------------------------------------------------------------------------
+SECTION 5 -- the repository's OWN arrival oracle, asked about these names
+graphene_mutation_arrival_probe.classify(module, name) answers "whether
+`setattr(module, name, v)` will be seen".  It is the instrument every
+mutation audit here trusts for that question.
+--------------------------------------------------------------------------
+  target module                        attribute                 oracle verdict
+    g_interconnect_model               W_calibration_nm          LIVE
+    g_interconnect_model               lambda_bulk_nm            LIVE
+    g_interconnect_model               p_default                 LIVE
+    g_interconnect_model               rho_bulk_uohm_cm          LIVE
+    g_interconnect_model               rho_calibration_uohm_cm   LIVE
+    g_velocity_saturation_model        OMEGA_OP                  LIVE
+    rf_small_signal_model              N_FINGERS_RF              LIVE
+    rf_small_signal_model              W_RF                      LIVE
+
+  8 of the 8 (target, attribute) pairs are reported by the oracle
+  as something a setattr WILL reach.  For each of them there is a
+  `def f(p=alias.ATTR)` in ANOTHER file that the setattr will not
+  reach, and Section 4 measured one of those exactly.
+  [PASS] L1 every site's target got an answer from the oracle, none skipped
+        an unanswered pair would be a row this section reports on and does not
+        actually cover
+  [PASS] L2 the oracle does not know about ANY of these freezes
+        and it is not wrong to do so: `classify` walks the frozen sites INSIDE the
+        module whose constant is being rebound, and every one of these captures is in
+        a DIFFERENT file.  The oracle is per-module and the fault is cross-module, so
+        the question it answers is not the question its callers ask.  That is the gap,
+        stated as a property of the instrument rather than as an error in it.
+  [PASS] L3 and the one site in THIS file is excluded from the set asked about
+        Section 4's reproduction is LIVE and is not a site; counting it here would
+        inflate the gap with this module's own scaffolding
+
+  LIVE OR LATENT, honestly.  graphene_sensitivity_audit holds eight
+  of the thirteen and delivers its own perturbations by KEYWORD --
+  `_lambda_imp(**{n: v})` -- never by rebinding `icm`, so no caller
+  trips those eight today.  They are converted anyway: the 2026-09-30
+  rule is that a knob a mutation cannot reach certifies whatever sits
+  beside it, and "no caller delivers that way yet" is a property of
+  today's callers, not of the knob.  The two RF sites are different:
+  Section 4 shows a rebinding of rf.W_RF being silently discarded by
+  a function whose docstring is an explicit denial that it can be.
+  A textual scan for the rebinding route was tried first and dropped:
+  the route is `setattr(mod, name, v)` over COMPUTED mod and name in
+  seven modules here, so a grep answers a weaker question than this
+  section does and would have reported "no" for all thirteen.
+
+--------------------------------------------------------------------------
+SECTION 6 -- this module, censused by its own arbiter
+A module that censuses a pattern and then contains it is the 2026-09-28
+band-structure fault in a new costume.
+--------------------------------------------------------------------------
+  attribute captures in graphene_attribute_default_capture.py: 2
+    LIVE    line 532   W=rf.W_RF
+    LIVE    line 532   N_fingers=rf.N_FINGERS_RF
+  [PASS] S1 this module introduces no FROZEN capture -- no inert knob of its own
+        a module that censuses a pattern and then contains it is the 2026-09-28
+        band-structure fault in a new costume
+  [PASS] S1b and its only captures are Section 4's reproduction, which is LIVE
+        _old_style carries `W=rf.W_RF, N_fingers=rf.N_FINGERS_RF` by construction --
+        that IS the pattern, and it must be here for F1 to have anything to measure.
+        It is nested inside section4_rf_sites(), so it is the LIVE class A3 measured:
+        re-evaluated on each call, which is also why F1 is reproducible rather than
+        dependent on this module's import time.  Reported, not hidden: the first draft
+        of S1 asserted zero captures and FAILED on this module's own scaffolding.
+  [PASS] S2 and no Name capture either
+        the other spelling, by the shipped census, over this file
+
+==========================================================================
+SUMMARY
+  attribute captures in the repository today : 13
+    FROZEN -- inert knobs the censuses miss   : 13
+  Name captures, by the shipped census        : 1
+  THE INERT-KNOB TOTAL FOR 2026-10-16 WAS 20 + 13 = 33, NOT 20.
+  Every "the census reads zero" since 2026-10-01 -- and this
+  morning's commit, which restored that number -- was a statement
+  about ONE of the two spellings of the pattern.
+  RED BY DESIGN TODAY: F2 and F3 ask whether the converted
+  function sees a rebinding of rf.W_RF, and the conversion of
+  these 13 sites is the NEXT commit, not this one.  The suite
+  and its red transcript are committed first so the before/after
+  is on the record as two transcripts rather than as one claim
+  that the repair worked.  If F2/F3 are still red after that
+  commit, the conversion did not do what it says.
+  Validations: 25 passed, 2 failed
+==========================================================================

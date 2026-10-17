@@ -101,6 +101,17 @@ SUITES = [
     # checks is the worst case of the 10-02 rule, not the mildest.
     ("graphene_fmax_shortfall_decomposition.py",
      "fmax_shortfall_decomposition_output.txt"),
+    # Added 2026-10-17, in the same commit that creates the suite, per the
+    # 2026-10-03 wiring rule.  This one is registered while it is RED: F2 and
+    # F3 fail because the 13 attribute captures it censuses are not converted
+    # until the next commit.  Registering it red is the point -- the
+    # transcript on disk is then the BEFORE state, and the next commit's
+    # regeneration is the after, which is stronger evidence than a single
+    # green transcript asserting the repair worked.  2026-10-16's amendment
+    # to run_suite is what makes this possible at all: before it, a suite
+    # exiting 1 was reported ERROR with its transcript never compared.
+    ("graphene_attribute_default_capture.py",
+     "attribute_default_capture_output.txt"),
 ]
 
 # This module is deliberately absent from SUITES.  It would have to run itself
