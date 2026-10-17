@@ -6,6 +6,51 @@ THE INERT-KNOB CENSUS HAS BEEN COUNTING ONE SPELLING OF A TWO-SPELLING FAULT,
 AND THE FUNCTION WHOSE DOCSTRING DENIES THE FAULT MOST EXPLICITLY IS ONE OF
 THE SITES.
 
+RETRACTION, SAME SESSION, BEFORE THE NEXT COMMIT.  The first two commits of
+2026-10-17 state that "no census in this repository has ever been able to
+see" the attribute spelling.  THAT IS FALSE, and it was falsified by running
+the suites this session's own conversion invalidated:
+graphene_cross_module_delivery_audit's Section 6 has censused exactly this
+pattern all along -- 16 rows in its committed transcript, 5 today -- its
+`cross_module_captures()` docstring states the `classify()` frame problem
+Section 5 below re-derives, and its own prose already says "Dormant is not
+'safe' ... Eight of these are graphene_sensitivity_audit.py, which perturbs
+by passing keywords explicitly; a single future setattr converts all of them
+at once, which is why they are enumerated rather than dismissed."  Section 5
+of this module reached the same three conclusions independently and claimed
+them as new.  The false sentence is left in the commit messages where it was
+written and corrected here and in AUTOMATION_LOG, per the standing rule that
+a superseded claim is annotated and not quietly rewritten.
+
+WHAT IS LEFT OF THE FINDING AFTER THE RETRACTION, which is not nothing:
+
+  1. THE REPAIR.  Those 16 rows were "enumerated rather than dismissed" and
+     then left in place.  The 13 that are parameter-default captures of a
+     module constant are converted today.  A census that enumerates a fault
+     across sessions without the fault ever being repaired is the 2026-10-02
+     fault -- a repair built and then not connected -- in its slowest form.
+  2. THE TWO DOCSTRINGS.  cross_module_delivery_audit lists
+     `_at_literature_geometry` twice as `dormant` and does not notice that
+     both functions' docstrings explicitly deny being captures.  That is new,
+     and Section 4 measures it.
+  3. THE RECONCILIATION THAT WAS NEVER DONE.  2026-10-16 named three
+     instruments as censusing "the pattern", reconciled two of them to the
+     occurrence (21 against 20, the difference being one function-nested
+     capture) and recorded the third as agreeing at a DIFFERENT NUMBER -- 8
+     in its committed transcript, 16 when run.  8 and 16 were never
+     reconciled against 21 and 20 because they are not counts of the same
+     thing: two instruments count the NAME spelling and one counts the
+     cross-module ATTRIBUTE spelling.  The session that split the pattern
+     into two CLASSES (frozen by scope, live by scope) did not notice it was
+     also two SPELLINGS, and the three-way "agreement" of 2026-10-04 -- 0, 0
+     and 8 -- was read as agreement across a partition.  Section 3b states
+     this as a check.
+  4. THE MECHANISM, MEASURED.  cross_module_delivery_audit censuses the
+     spelling; it does not establish its semantics.  Section 1 does, against
+     exactly known values, including that a class-body capture of an
+     attribute is frozen and a function-body one is live -- the distinction
+     yesterday's module needed a whole session to settle for Names.
+
 Background.  Since 2026-09-28 this repository has tracked the INERT KNOB: a
 constant captured as a parameter default,
 
@@ -598,6 +643,69 @@ def section3_census():
 
 
 # ==========================================================================
+# SECTION 3b -- the third census, and the reconciliation nobody did.
+# ==========================================================================
+def section3b_third_census():
+    head('SECTION 3b -- the census that saw these all along',
+         'graphene_cross_module_delivery_audit.cross_module_captures().  This\n'
+         'section exists because this session claimed, in two commit messages,\n'
+         'that no instrument here could see the attribute spelling.')
+    sys.path.insert(0, HERE)
+    import graphene_cross_module_delivery_audit as cmda
+
+    rows = cmda.cross_module_captures()
+    direct = [r for r in rows if r[4]]
+    print('  its census over the repository TODAY (after the conversion): '
+          '%d row(s)' % len(rows))
+    for f, fn, ln, hit, dr in sorted(rows):
+        print('    %-40s %-22s %-34s %s'
+              % (f, fn, hit, 'direct' if dr else 'in an expression'))
+    print()
+    print('  its COMMITTED transcript, before the conversion            : 16')
+    print('  of those 16, parameter-default captures of a module CONSTANT: 13')
+    print('  the remaining 3 are `numpy.pi` inside an expression            :  3')
+    expr_rows = [r for r in rows if not r[4]]
+    check('T4 13 + 3 accounts for the committed 16 with nothing left over',
+          len(BASELINE_2026_10_17) + len(expr_rows) == 16
+          and len(expr_rows) == len(rows),
+          'a reconciliation with a remainder would mean a third cause is '
+          'present and\nunaccounted for -- yesterday\'s R3 requirement, applied '
+          'to the census that was\nnever reconciled.  The 3 survivors are '
+          '`v_sat_prefactor=2.0 / np.pi` and its two\ncopies: frozen, and '
+          'harmless because np.pi is not rebound by anything, which\nis why they '
+          'are left alone and named rather than converted.')
+
+    base_files = {row[0] for row in BASELINE_2026_10_17}
+    still = [r for r in direct if r[0] in base_files
+             and (r[0], r[1].split('.')[-1], r[2]) is not None
+             and any(b[0] == r[0] and b[1] == r[1] and b[3] == r[3]
+                     for b in BASELINE_2026_10_17)]
+    check('T1 the third census agrees that the baseline\'s 13 are gone',
+          not still,
+          'an independent instrument, written for a different purpose and not '
+          'touched\ntoday, over the same tree: %d of the 13 remain by its '
+          'reckoning' % len(still))
+    check('T2 and it reports no cross-module capture this module planted',
+          not any(r[0] == SELF for r in rows),
+          "Section 4's reproduction lives in a temp plant now.  Written as a "
+          "nested\n`def` in this file, it was a REAL cross-module captured "
+          "default in the tree,\nand because Section 4 rebinds rf.W_RF this "
+          "census classified it LIVE FAULT and\nturned that suite red, 25/0 -> "
+          "23/1, on this module's own scaffolding.")
+    check('T3 16 and 8 were never reconcilable against 21 and 20',
+          True,
+          "reported, not asserted -- the statement is about the 2026-10-16 "
+          "session's\nreasoning, not about a number measurable today.  It named "
+          "three instruments as\ncensusing 'the pattern', reconciled 21 against "
+          "20 to the occurrence, and\nrecorded the third at 8 (committed) / 16 "
+          "(live) without reconciling it.  Two of\nthe three count the NAME "
+          "spelling; the third counts the cross-module ATTRIBUTE\nspelling.  "
+          "The 2026-10-04 'agreement' of 0, 0 and 8 was agreement read across "
+          "a\npartition.")
+    return rows
+
+
+# ==========================================================================
 # SECTION 4 -- the two RF sites, measured on the repository's own code.
 # ==========================================================================
 def section4_rf_sites():
@@ -613,22 +721,41 @@ def section4_rf_sites():
     W_true = rf.W_RF
     NF_true = rf.N_FINGERS_RF
 
-    # A faithful reproduction of the signature as it stands in the two model
-    # modules right now.  It is nested in THIS function deliberately: the
-    # `def` then executes at a known point, a few lines before the rebinding
-    # below, which is what makes F1 a statement about the capture mechanism
-    # rather than about this module's import order.  Declared as a
-    # reproduction and not as a site -- S1b answers for it -- because a module
-    # that censuses a pattern and then carries a FROZEN instance of it is the
-    # 2026-09-28 band-structure fault in a new costume.
-    def _old_style(fn, W=rf.W_RF, N_fingers=rf.N_FINGERS_RF):
-        W_saved, Rc_saved = gfet.W, gfet.Rc_total
-        gfet.W = W
-        gfet.Rc_total = 2 * (gfet.Rc_per_width_ohm_um * 1e-6) / W
-        try:
-            return fn(N_fingers)
-        finally:
-            gfet.W, gfet.Rc_total = W_saved, Rc_saved
+    # A faithful reproduction of the signature as it stood in the two model
+    # modules until this morning -- built as a PLANT in a temp module rather
+    # than written in this file.
+    #
+    # WHY A PLANT AND NOT A LOCAL `def`.  The first draft wrote it here, as a
+    # nested function, and that put a real cross-module captured default into
+    # this repository: graphene_cross_module_delivery_audit's Section 6
+    # census picked it up and, because this section rebinds rf.W_RF a few
+    # lines below, classified it LIVE FAULT -- turning that suite red (25/0 ->
+    # 23/1) on a row that was this module's own scaffolding.  A module that
+    # censuses a pattern must not plant one in the tree it censuses; S1 says
+    # so about this file and the same obligation holds toward every other
+    # audit here.  The plant lives in a temp directory, imports the REAL
+    # rf_small_signal_model and graphene_fet_model, and is gone when the
+    # section returns.
+    d = tempfile.mkdtemp(prefix='oldstyle_')
+    open(os.path.join(d, 'old_style_plant.py'), 'w').write(textwrap.dedent("""\
+        import sys
+        sys.path.insert(0, %r)
+        import rf_small_signal_model as rf
+        import graphene_fet_model as gfet
+
+
+        def old_style(fn, W=rf.W_RF, N_fingers=rf.N_FINGERS_RF):
+            W_saved, Rc_saved = gfet.W, gfet.Rc_total
+            gfet.W = W
+            gfet.Rc_total = 2 * (gfet.Rc_per_width_ohm_um * 1e-6) / W
+            try:
+                return fn(N_fingers)
+            finally:
+                gfet.W, gfet.Rc_total = W_saved, Rc_saved
+        """) % HERE)
+    sys.path.insert(0, d)
+    import old_style_plant
+    _old_style = old_style_plant.old_style
 
     probe = lambda nf: (gfet.W, nf)
 
@@ -642,6 +769,9 @@ def section4_rf_sites():
     finally:
         setattr(rf, 'W_RF', W_true)
         setattr(rf, 'N_FINGERS_RF', NF_true)
+        sys.modules.pop('old_style_plant', None)
+        if d in sys.path:
+            sys.path.remove(d)
 
     print('  rf.W_RF as shipped                      : %r' % W_true)
     print('  rebound to                              : %r' % W_NEW)
@@ -651,7 +781,7 @@ def section4_rf_sites():
           % (new_W, new_nf))
     check('F1 the removed signature did NOT see the rebinding',
           old_W == W_true and old_nf != NF_NEW,
-          'W == %r exactly -- the value frozen when THIS module was imported, '
+          'W == %r exactly -- the value frozen when the PLANT was imported, '
           'which is\nthe value rf.W_RF had then.  A caller rebinding rf.W_RF to '
           'study the RF\ngeometry would have been handed the shipped geometry and '
           'no indication of it.' % W_true)
@@ -783,16 +913,18 @@ def section6_self():
           len(frozen) == 0,
           'a module that censuses a pattern and then contains it is the '
           '2026-09-28\nband-structure fault in a new costume')
-    check('S1b and its only captures are Section 4\'s reproduction, which is LIVE',
-          len(live) == 2 and all(r[1].startswith('section4_rf_sites.')
-                                 for r in live),
-          "_old_style carries `W=rf.W_RF, N_fingers=rf.N_FINGERS_RF` by "
-          "construction --\nthat IS the pattern, and it must be here for F1 to "
-          "have anything to measure.\nIt is nested inside section4_rf_sites(), so "
-          "it is the LIVE class A3 measured:\nre-evaluated on each call, which is "
-          "also why F1 is reproducible rather than\ndependent on this module's "
-          "import time.  Reported, not hidden: the first draft\nof S1 asserted "
-          "zero captures and FAILED on this module's own scaffolding.")
+    check('S1b and it now has no capture of EITHER class, not even a live one',
+          len(live) == 0,
+          "the first draft put Section 4's reproduction here as a nested `def`.  "
+          "It was\nthe LIVE class by scope, so S1's FROZEN check passed -- and it "
+          "was still a real\ncross-module captured default in the tree, which "
+          "graphene_cross_module_delivery_\naudit's census found and, because "
+          "Section 4 rebinds rf.W_RF, classified LIVE\nFAULT, turning that suite "
+          "red 25/0 -> 23/1.  Passing one's own self-census is\nnot the same as "
+          "not planting the pattern: the reproduction is a temp plant now,\nand "
+          "this check is the stronger statement the first draft should have "
+          "been.")
+
     import graphene_figure_provenance_audit as fpa
     nm = fpa.census([os.path.join(HERE, SELF)])
     check('S2 and no Name capture either',
@@ -810,6 +942,7 @@ def main():
     section1_semantics()
     section2_controls()
     name_total, attr_rows, attr_frozen = section3_census()
+    section3b_third_census()
     section4_rf_sites()
     section5_the_oracle(attr_rows)
     section6_self()
@@ -828,6 +961,13 @@ def main():
     print('  Every "the census reads zero" since 2026-10-01 -- and this')
     print('  morning\'s commit, which restored that number -- was a statement')
     print('  about ONE of the two spellings of the pattern.')
+    print('  BUT NOT INVISIBLE: graphene_cross_module_delivery_audit has')
+    print('  censused the attribute spelling all along, 16 rows in its')
+    print('  committed transcript, and this session\'s first two commit')
+    print('  messages say otherwise and are wrong.  Section 3b and the')
+    print('  retraction at the top of this file carry the correction; what')
+    print('  survives it is the repair, the two false docstrings, the')
+    print('  reconciliation nobody did, and Section 1\'s semantics.')
     print('  The 13 are converted (R4), none has regrown (R5), and F2/F3 --')
     print('  red in the transcript committed one commit earlier, which is the')
     print('  BEFORE state and is deliberately on the record -- now measure the')

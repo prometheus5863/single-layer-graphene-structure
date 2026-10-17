@@ -38,7 +38,7 @@ SECTION 2 -- and why that pass could not have been a clean bill
     rf_figures_of_merit                gfet.mu /2                     graphene_fet_model.mu
     rf_figures_of_merit                gfet.n_puddle -> same          graphene_fet_model.n_puddle
 
-  cross-module captured defaults found in the repository: 16
+  cross-module captured defaults found in the repository: 3
   of which, targets the provenance audit actually rebinds: 0
   [PASS] the docstring's claim about HISTORY holds of the pinned pre-fix blob c0c620acd113   [pre-fix blob contains the frozen signature: True; working tree contains it: False; working tree is late-bound: True]
   [PASS] the cross-module question is now asked at all (it was not before)
@@ -93,24 +93,11 @@ SECTION 6 -- census: every cross-module captured default, split by
              whether anything in the repository rebinds the name
 ------------------------------------------------------------------------------
     file                               function                   line   captures                                       status
-    graphene_diffusion_current_model.py _at_literature_geometry    382    rf_small_signal_model.N_FINGERS_RF             dormant
-    graphene_diffusion_current_model.py _at_literature_geometry    382    rf_small_signal_model.W_RF                     dormant
-    graphene_diffusion_current_model.py _dd_integrals              249    graphene_velocity_saturation_model.OMEGA_OP    dormant
     graphene_diffusion_current_model.py _dd_integrals              249    numpy.pi  (in expr)                            dormant
-    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.W_calibration_nm   dormant
-    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.lambda_bulk_nm     dormant
-    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.p_default          dormant
-    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.rho_bulk_uohm_cm   dormant
-    graphene_sensitivity_audit.py      _calib_terms               216    graphene_interconnect_model.rho_calibration_uohm_cm dormant
-    graphene_sensitivity_audit.py      _rho_terms                 274    graphene_interconnect_model.lambda_bulk_nm     dormant
-    graphene_sensitivity_audit.py      _rho_terms                 274    graphene_interconnect_model.p_default          dormant
-    graphene_sensitivity_audit.py      _rho_terms                 274    graphene_interconnect_model.rho_bulk_uohm_cm   dormant
-    graphene_velocity_saturation_model.py _at_literature_geometry    364    rf_small_signal_model.N_FINGERS_RF             dormant
-    graphene_velocity_saturation_model.py _at_literature_geometry    364    rf_small_signal_model.W_RF                     dormant
-    graphene_velocity_saturation_model.py _channel_integrals         232    numpy.pi  (in expr)                            dormant
+    graphene_velocity_saturation_model.py _channel_integrals         234    numpy.pi  (in expr)                            dormant
     graphene_velocity_saturation_model.py v_sat_of_n                 222    numpy.pi  (in expr)                            dormant
 
-  16 captures, 0 live faults, 16 dormant
+  3 captures, 0 live faults, 3 dormant
   Dormant is not "safe": it means no call site rebinds the name TODAY.
   Eight of these are graphene_sensitivity_audit.py, which perturbs by
   passing keywords explicitly; a single future setattr converts all of

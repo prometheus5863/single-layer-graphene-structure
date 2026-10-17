@@ -62,24 +62,24 @@ SECTION 2 -- positive and negative controls on the arbiter itself
 --------------------------------------------------------------------------
 SECTION 3 -- the two standing censuses, reconciled over one path set
 --------------------------------------------------------------------------
-  python files in repository                : 57
-  minus mutation_arrival_probe's exclusions : 53
+  python files in repository                : 58
+  minus mutation_arrival_probe's exclusions : 54
     excluded: initialize_repo, main, generate_plots, graphene_mutation_arrival_probe
 
   instrument                                           count
   ---------------------------------------------------- -----
-  graphene_figure_provenance_audit.census                 21   syntactic: every `def f(p=GLOBAL)`
-  mutation_arrival_probe confirmed frozen sites           20   semantic: sites confirmed at run time
-  arbiter: FROZEN captures (the inert knobs)              20   this module, not enclosed by a function
+  graphene_figure_provenance_audit.census                  1   syntactic: every `def f(p=GLOBAL)`
+  mutation_arrival_probe confirmed frozen sites            0   semantic: sites confirmed at run time
+  arbiter: FROZEN captures (the inert knobs)               0   this module, not enclosed by a function
   arbiter: LIVE captures (not the fault)                   1   this module, enclosed by a function
   [PASS] R1 the arbiter reproduces the SYNTACTIC census exactly
-         arbiter total 21 vs figure_provenance 21 -- two independent AST passes over the same files
+         arbiter total 1 vs figure_provenance 1 -- two independent AST passes over the same files
   [PASS] R2 the arbiter reproduces the SEMANTIC census exactly
-         arbiter FROZEN 20 vs mutation_arrival_probe confirmed 20
+         arbiter FROZEN 0 vs mutation_arrival_probe confirmed 0
   [PASS] R3 the discrepancy is EXACTLY the live captures -- zero residue
-         21 - 20 = 1, and the arbiter finds 1 live capture(s).  A reconciliation with a remainder would mean a third cause is present and unaccounted for.
+         1 - 0 = 1, and the arbiter finds 1 live capture(s).  A reconciliation with a remainder would mean a third cause is present and unaccounted for.
   [PASS] R4 and they agree PER (file, constant), not only in total
-         10 name(s) compared, 0 disagreement(s)
+         1 name(s) compared, 0 disagreement(s)
 
   class-body captures in the repository today : 0
     reported, not asserted.  This is the shape that is FROZEN and
@@ -89,27 +89,23 @@ SECTION 3 -- the two standing censuses, reconciled over one path set
 
   the LIVE capture(s) -- counted by figure_provenance, dropped
   silently by mutation_arrival_probe, and live in fact:
-    graphene_velocity_saturation_model.py          line 589
+    graphene_velocity_saturation_model.py          line 620
         main._R_harmonic(n_quad=N_QUAD)
 
-  per-file split of the 21 syntactic captures:
+  per-file split of the 1 syntactic captures:
     file                                             total  FROZEN    LIVE
-    graphene_diffusion_current_model.py                  5       5       0
-    graphene_exact_charge_rederivation.py                3       3       0
-    graphene_perfect_contact_counterfactual.py           2       2       0
-    graphene_second_anchor_bound.py                      2       2       0
-    graphene_velocity_saturation_model.py                9       8       1
+    graphene_velocity_saturation_model.py                1       0       1
 
 --------------------------------------------------------------------------
 SECTION 4 -- the silent drop, demonstrated on the real site
 --------------------------------------------------------------------------
   module   : graphene_velocity_saturation_model
   constant : N_QUAD
-  site     : main._R_harmonic(n_quad=N_QUAD) at line 589
-  _frozen_sites_static finds 2 site(s): _R_harmonic, _channel_integrals
-  classify() confirms        1 site(s): _channel_integrals
+  site     : main._R_harmonic(n_quad=N_QUAD) at line 620
+  _frozen_sites_static finds 1 site(s): _R_harmonic
+  classify() confirms        0 site(s): 
   dropped                   : _R_harmonic
-  verdict reported          : MIXED
+  verdict reported          : LIVE
   [PASS] D1 the static pass sees the site
          _R_harmonic is found in the source by _frozen_sites_static
   [PASS] D2 classify() drops exactly that site, and only it
@@ -142,16 +138,34 @@ SECTION 5 -- the arbiter censuses itself
 
 ==========================================================================
 SUMMARY
-  syntactic captures in the repository today : 21
-    FROZEN -- the genuine inert knobs          : 20
+  syntactic captures in the repository today : 1
+    FROZEN -- the genuine inert knobs          : 0
     LIVE   -- re-evaluated, not the fault      : 1
   On 2026-10-04 all three censuses read zero.  The count of the
-  FAULT is 20, not 21, and this is the first time the repository has
+  FAULT is 0, not 1, and this is the first time the repository has
   had that number for a stated reason rather than by coincidence.
+
+  2026-10-17.  READ THIS NUMBER NARROWLY.  It counts the NAME
+  spelling, `def f(p=GLOBAL)`, and only that: the arbiter above
+  resolves a default by looking for an ast.Name in the module's
+  ast.Assign targets, so `def f(p=alias.ATTR)` -- frozen by exactly
+  the same mechanism, since the default expression is evaluated once
+  when the `def` executes -- is outside its frame and always has
+  been.  Thirteen such sites were found on 2026-10-17 and converted;
+  see graphene_attribute_default_capture.py, whose Section 1 A7
+  hands the shipped Name census a file containing nothing but that
+  pattern and measures it reporting zero.  So the inert-knob total
+  for 2026-10-16 was 20 + 13 = 33, and every "the census reads zero"
+  from 2026-10-01 onward -- including this line -- was a statement
+  about one of the two spellings.
   classify() is amended in the same session to report an
   unresolvable site by scope instead of discarding it, and the
   amendment is count-neutral (D4, D5).
-  NOT done here: converting the 20 genuine inert knobs, which is
-  ranked first in AUTOMATION_LOG for the next run.
+  The 20 genuine inert knobs this module counted on 2026-10-16
+  were converted to None sentinels on 2026-10-17, each affected
+  transcript regenerating byte-identically; this module is now
+  the standing guard for the Name spelling rather than a count
+  of an outstanding repair.  The line above is why "0" here is
+  not a clean bill of health on its own.
   Validations: 24 passed, 0 failed
 ==========================================================================

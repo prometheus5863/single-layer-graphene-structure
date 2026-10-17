@@ -94,7 +94,7 @@ their sum -- and the Name census has been reported ALONE for five sessions.
     ---------------------------------------- ------ ------- ------
     def f(p=NAME)        -- shipped census       1       -      -
     def f(p=alias.ATTR)  -- this module          0       0      0
-      + this module's own scaffolding            2       0      2
+      + this module's own scaffolding            0       0      0
 
     note: the shipped census is SYNTACTIC and does not split FROZEN
           from LIVE; yesterday's module did that for it, and this
@@ -104,15 +104,12 @@ their sum -- and the Name census has been reported ALONE for five sessions.
 
     per-file, the attribute captures:
     file                                             sites  FROZEN
-      graphene_attribute_default_capture.py              2       0
 
-      graphene_attribute_default_capture.py     :624  section4_rf_sites._old_style W=rf.W_RF      -> rf_small_signal_model
-      graphene_attribute_default_capture.py     :624  section4_rf_sites._old_style N_fingers=rf.N_FINGERS_RF -> rf_small_signal_model
   [PASS] R1 every attribute capture in the repository is FROZEN
         0 site(s) outside this module, 0 of them enclosed by a function body.  With
         the baseline converted this reads 0 of 0 and is VACUOUS -- R4/R5 below are the
         non-vacuous half of Section 3, which is why they exist.  R1 earns its place
-        again the moment a capture reappears.  This module's own 2 are excluded and
+        again the moment a capture reappears.  This module's own 0 are excluded and
         answered for in Section 6; the first draft of R1 counted them and FAILED, which
         is the right behaviour from a check and is recorded rather than quietly reworded.
   [PASS] R2 and not one of them appears in the shipped census
@@ -138,6 +135,43 @@ their sum -- and the Name census has been reported ALONE for five sessions.
         regrew between that commit and this one and the TOTAL below is understated
 
 --------------------------------------------------------------------------
+SECTION 3b -- the census that saw these all along
+graphene_cross_module_delivery_audit.cross_module_captures().  This
+section exists because this session claimed, in two commit messages,
+that no instrument here could see the attribute spelling.
+--------------------------------------------------------------------------
+  its census over the repository TODAY (after the conversion): 3 row(s)
+    graphene_diffusion_current_model.py      _dd_integrals          numpy.pi                           in an expression
+    graphene_velocity_saturation_model.py    _channel_integrals     numpy.pi                           in an expression
+    graphene_velocity_saturation_model.py    v_sat_of_n             numpy.pi                           in an expression
+
+  its COMMITTED transcript, before the conversion            : 16
+  of those 16, parameter-default captures of a module CONSTANT: 13
+  the remaining 3 are `numpy.pi` inside an expression            :  3
+  [PASS] T4 13 + 3 accounts for the committed 16 with nothing left over
+        a reconciliation with a remainder would mean a third cause is present and
+        unaccounted for -- yesterday's R3 requirement, applied to the census that was
+        never reconciled.  The 3 survivors are `v_sat_prefactor=2.0 / np.pi` and its two
+        copies: frozen, and harmless because np.pi is not rebound by anything, which
+        is why they are left alone and named rather than converted.
+  [PASS] T1 the third census agrees that the baseline's 13 are gone
+        an independent instrument, written for a different purpose and not touched
+        today, over the same tree: 0 of the 13 remain by its reckoning
+  [PASS] T2 and it reports no cross-module capture this module planted
+        Section 4's reproduction lives in a temp plant now.  Written as a nested
+        `def` in this file, it was a REAL cross-module captured default in the tree,
+        and because Section 4 rebinds rf.W_RF this census classified it LIVE FAULT and
+        turned that suite red, 25/0 -> 23/1, on this module's own scaffolding.
+  [PASS] T3 16 and 8 were never reconcilable against 21 and 20
+        reported, not asserted -- the statement is about the 2026-10-16 session's
+        reasoning, not about a number measurable today.  It named three instruments as
+        censusing 'the pattern', reconciled 21 against 20 to the occurrence, and
+        recorded the third at 8 (committed) / 16 (live) without reconciling it.  Two of
+        the three count the NAME spelling; the third counts the cross-module ATTRIBUTE
+        spelling.  The 2026-10-04 'agreement' of 0, 0 and 8 was agreement read across a
+        partition.
+
+--------------------------------------------------------------------------
 SECTION 4 -- the docstring that is true by spelling and false in substance
 Measured on graphene_velocity_saturation_model._at_literature_geometry,
 not on a plant.
@@ -147,7 +181,7 @@ not on a plant.
   reproduction of the HEAD~1 signature saw : W = 4e-05, N_fingers = 8
   the CONVERTED function saw              : W = 7e-06, N_fingers = 97
   [PASS] F1 the removed signature did NOT see the rebinding
-        W == 4e-05 exactly -- the value frozen when THIS module was imported, which is
+        W == 4e-05 exactly -- the value frozen when the PLANT was imported, which is
         the value rf.W_RF had then.  A caller rebinding rf.W_RF to study the RF
         geometry would have been handed the shipped geometry and no indication of it.
   [PASS] F2 the converted function DOES see it, exactly
@@ -221,19 +255,18 @@ SECTION 6 -- this module, censused by its own arbiter
 A module that censuses a pattern and then contains it is the 2026-09-28
 band-structure fault in a new costume.
 --------------------------------------------------------------------------
-  attribute captures in graphene_attribute_default_capture.py: 2
-    LIVE    line 624   W=rf.W_RF
-    LIVE    line 624   N_fingers=rf.N_FINGERS_RF
+  attribute captures in graphene_attribute_default_capture.py: 0
   [PASS] S1 this module introduces no FROZEN capture -- no inert knob of its own
         a module that censuses a pattern and then contains it is the 2026-09-28
         band-structure fault in a new costume
-  [PASS] S1b and its only captures are Section 4's reproduction, which is LIVE
-        _old_style carries `W=rf.W_RF, N_fingers=rf.N_FINGERS_RF` by construction --
-        that IS the pattern, and it must be here for F1 to have anything to measure.
-        It is nested inside section4_rf_sites(), so it is the LIVE class A3 measured:
-        re-evaluated on each call, which is also why F1 is reproducible rather than
-        dependent on this module's import time.  Reported, not hidden: the first draft
-        of S1 asserted zero captures and FAILED on this module's own scaffolding.
+  [PASS] S1b and it now has no capture of EITHER class, not even a live one
+        the first draft put Section 4's reproduction here as a nested `def`.  It was
+        the LIVE class by scope, so S1's FROZEN check passed -- and it was still a real
+        cross-module captured default in the tree, which graphene_cross_module_delivery_
+        audit's census found and, because Section 4 rebinds rf.W_RF, classified LIVE
+        FAULT, turning that suite red 25/0 -> 23/1.  Passing one's own self-census is
+        not the same as not planting the pattern: the reproduction is a temp plant now,
+        and this check is the stronger statement the first draft should have been.
   [PASS] S2 and no Name capture either
         the other spelling, by the shipped census, over this file
 
@@ -246,9 +279,16 @@ SUMMARY
   Every "the census reads zero" since 2026-10-01 -- and this
   morning's commit, which restored that number -- was a statement
   about ONE of the two spellings of the pattern.
+  BUT NOT INVISIBLE: graphene_cross_module_delivery_audit has
+  censused the attribute spelling all along, 16 rows in its
+  committed transcript, and this session's first two commit
+  messages say otherwise and are wrong.  Section 3b and the
+  retraction at the top of this file carry the correction; what
+  survives it is the repair, the two false docstrings, the
+  reconciliation nobody did, and Section 1's semantics.
   The 13 are converted (R4), none has regrown (R5), and F2/F3 --
   red in the transcript committed one commit earlier, which is the
   BEFORE state and is deliberately on the record -- now measure the
   rebinding arriving at the real function.
-  Validations: 30 passed, 0 failed
+  Validations: 34 passed, 0 failed
 ==========================================================================

@@ -27,7 +27,7 @@ SECTION 2 -- the sweep over this repository
   DEAD          graphene_potential_census_audit.py             CHANNEL_POTENTIAL_READINGS       line 310   
   CROSS_MODULE  graphene_quantum_capacitance_argument.py       A_OX                             line 66    graphene_exact_charge_rederivation.py
   BODY_ONLY     graphene_velocity_saturation_model.py          HBAR_OMEGA_EV                    line 178   
-  totals: {'BODY_ONLY': 2, 'CROSS_MODULE': 7, 'DEAD': 1, 'EXEMPT': 1, 'LIVE': 216}
+  totals: {'BODY_ONLY': 2, 'CROSS_MODULE': 7, 'DEAD': 1, 'EXEMPT': 1, 'LIVE': 225}
   [FAIL] no module-level constant in this repository is DEAD  -- 1 dead
 
 SECTION 2b -- is every CROSS_MODULE resolution supported by an IMPORT?
