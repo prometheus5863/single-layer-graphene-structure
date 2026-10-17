@@ -102,6 +102,65 @@ PROBE_EXCLUDES = (
 
 SELF = os.path.basename(__file__)
 
+# ==========================================================================
+# THE BASELINE, RECORDED 2026-10-17 BEFORE THE CONVERSION.
+#
+# The thirteen FROZEN attribute captures this module found, by (file,
+# qualname, param, default expression).  Line numbers are deliberately NOT
+# recorded: they shift, and a baseline that goes stale on an unrelated edit
+# teaches the operator to ignore it.
+#
+# WHY A BASELINE AND NOT JUST A CENSUS.  A suite whose only evidence is "the
+# census reads zero" certifies nothing once the fault is fixed -- the
+# 2026-09-30 rule -- and that is exactly how the Name census came to be read
+# as a clean bill of health for five sessions.  The first draft of this
+# module had that defect in a sharper form: after the conversion landed,
+# Section 3's R1 and the whole of Section 5 passed VACUOUSLY over an empty
+# row set, and the SUMMARY's "20 + 13 = 33" recomputed itself to "20 + 0 =
+# 20", erasing the finding from the transcript that reports it.  So the
+# thirteen are written down, the census is checked AGAINST them, and the
+# instrument's blind spot is measured on a plant (Section 5) where it cannot
+# evaporate.
+# ==========================================================================
+BASELINE_2026_10_17 = (
+    ('graphene_sensitivity_audit.py', '_calib_terms', 'rho_cal',
+     'icm.rho_calibration_uohm_cm'),
+    ('graphene_sensitivity_audit.py', '_calib_terms', 'rho_bulk',
+     'icm.rho_bulk_uohm_cm'),
+    ('graphene_sensitivity_audit.py', '_calib_terms', 'p', 'icm.p_default'),
+    ('graphene_sensitivity_audit.py', '_calib_terms', 'W_cal',
+     'icm.W_calibration_nm'),
+    ('graphene_sensitivity_audit.py', '_calib_terms', 'lam_bulk',
+     'icm.lambda_bulk_nm'),
+    ('graphene_sensitivity_audit.py', '_rho_terms', 'p', 'icm.p_default'),
+    ('graphene_sensitivity_audit.py', '_rho_terms', 'rho_bulk',
+     'icm.rho_bulk_uohm_cm'),
+    ('graphene_sensitivity_audit.py', '_rho_terms', 'lam_bulk',
+     'icm.lambda_bulk_nm'),
+    ('graphene_diffusion_current_model.py', '_dd_integrals', 'omega_op',
+     'vsat.OMEGA_OP'),
+    ('graphene_diffusion_current_model.py', '_at_literature_geometry', 'W',
+     'rf.W_RF'),
+    ('graphene_diffusion_current_model.py', '_at_literature_geometry',
+     'N_fingers', 'rf.N_FINGERS_RF'),
+    ('graphene_velocity_saturation_model.py', '_at_literature_geometry', 'W',
+     'rf.W_RF'),
+    ('graphene_velocity_saturation_model.py', '_at_literature_geometry',
+     'N_fingers', 'rf.N_FINGERS_RF'),
+)
+
+# The distinct (target module, attribute) pairs the baseline's defaults froze.
+BASELINE_TARGETS = (
+    ('graphene_interconnect_model', 'rho_calibration_uohm_cm'),
+    ('graphene_interconnect_model', 'rho_bulk_uohm_cm'),
+    ('graphene_interconnect_model', 'p_default'),
+    ('graphene_interconnect_model', 'W_calibration_nm'),
+    ('graphene_interconnect_model', 'lambda_bulk_nm'),
+    ('graphene_velocity_saturation_model', 'OMEGA_OP'),
+    ('rf_small_signal_model', 'W_RF'),
+    ('rf_small_signal_model', 'N_FINGERS_RF'),
+)
+
 _PASS = []
 _FAIL = []
 
@@ -484,19 +543,52 @@ def section3_census():
 
     check('R1 every attribute capture in the repository is FROZEN',
           len(attr_live) == 0,
-          'none of the %d is enclosed by a function body, so none of them is '
-          'the LIVE\nclass A3 measured -- the whole set is the fault.  '
-          'This module\'s own %d are\nexcluded and answered for in Section 6; '
-          'the first draft of R1 counted them and\nFAILED, which is the right '
-          'behaviour from a check and is recorded rather than\nquietly '
-          'reworded.' % (len(attr_all), len(attr_self)))
+          '%d site(s) outside this module, %d of them enclosed by a function '
+          'body.  With\nthe baseline converted this reads 0 of 0 and is '
+          'VACUOUS -- R4/R5 below are the\nnon-vacuous half of Section 3, which '
+          'is why they exist.  R1 earns its place\nagain the moment a capture '
+          'reappears.  This module\'s own %d are excluded and\nanswered for in '
+          'Section 6; the first draft of R1 counted them and FAILED, which\nis '
+          'the right behaviour from a check and is recorded rather than quietly '
+          'reworded.'
+          % (len(attr_all), len(attr_live), len(attr_self)))
     name_keys = {(os.path.basename(row[0]), row[1], row[2]) for row in name_rows}
     attr_keys = {(f, r[1].split('.')[-1], r[2]) for f, r in attr_all}
     check('R2 and not one of them appears in the shipped census',
           len(name_keys & attr_keys) == 0,
-          'the repository-wide form of A7: the two row sets are disjoint, so no '
-          'site is\ncounted twice and %d sites are counted by nothing that was '
-          'being read' % len(attr_frozen))
+          'the repository-wide form of A7: the two row sets are disjoint, so '
+          'no site is\ncounted twice by the sum reported above.  %d row(s) in '
+          'the intersection today;\nthe statement that matters is A7, which '
+          'measures the blindness on a file where\nthe right answer is known by '
+          'construction and does not evaporate when the\nrepository is clean.'
+          % len(name_keys & attr_keys))
+    today = {(f, r[1].split('.')[-1], r[2], r[3])
+             for f, r in attr_all if r[5] == 'FROZEN'}
+    base = set(BASELINE_2026_10_17)
+    survivors = sorted(base & today)
+    newcomers = sorted(today - base)
+    print()
+    print('    against the baseline recorded before this morning\'s conversion:')
+    print('      baseline FROZEN sites            : %d' % len(base))
+    print('      of those, still present today    : %d%s'
+          % (len(survivors), '' if not survivors else '   <-- NOT CONVERTED'))
+    for row in survivors:
+        print('        %s  %s(%s=%s)' % (row[0], row[1], row[2], row[3]))
+    print('      FROZEN sites NOT in the baseline  : %d%s'
+          % (len(newcomers), '' if not newcomers else '   <-- REGROWN OR NEW'))
+    for row in newcomers:
+        print('        %s  %s(%s=%s)' % (row[0], row[1], row[2], row[3]))
+    check('R4 every one of the baseline\'s 13 sites is gone',
+          not survivors,
+          'the conversion is checked against a written-down list of what it was '
+          'meant to\nconvert, not against a count.  A count can be satisfied by '
+          'the wrong 13.')
+    check('R5 and no attribute capture has appeared that the baseline did not '
+          'name',
+          not newcomers,
+          'the standing half of this guard: this is the pattern that regrew '
+          'between\n2026-10-04 and 2026-10-16 in front of three censuses, in the '
+          'other spelling,\nand nothing was reading them')
     check('R3 the shipped census is down to its one LIVE capture',
           len(name_rows) == 1,
           'this morning\'s conversion is still in force; if this fails, a Name '
@@ -581,81 +673,97 @@ def section4_rf_sites():
 # ==========================================================================
 # SECTION 5 -- live or latent, reported rather than asserted.
 # ==========================================================================
+CONSUMER_MOD = """\
+import probe_src2
+
+
+def consumes(x=probe_src2.K):
+    return x
+"""
+
+
 def section5_the_oracle(attr_rows):
-    head('SECTION 5 -- the repository\'s OWN arrival oracle, asked about these '
-         'names',
-         "graphene_mutation_arrival_probe.classify(module, name) answers "
-         "\"whether\n`setattr(module, name, v)` will be seen\".  It is the "
-         "instrument every\nmutation audit here trusts for that question.")
+    head("SECTION 5 -- the oracle's frame, measured on a plant",
+         "graphene_mutation_arrival_probe.classify(module, name) answers\n"
+         "\"whether `setattr(module, name, v)` will be seen\".  It is the "
+         "instrument\nevery mutation audit here trusts for that question.  "
+         "Measured on a PLANT and\nnot on the repository, because after the "
+         "conversion the repository has no\ninstance left and a section that "
+         "evaporates with the fault is the defect this\nmodule is about.")
     sys.path.insert(0, HERE)
     import graphene_mutation_arrival_probe as probe
 
-    # Distinct (target module, attribute) pairs, excluding this module's own
-    # Section-4 reproduction (which is LIVE, and is not a site).
-    pairs = {}
-    for f, rows in attr_rows.items():
-        if f == SELF:
-            continue
-        for r in rows:
-            if r[5] != 'FROZEN':
-                continue
-            pairs.setdefault((r[4], r[3].split('.', 1)[1]), []).append(
-                (f, r[0], r[2]))
+    d = tempfile.mkdtemp(prefix='oracle_')
+    open(os.path.join(d, 'probe_src2.py'), 'w').write('K = 1.0\n')
+    open(os.path.join(d, 'probe_consumer.py'), 'w').write(CONSUMER_MOD)
+    sys.path.insert(0, d)
+    try:
+        import probe_src2
+        import probe_consumer
+        before = probe_consumer.consumes()
+        verdict = probe.classify('probe_src2', 'K')
+        v = verdict.get('verdict', '?')
+        setattr(probe_src2, 'K', 42.0)
+        after = probe_consumer.consumes()
+        print('  probe_src2.K = 1.0, and probe_consumer carries '
+              '`def consumes(x=probe_src2.K)`')
+        print('  the oracle, asked about (probe_src2, K)   : %s' % v)
+        print('  consumes() before setattr                 : %r' % before)
+        print('  setattr(probe_src2, "K", 42.0); consumes(): %r' % after)
+        check('L1 the oracle says the setattr WILL be seen',
+              'FROZEN' not in str(v) and 'MIXED' not in str(v),
+              'verdict %r -- probe_src2 contains no frozen site, which is true '
+              'of\nprobe_src2' % v)
+        check('L2 and the consumer does not see it, exactly',
+              after == 1.0 and before == 1.0,
+              'consumes() == 1.0 after K was set to 42.0.  The two statements '
+              'are both\ncorrect and they contradict each other as advice, '
+              'which is the gap.')
+        check('L3 so the oracle is per-module and the fault is cross-module',
+              ('FROZEN' not in str(v)) and after != 42.0,
+              "classify() walks the frozen sites INSIDE the module whose "
+              "constant is being\nrebound.  Every capture in the baseline is in "
+              "a DIFFERENT file from its\ntarget, so the oracle's frame does not "
+              "contain them.  Stated as a property of\nthe instrument, not as an "
+              "error in it: widening it is a candidate for a future\nrun, and "
+              "naming the gap is this session's claim.")
+    finally:
+        for m in ('probe_src2', 'probe_consumer'):
+            sys.modules.pop(m, None)
+        if d in sys.path:
+            sys.path.remove(d)
 
-    print('  target module                        attribute                 '
-          'oracle verdict')
-    verdicts = {}
-    for (mod, attr) in sorted(pairs):
+    print()
+    print('  The eight (target, attribute) pairs the baseline froze, asked of')
+    print('  the oracle as they stood this morning -- recorded, since the')
+    print('  captures are gone and the question can no longer be put to the')
+    print('  repository itself:')
+    for mod, attr in BASELINE_TARGETS:
         try:
-            d = probe.classify(mod, attr)
-            v = d.get('verdict', '?')
-        except Exception as exc:          # recorded, not swallowed
+            v = probe.classify(mod, attr).get('verdict', '?')
+        except Exception as exc:
             v = 'ERROR: %r' % (exc,)
-        verdicts[(mod, attr)] = v
-        print('    %-34s %-25s %s' % (mod.replace('graphene_', 'g_'), attr, v))
-
-    frozen_words = ('FROZEN', 'MIXED')
-    missed = [k for k, v in verdicts.items()
-              if not any(w in str(v) for w in frozen_words)]
-    print()
-    print('  %d of the %d (target, attribute) pairs are reported by the oracle'
-          % (len(missed), len(verdicts)))
-    print('  as something a setattr WILL reach.  For each of them there is a')
-    print('  `def f(p=alias.ATTR)` in ANOTHER file that the setattr will not')
-    print('  reach, and Section 4 measured one of those exactly.')
-    check('L1 every site\'s target got an answer from the oracle, none skipped',
-          len(verdicts) == len(pairs) and not any('ERROR' in str(v)
-                                                  for v in verdicts.values()),
-          'an unanswered pair would be a row this section reports on and does '
-          'not\nactually cover')
-    check('L2 the oracle does not know about ANY of these freezes',
-          len(missed) == len(verdicts),
-          'and it is not wrong to do so: `classify` walks the frozen sites '
-          'INSIDE the\nmodule whose constant is being rebound, and every one of '
-          'these captures is in\na DIFFERENT file.  The oracle is '
-          'per-module and the fault is cross-module, so\nthe question it answers '
-          'is not the question its callers ask.  That is the gap,\nstated as a '
-          'property of the instrument rather than as an error in it.')
-    check('L3 and the one site in THIS file is excluded from the set asked about',
-          all(f != SELF for v in pairs.values() for f, _, _ in v),
-          "Section 4's reproduction is LIVE and is not a site; counting it here "
-          "would\ninflate the gap with this module's own scaffolding")
+        print('    %-36s %-25s %s' % (mod.replace('graphene_', 'g_'), attr, v))
+    check('L4 all eight still answer, so the pairs named in the baseline exist',
+          all('ERROR' not in str(probe.classify(m, a).get('verdict', '?'))
+              for m, a in BASELINE_TARGETS),
+          'a baseline naming a constant that no longer exists would be a '
+          'baseline nothing\ncan be checked against')
 
     print()
-    print('  LIVE OR LATENT, honestly.  graphene_sensitivity_audit holds eight')
-    print('  of the thirteen and delivers its own perturbations by KEYWORD --')
-    print('  `_lambda_imp(**{n: v})` -- never by rebinding `icm`, so no caller')
-    print('  trips those eight today.  They are converted anyway: the 2026-09-30')
-    print('  rule is that a knob a mutation cannot reach certifies whatever sits')
-    print('  beside it, and "no caller delivers that way yet" is a property of')
-    print('  today\'s callers, not of the knob.  The two RF sites are different:')
-    print('  Section 4 shows a rebinding of rf.W_RF being silently discarded by')
-    print('  a function whose docstring is an explicit denial that it can be.')
-    print('  A textual scan for the rebinding route was tried first and dropped:')
-    print('  the route is `setattr(mod, name, v)` over COMPUTED mod and name in')
-    print('  seven modules here, so a grep answers a weaker question than this')
-    print('  section does and would have reported "no" for all thirteen.')
-    return verdicts
+    print('  LIVE OR LATENT, not overclaimed.  graphene_sensitivity_audit held')
+    print('  eight of the thirteen and delivers its own perturbations by')
+    print('  KEYWORD -- `_lambda_imp(**{n: v})` -- never by rebinding `icm`, so')
+    print('  no caller tripped those eight.  They were converted anyway: the')
+    print('  2026-09-30 rule is that a knob a mutation cannot reach certifies')
+    print('  whatever sits beside it, and "no caller delivers that way yet" is a')
+    print('  property of today\'s callers, not of the knob.  The two RF sites')
+    print('  were different: Section 4 shows a rebinding of rf.W_RF being')
+    print('  discarded by a function whose docstring was an explicit denial that')
+    print('  it could be.  A textual scan for the rebinding route was tried')
+    print('  first and dropped -- the route is `setattr(mod, name, v)` over')
+    print('  COMPUTED mod and name in seven modules here, so a grep answers a')
+    print('  weaker question and reported "no" for all thirteen.')
 
 
 # ==========================================================================
@@ -710,23 +818,20 @@ def main():
     print()
     print('=' * 74)
     print('SUMMARY')
-    print('  attribute captures in the repository today : %d'
-          % (sum(len(v) for v in attr_rows.values()) - 2))
-    print('    FROZEN -- inert knobs the censuses miss   : %d' % len(attr_frozen))
-    print('  Name captures, by the shipped census        : %d' % name_total)
+    print('  FROZEN attribute captures recorded 2026-10-17 : %d'
+          % len(BASELINE_2026_10_17))
+    print('  FROZEN attribute captures in the repository NOW: %d'
+          % len(attr_frozen))
+    print('  Name captures, by the shipped census           : %d' % name_total)
     print('  THE INERT-KNOB TOTAL FOR 2026-10-16 WAS 20 + %d = %d, NOT 20.'
-          % (len(attr_frozen), 20 + len(attr_frozen)))
+          % (len(BASELINE_2026_10_17), 20 + len(BASELINE_2026_10_17)))
     print('  Every "the census reads zero" since 2026-10-01 -- and this')
     print('  morning\'s commit, which restored that number -- was a statement')
     print('  about ONE of the two spellings of the pattern.')
-    if failed:
-        print('  RED BY DESIGN TODAY: F2 and F3 ask whether the converted')
-        print('  function sees a rebinding of rf.W_RF, and the conversion of')
-        print('  these 13 sites is the NEXT commit, not this one.  The suite')
-        print('  and its red transcript are committed first so the before/after')
-        print('  is on the record as two transcripts rather than as one claim')
-        print('  that the repair worked.  If F2/F3 are still red after that')
-        print('  commit, the conversion did not do what it says.')
+    print('  The 13 are converted (R4), none has regrown (R5), and F2/F3 --')
+    print('  red in the transcript committed one commit earlier, which is the')
+    print('  BEFORE state and is deliberately on the record -- now measure the')
+    print('  rebinding arriving at the real function.')
     print('  Validations: %d passed, %d failed' % (passed, failed))
     print('=' * 74)
     return 0 if failed == 0 else 1

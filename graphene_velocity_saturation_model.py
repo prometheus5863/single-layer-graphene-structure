@@ -377,11 +377,26 @@ def fT_fmax_saturated(Vg_range, Vds=None, N_fingers=1, **kw):
     return fT, fmax, gm, gds, Cgs
 
 
-def _at_literature_geometry(fn, W=rf.W_RF, N_fingers=rf.N_FINGERS_RF):
+def _at_literature_geometry(fn, W=None, N_fingers=None):
     """Run fn() with gfet.W / gfet.Rc_total temporarily set to the
-    literature-scale geometry, exactly as rf.compute_fT_fmax does.  Late
-    binding throughout -- no module-level name is captured as a default
-    (the 2026-10-03 frozen-default bug, and the 2026-10-04 repeat of it)."""
+    literature-scale geometry, exactly as rf.compute_fT_fmax does.
+
+    CORRECTED 2026-10-17.  The sentence that stood here until today --
+    "Late binding throughout -- no module-level name is captured as a
+    default (the 2026-10-03 frozen-default bug, and the 2026-10-04 repeat
+    of it)" -- was TRUE AS WRITTEN AND FALSE IN SUBSTANCE, and is kept
+    above in full rather than deleted.  No module-level NAME was captured;
+    what was captured was an ATTRIBUTE, `W=rf.W_RF, N_fingers=rf.N_FINGERS_RF`,
+    frozen at import by exactly the mechanism the sentence denies.  Every
+    census in this repository looks for the Name spelling and was blind to
+    it: see graphene_attribute_default_capture.py, Section 4, which measures
+    this function keeping W = 4e-05 while rf.W_RF reads 7e-06.  Late binding
+    is true of it NOW, by the None sentinels below, and the claim is no
+    longer audited by spelling."""
+    if W is None:
+        W = rf.W_RF   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if N_fingers is None:
+        N_fingers = rf.N_FINGERS_RF   # 2026-10-17: was a frozen ATTRIBUTE default capture
     W_saved, Rc_saved = gfet.W, gfet.Rc_total
     gfet.W = W
     gfet.Rc_total = 2 * (gfet.Rc_per_width_ohm_um * 1e-6) / W

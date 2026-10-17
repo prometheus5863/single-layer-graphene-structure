@@ -247,7 +247,7 @@ def quantum_capacitance_dispersion(n):
 
 
 def _dd_integrals(V_g, Vds_ch, n_quad=None, lam=1.0, v_sat_const=None,
-                  constant_n=False, omega_op=vsat.OMEGA_OP,
+                  constant_n=False, omega_op=None,
                   v_sat_prefactor=2.0 / np.pi, grid=None):
     """Q, the diffusion boundary term, S and its diffusion part, Eqs. (11-12).
 
@@ -256,6 +256,8 @@ def _dd_integrals(V_g, Vds_ch, n_quad=None, lam=1.0, v_sat_const=None,
     the interior at all.  `constant_n` freezes n, which makes the diffusion
     term exactly zero (X3).
     """
+    if omega_op is None:
+        omega_op = vsat.OMEGA_OP   # 2026-10-17: was a frozen ATTRIBUTE default capture
     if n_quad is None:
         n_quad = N_QUAD   # 2026-10-17: was a frozen default capture
     if grid is None:
@@ -389,8 +391,19 @@ def _fT_fmax_local(V_g, Vds=None, lam=1.0, N_fingers=1, h=None,
                 gm=float(gm[k]), gds=float(gds[k]), Id=float(Id[k]))
 
 
-def _at_literature_geometry(fn, W=rf.W_RF, N_fingers=rf.N_FINGERS_RF):
-    """Late binding only -- the 2026-10-03 frozen-default fault."""
+def _at_literature_geometry(fn, W=None, N_fingers=None):
+    """Late binding only -- the 2026-10-03 frozen-default fault.
+
+    CORRECTED 2026-10-17, same finding as the twin of this function in
+    graphene_velocity_saturation_model: the sentence above was true of the
+    NAME spelling and false of this signature, which captured
+    `W=rf.W_RF, N_fingers=rf.N_FINGERS_RF` as frozen ATTRIBUTE defaults.
+    Kept in place rather than rewritten.  The None sentinels below are what
+    make it true."""
+    if W is None:
+        W = rf.W_RF   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if N_fingers is None:
+        N_fingers = rf.N_FINGERS_RF   # 2026-10-17: was a frozen ATTRIBUTE default capture
     W_saved, Rc_saved = gfet.W, gfet.Rc_total
     gfet.W = W
     gfet.Rc_total = 2 * (gfet.Rc_per_width_ohm_um * 1e-6) / W

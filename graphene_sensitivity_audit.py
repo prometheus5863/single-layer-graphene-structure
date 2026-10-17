@@ -213,9 +213,19 @@ def family_A(verbose=True):
 # rho_bulk/rho_bulk.  Treating it as a term (rather than dropping it) is
 # what makes P1's sum rule hold exactly here.
 # =====================================================================
-def _calib_terms(rho_cal=icm.rho_calibration_uohm_cm, rho_bulk=icm.rho_bulk_uohm_cm,
-                 p=icm.p_default, W_cal=icm.W_calibration_nm,
-                 lam_bulk=icm.lambda_bulk_nm):
+def _calib_terms(rho_cal=None, rho_bulk=None,
+                 p=None, W_cal=None,
+                 lam_bulk=None):
+    if rho_cal is None:
+        rho_cal = icm.rho_calibration_uohm_cm   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if rho_bulk is None:
+        rho_bulk = icm.rho_bulk_uohm_cm   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if p is None:
+        p = icm.p_default   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if W_cal is None:
+        W_cal = icm.W_calibration_nm   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if lam_bulk is None:
+        lam_bulk = icm.lambda_bulk_nm   # 2026-10-17: was a frozen ATTRIBUTE default capture
     target = rho_cal / rho_bulk
     edge = ((1 - p) / (1 + p)) * (lam_bulk / W_cal)
     return {"target_ratio": +target, "bulk_term": -1.0, "edge_term": -edge}
@@ -271,8 +281,14 @@ def family_B(verbose=True):
 W_AUDIT_NM = (18.0, 22.0, 30.0, 40.0, 52.0)
 
 
-def _rho_terms(W_nm, p=icm.p_default, lam_imp=None,
-               rho_bulk=icm.rho_bulk_uohm_cm, lam_bulk=icm.lambda_bulk_nm):
+def _rho_terms(W_nm, p=None, lam_imp=None,
+               rho_bulk=None, lam_bulk=None):
+    if p is None:
+        p = icm.p_default   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if rho_bulk is None:
+        rho_bulk = icm.rho_bulk_uohm_cm   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if lam_bulk is None:
+        lam_bulk = icm.lambda_bulk_nm   # 2026-10-17: was a frozen ATTRIBUTE default capture
     lam_imp = icm.lambda_impurity_nm if lam_imp is None else lam_imp
     edge = ((1 - p) / (1 + p)) * (lam_bulk / W_nm)
     imp = lam_bulk / lam_imp
