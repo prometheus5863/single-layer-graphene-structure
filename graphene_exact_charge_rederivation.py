@@ -329,10 +329,12 @@ def on_exact(capacitance=True):
         yield
 
 
-def peak_rf(Vds=VDS_RF, W=None, N_fingers=1, extrinsic=False, n_vg=400):
+def peak_rf(Vds=None, W=None, N_fingers=1, extrinsic=False, n_vg=400):
     """Peak f_T and the companion numbers at that bias, on whatever charge
     model is currently installed.  Same sweep rf_small_signal_model's own
     summary_numbers() uses, so the committed row is reproducible."""
+    if Vds is None:
+        Vds = VDS_RF   # 2026-10-17: was a frozen default capture
     Vg = np.linspace(-1.5, 3.5, n_vg)
     fT, fmax, gm, gds, Cgs = rf.compute_fT_fmax(
         Vg, Vds=Vds, extrinsic=extrinsic, W=W, N_fingers=N_fingers)
@@ -341,8 +343,12 @@ def peak_rf(Vds=VDS_RF, W=None, N_fingers=1, extrinsic=False, n_vg=400):
                 gm=float(gm[i]), gds=float(gds[i]), Cgs=float(Cgs[i]))
 
 
-def onoff(Vds=VDS_RF, Vg_on=VG_ON, Rc=None):
+def onoff(Vds=None, Vg_on=None, Rc=None):
     """(I_on, I_off, ratio) from whatever charge model is installed."""
+    if Vds is None:
+        Vds = VDS_RF   # 2026-10-17: was a frozen default capture
+    if Vg_on is None:
+        Vg_on = VG_ON   # 2026-10-17: was a frozen default capture
     saved = gfet.Rc_total
     try:
         if Rc is not None:

@@ -246,7 +246,7 @@ def quantum_capacitance_dispersion(n):
     return CQ_PREFACTOR * fermi_voltage(n)
 
 
-def _dd_integrals(V_g, Vds_ch, n_quad=N_QUAD, lam=1.0, v_sat_const=None,
+def _dd_integrals(V_g, Vds_ch, n_quad=None, lam=1.0, v_sat_const=None,
                   constant_n=False, omega_op=vsat.OMEGA_OP,
                   v_sat_prefactor=2.0 / np.pi, grid=None):
     """Q, the diffusion boundary term, S and its diffusion part, Eqs. (11-12).
@@ -256,6 +256,8 @@ def _dd_integrals(V_g, Vds_ch, n_quad=N_QUAD, lam=1.0, v_sat_const=None,
     the interior at all.  `constant_n` freezes n, which makes the diffusion
     term exactly zero (X3).
     """
+    if n_quad is None:
+        n_quad = N_QUAD   # 2026-10-17: was a frozen default capture
     if grid is None:
         V = np.linspace(0.0, Vds_ch, n_quad)
     else:
@@ -303,7 +305,7 @@ def _Id_given_Vds_ch(V_g, Vds_ch, lam=1.0, saturate=True, **kw):
     return Id, d
 
 
-def transfer_characteristic_dd(Vg_range, Vds=VDS_REF, lam=1.0, saturate=True,
+def transfer_characteristic_dd(Vg_range, Vds=None, lam=1.0, saturate=True,
                                Rc_total=None, tol=1e-15, max_iter=200,
                                report=False, **kw):
     """I_d(V_g) with velocity saturation AND diffusion, Eqs. (10) + (5).
@@ -312,6 +314,8 @@ def transfer_characteristic_dd(Vg_range, Vds=VDS_REF, lam=1.0, saturate=True,
     report=True additionally returns, per bias, min(1 + kappa) over the
     channel (X8) and the diffusion share Qd/(Q+Qd).
     """
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Vg_range = np.atleast_1d(np.asarray(Vg_range, dtype=float))
     Rc = gfet.Rc_total if Rc_total is None else Rc_total
     Id_out = np.zeros_like(Vg_range)
@@ -350,18 +354,24 @@ def transfer_characteristic_dd(Vg_range, Vds=VDS_REF, lam=1.0, saturate=True,
     return Id_out
 
 
-def gds_dd(Vg_range, Vds=VDS_REF, dVds=1e-3, **kw):
+def gds_dd(Vg_range, Vds=None, dVds=1e-3, **kw):
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Ip = transfer_characteristic_dd(Vg_range, Vds=Vds + dVds, **kw)
     Im = transfer_characteristic_dd(Vg_range, Vds=Vds - dVds, **kw)
     return (Ip - Im) / (2.0 * dVds)
 
 
-def _fT_fmax_local(V_g, Vds=VDS_REF, lam=1.0, N_fingers=1, h=H_VG_COMMITTED,
+def _fT_fmax_local(V_g, Vds=None, lam=1.0, N_fingers=1, h=None,
                    **kw):
     """f_T, f_max and the pieces, at ONE gate bias, on a 5-point stencil of
     the COMMITTED gate-grid spacing so np.gradient's central difference here
     is the same estimator as the committed one.  Mirrors
     vsat.fT_fmax_saturated's formula exactly; only g_m and g_ds change."""
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
+    if h is None:
+        h = H_VG_COMMITTED   # 2026-10-17: was a frozen default capture
     Vg = V_g + h * np.arange(-2, 3, dtype=float)
     Id = transfer_characteristic_dd(Vg, Vds=Vds, lam=lam, **kw)
     gm = np.gradient(Id, Vg)

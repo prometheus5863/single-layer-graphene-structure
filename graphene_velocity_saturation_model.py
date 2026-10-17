@@ -219,18 +219,20 @@ def check(tag, ok, label, detail=""):
 # ---------------------------------------------------------------------------
 # The saturation model
 # ---------------------------------------------------------------------------
-def v_sat_of_n(n, omega_op=OMEGA_OP, prefactor=2.0 / np.pi):
+def v_sat_of_n(n, omega_op=None, prefactor=2.0 / np.pi):
     """Density-dependent saturation velocity, Eq. (6).
 
     v_sat = (2/pi) * Omega / sqrt(pi*n).  Diverges as n -> 0, which is
     physical (an empty channel imposes no velocity ceiling) and harmless
     downstream because n is floored at n_puddle by carrier_density().
     """
+    if omega_op is None:
+        omega_op = OMEGA_OP   # 2026-10-17: was a frozen default capture
     return prefactor * omega_op / np.sqrt(np.pi * np.asarray(n, dtype=float))
 
 
-def _channel_integrals(V_g, Vds_ch, n_quad=N_QUAD, v_sat_const=None,
-                       constant_n=False, omega_op=OMEGA_OP,
+def _channel_integrals(V_g, Vds_ch, n_quad=None, v_sat_const=None,
+                       constant_n=False, omega_op=None,
                        v_sat_prefactor=2.0 / np.pi):
     """Q = int n dV and S = int dV/v_sat over the intrinsic channel drop.
 
@@ -239,6 +241,10 @@ def _channel_integrals(V_g, Vds_ch, n_quad=N_QUAD, v_sat_const=None,
     v_sat_const, when given, overrides Eq. (6) with a fixed value (used by
     X3/X4 and by the beta-sensitivity bound).
     """
+    if n_quad is None:
+        n_quad = N_QUAD   # 2026-10-17: was a frozen default capture
+    if omega_op is None:
+        omega_op = OMEGA_OP   # 2026-10-17: was a frozen default capture
     V = np.linspace(0.0, Vds_ch, n_quad)
     if constant_n:
         n = np.full_like(V, float(gfet.carrier_density(V_g, 0.0)))
@@ -265,7 +271,7 @@ def _Id_given_Vds_ch(V_g, Vds_ch, **kw):
     return Id, Q, S, n, vs
 
 
-def transfer_characteristic_saturated(Vg_range, Vds=VDS_REF, saturate=True,
+def transfer_characteristic_saturated(Vg_range, Vds=None, saturate=True,
                                       Rc_total=None, tol=1e-15, max_iter=200,
                                       report_ceiling=False, **kw):
     """I_d(V_g) with velocity saturation, Eqs. (4)-(5).
@@ -278,6 +284,8 @@ def transfer_characteristic_saturated(Vg_range, Vds=VDS_REF, saturate=True,
     >= 1 means the channel CANNOT deliver the current and the model has no
     solution there; this is reported, never clipped.
     """
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Vg_range = np.atleast_1d(np.asarray(Vg_range, dtype=float))
     Rc = gfet.Rc_total if Rc_total is None else Rc_total
     Id_out = np.zeros_like(Vg_range)
@@ -317,15 +325,17 @@ def transfer_characteristic_saturated(Vg_range, Vds=VDS_REF, saturate=True,
     return Id_out
 
 
-def gds_saturated(Vg_range, Vds=VDS_REF, dVds=1e-3, **kw):
+def gds_saturated(Vg_range, Vds=None, dVds=1e-3, **kw):
     """d(I_d)/d(V_ds) by the SAME central difference rf.output_conductance
     uses, so the comparison is between models and not between estimators."""
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Ip = transfer_characteristic_saturated(Vg_range, Vds=Vds + dVds, **kw)
     Im = transfer_characteristic_saturated(Vg_range, Vds=Vds - dVds, **kw)
     return (Ip - Im) / (2.0 * dVds)
 
 
-def gds_at_bias(V_g, Vds=VDS_REF, dVds=1e-3, **kw):
+def gds_at_bias(V_g, Vds=None, dVds=1e-3, **kw):
     """g_ds at ONE gate bias, without going through np.gradient.
 
     fT_fmax_saturated() needs g_m and therefore needs >= 2 gate points;
@@ -334,20 +344,26 @@ def gds_at_bias(V_g, Vds=VDS_REF, dVds=1e-3, **kw):
     a crash in a reporting path, which 2026-10-04 recorded as a strictly
     weaker detection than an assertion.  This helper removes the need.
     """
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Vg1 = np.array([float(V_g)])
     Ip = transfer_characteristic_saturated(Vg1, Vds=Vds + dVds, **kw)[0]
     Im = transfer_characteristic_saturated(Vg1, Vds=Vds - dVds, **kw)[0]
     return (Ip - Im) / (2.0 * dVds)
 
 
-def gm_saturated(Vg_range, Vds=VDS_REF, **kw):
+def gm_saturated(Vg_range, Vds=None, **kw):
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Id = transfer_characteristic_saturated(Vg_range, Vds=Vds, **kw)
     return np.gradient(Id, Vg_range), Id
 
 
-def fT_fmax_saturated(Vg_range, Vds=VDS_REF, N_fingers=1, **kw):
+def fT_fmax_saturated(Vg_range, Vds=None, N_fingers=1, **kw):
     """f_T and f_max from the saturated model, reusing rf's own C_gs, C_gd,
     R_g and R_s so that ONLY g_m and g_ds change between the two models."""
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     gm, Id = gm_saturated(Vg_range, Vds=Vds, **kw)
     gds = gds_saturated(Vg_range, Vds=Vds, **kw)
     Cgs = rf.gate_capacitance(Vg_range)

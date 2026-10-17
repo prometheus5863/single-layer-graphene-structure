@@ -125,7 +125,7 @@ def ulps(a, b):
 # The bound
 # ---------------------------------------------------------------------------
 
-def ell_max(epsilon, d_far=D_FAR):
+def ell_max(epsilon, d_far=None):
     """Largest ell consistent with Delta_c(d_far) <= epsilon.
 
     ell_max(epsilon) = (d_far - D_ANCHOR) / ln(DC_ANCHOR / epsilon).
@@ -133,6 +133,8 @@ def ell_max(epsilon, d_far=D_FAR):
     epsilon >= DC_ANCHOR constrains nothing and returns +inf EXACTLY (the
     logarithm is <= 0 there); epsilon <= 0 is inadmissible and returns 0.0.
     """
+    if d_far is None:
+        d_far = D_FAR   # 2026-10-17: was a frozen default capture
     eps = np.asarray(epsilon, dtype=float)
     span = float(d_far) - D_ANCHOR
     with np.errstate(divide='ignore', invalid='ignore'):
@@ -141,8 +143,10 @@ def ell_max(epsilon, d_far=D_FAR):
     return out if out.shape else float(out)
 
 
-def eps_implied(ell, d_far=D_FAR):
+def eps_implied(ell, d_far=None):
     """The forward direction: Delta_c(d_far ; ell).  The inverse of ell_max."""
+    if d_far is None:
+        d_far = D_FAR   # 2026-10-17: was a frozen default capture
     return float(delta_c(float(d_far), float(ell)))
 
 
