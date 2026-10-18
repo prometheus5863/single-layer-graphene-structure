@@ -252,11 +252,11 @@ BASELINE = [
     # id, trigger, what the item asserts, tree predicate, gloss, retired_on
     ('A1', re.compile(r'chapters? 2 and 3 are still undrafted', re.I),
      True, p_chapters_23_undrafted,
-     'the item asserts both chapters are undrafted', ''),
+     'the item asserts both chapters are undrafted', '2026-10-18'),
     ('A2', re.compile(r'\(ii\)[^|]*?is still untouched', re.I),
      True, p_item16_ii_untouched,
      "the item asserts Section 4.7's prose and Section 4.10's annotation are untouched",
-     ''),
+     '2026-10-18'),
 ]
 
 # Set to the empty string to re-arm a row as live (i.e. to put the item back on
