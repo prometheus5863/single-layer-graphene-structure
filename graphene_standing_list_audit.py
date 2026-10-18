@@ -353,12 +353,19 @@ PLANT_LOG = """\
 **Commits this run:** 0
 """
 
-PLANT_LOG_TRUE = """\
-## 2026-01-01 - a plant
+# A list carrying A1's wording and NOT A2's.  Used by P3b to check that the
+# rows are INDEPENDENT -- that one row going ABSENT does not change another
+# row's verdict, and that a partial list is not silently treated as a whole
+# one.  Written as a constant with a reader rather than left as scaffolding:
+# an unread module-level constant is a provenance claim with no code behind it
+# (graphene_dead_name_sweep, 2026-10-01), and this module would have shipped
+# one.
+PLANT_LOG_PARTIAL = """\
+## 2026-01-01 - a plant carrying A1's wording only
 
 **Not yet covered (candidates for future runs):**
 
-- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted.
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted; A2's wording is absent.
 
 **Commits this run:** 0
 """
@@ -427,6 +434,18 @@ def main():
               got.get('A2') == 'CONFIRMED', 'got %s' % got.get('A2'))
         check('P3 plant list parsed to exactly 3 bullets',
               len(seen) == 3, 'got %d: %r' % (len(seen), [b[:40] for b in seen]))
+        
+        # P3b ROW INDEPENDENCE, on a list carrying A1's wording and not A2's.
+        _sv, BASELINE = BASELINE, _live
+        try:
+            _rows, _seen = audit(HERE, PLANT_LOG_PARTIAL)
+        finally:
+            BASELINE = _sv
+        _g = {r[0]: r[1] for r in _rows}
+        check('P3b rows are independent: a list with only A1 gives '
+              'A1 CONTRADICTED and A2 ABSENT',
+              _g.get('A1') == 'CONTRADICTED' and _g.get('A2') == 'ABSENT',
+              'A1=%s A2=%s bullets=%d' % (_g.get('A1'), _g.get('A2'), len(_seen)))
 
     # The real tree with the plant list.  Run once with the retirements
     # CLEARED -- this is the verdict the rows carried on 2026-10-18, before

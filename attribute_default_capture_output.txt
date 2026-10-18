@@ -88,7 +88,7 @@ SECTION 3 -- the repository today, and the two censuses added up
 The two spellings partition the fault (C4), so the inert-knob total is
 their sum -- and the Name census has been reported ALONE for five sessions.
 --------------------------------------------------------------------------
-  python files in repository (minus the probe exclusions) : 54
+  python files in repository (minus the probe exclusions) : 55
 
     spelling                                  total  FROZEN   LIVE
     ---------------------------------------- ------ ------- ------
