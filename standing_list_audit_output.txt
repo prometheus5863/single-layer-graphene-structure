@@ -1,0 +1,104 @@
+==============================================================================
+STANDING-LIST AUDIT -- do the items that rank the work
+tell the truth about the tree?
+2026-10-18.  Two items in the 2026-10-17 list assert the opposite
+of what the tree contains, and one of them was revived from a
+wording this list had already retired.
+==============================================================================
+
+------------------------------------------------------------------------------
+1.  POSITIVE CONTROL -- the checker on plants whose answers are known
+------------------------------------------------------------------------------
+  [PASS] P1 empty-tree plant, rows LIVE: A1 CONFIRMED (chapters really absent)
+         got CONFIRMED
+  [PASS] P2 empty-tree plant, rows LIVE: A2 CONFIRMED (annotations really absent)
+         got CONFIRMED
+  [PASS] P3 plant list parsed to exactly 3 bullets
+         got 3: ['**CHAPTERS 2 AND 3 ARE STILL UNDRAFTED**', '**FLIP THE DEFAULT** - (ii) - Section 4.', '**SOMETHING WITH NO TREE ASSERTION AT AL']
+  [PASS] P4 real tree, plant list, rows LIVE: A1 CONTRADICTED
+         got CONTRADICTED
+  [PASS] P5 real tree, plant list, rows LIVE: A2 CONTRADICTED
+         got CONTRADICTED
+  [PASS] P5b retired rows + plant list carrying the wording -> REVIVED
+         A1=REVIVED A2=REVIVED
+  [PASS] P5c REVIVED is a fault class, so a revival cannot pass quietly
+  [PASS] P6 VACUITY, rows LIVE: no list found -> every row ABSENT, none CONFIRMED
+         bullets=0 classes=['ABSENT']
+  [PASS] P6b ABSENT is a fault class, so an unparseable list cannot read as a clean run
+  [PASS] P6c retired rows still evaluate the tree predicate on an empty list
+         A1 tree=False A2 tree=False
+  [PASS] P7 baseline ids and NOT_MECHANISABLE ids are disjoint
+         overlap []
+  [PASS] P8 every NOT_MECHANISABLE row carries a reason of >= 40 chars
+         1 rows
+
+------------------------------------------------------------------------------
+2.  THE REAL STANDING LIST, AS OF THE LATEST ENTRY
+------------------------------------------------------------------------------
+  latest entry: 2026-10-17
+  top-level bullets in its Not-yet-covered list: 25
+  baseline assertions checked: 2
+
+  id   class          item says tree says
+  A1   CONTRADICTED   True      False    
+       the item asserts both chapters are undrafted;
+       02-electronic-structure.md 375 non-blank lines, 11 sections;
+       03-transport-and-optical-properties.md 330 non-blank lines, 9
+       sections
+  A2   CONTRADICTED   True      False    
+       the item asserts Section 4.7's prose and Section 4.10's annotation
+       are untouched; 4.7 annotation present=True; 4.10 amendment
+       present=True; per-metal numbers present=True
+
+  N1   NOT_MECHANISABLE  the scheduled task brief is not in the tree
+       The brief that drives these sessions carries a frozen 2026-09-17
+       description of repository state and is the probable source of the
+       revived A1 wording.  Nothing in this repository can read it, so
+       the check that would catch the cause cannot live here.  The
+       compensating rule is procedural and is recorded in Section 7.9: a
+       claim about tree state that arrives from outside the tree is
+       re-verified before it ranks.
+
+  [PASS] R1 the latest list parsed to at least 10 top-level bullets
+         got 25
+  [FAIL] R2 no baseline row is in a fault class ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
+         faults: [('A1', 'CONTRADICTED'), ('A2', 'CONTRADICTED')]
+  [PASS] R3 every retired row is still justified by the tree
+         stale retirements: []
+  [PASS] R4 no retired wording has returned to the list
+         revived: []
+
+------------------------------------------------------------------------------
+3.  A1 IS NOT A STALE ITEM.  IT IS A RETIRED WORDING REVIVED
+------------------------------------------------------------------------------
+  entries asserting UNDRAFTED : 2026-09-17, 2026-09-18, 2026-09-19, 2026-09-20, 2026-09-21, 2026-09-22, 2026-09-22, 2026-09-23, 2026-09-24, 2026-09-25, 2026-09-26, 2026-09-27, 2026-10-17
+  entries asserting DRAFTED   : 2026-10-01, 2026-10-02, 2026-10-03, 2026-10-04, 2026-10-05, 2026-10-06
+  revived (undrafted AFTER the last drafted) : 2026-10-17
+
+  entries between the last corrected one and the revival : 10 (2026-10-07..2026-10-16)
+
+  Chapter 2 was drafted 2026-09-28 and Chapter 3 2026-09-29, so
+  every UNDRAFTED entry up to 09-27 was true when written.  The
+  list then tracked the drafting correctly for 6 entries
+  (2026-10-01..2026-10-06), carried nothing for 10, and the entry after those is
+  the revival.  An item absent long enough stops being remembered
+  as retired and starts being available to be re-derived.
+  [PASS]   V1 the list did at one point carry the corrected wording
+         entries: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06']
+  [PASS]   V2 at least one entry revived the retired wording
+         revived: ['2026-10-17']
+  [PASS]   V3 the revival is strictly later than the last corrected entry
+         first revival 2026-10-17 vs last corrected 2026-10-06
+
+------------------------------------------------------------------------------
+4.  A2 CORROBORATED FROM THE HISTORY, NOT ONLY FROM THE FILE
+------------------------------------------------------------------------------
+  7604c05 2026-10-13 thesis: Section 4.6.12, and the two sentences in Sections 4.7 and 4.10 that the measurement makes false, annotated in place
+  [PASS]   G1 the Section 4.7 annotation was committed on 2026-10-13
+         7604c05 2026-10-13 thesis: Section 4.6.12, and the two sentences in Sections 4.7 and 4.10 that the measurement makes false, annotated in place
+  [PASS]   G2 and its commit message names BOTH sections
+         7604c05 2026-10-13 thesis: Section 4.6.12, and the two sentences in Sections 4.7 and 4.10 that the measurement makes false, annotated in place
+
+==============================================================================
+TOTAL: 20 passed, 1 failed
+==============================================================================

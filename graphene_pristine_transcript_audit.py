@@ -112,6 +112,16 @@ SUITES = [
     # exiting 1 was reported ERROR with its transcript never compared.
     ("graphene_attribute_default_capture.py",
      "attribute_default_capture_output.txt"),
+    # Added 2026-10-18, in the same commit that creates the suite, per the
+    # 2026-10-03 wiring rule, and RED for the same reason as the row above:
+    # R2 fails because the two standing items it checks are still on the list
+    # in the form the tree contradicts.  This suite is the one that most needs
+    # registering rather than running by hand, because what it audits is the
+    # artefact every session reads to choose its work -- and the fault it
+    # found (a retired item revived from outside the repository) is invisible
+    # to a session that trusts that artefact, which is every session.
+    ("graphene_standing_list_audit.py",
+     "standing_list_audit_output.txt"),
 ]
 
 # This module is deliberately absent from SUITES.  It would have to run itself
