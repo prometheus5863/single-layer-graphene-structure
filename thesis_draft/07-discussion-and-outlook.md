@@ -1107,7 +1107,22 @@ Stated as falsifiable items, in order of how much they would move:
    `ℓ ≤ (5.0 Å − 3.3 Å)/ln(0.9 eV/ε)`. At the only small energy scale the
    paper attaches to "small" nearby — its 0.08 eV — this gives
    **`ℓ ≤ 0.7024 Å`, excluding 66.5 % of the committed sweep range
-   [0.3, 1.5] Å**; the top of that range would put the 5.0 Å crossover
+   [0.3, 1.5] Å**;
+   *[Annotated 2026-10-18. Both numbers stand and neither is revised. The
+   hedge above — "the only small energy scale the paper attaches to 'small'
+   nearby" — understates the borrowing in two ways the source's verbatim
+   sentence makes plain: the `∼0.08 eV` is the deviation at `d ≈ 3.3 Å`, the
+   separation about which that same sentence says Eq. (1) **holds**, and the
+   paper traces it to a perturbation "that cannot be described as a rigid
+   shift" — while `Δ_c` **is** a rigid shift. So it is the wrong quantity at
+   the wrong separation, and the two defects compound rather than cancel.
+   **There is therefore no privileged row:** the family over
+   `ε ∈ [0.02, 0.20] eV` is the result, and no single `ε` is "the paper's".
+   The sentence is kept as written because the bound it reports is correct
+   as arithmetic; what was wrong was the attribution, and the transcript —
+   which until today carried the attribution and none of the caveat — now
+   prints its own provenance. See §4.6.16's sibling finding: a qualification
+   with no output behind it is 2026-10-01's dead-name class inverted.]* the top of that range would put the 5.0 Å crossover
    **0.2898 eV above `W_G`**, which is not "≈ `W_G`" under any reading. The
    committed default `ℓ = 0.6 Å` **survives**, and that was not guaranteed:
    it was chosen as "the midpoint of the swept range", a choice with no

@@ -8663,7 +8663,18 @@ Reported as a **family** over `ε`, because the paper quantifies none:
 `ε = 0.08 eV` is **borrowed from a sentence about a different quantity** (the
 non-rigid-shift correction the paper then neglects) — it is the only number
 the paper attaches to "small" nearby, and the table exists so that nothing
-rests on the borrowing. Read forward, the top of the committed sweep puts the
+rests on the borrowing.
+
+> **ANNOTATED 2026-10-18.** The row's marker "← the paper's own scale" is
+> **wrong and is kept in place**, as is every number in the table. The paper
+> quantifies **no** `ε` at 5.0 Å, so no row here is the paper's: the family is
+> the result. And the caveat immediately above understates the borrowing — the
+> `∼0.08 eV` is the deviation at `d ≈ 3.3 Å`, the separation about which the
+> same sentence says Eq. (1) *holds*, and it measures the failure of the
+> rigid-shift picture that `Δ_c` itself is. Wrong separation, wrong kind of
+> quantity. Found while checking why the *transcript* of
+> `graphene_second_anchor_bound.py` carried the attribution and none of this
+> paragraph's qualification; see the 2026-10-18 entry. Read forward, the top of the committed sweep puts the
 5.0 Å crossover **0.2898 eV above `W_G`**, which is not "≈ `W_G`" under any
 reading of the source.
 
