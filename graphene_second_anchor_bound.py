@@ -76,6 +76,9 @@ known value.  There are six, including a planted-ell round trip that the
 inversion must recover and two degenerate limits that must be exact.
 """
 
+import os
+import re
+
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -95,8 +98,93 @@ D_FAR = 5.0e-10          # m  -- the separation of Khomyakov et al.'s
                          #       large-separation calculation (their Sec. III.2
                          #       and Fig. 4's upper point set)
 EPS_PAPER = 0.08         # eV -- the only small energy scale the paper quotes
-                         #       in this context; see HONESTY note above
+                         #       in this context; see HONESTY note above and
+                         #       PROVENANCE below.  The name is kept for
+                         #       continuity of the committed transcripts and is
+                         #       MISLEADING: 0.08 eV is not the paper's bound on
+                         #       Delta_c(5.0 A).  Annotated 2026-10-18 rather
+                         #       than renamed, because renaming it would make
+                         #       every prior transcript unrelatable to this one.
 EPS_RANGE = (0.02, 0.20) # eV -- the family the bound is reported over
+
+# ---------------------------------------------------------------------------
+# PROVENANCE -- added 2026-10-18
+# ---------------------------------------------------------------------------
+# WHY THIS IS IN THE PRINTED OUTPUT AND NOT ONLY IN THE DOCSTRING.
+#
+# The HONESTY paragraph above has been correct since this module was written:
+# epsilon = 0.08 eV is borrowed from a sentence about a different quantity.
+# Every PROSE artefact derived from this module carries that caveat -- the
+# 2026-10-15 notes file states it, the AUTOMATION_LOG entry states it in bold
+# beneath its table, and thesis Section 7.9 item 2 hedges it as "the only small
+# energy scale the paper attaches to 'small' nearby".
+#
+# THE TRANSCRIPT CARRIED NONE OF IT.  Checked 2026-10-18:
+# second_anchor_bound_output.txt contained zero occurrences of "borrow",
+# "different quantity" or "non-rigid", while printing the attribution twice, in
+# stronger words than any prose artefact uses -- "ell <= 0.7024 A at the
+# PAPER'S OWN 0.08 eV scale", "66.5 % of the committed swept range is EXCLUDED
+# BY THE SOURCE" -- and marking the row "<- paper".
+#
+# That is this repository's standing fault class pointing the other way.  On
+# 2026-10-17 two docstrings denied what their code did; here the docstring is
+# scrupulous and the OUTPUT overstates.  And the transcript is the artefact
+# that travels: it is what pristine_transcript_audit compares, what a reader of
+# results sees, and what gets quoted.  A caveat recorded only where no reader
+# of the number encounters it is the 2026-10-01 dead-name fault in reverse --
+# not a citation with no code behind it, but a qualification with no output
+# behind it.
+#
+# AND THE CAVEAT ITSELF WAS TOO WEAK, which is the substantive half.  The
+# paper's sentence, read verbatim, is:
+#
+#   "We see that while Eq. (1) holds for a relatively large separation
+#    d = 5.0 A between the graphene sheet and the metal surface, there is a
+#    small deviation of ~0.08 eV at the equilibrium separation d ~ 3.3 A which
+#    can be traced to a perturbation [of the graphene electronic structure by
+#    physisorption that cannot be described as a rigid shift]"
+#
+# So the 0.08 eV is (i) attached to the OTHER separation, d ~ 3.3 A, not to the
+# 5.0 A case it is used as a tolerance for, and (ii) a measure of the failure
+# of the rigid-shift picture.  Delta_c IS a rigid shift.  A number that
+# quantifies how badly rigid shift describes 3.3 A is therefore not a
+# conservative tolerance on a rigid-shift term at 5.0 A; it is a quantity of a
+# different kind at a different separation, and the two defects compound rather
+# than cancel.  The consequence the prose artefacts stop short of drawing:
+# THERE IS NO PRIVILEGED ROW.  The family is the result, and the SUMMARY's
+# single headline number should never have existed.
+#
+# Nothing numerical changes.  ell_max(0.08 eV) is still 0.7024 A and the
+# exclusion at that epsilon is still 66.5 %; what changes is what those two
+# numbers are attributed to, and that the transcript now says so.
+
+SOURCE = 'Khomyakov et al., Phys. Rev. B 79, 195425 (2009), arXiv:0902.1203'
+
+PROVENANCE = [
+    ('Delta_c(3.3 A) = 0.9 eV', 'Sec. III.2',
+     'the crossover point between n- and p-type doping is found for a metal '
+     'with a work function W_M = W_G + 0.9 eV',
+     'd ~ 3.3 A', 'the crossover shift itself -- USED AS ANCHOR 1'),
+    ('Delta_c(5.0 A) <= epsilon', 'Sec. III.2',
+     'the crossover point from n- to p-type doping decreases to its expected '
+     'value, W_M ~ W_G, for large separations',
+     'd = 5.0 A', 'an inequality in words; NO epsilon is quantified'),
+    ('epsilon = 0.08 eV', 'Sec. III.2',
+     'there is a small deviation of ~0.08 eV at the equilibrium separation '
+     'd ~ 3.3 A which can be traced to a perturbation [...] that cannot be '
+     'described as a rigid shift',
+     'd ~ 3.3 A -- NOT 5.0 A',
+     'the failure of the RIGID-SHIFT picture, which is what Delta_c is. '
+     'BORROWED, twice over: wrong separation and wrong kind of quantity'),
+    ('Delta_c(d) form', 'Sec. III.3, Eq. (4)',
+     'Delta_c(d) = e^(-gamma d) (a_0 + a_1 d + a_2 d^2)',
+     'all d', 'gamma, a_0, a_1, a_2 are NOT reported numerically anywhere in '
+     'the text; (N1) drops the polynomial prefactor'),
+]
+
+# Tokens that must appear in this module's own printed output wherever
+# EPS_PAPER is reported.  A check, not a habit -- see check_provenance_travels.
+CAVEAT_TOKENS = ('BORROWED', 'd ~ 3.3 A -- NOT 5.0 A', 'no privileged row')
 
 passed = 0
 failed = 0
@@ -224,6 +312,66 @@ def validations():
     lo_eps = eps_implied(ELL_RANGE[0])
     f_hi = excluded_fraction_of_swept_range(hi_eps)
     f_lo = excluded_fraction_of_swept_range(lo_eps)
+    # (7) ADDED 2026-10-18.  THE CAVEAT MUST TRAVEL WITH THE NUMBER.
+    #     An exactly decidable property of this file, not a habit: no print
+    #     statement in this module may attribute epsilon to the source
+    #     unqualified, and the provenance tokens must actually be emitted.
+    #     The forbidden phrases are deliberately still present in this file,
+    #     in COMMENTS, as the kept record of what the transcript used to say --
+    #     so the check is scoped to print() arguments, which is the only
+    #     scope under which "kept in place rather than deleted" and "no longer
+    #     claimed" are both true at once.
+    import ast as _ast
+    _src = open(os.path.abspath(__file__), encoding='utf-8').read()
+    _printed = []
+    for _node in _ast.walk(_ast.parse(_src)):
+        if (isinstance(_node, _ast.Call)
+                and isinstance(_node.func, _ast.Name)
+                and _node.func.id == 'print'):
+            for _sub in _ast.walk(_node):
+                if isinstance(_sub, _ast.Constant) and isinstance(_sub.value, str):
+                    _printed.append(_sub.value)
+    #     THE FIRST DRAFT OF THIS CHECK FAILED, and for the third time today
+    #     the cause is a verdict resolved on spelling.  It forbade a phrase
+    #     anywhere in a print() argument, which cannot tell ASSERTING "the
+    #     paper's own 0.08 eV scale" from QUOTING it as the wording this
+    #     module has retracted -- and report_provenance() does the second,
+    #     deliberately, so that the transcript carries the record of what it
+    #     used to claim.  A check that cannot make that distinction forces a
+    #     choice between keeping the record and passing the check, i.e. it
+    #     pushes toward deleting the retracted wording, which is the one move
+    #     this repository's annotation rule exists to refuse.
+    #
+    #     The rule, stated: a forbidden phrase in a print() is a VIOLATION
+    #     unless that same string also carries a supersession marker.  The
+    #     scope is the individual string literal, not the file, so a marker
+    #     elsewhere in the module cannot launder an unqualified claim.
+    _FORBIDDEN = ("paper's own 0.08", 'excluded by the source',
+                  "the paper's own scale")
+    _MARKERS = ('superseded', 'former', 'changed 2026-10-18', 'retracted')
+    _violations = [t for t in _printed
+                   if any(f in t for f in _FORBIDDEN)
+                   and not any(m in t.lower() for m in _MARKERS)]
+    check('no print() asserts the source attribution unqualified '
+          '(quoting it as superseded is allowed, in the same string)',
+          not _violations, 'violations: %r' % _violations)
+    # And the positive half: the record must actually still be quoted, or the
+    # check above passes by silence.
+    _quoted = [t for t in _printed if any(f in t for f in _FORBIDDEN)]
+    check('the retracted wording is still quoted in the transcript, '
+          'not merely absent from it',
+          len(_quoted) >= 1, '%d print strings quote it' % len(_quoted))
+    _emitted = ' '.join(_printed + [t for row in PROVENANCE for t in row]).lower()
+    _missing = [t for t in CAVEAT_TOKENS if t.lower() not in _emitted]
+    check('every provenance caveat token is emitted somewhere in the output',
+          not _missing, 'missing: %r' % _missing)
+    # And the forbidden phrases must still EXIST in the file, as comments:
+    # a check that passed by deleting the record would be the wrong repair.
+    check('the superseded wording is kept in the file as a comment, not deleted',
+          "ell <= 0.7024 A at the paper's own 0.08 eV scale" in _src
+          and "66.5 % of the committed swept range is excluded by the source" in _src,
+          'both superseded lines retained')
+
     check('exclusion counter reads exactly 0 at the top and 1 at the bottom',
           f_hi == 0.0 and f_lo == 1.0,
           'f(eps=%.4f eV) = %r ; f(eps=%.4f eV) = %r'
@@ -234,6 +382,38 @@ def validations():
 # What the bound does to this repository's numbers
 # ---------------------------------------------------------------------------
 
+def report_provenance():
+    """Print where every externally-sourced number in this transcript comes
+    from, at what separation, and what quantity it measures.  Added 2026-10-18
+    because the caveat was in the docstring and the claim was in the
+    transcript, and only the transcript travels."""
+    print('\nPROVENANCE OF EVERY SOURCED NUMBER IN THIS TRANSCRIPT')
+    print('  Source: %s' % SOURCE)
+    for quantity, where, quote, applies_at, what in PROVENANCE:
+        print('  %s   [%s]' % (quantity, where))
+        print('      applies at : %s' % applies_at)
+        for ln in re.findall(r'.{1,62}(?:\s|$)', 'quoted     : "%s"' % quote):
+            if ln.strip():
+                print('      %s' % ln.rstrip())
+        for ln in re.findall(r'.{1,62}(?:\s|$)', 'quantity   : %s' % what):
+            if ln.strip():
+                print('      %s' % ln.rstrip())
+    # ONE string literal, deliberately.  The check in validations() scopes
+    # the supersession marker to the individual print argument, so the
+    # retracted wording and the word "superseded" have to travel in the same
+    # breath -- which is the rule this whole amendment is about, applied to
+    # its own output.
+    print("""  => THERE IS NO PRIVILEGED ROW in the family below.  The paper
+     quantifies no epsilon at 5.0 A, so no epsilon is "the paper's",
+     the family is the result, and no single headline number is
+     reported for it.  SUPERSEDED 2026-10-18: this transcript used to
+     end "ell <= 0.7024 A at the paper's own 0.08 eV scale" and
+     "66.5 % of the committed swept range is excluded by the source".
+     Both numbers stand; both attributions were false, and they are
+     quoted here rather than deleted so that the transcript carries
+     its own correction.""")
+
+
 def report_bound_family():
     print('\nTHE BOUND, AS A FAMILY OVER epsilon (the paper quantifies none)')
     print('  %-12s %-14s %-12s %s' % ('eps / eV', 'ell_max / A',
@@ -242,7 +422,7 @@ def report_bound_family():
         lm = float(ell_max(eps))
         frac = excluded_fraction_of_swept_range(eps)
         mark = 'yes' if ELL_DEFAULT <= lm else 'NO'
-        star = '   <- paper' if eps == EPS_PAPER else ''
+        star = '   <- BORROWED, see PROVENANCE' if eps == EPS_PAPER else ''
         print('  %-12.3f %-14.4f %-12s %s%s'
               % (eps, lm * 1e10, '%.1f %%' % (100.0 * frac), mark, star))
 
@@ -318,7 +498,7 @@ def plot_bound():
     ax1.axhline(ELL_DEFAULT * 1e10, color='seagreen', ls='--', lw=1.6,
                 label=r'committed default 0.6 \AA')
     ax1.axvline(EPS_PAPER, color='crimson', ls=':', lw=1.6,
-                label=r"paper's own 0.08 eV scale")
+                label=r"$\epsilon$ = 0.08 eV (borrowed, not the paper's bound)")
     ax1.plot([EPS_PAPER], [float(ell_max(EPS_PAPER)) * 1e10], 'o',
              color='crimson', ms=7, zorder=5)
     ax1.set_xlabel(r'$\epsilon$  (eV)  --  how small "negligible" is taken to be')
@@ -370,15 +550,28 @@ def main():
           % (D_FAR * 1e10))
     print()
     validations()
+    report_provenance()
     report_bound_family()
     report_swept_range_endpoints()
     moved = report_per_metal_effect()
     plot_bound()
     print('\n' + '=' * 72)
     print('SUMMARY')
-    print('  ell <= %.4f A at the paper\'s own 0.08 eV scale.' % (float(ell_max(EPS_PAPER)) * 1e10))
-    print('  %.1f %% of the committed swept range is excluded by the source.'
-          % (100.0 * excluded_fraction_of_swept_range(EPS_PAPER)))
+    # AMENDED 2026-10-18.  These two lines used to read
+    #   "ell <= 0.7024 A at the paper's own 0.08 eV scale."
+    #   "66.5 % of the committed swept range is excluded by the source."
+    # Both numbers are unchanged and both attributions were false: the paper
+    # quantifies no epsilon at 5.0 A, and 0.08 eV is its deviation at 3.3 A
+    # from the rigid-shift picture that Delta_c IS.  The old wording is kept
+    # here as a comment rather than deleted.
+    print('  At epsilon = %.2f eV -- BORROWED, not the paper\'s bound; see'
+          % EPS_PAPER)
+    print('  PROVENANCE -- ell <= %.4f A, which excludes %.1f %% of the'
+          % (float(ell_max(EPS_PAPER)) * 1e10,
+             100.0 * excluded_fraction_of_swept_range(EPS_PAPER)))
+    print('  committed swept range.  The source supports the FAMILY, not')
+    print('  this row: it asserts Delta_c(5.0 A) is negligible and')
+    print('  quantifies no epsilon at that separation.')
     print('  The committed default ELL_DEFAULT = %.1f A survives (checked, not assumed).'
           % (ELL_DEFAULT * 1e10))
     print('  Metals whose n/p verdict moves: %s'
