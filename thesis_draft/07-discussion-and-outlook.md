@@ -1474,6 +1474,35 @@ Stated as falsifiable items, in order of how much they would move:
    The only precondition still open is the one that was never numerical:
    §4.7's prose and §4.10's annotation have to be **rewritten**, since "only
    Pd gives a small, plausible positive residual" becomes false.
+   **ANNOTATION 2026-10-18 (§4.6.16). The sentence above is kept verbatim and
+   is false, and it was false on the day it was written.** Commit `7604c05`,
+   dated **2026-10-13** — the day *before* this annotation's own 10-14
+   paragraph — is titled "the two sentences in Sections 4.7 and 4.10 that the
+   measurement makes false, annotated in place", and both annotations are in
+   Chapter 4 with their numbers: §4.7's names −1.2583 % (Cu), +20.8352 % (Ni),
+   +39.2281 % (Au), **+47.6925 % (Pd)** and `+51.0 → −203.276`, states that
+   "Only Pd gives a small, plausible positive residual" is "true of the
+   committed model and false of the corrected one", and leaves the sentence
+   standing "**pending the item 16 flip**"; §4.10's amendment says the 9.6 %
+   margin "stands as computed" and is a margin against *input* error that a
+   known *modelling* error already exceeds fivefold. So a session recorded a
+   writing precondition as open while its own tree carried the writing, and
+   the 2026-10-17 entry then carried it forward as "still untouched and still
+   writing, not plumbing" for a fourth day.
+   **What is actually open is narrower and cannot be done first.** The
+   annotations are written *in the subjunctive* — they describe what the
+   corrected model would say and explicitly defer to the flip. The writing
+   that remains is the writing that only the flip makes possible: when
+   "pending the item 16 flip" itself goes stale, the committed table becomes
+   the superseded column rather than the live one, and §4.10's "margin against
+   input error" becomes a statement about a margin that was consumed. That is
+   why 2026-10-17's operational advice — precondition (ii) and the flip in the
+   same session — is right while its reason is wrong, and the difference is
+   not pedantic: a session that believes (ii) is missing can discharge it by
+   writing a sentence asserting a state of the code that does not exist, which
+   is the §7.5.4 "created by a fix" class applied to prose. **Item 16's
+   remaining content is therefore the flip and nothing else**, and it is
+   ranked first for the next run on that basis.
 17. **A two-knob check that reports the ratio, not smallness** (added
    2026-10-10 as "a check that can see a cancellation", **amended 2026-10-11
    on its first use**, §4.6.9(f)). Every check in this repository asks about
@@ -1721,6 +1750,60 @@ Stated as falsifiable items, in order of how much they would move:
    reader, or declare it exempt with a stated reason — applies to all four.
    **Ranked first for the next run**, ahead of item 16, for a reason
    internal to item 16: see its precondition (iii).
+21. **The standing list is not a closed system, and two of its items asserted
+   the opposite of what the tree contained** (added 2026-10-18, §4.6.16; the
+   first item on this list created by auditing *the list itself* rather than
+   the code or the physics). Every session here chooses its work from the
+   "Not yet covered" list of the preceding `AUTOMATION_LOG.md` entry. Nothing
+   had ever checked a claim that list makes. Two of the 2026-10-17 list's
+   twenty-five items assert a state of the tree that the tree denies: item
+   16's precondition (ii), above, and **"CHAPTERS 2 AND 3 ARE STILL
+   UNDRAFTED … the largest remaining block of pure writing"**, when Chapter 2
+   was drafted 2026-09-28 and Chapter 3 2026-09-29 and both have been in the
+   tree for nineteen days.
+   The second is the more instructive, because **the list had already got it
+   right**. From 2026-10-01 to 2026-10-06 it carried the corrected form
+   ("Chapters 2 and 3 *are drafted* but §4.8.2's form of error is not audited
+   for elsewhere"), carried nothing for the ten entries after that, and
+   returned on 2026-10-17 to the pre-09-28 wording — and returned it to
+   *first-rank contention*, since the entry closes it "worth ranking against
+   item 16 deliberately rather than by default". So the one item offered as a
+   competitor to the top measured item was describing writing committed three
+   weeks earlier. **This is not a stale item carried past its repair; it is a
+   retired wording revived**, and the distinction matters because the two have
+   different fixes: staleness is cured by re-checking an item, revival is cured
+   by making retirement checkable.
+   **The cause is outside the repository, which is why no audit here could
+   have found it by looking inward.** These sessions are driven by a scheduled
+   brief that carries a frozen description of repository state dated
+   2026-09-17, including the A1 sentence almost verbatim. A session that reads
+   its own brief as current state will re-derive items the list has retired,
+   and will do so with the authority of an instruction rather than the
+   tentativeness of a memory. The standing rule this produces is checkable
+   only in its second half, and both halves are recorded: **(a) procedural —
+   a claim about the state of the tree that arrives from outside the tree is
+   re-verified against the tree before it ranks anything; (b) mechanical —
+   `graphene_standing_list_audit.py`**, which re-checks every standing item
+   that asserts a tree state, and whose *retired* rows assert both that a
+   retired wording stays gone and that the fact which justified retiring it
+   still holds, so the suite cannot go quiet the moment its finding is acted
+   on.
+   Two by-products are worth keeping. The module's **first draft failed its
+   own plant on its own subject matter** — it tested for a sentence by exact
+   bytes, the markdown file wraps that sentence, and it therefore reported
+   §4.10 "untouched" about a file carrying the amendment, i.e. it *confirmed*
+   the item it was written to contradict. Resolving a claim on spelling is the
+   same defect as the two docstrings of §4.6.15 and the 2026-10-17 grep, and
+   it is now three for three that this repository's instruments fail first by
+   answering a weaker question than the one asked. And
+   **Design-Verification-Roadmap built `tools/open_item_staleness_audit.py`
+   for this exact failure on 2026-10-13, and on 2026-10-17 used it to retire
+   an item of its own for the identical reason** ("it names work finished
+   before the item started being carried"). That repository caught its
+   instance on the same day this one revived its instance. The difference
+   between the two days was one module, and the generalisation — *an
+   instrument built in one place does not protect the other* — is the
+   cross-repository form of §7.5.2.
 
 
 ---
