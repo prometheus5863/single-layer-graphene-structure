@@ -9444,3 +9444,352 @@ was unshallowed before anything was committed.
 the 13-site conversion and the two corrected docstrings; the retraction, the
 suite restructure and six regenerated transcripts; the clean pristine
 baseline). This AUTOMATION_LOG.md entry makes **6**.
+
+## 2026-10-18 — The list that ranks the work had never been audited, two of its items denied the tree, and one of them came from outside the repository
+
+**Status:** The artefact every session reads to choose its work was audited for
+the first time. Two of its twenty-five items assert the opposite of what the
+tree contains; one of those was not stale but **revived**, from a wording this
+list had itself retired eleven entries earlier, and its probable source is the
+scheduled brief rather than the repository.
+
+**Entry point, and it was not the ranked-first item.** 2026-10-17 ranked the
+"census that enumerates a fault forever" item first. Before taking it, the two
+items it offered as alternatives were checked against the tree — the cheapest
+possible first act, never previously performed here — and both failed.
+
+### 1. A1: Chapters 2 and 3 have been drafted for nineteen days
+
+The 2026-10-17 list carries **"CHAPTERS 2 AND 3 ARE STILL UNDRAFTED — their
+computational results have been complete for weeks. This is the largest
+remaining block of pure writing"**, closing *"Worth ranking against item 16
+deliberately rather than by default"*. Chapter 2 was drafted **2026-09-28**
+(`5bbd5f3`, eleven sections), Chapter 3 **2026-09-29** (`c1d5abc`, ten
+sections); the tree holds 375 and 330 non-blank lines and 11 and 9 `##`
+sections. So the one item put forward as a competitor for first rank was
+describing writing committed three weeks earlier.
+
+**And the list had already got it right**, which is what makes this a
+different fault from staleness. Measured over every dated entry:
+
+| wording | entries |
+|---|---|
+| "Chapters 2–3 remain / are still undrafted" | 2026-09-17 … 09-27 (12) **and 2026-10-17** |
+| "Chapters 2 and 3 **are drafted**, but §4.8.2's form of error is not audited for elsewhere" | 2026-10-01 … 10-06 (6) |
+| neither | 2026-10-07 … 10-16 (10) |
+
+Every "undrafted" entry to 09-27 was **true when written**. The list tracked
+the drafting correctly for six entries, carried nothing for ten, and the entry
+after those ten returned the pre-09-28 wording. **Staleness is cured by
+re-checking an item; revival is cured by making retirement checkable** — and
+only the second fix would have caught this.
+
+### 2. A2: item 16's precondition (ii) was recorded open the day after it was done
+
+2026-10-17: *"(ii) — §4.7's prose and §4.10's annotation — is still untouched
+and is still writing, not plumbing."* §7.9, 2026-10-14: *"The only precondition
+still open is the one that was never numerical."* Commit **`7604c05`,
+2026-10-13**, is titled *"the two sentences in Sections 4.7 and 4.10 that the
+measurement makes false, annotated in place"*, and both annotations are in
+Chapter 4 carrying −1.2583 % (Cu), +20.8352 % (Ni), +39.2281 % (Au),
+**+47.6925 % (Pd)** and `+51.0 → −203.276`.
+
+**The narrowing matters more than the correction.** Both annotations are
+written in the subjunctive and defer explicitly to the flip ("pending the item
+16 flip"). What remains is the writing only the flip makes possible — the point
+at which that very phrase goes stale, the committed table becomes the
+superseded column, and §4.10's margin-against-input-error becomes a statement
+about a margin already consumed. So **precondition (ii) cannot be discharged
+ahead of the flip**: a session believing it is missing can discharge it by
+asserting a state of the code that does not exist, which is §7.5.4's
+"created by a fix" class in prose. 2026-10-17's operational advice is right and
+its reason is wrong. **Item 16's remaining content is the flip and nothing
+else.**
+
+### 3. The cause is outside the repository, and that is the part no audit here could find
+
+Both items trace to one mechanism: **the standing list is not a closed
+system.** The scheduled brief that drives these sessions carries a frozen
+description of repository state dated **2026-09-17**, containing the A1
+sentence almost verbatim — and, for the other repository, claims about Phase 4
+that `Design-Verification-Roadmap` retired on 09-18 and 09-19. A session that
+reads its own brief as current state will re-derive items the list has retired,
+and will do so **with the authority of an instruction rather than the
+tentativeness of a memory**. That asymmetry is the whole mechanism.
+
+It is recorded as a `NOT_MECHANISABLE` row with its reason rather than
+silently omitted, because the brief is not in the tree. The compensating rule
+splits: **(a) procedural — a claim about the state of the tree arriving from
+outside the tree is re-verified against the tree before it ranks anything;
+(b) mechanical — the audit below.**
+
+**The other repository already had the instrument.**
+`Design-Verification-Roadmap` built `tools/open_item_staleness_audit.py` for
+this failure on 2026-10-13, and on **2026-10-17 used it to retire an item for
+the identical reason** — *"it names work finished before the item started being
+carried"*. It caught its instance on the same day this repository revived its
+instance. The difference between the two days was one module. **An instrument
+built in one place does not protect the other**, which is §7.5.2 across
+repositories instead of across modules, and it generalises to every tool
+either repository has that the other lacks.
+
+### 4. The audit, and why its retired rows are the load-bearing half
+
+`graphene_standing_list_audit.py`, **committed RED (20/1) with its transcript**
+and registered in `SUITES` in the same commit (2026-10-03 wiring rule). Each
+baseline row pairs an item's assertion with a **predicate over the tree**, so a
+verdict is gated on the mechanism it reports rather than on text similarity —
+Design-Verification-Roadmap's 2026-10-16 rule.
+
+The trap this had to avoid is §4.6.15's: a suite that erases its own finding
+the moment the finding is acted on. Once A1 and A2 leave the list, "absent"
+must not read as a pass. A **retired** row therefore asserts two things — that
+the wording stays gone (`REVIVED` otherwise, a fault class, and the check that
+would have caught 2026-10-17 on the day) and that the tree-side fact which
+justified retirement still holds (`RETIREMENT-STALE` otherwise, so truncating
+Chapter 2 later re-opens the item instead of leaving a silent retirement).
+`ABSENT` is also a fault class, so a list the parser cannot read cannot pass as
+clean. Both plant sections force their retirement state explicitly, so the
+controls are invariant under retiring a row.
+
+### 5. The second finding: the caveat was in the docstring and the claim was in the transcript
+
+A literature pass on the top *physics* item — a **lower** bound on `ℓ` — did
+not obtain the lower bound, and found something else. `ε = 0.08 eV`, the
+`graphene_second_anchor_bound` bound's headline scale, has always been
+borrowed, and **four artefacts say so**: the module's docstring ("borrowed from
+a sentence about a DIFFERENT quantity"), the 2026-10-15 notes file, the
+2026-10-15 entry of this log in bold, and — more weakly — thesis §7.9 item 2.
+**The transcript carried none of it.** Zero occurrences of `borrow`,
+`different quantity` or `non-rigid`, while printing the attribution twice in
+stronger words than any prose artefact used: *"ℓ ≤ 0.7024 Å at the paper's own
+0.08 eV scale"*, *"66.5 % of the committed swept range is excluded by the
+source"*, and a row marked `<- paper`.
+
+The transcript is what `pristine_transcript_audit` compares, what a reader of
+results sees, and what the standing item has been quoting for three sessions —
+in the unqualified form. **2026-10-17 found two docstrings that denied what
+their code did; this is that defect inverted, and 2026-10-01's dead-name
+formula inverts with it: not a citation with no code behind it, but a
+qualification with no output behind it.**
+
+**And the caveat was itself too weak**, which is the substantive half. Read
+verbatim, the source sentence is *"while Eq. (1) holds for a relatively large
+separation d = 5.0 Å …, there is a small deviation of ∼0.08 eV at the
+equilibrium separation d ≈ 3.3 Å which can be traced to a perturbation [… that
+cannot be described as a rigid shift]"*. So the number is **(i) attached to the
+other separation** — the one about which that sentence says Eq. (1) *holds* —
+and **(ii) a measure of the failure of the rigid-shift picture, while `Δ_c`
+is a rigid shift.** Wrong separation and wrong kind of quantity, compounding
+rather than cancelling. The consequence none of the four artefacts drew:
+**there is no privileged row.** The family over `ε ∈ [0.02, 0.20] eV` is the
+result; the SUMMARY's single headline number should never have existed.
+
+**No number moved.** `ℓ_max(0.08 eV) = 0.7024 Å` and the 66.5 % exclusion
+stand, and the transcript's numeric multiset is a strict **superset** of its
+predecessor's, verified by diff — every differing line an addition. What
+changed is a printed `PROVENANCE` section giving each sourced number its
+section, verbatim quote, **the separation it applies at** and the quantity it
+measures; `<- paper` → `<- BORROWED, see PROVENANCE`; and the two false
+attributions replaced with the superseded wording **quoted in the transcript**
+rather than deleted. Four new validations, one of which is the rule made
+mechanical: *no `print()` may assert the source attribution unqualified, and
+quoting it as superseded is allowed only within the same string literal.*
+10 passed, 0 failed.
+
+### 6. Three defects in this session's own work, all caught by checks, all one cause
+
+- **`p_item16_ii_untouched`'s first draft FAILED its own plant, on this
+  session's own subject matter.** It tested `phrase in file.read()` for a
+  sentence the markdown **wraps**, and for numbers written with a Unicode
+  minus. It therefore reported §4.10 "untouched" about the file carrying the
+  amendment — it **confirmed the item it was written to contradict**. Fixed by
+  normalising blockquote markers, dashes and whitespace before matching; the
+  FAIL is kept in the commented record above the fix.
+- **The provenance check's first draft FAILED** because it forbade a phrase
+  anywhere in a `print()` argument and so could not tell *asserting* "the
+  paper's own 0.08 eV scale" from *quoting it as retracted* — which
+  `report_provenance()` does deliberately. A check that cannot make that
+  distinction forces a choice between keeping the record and passing the
+  check, i.e. it pushes toward **deleting** the retracted wording, the one
+  move the annotation rule exists to refuse. Scoping the supersession marker
+  to the individual string literal fixes it, and has the right shape: the
+  retraction travels in the same breath as the retracted words.
+- **`graphene_standing_list_audit.py` shipped a DEAD module-level constant.**
+  `PLANT_LOG_TRUE` was written and never read — 2026-10-01's class exactly,
+  introduced by the module whose entire subject is claims nothing checks.
+  Caught by running `dead_name_sweep` before committing. Given a **reader**
+  rather than deleted: as `PLANT_LOG_PARTIAL` it backs new control P3b, which
+  requires A1 `CONTRADICTED` with A2 `ABSENT`, pinning row independence.
+
+**All three are the same cause, and it is three for three today: this
+repository's instruments fail first by answering a weaker question than the one
+asked.** With §4.6.15's two docstrings and 2026-10-17's textual grep, that is
+now five recorded instances of *resolve-on-spelling*, across censuses,
+docstrings, greps and checks. It is the repository's dominant failure mode and
+it has never been given an item of its own. It gets one below.
+
+### 7. Environment and automation health
+
+Device reachable and folder connected at the **first** firing of the day
+(06:5x UTC). `scipy` was absent again and was `pip install`ed (1.15.3) — **third
+consecutive session**, so the 2026-10-15 note that it is present remains false
+and should be treated as a standing fact: it is never there.
+
+**New environment fact, and it closes a route that three sessions have named as
+the cheapest one.** `arxiv.org` is **refused by the egress proxy in both
+shells** — the device VM returns `curl: (56) Received HTTP code 403 from proxy
+after CONNECT`, the cloud sandbox `connect_rejected`. So the PDF of
+`arXiv:0902.1203` cannot be fetched into either place, and *"digitise Fig. 4's
+upper (5.0 Å) point set"* is blocked **by policy rather than by effort**. The
+ar5iv HTML was reachable and truncated for the **fourth** time, ending
+mid-derivation of `Δ_tr(d)` before **Eq. (7)** — the equation Fig. 4's fit
+lines follow. Recovered verbatim nonetheless: Eq. (4)'s form
+`Δ_c(d) = e^(−γd)(a₀ + a₁d + a₂d²)`, the confirmation that `γ, a₀, a₁, a₂` are
+reported nowhere in the text, and the `ε` sentence quoted in §5. A copy of the
+PDF placed in the connected folder would open the item immediately.
+
+`pristine_transcript_audit` was run **before** committing the transcript
+regenerations and is what identified the three STALE ones; after regeneration
+the only non-`IDENTICAL` row is the new suite's own deliberate red. Nothing
+was deleted. One stale-file trap recorded for future sessions: a redirect to
+`/tmp/pta.txt` failed with `Permission denied` while `tail` of that path
+succeeded and returned **a previous session's output**, naming commit
+`3212ed3` — i.e. a file in the device VM's `/tmp` outlived its session and a
+read of it looked like a successful run. Session scratch belongs under `$HOME`.
+
+**Not yet covered (candidates for future runs):**
+
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **ranked first**, and today changes
+  what it contains rather than where it ranks. Precondition (ii) is **not**
+  outstanding writing (§2 above); preconditions (i) and (iii) were discharged
+  on 2026-10-14 and 2026-10-17. **The flip and nothing else is left**, and it
+  is a Chapter 4 operation only — `graphene_contact_argument_blast_radius`
+  measured zero arrivals from Chapters 5 and 6, and two models inside
+  Chapter 4. Two replacements, not one rebinding: the channel takes
+  `bc.rebind()`, the contact needs `bc.rebind_by_operating_point()` because
+  its series capacitance is `C_interface` (65.93× `C_ox`). Costs already
+  measured and committed: `n` −1.0212 %, `I_d` −0.2530 %, `n_contact`
+  −4.7696 % to −12.4964 %, §4.7 `R_extra` −1.2583 % to +47.6925 %, **Pd's
+  residual flips sign** and the additive decomposition fails 4-of-4.
+  **Honest scope warning, which is why it was not started today:** the flip
+  moves ~15 registered transcripts and dozens of quoted numbers across a
+  3100-line chapter, and a half-landed flip leaves the baseline mixed between
+  forms A and B_T — the one state every instrument here is least able to
+  diagnose. Cheapest safe route: land the code change and the transcript
+  regenerations in one session with the thesis numbers annotated-but-not-yet-
+  rewritten, then the prose in the next.
+- **RESOLVE-ON-SPELLING IS THIS REPOSITORY'S DOMINANT FAILURE MODE AND HAS
+  NEVER HAD AN ITEM** — created today, **ranked second**. Five recorded
+  instances: §4.6.15's two docstrings (audited by spelling, passed, while
+  being the thing audited for), 2026-10-17's textual grep for a `setattr`
+  route over computed names, and today's three — a predicate defeated by line
+  wrapping, a check that could not tell assertion from quotation, and (the
+  2026-10-01 original) a `CROSS_MODULE` resolution resolved against a
+  function-local of the same name. The pattern is always the same: a question
+  about *meaning* answered by a test on *text*. The work: enumerate every
+  check in the repository whose predicate is a string operation, and for each
+  either put the question to an oracle (an AST pass, a plant, a runtime
+  identity test) or record a stated reason the textual form is sufficient.
+  Cheapest entry: `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py` over
+  the suites.
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD** — carried from
+  2026-10-17, where it was ranked first, **untouched today and now ranked
+  third**. Today is a second instance of its shape from the other direction:
+  `second_anchor_bound`'s docstring *stated* the borrowing for three sessions
+  and nothing ever acted on it, which is "enumerated rather than dismissed"
+  applied to a caveat instead of to a row. The 2026-10-17 work statement
+  stands verbatim, and today adds its own targets: every `HONESTY`,
+  `NOTE:` and `what this does not claim` paragraph in a module docstring
+  should be checked for whether its qualification reaches that module's
+  output.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, untouched. Today supplies a second
+  instance: `graphene_standing_list_audit.py`'s plant strings are
+  standing-list-shaped text now sitting in the tree, inert only because the
+  parser reads `AUTOMATION_LOG.md` and not `*.py`. That is inertness by
+  coincidence of scope, not by construction.
+- **A LOWER BOUND ON `ℓ`** — carried, **and its status changed today**. Still
+  the top *physics* item and still unobtainable from the paper's text, whose
+  5.0 Å statement is a tilde with no tolerance. It needs Fig. 4's upper point
+  set, which needs the PDF, which needs `arxiv.org` — **refused by the egress
+  proxy in both shells** (§7). The named cheapest route is therefore closed
+  until the allowlist changes or a copy of the PDF is placed in the connected
+  folder, and three sessions of carrying it as "cheapest route: digitise
+  Fig. 4" were carrying a route nothing could take.
+- **IS `ℓ` EVEN THE RIGHT PARAMETER TO BOUND?** — created today. Under the
+  source's Eq. (4) the single-exponential `ℓ` of (N1) is a **chord** decay
+  length over [3.3, 5.0] Å, while `w_cross_for_metal` evaluates `delta_c` at
+  each metal's `d_eq` — 2.05–3.31 Å, mostly *below* the anchor and outside the
+  chord. `graphene_per_metal_crossover_model`'s docstring already records that
+  (N1) drops Eq. (4)'s polynomial prefactor and that "RESULT 2 is precisely
+  where it breaks"; what is not recorded is that the bound and the per-metal
+  evaluation use the parameter over **different intervals**. Not costed. Cheap
+  to cost: the exact relation is `1/ℓ_chord = γ − ln(P(d₂)/P(d₁))/(d₂ − d₁)`.
+- **CHAPTERS 2 AND 3 — RETIRED 2026-10-18, successor named.** The undrafted
+  wording is retired as false (§1) and must not return; `A1` in
+  `graphene_standing_list_audit.py` now fails on its revival. The 2026-10-01
+  form is the live successor: **§4.8.2's form of error is not audited for
+  elsewhere**, created 10-01, untouched since 10-06, and that is the item —
+  not the drafting. Both chapters may of course be *extended*; at 375 and 330
+  lines against Chapter 4's 3100 they are the thinnest substantive chapters,
+  but that is a judgement about depth and is not what the retired item said.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried, untouched. (N1) is
+  outside its regime for Ti, Ni and Pd (`d_eq` = 2.05–2.30 Å < `d_0`) whatever
+  `ℓ` is; `W_0(Ni) = 62.5 eV` at `ℓ = 0.3 Å` is (N1) diverging, not a
+  prediction. §7.9 item 2, and contact A of *both* Chapter 6 headline pairs.
+  **Today's new item above is its upstream half**: if `ℓ` is a chord length,
+  the chemisorbed metals are being evaluated with a parameter fitted over an
+  interval they are not in, independently of the `d_0` regime question.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, untouched for a third
+  session, `dead_name_sweep` still red 6/2 on exactly them.
+  `graphene_potential_census_audit.CHANNEL_POTENTIAL_READINGS` (genuinely
+  DEAD) plus three **hidden** dead names resolved on *spelling*:
+  `graphene_contact_consistent_argument.E_CHARGE`,
+  `graphene_diffusion_current_model.HBAR`,
+  `graphene_quantum_capacitance_argument.A_OX`. Today adds a fourth near-miss
+  caught before commit, and the hidden three are instances of the
+  ranked-second item above.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, untouched for a fourth session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried, and an
+  instance of the ranked-third item.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **thirteen sessions
+  overdue**. Today added five checks and every one is an exact equality or a
+  set membership, so no new instance.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, a line in item 15's audit rather than a session.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13: a
+  vacuum-like 3.5 Å gap with no interface dipole layer, and one
+  `lambda_decay = 250 nm` for every metal, both plausibly larger than the
+  12.5 % correction already found and neither ever costed.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12; four
+  directions converge on it.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched for a
+  seventh session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  untouched for a **twelfth** session.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the tenth session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for a
+  ninth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, thirteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for a tenth
+  session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  untouched for a tenth session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 5 (the audit committed red with its transcript and
+registered; the thesis's §4.6.16 and §7.9 item 21; the second-anchor
+provenance amendment and today's notes; the in-place annotation of the borrowed
+`ε` in all three prose artefacts; the row-independence control and three
+regenerated census transcripts). This AUTOMATION_LOG.md entry makes **6**, and
+retiring A1/A2 in the audit's baseline — which turns the suite green now that
+this entry is the latest — makes **7**.
