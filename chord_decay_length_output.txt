@@ -1,0 +1,180 @@
+======================================================================
+CHORD vs LOCAL DECAY LENGTH -- costing the 2026-10-18 item
+'is ell even the right parameter to bound?'
+======================================================================
+
+Validation 1 (EXACT): a pure exponential has no chord/local gap
+  [PASS] (1a) P constant => discrepancy is bitwise 0.0 at all 97 separations
+         max |value| = 0.000e+00 1/A
+  [PASS] (1b) and bitwise 0.0 over a DIFFERENT chord interval [2.5, 4.0] A
+         max |value| = 0.000e+00 1/A
+  [PASS] (1c) and 1/ell_local == 1/ell_chord bitwise at all 97 separations
+         97/97 bitwise equal
+
+Validation 2 (EXACT): gamma cancels out of the discrepancy
+  [PASS] (2) chord-minus-local computed via the two length formulae equals the gamma-free form for gamma spanning 0.01-100 1/A
+         atol 1e-13; reference values [-0.085975 -0.090618 -0.08541  -0.083975 -0.079337 -0.033648  0.143422] 1/A
+
+Validation 3 (EXACT): the chord length IS a local length, at an interior point
+         REFUSED p1=-0.60 p2=+0.00: P <= 0 somewhere in [2.0, 5.2] A, so Eq. (4) changes sign there and no decay length exists
+  [PASS] (3 pre) 1 of 3 planted shapes are refused as inadmissible, and are reported rather than skipped
+         refused: [(-0.6, 0.0)]
+  [PASS] (3) p1=-0.35 p2=+0.08: xi = 4.261355 A lies strictly inside [3.3, 5.0] and 1/ell_chord is bracketed by 1/ell_local
+         residual 0.00e+00 1/A; 1/ell_local spans [1.122603, 1.350000], chord 1.266025 1/A
+  [PASS] (3) p1=+0.25 p2=-0.04: xi = 4.097949 A lies strictly inside [3.3, 5.0] and 1/ell_chord is bracketed by 1/ell_local
+         residual 2.78e-17 1/A; 1/ell_local spans [0.750000, 0.912937], chord 0.841430 1/A
+
+Validation 4 (EXACT): d2 -> d1 reproduces the local length at d1, to second order
+  [PASS] (4) the error in <L'> is first order in the interval width: successive ratios decrease monotonically to 2 and reach it within 1% at h = 0.0125 A
+         errors [0.00987789 0.00432131 0.00201494 0.00097213 0.00047736 0.00023652]; successive ratios [2.28586 2.14463 2.07272 2.03646 2.01825]; monotone=True, |last-2|=0.01825
+
+Validation 5 (EXACT): Eq. (4) with P constant reproduces (N1)
+  [PASS] (5a) Eq. (4)|P=const == (N1) BITWISE, with the exponent formed the same way, for 13 ells x 65 separations
+         the P=1 factor multiplies by exactly 1.0, so the reduction is exact and not merely close
+  [PASS] (5b) the metres/Angstrom route agrees to 12 ULP, measured and reported rather than asserted equal
+         worst absolute gap 2.132e-14 eV = 12 ULP of the value; a reciprocal-and-multiply is not a divide, and this is what that costs
+  [PASS] (5c) the normalisation P(d1) = 1 holds bitwise for a NON-constant P too, so the shape sweep cannot move the 0.9 eV anchor
+         P(d1) = 1
+
+Validation 6 (EXACT): where the chord parameter is exactly right, and which metals can never sit there
+  [PASS] (6a) xi exists in [3.3, 5.0] A for 198/204 admissible shapes (6 have no interior sign change and are reported, not counted as found)
+         xi spans [3.8482, 4.4952] A
+  [PASS] (6b) xi > d_eq for ALL admissible shapes for the 5 metals below d1 (Co, Cu, Ni, Pd, Ti): the chord parameter is the local length at none of them, ever
+         min xi = 3.8482 A; largest such d_eq = 3.26 A (Cu)
+  [PASS] (6c) xi > EVERY tabulated d_eq for every admissible shape, so the chord parameter is the local length at no metal at all -- not even the 4 inside the chord interval
+         min xi = 3.8482 A vs the largest d_eq 3.41 A (Al); margin +0.4382 A
+  [PASS] (6d) the 6 shapes with no interior sign change are reported as a third outcome and excluded from the xi statistics by identity, not by a filter on their values
+         198 resolved + 6 unresolved = 204 shapes
+
+----------------------------------------------------------------------
+WHERE THE METALS SIT RELATIVE TO THE CHORD INTERVAL
+----------------------------------------------------------------------
+  chord interval : [3.30, 5.00] A   (the two separations the paper's sentence relates)
+  d0             : 2.40 A   ((N1)'s regime boundary -- a SEPARATE question)
+
+    Al  d_eq =  3.41 A   physisorbed  INSIDE the chord
+    Ag  d_eq =  3.33 A   physisorbed  INSIDE the chord
+    Au  d_eq =  3.31 A   physisorbed  INSIDE the chord
+    Pt  d_eq =  3.30 A   physisorbed  INSIDE the chord
+    Cu  d_eq =  3.26 A   physisorbed  below d1
+    Pd  d_eq =  2.30 A   chemisorbed  below d1   (also < d0)
+    Ti  d_eq =  2.10 A   chemisorbed  below d1   (also < d0)
+    Ni  d_eq =  2.05 A   chemisorbed  below d1   (also < d0)
+    Co  d_eq =  2.05 A   chemisorbed  below d1   (also < d0)
+
+  INSIDE [3.3, 5.0] A : 4  (Al, Ag, Au, Pt)
+  BELOW  d1 = 3.3 A   : 5  (Cu, Pd, Ti, Ni, Co)
+
+  2026-10-18 wrote the tabulated range as '2.05-3.31 A, mostly below
+  the anchor and outside the chord'.  The top of that range is wrong:
+  Al sits at 3.41 A, inside the chord interval, so the
+  tabulated range is 2.05-3.41 A.  'Mostly below' survives; 'outside
+  the chord' does not hold for Al, Ag, Au or Pt.
+
+----------------------------------------------------------------------
+WHERE THE CHORD PARAMETER IS EXACTLY RIGHT
+----------------------------------------------------------------------
+  By the mean value theorem there is one separation xi in the chord
+  interval at which 1/ell_chord == 1/ell_local(xi) EXACTLY.  That is
+  the only separation at which `ell` is the right parameter.
+
+      xi in [3.8482, 4.4952] A   over the admissible shape family
+      largest tabulated d_eq = 3.41 A   (Al)
+
+  xi lies ABOVE every tabulated metal, for every admissible shape.
+  So the chord parameter is the local decay length at NO metal in
+  the table -- not at the chemisorbed ones, and not at the four
+  physisorbed ones that sit inside the chord interval either.  An
+  exact separation of the whole table from the one point where the
+  parameter is correct, not a bound.  (Validation 6c.)
+
+  This is STRONGER than the 2026-10-18 item claimed and stronger
+  than this file's own first draft assumed: the draft expected the
+  verdict to be shape-dependent for Al, Ag, Au and Pt, on the
+  strength of a probe that mistook an endpoint for a root.
+
+----------------------------------------------------------------------
+THE COST, over 204 admissible quadratic shapes (24 refused for P <= 0)
+----------------------------------------------------------------------
+  Delta = 1/ell_chord - 1/ell_local(d_eq), in 1/A.  GAMMA-FREE, and
+  independent of `ell`: it depends only on P's two shape ratios.
+  ratio = ell_local(d_eq) / ell -- the factor by which the chord
+  parameter misstates the LOCAL decay length at that metal.
+  'bad' counts shapes where ell_local is infinite or negative there:
+  Eq. (4)'s step is not decaying at that separation, which NO single
+  exponential represents at any `ell`.  Not clipped, not dropped.
+
+  metal   d_eq  Delta min Delta max  |           ell=0.3  |           ell=0.6  |           ell=1.5
+           (A)      (1/A)     (1/A)  |  ratio span   bad  |  ratio span   bad  |  ratio span   bad
+  Al      3.41    -0.1817    0.7672  |   0.95- 1.30    0  |   0.90- 1.85    0  |   0.79-49.00    3
+  Ag      3.33    -0.1979    0.7916  |   0.94- 1.31    0  |   0.89- 1.90    0  |   0.77-21.04    5
+  Au      3.31    -0.2020    0.7973  |   0.94- 1.31    0  |   0.89- 1.92    0  |   0.77-25.86    5
+  Pt      3.30    -0.2040    0.8002  |   0.94- 1.32    0  |   0.89- 1.92    0  |   0.77-29.15    5
+  Cu      3.26    -0.2119    0.8112  |   0.94- 1.32    0  |   0.89- 1.95    0  |   0.76-58.20    5
+  Pd      2.30    -0.3894    0.9878  |   0.90- 1.42    0  |   0.81- 2.45    0  |   0.63-13.50   14
+  Ti      2.10    -0.4250    1.0114  |   0.89- 1.44    0  |   0.80- 2.54    0  |   0.61-44.29   17
+  Ni      2.05    -0.4334    1.0559  |   0.88- 1.46    0  |   0.79- 2.73    0  |   0.61-21.27   19
+  Co      2.05    -0.4334    1.0559  |   0.88- 1.46    0  |   0.79- 2.73    0  |   0.61-21.27   19
+
+  Delta is the same in every ell column BY CONSTRUCTION -- it is the
+  gamma-free quantity -- and the ratio columns are that one number
+  read at three values of the repository's swept parameter.
+
+----------------------------------------------------------------------
+WHAT THIS COSTS THE EXISTING RESULTS
+----------------------------------------------------------------------
+  1. THE GAP IS MONOTONE IN d, NOT IN DISTANCE FROM THE INTERVAL.
+     Delta vanishes only at xi (Validation 6), so a metal inside
+     the chord interval still has a gap -- Au at 3.31 A has a
+     LARGER one than Al at 3.41 A.
+     Al  (d_eq  3.41 A, +0.11 A from d1): |Delta| <= 0.7672 1/A, ell_local/ell in 0.902-1.853 at ell = 0.6 A
+     Au  (d_eq  3.31 A, +0.01 A from d1): |Delta| <= 0.7973 1/A, ell_local/ell in 0.892-1.917 at ell = 0.6 A
+     Cu  (d_eq  3.26 A, -0.04 A from d1): |Delta| <= 0.8112 1/A, ell_local/ell in 0.887-1.948 at ell = 0.6 A
+     Pd  (d_eq  2.30 A, -1.00 A from d1): |Delta| <= 0.9878 1/A, ell_local/ell in 0.811-2.455 at ell = 0.6 A
+     Ni  (d_eq  2.05 A, -1.25 A from d1): |Delta| <= 1.0559 1/A, ell_local/ell in 0.794-2.729 at ell = 0.6 A
+
+  2. AT THE TOP OF THE SWEPT RANGE THE CHORD PARAMETER BREAKS DOWN
+     ENTIRELY FOR SOME ADMISSIBLE SHAPES.  Counts of shapes whose
+     implied local length is infinite or negative at d_eq:
+     metal    ell=0.3   ell=0.6   ell=1.5
+     Al             0         0         3
+     Ag             0         0         5
+     Au             0         0         5
+     Pt             0         0         5
+     Cu             0         0         5
+     Pd             0         0        14
+     Ti             0         0        17
+     Ni             0         0        19
+     Co             0         0        19
+     TOTAL          0         0        92
+
+     The divergence condition is ell * Delta = 1, so it is reached
+     by making either factor larger.  It appears at the TOP of the
+     swept `ell` range and not at the bottom, and -- contrary to
+     what the first draft of this file asserted -- it is NOT
+     confined to the small separations: at ell = 1.5 A it reaches
+     the physisorbed metals too, which sit inside the chord.
+
+  3. IT COMPOUNDS WITH THE d0 REGIME FAILURE RATHER THAN REPLACING
+     IT.  Ti, Ni, Co and Pd are outside (N1)'s regime because
+     d_eq < d0 = 2.40 A, AND are evaluated with a parameter read
+     off an interval they are not in.  Two independent reasons,
+     the same four metals, and this file supplies only the second.
+
+  4. THE ITEM'S WORDING WAS WRONG IN BOTH DIRECTIONS, AND THE
+     TRUTH IS STRONGER THAN WHAT IT CLAIMED.  Its range
+     '2.05-3.31 A' is wrong at the top -- Al sits at 3.41 A -- and
+     its 'outside the chord' is wrong for Al, Ag, Au and Pt, which
+     sit inside the interval.  But being inside it exonerates
+     nothing: the chord length equals the local length only at xi,
+     and xi >= 3.8482 A over the whole admissible family, above
+     EVERY tabulated d_eq.  So the correct charge is a universal
+     and not the partial one the item made: for all nine metals,
+     under every admissible shape, `ell` is being read off an
+     interval none of them sits in.  (Validation 6c.)
+
+  wrote chord_vs_local_decay_length.png
+
+======================================================================
+VALIDATIONS: 15 passed, 0 failed
+======================================================================
