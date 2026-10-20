@@ -9793,3 +9793,278 @@ provenance amendment and today's notes; the in-place annotation of the borrowed
 regenerated census transcripts). This AUTOMATION_LOG.md entry makes **6**, and
 retiring A1/A2 in the audit's baseline — which turns the suite green now that
 this entry is the latest — makes **7**.
+
+---
+
+## 2026-10-20 — gamma cancels, and the parameter is right at no metal at all
+
+### 1. What was taken
+
+Not the item ranked first. **FLIP THE DEFAULT TO `B_T`** carries an explicit
+scope warning — ~15 transcripts and dozens of quoted numbers across a
+3100-line chapter, with a half-landed flip leaving the baseline mixed between
+forms A and `B_T`, the one state every instrument here is least able to
+diagnose. Today's session began under a device bridge that had already proved
+unreliable (§7), and starting a flip that must land whole in one session under
+those conditions is how the mixed state gets created. Taken instead:
+**IS `ℓ` EVEN THE RIGHT PARAMETER TO BOUND?**, created 2026-10-18, never
+costed, with its entry point already named. The choice is recorded because
+skipping a ranked-first item needs a reason and "it looked big" is not one.
+
+### 2. Gamma cancels, which is what makes the item costable
+
+(N1) is a single exponential; Khomyakov et al.'s Eq. (4) is
+`e^(−γd) P(d)` with `P` quadratic. (N1) therefore has one decay length where
+Eq. (4) has a different one at every separation, and `γ, a₀, a₁, a₂` are
+reported nowhere in the paper's text — four extraction passes, with
+`arxiv.org` refused by the egress proxy in both shells since 2026-10-18, so
+Fig. 4 cannot be digitised either. The obvious objection is that the item
+cannot be costed without the numbers.
+
+It can. With `L = ln P`,
+
+```
+1/ℓ_chord(d₁,d₂) = γ − ⟨L'⟩        1/ℓ_local(d) = γ − L'(d)
+1/ℓ_chord − 1/ℓ_local(d) = L'(d) − ⟨L'⟩
+```
+
+**`γ` cancels exactly**, and since `L' = P'/P` is scale-invariant `a₀` cancels
+with it. **Two of the four unreported coefficients leave the question
+entirely**, and the gap is computable from `P`'s two shape ratios, which can
+be swept. The relative error needs no `γ` either: `ℓ_chord` **is** the
+quantity (N1) calls `ℓ`, so `ℓ_local/ℓ = 1/(1 − ℓ·Δ)`.
+
+### 3. The result is an exact separation, and it is stronger than the item
+
+By the mean value theorem `ℓ_chord = ℓ_local(ξ)` at one interior separation.
+Measured over 204 admissible quadratic shapes:
+
+```
+ξ ∈ [3.8482, 4.4952] Å      largest tabulated d_eq = 3.41 Å (Al)
+                            margin +0.4382 Å
+```
+
+**`ξ` lies above every tabulated metal, for every admissible shape.** So the
+swept parameter is the local decay length at **no metal in the table**, and
+the four physisorbed metals that sit *inside* the chord interval are not
+spared: the gap vanishes only at `ξ`, not across the interval.
+
+**The item was wrong in both directions.** Its `d_eq` range "2.05–3.31 Å" is
+wrong at the top — Al sits at 3.41 Å — and its "outside the chord" is wrong
+for Al, Ag, Au and Pt, which sit inside `[3.3, 5.0]`. But the correct charge
+is a **universal over all nine metals**, not the partial one it made. Both
+corrections are printed by `report_intervals()` and pinned by Validation 6c.
+
+The cost, with `Δ` `ℓ`-independent by construction:
+
+| metal | d_eq (Å) | Δ range (1/Å) | ℓ_local/ℓ @ 0.6 Å | bad @ 1.5 Å |
+|---|---|---|---|---|
+| Al | 3.41 | −0.182 … 0.767 | 0.90–1.85 | 3 |
+| Au | 3.31 | −0.202 … 0.797 | 0.89–1.92 | 5 |
+| Cu | 3.26 | −0.212 … 0.811 | 0.89–1.95 | 5 |
+| Pd | 2.30 | −0.389 … 0.988 | 0.81–2.45 | 14 |
+| Ni / Co | 2.05 | −0.433 … 1.056 | 0.79–2.73 | 19 |
+
+"bad" counts shapes whose `ℓ_local` at that metal is **infinite or negative** —
+Eq. (4)'s step is not decaying there, which no single exponential represents
+at any `ℓ`. **None at `ℓ = 0.3` or `0.6 Å`; 92 at `ℓ = 1.5 Å`**, the top of
+the committed sweep, and they reach the physisorbed metals too. It **compounds
+with** the `d₀` regime failure rather than replacing it: Ti, Ni, Co and Pd now
+fail for two independent reasons.
+
+**15 validations, all against exactly known values**: a pure exponential gives
+a bitwise-zero gap over two different chord intervals; `γ` cancels to 1e-13
+across four orders of magnitude, recomputed through the two length formulae
+rather than through the cancelled form; the MVT root is bracketed with a zero
+residual and `1/ℓ_chord` lies between the extremes of `1/ℓ_local`; the
+`d₂ → d₁` limit is first order with monotone ratios reaching 2; and
+`Eq. (4)|P=const` reproduces the existing `delta_c` **bitwise**. Transcript
+byte-identical across two consecutive runs.
+
+### 4. Annotated in place, not rewritten
+
+Thesis §7.9 item 2 listed three independent failures for the chemisorbed
+metals; the fourth is annotated beside them as **widening** the item, since
+unlike the other three it indicts the physisorbed metals too. The per-metal
+model's docstring already conceded that (N1) drops Eq. (4)'s prefactor and
+that RESULT 2 is where that breaks; what it did not say — and now says beside
+the existing concession — is that dropping the prefactor changes what the
+surviving parameter **means**. No number in either artefact is revised, and
+item 1's bound stands: it is correct as arithmetic about the chord, and what
+today adds is that the bounded quantity is not the one the per-metal
+evaluation uses.
+
+### 5. Five defects in this session's own work, all one shape
+
+- **Validation 5 claimed `BITWISE` and got `2.13e-14 eV`.** The algebra is
+  exact; the arithmetic is not the same arithmetic — `delta_c()` divides in
+  metres, this file multiplied by a reciprocal in Å. Bitwise was never
+  available and **the claim was the error**. Split into `5a` (matched
+  arithmetic, bitwise) and `5b`, which **measures** the units route at
+  **12 ULP** rather than hiding it behind a tolerance.
+- **Validation 4 demanded an asymptotic order at a finite step**, requiring
+  every error ratio within 0.05 of 2 and getting 2.286 at `h = 0.4 Å` — a
+  textbook first-order sequence. The assertion's **shape** changed to monotone
+  convergence, not its tightness; loosening the tolerance would have passed
+  anything.
+- **Validation 3 silently skipped an inadmissible planted shape**, reporting
+  on two cases while claiming three.
+- **The cost table contradicted its own prose**: `diverges = 0` on all nine
+  rows while the paragraph beneath said the divergences "cluster at the SMALL
+  separations". Now swept over `ℓ`, where they actually appear.
+- **Validation 6c's first draft expected a shape-dependent third verdict** for
+  the four metals inside the chord interval, on the strength of a throwaway
+  probe reporting `ξ` reaching 3.3000 Å. **The probe was wrong** — it counted
+  an endpoint where `Δ` evaluates to exactly 0.0 as an interior root, so its
+  minimum was the interval's own lower bound. Computed properly `ξ ≥ 3.8482 Å`
+  and there is no third verdict. **The correction made the result stronger
+  than the draft assumed**, which is the rarer direction.
+
+**All five are the same shape and it is this repository's recorded dominant
+failure mode: a check or a claim answering a weaker question than the one it
+was written to ask.** With the sibling repository's two today, that is seven
+instances in one day across both repositories, and the ranked-second item
+*resolve-on-spelling* is the general form of it.
+
+**And a sixth, which only looking could catch.** The figure was unreadable
+twice. Admissibility only requires `P > 0` on `[2.0, 5.2] Å`, so a shape may
+approach a zero of `P` just inside the right edge where `L' = P'/P` diverges;
+one such shape drove the left panel's autoscale to `−100 1/Å` and flattened
+every other curve onto the axis. Fixed, then the metal labels overprinted the
+x-axis label with Ni clipped to read "li". **Neither defect was reachable from
+the transcript, which said `15 passed, 0 failed` throughout.** Both views are
+clipped now with the clipping stated on the axis; nothing is dropped from the
+computation, only from the view. This is the first session to render a figure
+and inspect it rather than trusting the validation count, and it found two
+defects on the first try — worth making routine.
+
+### 6. Environment and automation health
+
+**The bridge dropped mid-session and the session survived, which is the
+operational finding of the day and is shared with the sibling repository's
+entry.** Three sibling-repository commits in, the device went offline while a
+command was running and did not return across ~6 minutes of retries. Nothing
+had been pushed; the work was in the session's scratch clone under `$HOME`,
+invisible to the user and lost with the session. When the bridge returned the
+clone was intact and the first action was `git push`, before any further work.
+**Every commit after that point was pushed immediately rather than batched to
+the end of the session**, and that is now the recommended pattern: a push per
+commit costs nothing and bounds the loss at one commit instead of a session.
+
+`scipy` was absent again and was `pip install`ed (1.15.3) — **fifth
+consecutive session**. It is never there; the 2026-10-15 note that it is
+present remains false. One new detail worth recording: backgrounding the
+install with `&` in a `device_bash` call does **not** survive the call's
+return, so three attempts earlier in this session produced an empty log and no
+package. Installs must run in the foreground.
+
+A figure was copied into the connected folder to be staged and inspected, and
+`_figcheck_chord.png` could not be deleted afterwards — deletion inside
+connected folders is blocked and requesting permission was denied by the
+safety classifier on 2026-09-17. It has been moved to `_to_delete/` for Harsh
+to remove. `arxiv.org` was not retried; it is refused by policy and the
+2026-10-18 finding stands. No live web search was used and none was needed —
+today's result is algebra plus the repository's own tables.
+
+**Not yet covered (candidates for future runs):**
+
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **still ranked first**, and
+  untouched for a second session. Preconditions (i)–(iii) are all discharged;
+  the flip and nothing else is left, and it is a Chapter 4 operation only.
+  Two replacements, not one rebinding: the channel takes `bc.rebind()`, the
+  contact needs `bc.rebind_by_operating_point()`. Costs already measured and
+  committed: `n` −1.0212 %, `I_d` −0.2530 %, `n_contact` −4.7696 % to
+  −12.4964 %, §4.7 `R_extra` −1.2583 % to +47.6925 %, **Pd's residual flips
+  sign**, additive decomposition fails 4-of-4. Cheapest safe route unchanged:
+  land the code change and the transcript regenerations in one session with
+  the thesis numbers annotated-but-not-yet-rewritten, then the prose next.
+  **Added today: it needs a session with a stable bridge, because a
+  half-landed flip is the one state the instruments cannot diagnose.**
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18, **ranked second**, and
+  today adds five more instances (§5) for a running total of ten across both
+  repositories. The work is unchanged: enumerate every check whose predicate
+  is a string operation and either put the question to an oracle or record a
+  stated reason the textual form suffices. Cheapest entry:
+  `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py` over the suites.
+  **The sibling repository worked an instance of it today and found the same
+  pattern in a control written to repair that very pattern.**
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — created today, **ranked
+  third**. §5's sixth defect: two unreadable figures, neither visible in a
+  transcript reading `15 passed, 0 failed`, both found in one look. This
+  repository has ~60 committed PNGs and no session on record has looked at
+  one. The work: a pass that renders each figure-producing module and
+  inspects the output, starting with the ones whose data can diverge
+  (anything sweeping an admissible family). Cheap, and the first sample had a
+  100 % hit rate.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — created today. Today's
+  sweep takes `p₁ ∈ [−0.60, 0.30] Å⁻¹`, `p₂ ∈ [−0.10, 0.12] Å⁻²` with 24 of
+  228 refused for `P ≤ 0`, and **the box has no justification from the
+  paper** — it is wide enough to contain plausible shapes and no argument says
+  it is the right width. The `ξ ≥ 3.8482 Å` margin is the headline and it is a
+  **minimum over this box**. Work: either derive a constraint on `P`'s shape
+  from something the paper does state, or report the headline's sensitivity to
+  the box, which is a one-line sweep of the box's corners.
+- **A LOWER BOUND ON `ℓ`** — carried. Still blocked on Fig. 4, which is
+  blocked on `arxiv.org`, refused by the egress proxy. A copy of the PDF in
+  the connected folder opens it immediately. **Today changes its value:** a
+  lower bound on a chord length constrains a quantity that, per §3, is the
+  local decay length at no tabulated metal — so the item is worth less than
+  its ranking suggested and should be read alongside the `Δ_c` form item
+  below rather than ahead of it.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried, and **promoted in
+  practice by today's result.** The two items are now one question seen from
+  two ends: (N1) is outside its regime for Ti, Ni, Co and Pd because
+  `d_eq < d₀`, *and* its parameter is a chord length no metal sits on. The
+  honest fix for both is a form with the polynomial prefactor retained, which
+  needs Eq. (4)'s coefficients, which needs the PDF.
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD** — carried from
+  2026-10-17, untouched for a third session.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, untouched here, but **the sibling
+  repository supplied the first worked instance of avoiding it today**, by
+  planting control cases as text passed to a predicate rather than as files.
+  That technique transfers directly.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1`
+  in `graphene_standing_list_audit.py` fails on its revival. The live
+  successor is **§4.8.2's form of error is not audited for elsewhere**,
+  created 10-01, untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, untouched for a fourth
+  session; `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, untouched for a fifth session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **fourteen sessions
+  overdue**, and today supplies its first real instance rather than another
+  clean sheet: Validation 4's `0.05` was a tolerance standing in for a
+  statement about convergence order, and replacing the tolerance with the
+  order is exactly what this item asks for. One worked example now exists.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, and today adds a sibling measurement: the metres/Å conversion
+  route costs **12 ULP** in `delta_c`. Both belong in item 15's audit.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched for an
+  eighth session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  untouched for a **thirteenth** session.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the eleventh session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for a
+  tenth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, fourteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for an
+  eleventh session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  untouched for an eleventh session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the chord/local module with its transcript and
+figure; today's notes; the in-place annotations of thesis §7.9 item 2 and the
+per-metal model's docstring). This AUTOMATION_LOG.md entry makes **4**. Each
+was pushed immediately after commit rather than batched, for the reason in §6.
