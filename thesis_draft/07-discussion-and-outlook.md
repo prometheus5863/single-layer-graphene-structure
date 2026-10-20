@@ -1145,6 +1145,35 @@ Stated as falsifiable items, in order of how much they would move:
    margins. Ti has the largest `|ΔW|` in the table (−1.07 eV) and is contact A
    of *both* Chapter 6 headline pairs. The chapter's central numbers rest on the
    one assumption the literature most explicitly disowns.
+   *[Annotated 2026-10-20. A **fourth** independent failure is now on record,
+   it is upstream of the three above, and — unlike them — it is **not confined
+   to the chemisorbed metals.** No number in this item is revised.
+   `graphene_chord_decay_length.py` costs the question of whether `ℓ` is the
+   right parameter at all. Writing Eq. (4) as `e^(−γd) P(d)` and `L = ln P`,
+   the chord and local decay lengths are `1/ℓ_chord = γ − ⟨L'⟩` and
+   `1/ℓ_local(d) = γ − L'(d)`, so their difference is `L'(d) − ⟨L'⟩` and **`γ`
+   cancels exactly** — as does `a₀`, since `L' = P'/P` is scale-invariant.
+   Two of the four coefficients the paper never reports leave the question,
+   and the gap is computable from `P`'s two shape ratios alone.
+   By the mean value theorem `ℓ_chord` equals `ℓ_local(ξ)` at one interior
+   separation `ξ`. Measured over 204 admissible quadratic shapes,
+   **`ξ ∈ [3.8482, 4.4952] Å`, above Al's 3.41 Å — the largest tabulated
+   `d_eq` — by `+0.4382 Å`.** So the swept parameter is the local decay length
+   at **no metal in the table, under no admissible shape**, and the four
+   physisorbed metals that sit *inside* the chord interval are not spared:
+   the gap vanishes only at `ξ`, not across the interval. At `ℓ = 0.6 Å` the
+   ratio `ℓ_local/ℓ` runs 0.89–1.95 for the physisorbed metals and 0.79–2.73
+   for Ni and Co; at the top of the committed sweep, `ℓ = 1.5 Å`, **92
+   metal-shape combinations have no representable local length at all** —
+   `ℓ_local` infinite or negative, which no single exponential reproduces at
+   any `ℓ` — and those reach the physisorbed metals too.
+   This **compounds with** the `d_eq < d_0` exclusion rather than replacing
+   it: Ti, Ni, Co and Pd now fail for two independent reasons, a regime
+   boundary and a parameter read off an interval they are not in. It does
+   **not** move item 1's bound, which is arithmetic about the chord and
+   remains correct as arithmetic; what it says is that the bounded quantity
+   is not the quantity the per-metal evaluation uses. See
+   `notes/2026-10-20-gamma-cancels-and-the-parameter-is-right-at-no-metal.md`.]*
 3. **Reconciling the 0.12 eV measured step with the 0.25–1.07 eV assumed
    offsets** (§7.8.2). Bounded in the common channel by Section 6.13's
    sensitivity table; **not** bounded in the differential channel, which is the

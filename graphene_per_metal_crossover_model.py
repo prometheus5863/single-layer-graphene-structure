@@ -40,6 +40,24 @@ WHAT IS AND IS NOT CLAIMED
   rests on a single value of it.
 * (N1) drops Eq. 4's polynomial prefactor.  That is a real approximation,
   and RESULT 2 below is precisely the place it breaks.
+* AND `ell` IS NOT THE LOCAL DECAY LENGTH AT ANY METAL HERE (2026-10-20,
+  graphene_chord_decay_length.py).  Dropping the prefactor also changes what
+  the one surviving parameter MEANS: `ell` is a CHORD decay length over
+  [3.3, 5.0] A -- the two separations the paper's sentence relates -- while
+  w_cross_for_metal() below evaluates delta_c at each metal's own d_eq.
+  Writing Eq. 4 as e^(-gamma d) P(d), the chord/local gap is
+  L'(d) - <L'> with L = ln P, so GAMMA AND a0 BOTH CANCEL and the gap is
+  computable from P's shape alone despite none of Eq. 4's coefficients being
+  reported anywhere in the paper.  By the MVT the chord length is the local
+  length at one interior separation xi, and xi lies in [3.8482, 4.4952] A
+  over the admissible shape family -- ABOVE Al's 3.41 A, the largest
+  tabulated d_eq.  So the parameter swept below is the local decay length at
+  NO tabulated metal, including the four that sit inside the chord interval.
+  Costed, not merely noted: ell_local/ell runs 0.79-2.73 at Ni and Co for
+  ell = 0.6 A, and at ell = 1.5 A there are 92 metal-shape combinations with
+  no representable local length at all.  Nothing below is revised -- the
+  sweep is still the honest presentation of an unknown parameter -- but the
+  parameter is not the one the evaluation needs.
 * ell -> infinity reproduces the flat 5.4 eV model BITWISE.  That is an
   exact reduction test (Validation 2), not a plausible-range check -- the
   distinction that caught real bugs on 2026-09-17 and 2026-09-19.
