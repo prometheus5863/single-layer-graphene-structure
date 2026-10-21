@@ -1687,6 +1687,18 @@ overlapping regularisations are fighting over the same physics.
    remains (4.29); `B_T` is measured, committed and available. Flipping the
    default would move every number in Chapters 4, 5 and 6 and is its own
    session's work, with its own transcript regeneration.
+   *[Annotated 2026-10-21, §4.6.17. Two corrections to this sentence, neither
+   of which changes the claim that the default is unflipped. First, §4.6.12
+   measured that Chapters 5 and 6 never call the charge path at all, so "every
+   number in Chapters 4, 5 and 6" is wrong in that direction and "more of
+   Chapter 4 than was measured" in the other. Second — and this is what
+   §4.6.17 adds — "its own session's work" was read as meaning the work is
+   the flip. It is not. The two halves of the flip are each correct alone and
+   **do not compose**: the contact replacement reads the shipped
+   `gfet.quantum_capacitance` at call time, which is the name the channel half
+   rebinds, and installing both at once costs −51 % to −62 % in `n_contact`,
+   4.86× to 10.77× the effect being installed. The numbers in this subsection
+   stand; what was incomplete was the account of what flipping requires.]*
 2. It does **not** claim `D_T` is exact physics. It is the exact integral of
    *this model's* differential relation at 300 K. The relation itself still
    uses a phenomenological rounding rather than Fermi–Dirac integrals, and
@@ -2824,6 +2836,136 @@ revived its instance. The difference between the two days was one module; the
 generalisation is that an instrument built in one place does not protect the
 other, which is §7.5.2 across repositories rather than across modules.
 
+
+### 4.6.17 The two halves of item 16 do not compose: a replacement that reads a name the same flip rebinds
+
+§4.6.9 built form `B_T` in the channel. §4.6.14 gave the contact a
+replacement of its own instead of an exclusion. §4.6.12 measured what each
+costs. The log of 2026-10-20 recorded, on that basis, that item 16's
+"remaining content is the flip and nothing else".
+
+**It was not.** Composition was left as well, and composition fails.
+
+#### (a) The measurement
+
+`graphene_default_flip.py` installs both halves at once and asks what
+`n_contact` becomes. Against the committed contact-only form `B_T`:
+
+| Metal | `n_contact`, form A (m⁻²) | committed `B_T` (m⁻²) | both halves, unrepaired (m⁻²) | `B_T` vs A | unrepaired vs `B_T` | ratio |
+|---|---|---|---|---|---|---|
+| Ti | 1.644935e16 | 1.541997e16 | 7.281739e15 | −6.2578 % | −52.7772 % | 8.43× |
+| Cr | −0.0 | −0.0 | −0.0 | `n = 0` | `n = 0` | — |
+| Cu | −1.380517e16 | −1.314672e16 | −6.391282e15 | −4.7696 % | −51.3850 % | 10.77× |
+| Ni | −7.111301e16 | −6.227844e16 | −2.466546e16 | −12.4233 % | −60.3949 % | 4.86× |
+| Au | −8.034794e16 | −7.031424e16 | −2.760960e16 | −12.4878 % | −60.7340 % | 4.86× |
+| Pd | −8.343500e16 | −7.300861e16 | −2.859729e16 | −12.4964 % | −60.8302 % | 4.87× |
+| Pt | −1.660634e17 | −1.463454e17 | −5.573671e16 | −11.8738 % | −61.9143 % | 5.21× |
+
+The unrepaired composition overshoots the effect item 16 exists to install by
+**4.86× to 10.77×, metal by metal, and in the same direction** — so it would
+not have presented as a sign error, and a session that landed the flip and
+regenerated transcripts would have committed it as the answer.
+
+> The per-metal ratio is the honest statement, and the first draft of this
+> table did not give it. It divided the smallest-magnitude unrepaired
+> deviation by the **largest**-magnitude committed effect and the other way
+> round, quoting "4.1× to 13.0×" from two pairs of numbers belonging to
+> different metals. That is this chapter's recorded dominant failure mode — a
+> claim answering a weaker question than the one it was written to ask — and
+> it was caught by *reading the transcript*, not by any check in the file.
+
+#### (b) The cause is one attribute read
+
+The contact replacement is deliberately built on the **shipped**
+`gfet.quantum_capacitance`, for the two reasons §4.6.12 records: the
+alternative carries its own constants and differs by 9.48e6 ulp, and the
+committed `log(2(1+cosh η))` spelling overflows where the fixed point's first
+iterate lands. It reads that name by attribute lookup at call time:
+
+```python
+return gfet.quantum_capacitance(qca.A_FERMI * np.sqrt(nn), T=T)
+```
+
+and the channel half of the flip rebinds exactly that name. With both halves
+installed, the contact's self-consistency is solved against a `C_q` that has
+itself already been solved — once, against the wrong series capacitance.
+
+#### (c) The general form, which no mechanism in this thesis covers
+
+§4.6.13 established that the set a patch must reach is the name's runtime
+**identity class**, so that no binding is left stale. §4.6.14 established that
+the class must be **partitioned** by operating point, so that no member is
+silently left at the shipped object. Both are statements about *which names
+move*.
+
+**Neither asks whether a replacement READS a name the same flip rebinds.**
+
+A replacement that does is neither stale nor unassigned. It is correctly
+installed, computed by the right mechanism, reported as installed by that
+mechanism's own report — and it reads a different object than the one it was
+validated against. This is a third failure mode beside the two §4.6.13 and
+§4.6.14 were built for, and it is invisible to both. The audit that would
+catch it without running anything is a one-line question asked of each
+replacement: *which module-level names does this function read at call time,
+and does the flip rebind any of them?*
+
+#### (d) Two mechanisms, and they partially cancel
+
+The failure has two parts, not one. **(i)** the inner `C_q` is the channel's
+form-`B_T` solve rather than the shipped form-A `C_q`; **(ii)** that inner
+solve reaches `qca.series_factor`, which reads `gfet.C_ox` at call time, and
+the contact solve has `C_ox` substituted by `C_interface` for its duration —
+so the inner channel solve runs against the **contact's** series capacitance
+too. Isolating (i) by restoring `C_ox` for the inner call:
+
+| Metal | (i) alone | (i)+(ii) | (ii) contributes |
+|---|---|---|---|
+| Ti | −53.8545 % | −52.7772 % | +1.0772 |
+| Cu | −52.4054 % | −51.3850 % | +1.0204 |
+| Ni | −62.1287 % | −60.3949 % | +1.7338 |
+| Au | −62.5403 % | −60.7340 % | +1.8063 |
+| Pd | −62.6595 % | −60.8302 % | +1.8293 |
+| Pt | −64.2107 % | −61.9143 % | +2.2965 |
+
+**(ii) offsets (i) for every metal.** Repairing (ii) alone — which is the more
+obviously wrong-looking of the two, since a global being mutated across a
+nested call is visible on inspection — would have made the error *larger*.
+The repair has to be made at (i).
+
+#### (e) The repair, and what it does not do
+
+Bind the contact replacement to the shipped object **captured at manager
+entry** rather than to the live name. `on_default_flip()` then installs the
+whole flip through the two managers §4.6.14 named — `bc.rebind()` for the
+charge, whose class is `{gfet, crx}` and both members in the channel, and
+`bc.rebind_by_operating_point()` for the capacitance, whose class spans the
+two operating points. This is the first caller to give that manager a
+**non-`None` contact assignment**; until §4.6.14 the contact had no
+replacement of its own and the exclusion was correct exactly as long as that
+was true.
+
+Validated against exactly known values, not plausible ranges: the identity
+assignment (every member → its own shipped object) is **bitwise** neutral on
+all nineteen committed numbers; the flip's contact half reproduces the
+committed contact-only form `B_T` **bitwise** on all seven metals; its channel
+half reproduces `on_consistent_argument()` **bitwise** on all eight census
+entries; `n_contact(ΔW_F = 0)` is exactly `0.0`; the electron/hole antisymmetry
+is bitwise; an incomplete assignment raises and rebinds **nothing**; and a
+positive control asserts the repair is load-bearing, so that if the two ever
+agree this section's premise is known to have expired. 18 passed, 0 failed;
+transcript byte-identical across two consecutive runs.
+
+**With both halves in the circuit for the first time, every cost quoted in
+Chapter 7 item 16 is reproduced exactly** — `n` −1.0212 %, `I_d` −0.2530 %,
+`n_contact` −4.7696 % to −12.4964 %, §4.7 `R_extra` −1.2583 % to +47.6925 %,
+Pd's implied residual +50.9489 → −203.2764 Ω·µm, additive decomposition
+4-of-4 negative. That reproduction is the evidence that the defect lives in
+the composition and in neither half.
+
+**This section does not flip the default.** `graphene_fet_model.py` is
+unedited and the chapter's charge relation is still (4.29). What has changed
+is that the flip is a single installable, validated, costed object, so what
+remains is a decision about what this thesis claims rather than a build.
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 

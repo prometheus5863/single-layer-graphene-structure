@@ -1547,6 +1547,51 @@ Stated as falsifiable items, in order of how much they would move:
    is the §7.5.4 "created by a fix" class applied to prose. **Item 16's
    remaining content is therefore the flip and nothing else**, and it is
    ranked first for the next run on that basis.
+   **AMENDED 2026-10-21 (§4.6.17). "The flip and nothing else" was wrong in
+   one specific way, and the way is worth more than the flip.** Composition
+   was left as well. The two halves of item 16 are each committed, each
+   validated and each correct alone, and **installing both at once does not
+   give form `B_T` everywhere**: `n_contact` lands **4.86× (Ni) to 10.77×
+   (Cu)** past the effect this item exists to install, in the **same
+   direction**, so it would not have read as a sign error. Measured:
+   −51.3850 % to −61.9143 % against the committed contact-only form `B_T`,
+   where the item's own effect is −4.7696 % to −12.4964 %. The cause is one
+   attribute read. The contact replacement is deliberately built on the
+   **shipped** `gfet.quantum_capacitance` — for two good reasons recorded in
+   §4.6.12 (a 9.48e6 ulp constants gap in the alternative, and the overflow
+   item 13 closed) — and reads that name by attribute lookup at call time,
+   which is exactly the name the channel half rebinds. The contact's
+   self-consistency is then solved against a `C_q` that has itself already
+   been solved, against the wrong series capacitance. **No number above is
+   revised**: every cost this entry quotes is reproduced exactly by the
+   composed flip, which is the evidence that the defect is in the composition
+   and not in either half.
+   The general form is the part that outlives item 16, and **no guard in this
+   repository currently covers it**. `bc.rebind()` asks whether all bindings
+   of a name move together. `bc.rebind_by_operating_point()` asks whether any
+   member of the class is unassigned. Neither asks **whether a replacement
+   reads a name the same flip rebinds**. Such a replacement is neither stale
+   nor unassigned — it is correctly installed, and reads a different object
+   than the one it was validated against. That is a third failure mode beside
+   the two the 2026-10-14 and 2026-10-17 mechanisms were built for, and it is
+   invisible to both.
+   Two further findings. (a) The failure decomposes into **(i)** the inner
+   `C_q` and **(ii)** the inner series capacitance — `qca.series_factor`
+   reads `gfet.C_ox` at call time and the contact solve has it substituted —
+   and the two **partially cancel**, by +1.02 to +2.30 percentage points, so
+   repairing (ii) alone makes the error *larger*. (b) The repair is to bind
+   the contact replacement to the object **captured at entry** rather than to
+   the live name; it reproduces the committed contact-only form `B_T`
+   **bitwise** on all seven metals, and the channel half reproduces
+   `on_consistent_argument()` **bitwise** on all eight census entries.
+   **Status unchanged: the item is still OPEN and the default is still
+   (4.29).** What changed is that the flip is now built, validated and costed
+   as a single installable object (`graphene_default_flip.on_default_flip()`),
+   so what remains is editing `graphene_fet_model.py` — a decision about what
+   the thesis claims, not a build. With both halves in the circuit for the
+   first time, Pd's implied transmission residual moves **+50.9489 →
+   −203.2764 Ω·µm** and the additive decomposition fails **4 of 4**, which is
+   §4.10's margin consumed exactly as the paragraph above predicted.
 17. **A two-knob check that reports the ratio, not smallness** (added
    2026-10-10 as "a check that can see a cancellation", **amended 2026-10-11
    on its first use**, §4.6.9(f)). Every check in this repository asks about
