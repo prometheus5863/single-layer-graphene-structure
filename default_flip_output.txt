@@ -1,0 +1,196 @@
+==============================================================================
+ITEM 16's FLIP: the two halves do not compose
+==============================================================================
+
+C_ox        = 3.836815e-04 F/m^2
+C_interface = 2.529768e-02 F/m^2   (ratio 65.9341)
+
+------------------------------------------------------------------------------
+0.  THE IDENTITY ASSIGNMENT IS BITWISE NEUTRAL (the instrument is
+    not the perturbation)
+------------------------------------------------------------------------------
+
+    identity class of quantum_capacitance : graphene_contact_doping_model.quantum_capacitance, graphene_fet_model.quantum_capacitance
+    identity class of carrier_density     : contact_resistance_crossover.carrier_density, graphene_fet_model.carrier_density
+
+    Giving every member of the capacitance class ITS OWN shipped
+    object exercises the whole partition machinery and must move
+    nothing.  Any departure here and Sections 1-6 are measuring
+    the harness.
+
+    PASS  identity assignment: all 7 n_contact bitwise (0 ulp)
+          worst departure 0.0 ulp
+    PASS  identity assignment: all 8 channel census entries bitwise
+          keys: Id_rf, L_300, L_500, L_Pd, R_dirac, n_3V5, onoff_intr, onoff_term
+    PASS  identity assignment: all 4 R_extra bitwise
+
+------------------------------------------------------------------------------
+1.  THE DEFECT: the unrepaired flip moves n_contact by -51 % to
+    -62 % away from the committed contact-only form B_T
+------------------------------------------------------------------------------
+
+    metal         form A    B_T contact flip unrepaired  flip repaired
+    Ti      1.644935e+16   1.541997e+16   7.281739e+15   1.541997e+16
+    Cr     -0.000000e+00  -0.000000e+00  -0.000000e+00  -0.000000e+00
+    Cu     -1.380517e+16  -1.314672e+16  -6.391282e+15  -1.314672e+16
+    Ni     -7.111301e+16  -6.227844e+16  -2.466546e+16  -6.227844e+16
+    Au     -8.034794e+16  -7.031424e+16  -2.760960e+16  -7.031424e+16
+    Pd     -8.343500e+16  -7.300861e+16  -2.859729e+16  -7.300861e+16
+    Pt     -1.660634e+17  -1.463454e+17  -5.573671e+16  -1.463454e+17
+
+    metal   B_T vs A % unrep vs B_T %   rep vs B_T  |unrep/A|
+    Ti         -6.2578     -52.7772      bitwise       8.43
+    Cr           n = 0        n = 0      exact 0          -
+    Cu         -4.7696     -51.3850      bitwise      10.77
+    Ni        -12.4233     -60.3949      bitwise       4.86
+    Au        -12.4878     -60.7340      bitwise       4.86
+    Pd        -12.4964     -60.8302      bitwise       4.87
+    Pt        -11.8738     -61.9143      bitwise       5.21
+
+    The effect item 16 installs at the contact is -4.7696 % to
+    -12.4964 %.  The unrepaired composition is -51.3850 % to -61.9143 %,
+    and METAL BY METAL it is 4.86x (Ni) to 10.77x (Cu) the effect it
+    is installing, in the SAME direction -- so it would not have
+    looked like a sign error.
+
+    PASS  V1 the channel half ALONE moves no contact number (the 2026-10-17 hole, unchanged)
+          zero arrivals at cd.quantum_capacitance, as measured 2026-10-17
+    PASS  V2 the repaired flip DOES reach cd.quantum_capacitance (the 2026-10-17 hole is closed)
+          contact_cq arrivals 7 for 7 metals
+    PASS  V2b and the two channel bindings are reached at a CHANNEL call
+          channel_charge 1, channel_cq 1, contact_cq 0 (correctly 0 here)
+
+------------------------------------------------------------------------------
+2.  TWO MECHANISMS, AND THEY PARTIALLY CANCEL
+------------------------------------------------------------------------------
+
+    (i)  THE INNER C_q.  The contact solve reads the live
+         `gfet.quantum_capacitance`, which the channel half has
+         rebound to a form-B_T solve.
+    (ii) THE INNER SERIES CAPACITANCE.  That inner solve reaches
+         `qca.series_factor`, which reads `gfet.C_ox` at call time
+         -- and the contact solve has it substituted by
+         C_interface for the duration.  So the inner channel solve
+         runs against the contact's series capacitance too.
+
+    (i) alone is isolated by restoring C_ox for the inner call.
+
+    metal   (i) only %   (i)+(ii) %   (ii) moves
+    Ti        -53.8545     -52.7772      +1.0772
+    Cu        -52.4054     -51.3850      +1.0204
+    Ni        -62.1287     -60.3949      +1.7338
+    Au        -62.5403     -60.7340      +1.8063
+    Pd        -62.6595     -60.8302      +1.8293
+    Pt        -64.2107     -61.9143      +2.2965
+
+    PASS  V3 mechanism (ii) OFFSETS mechanism (i) for every metal
+          offsets +1.0204 to +2.2965 percentage points -- repairing (ii) alone would make the error LARGER, which is why the composition failure has to be repaired at (i)
+
+------------------------------------------------------------------------------
+3.  THE REPAIR, VALIDATED BITWISE AGAINST BOTH COMMITTED HALVES
+------------------------------------------------------------------------------
+
+    PASS  V4 flip CONTACT half == committed contact-only form B_T, bitwise on all 7 metals
+          worst 0.0 ulp
+    PASS  V5 flip CHANNEL half == committed on_consistent_argument(), bitwise on all 8 census entries
+          all 0 ulp
+    PASS  V6 zero null: n_contact(dWF = 0) is EXACTLY 0.0 under the flip
+          shipped -0.0, flip -0.0
+    PASS  V7 electron/hole antisymmetry at dWF = 0.45 eV is BITWISE under the flip
+          n(+) -5.037992779773389e+16   n(-) 5.037992779773389e+16   sum 0.0
+    PASS  V8 POSITIVE CONTROL on the repair: the unrepaired flip differs on all 6 nonzero metals
+          if this ever passes trivially, the repair has become a no-op and this module's premise has expired
+
+    INTERLEAVING (the stated hazard in make_contact_cq).  The
+    contact solve mutates gfet.C_ox for its duration, so a channel
+    call made DURING it would see the wrong series capacitance.
+    Measured by interleaving the two under one flip:
+
+    PASS  V9 interleaved: every n_contact equals its value computed alone, bitwise
+    PASS  V10 interleaved: every n(3.5 V) equals its flip value, bitwise
+          n(3.5 V) under the flip = 8.0870324663e+15
+
+------------------------------------------------------------------------------
+4.  THE PARTITION REFUSES AN INCOMPLETE MAP (negative control)
+------------------------------------------------------------------------------
+
+    PASS  V11 omitting the contact member raises UnassignedClassMember
+          identity class of graphene_fet_model.quantum_capacitance has 1 member(s) with no assignment: graphene_contact_doping_model.quantum_capacitance
+    PASS  V12 and NOTHING was rebound: every number bitwise equal to shipped
+    PASS  V13 an assignment with no stated reason is refused too
+          assignment for graphene_contact_doping_model.quantum_capacitance has no stated reason
+
+------------------------------------------------------------------------------
+5.  THE FLIP'S COST, WITH BOTH HALVES IN THE CIRCUIT AT ONCE FOR
+    THE FIRST TIME
+------------------------------------------------------------------------------
+
+    Channel census (identical to on_consistent_argument(), V5):
+
+    quantity                   form A               flip   change %
+    Id_rf            8.7193445708e-05   8.6972868490e-05    -0.2530
+    L_300            3.1417272081e-07   3.1096450694e-07    -1.0212
+    L_500            5.2362120136e-07   5.1827417823e-07    -1.0212
+    L_Pd             3.1417272081e-07   3.1096450694e-07    -1.0212
+    R_dirac          6.2415090745e+02   6.2415090745e+02    +0.0000
+    n_3V5            8.1704661996e+15   8.0870324663e+15    -1.0212
+    onoff_intr       1.6145704583e+00   1.5982072487e+00    -1.0135
+    onoff_term       1.2407559148e+00   1.2358013833e+00    -0.3993
+
+    Contact census (NEW: never before measured with the channel
+    half installed simultaneously):
+
+    metal             form A               flip   change %
+    Ti      1.6449348453e+16   1.5419974922e+16    -6.2578
+    Cr     -0.0000000000e+00  -0.0000000000e+00    +0.0000
+    Cu     -1.3805172250e+16  -1.3146716744e+16    -4.7696
+    Ni     -7.1113006493e+16  -6.2278444147e+16   -12.4233
+    Au     -8.0347935178e+16  -7.0314239300e+16   -12.4878
+    Pd     -8.3434999040e+16  -7.3008610434e+16   -12.4964
+    Pt     -1.6606340614e+17  -1.4634535877e+17   -11.8738
+
+    Section 4.7 recalibration.  R_extra is the junction
+    contribution this model computes; R_tr is the implied residual
+    Rc_measured - R_extra.
+
+    metal      Rc_meas    R_extra A R_extra flip   change %       R_tr A    R_tr flip
+    Cu        184.0000     971.4606     959.2364    -1.2583    -787.4606    -775.2364
+    Ni        470.0000     830.4618    1003.4903   +20.8352    -360.4618    -533.4903
+    Au        519.0000     609.1590     848.1205   +39.2281     -90.1590    -329.1205
+    Pd        584.0000     533.0511     787.2764   +47.6925      50.9489    -203.2764
+
+    Pd's implied transmission residual changes sign: +50.9489 -> -203.2764 Ohm.um.
+    Section 4.10 found Pd's residual -- the only positive one,
+    and the only evidence the additive decomposition survives
+    -- flips on a 9.6 % error in R_extra.  The flip consumes
+    that margin, so under form B_T everywhere the additive
+    decomposition fails for every calibrated metal.
+
+    PASS  V14 additive decomposition: 3 of 4 residuals negative under form A, 4 of 4 under the flip
+          the 2026-10-17 measurement, reproduced with both halves installed
+
+------------------------------------------------------------------------------
+6.  WHAT IS LEFT OF ITEM 16
+------------------------------------------------------------------------------
+
+    The flip is built, validated and costed, and it is installable
+    with one `with on_default_flip():`.  What is NOT done is
+    editing graphene_fet_model.py so that form B_T is what the
+    chapter computes by default, because that is a decision about
+    what the thesis claims and not a build.  The 2026-10-20 note
+    that "the flip and nothing else is left" was wrong in one
+    specific way, now repaired: composition was left as well.
+
+    AND THE GENERAL FORM, which no guard in this repository
+    currently covers.  bc.rebind() asks "do all bindings of this
+    name move together".  bc.rebind_by_operating_point() asks "is
+    any member of the class unassigned".  Neither asks "does any
+    REPLACEMENT read a name this flip rebinds".  The audit that
+    would have caught today's defect without running anything is
+    a one-line question per replacement, and it is now the first
+    item on the standing list.
+
+    figure written: default_flip.png
+==============================================================================
+18 passed, 0 failed
+==============================================================================
