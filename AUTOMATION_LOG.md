@@ -10068,3 +10068,229 @@ today's result is algebra plus the repository's own tables.
 figure; today's notes; the in-place annotations of thesis §7.9 item 2 and the
 per-metal model's docstring). This AUTOMATION_LOG.md entry makes **4**. Each
 was pushed immediately after commit rather than batched, for the reason in §6.
+
+---
+
+## 2026-10-21 — Item 16's two halves do not compose, and the composition failure is a third delivery-fault mode
+
+**Ranked-first item worked:** item 16, "flip the default to form `B_T`",
+untouched for two sessions. The 2026-10-20 entry recorded that "the flip and
+nothing else is left". That sentence was wrong, and what it left out is worth
+more than the flip.
+
+### 1. The result
+
+`qca.on_consistent_argument()` (channel) and
+`blast.contact_on_consistent_argument()` (contact) are each committed, each
+validated and each correct **alone**. Installing both at once does **not**
+give form `B_T` everywhere. `n_contact` lands **4.86× (Ni) to 10.77× (Cu)**
+past the effect item 16 exists to install — −51.3850 % to −61.9143 % against
+the committed contact-only form `B_T`, where the item's own effect is
+−4.7696 % to −12.4964 % — **and in the same direction**, so it is not a sign
+error, not a `nan`, and not out of range for a quantity in units of 10¹⁶ m⁻².
+A session that landed the flip and regenerated transcripts would have
+committed it as the answer.
+
+The cause is **one attribute read**. `blast.cq_shipped_of_n` builds the
+contact solve on the SHIPPED `gfet.quantum_capacitance` — a choice that is
+right, for two measured reasons its own docstring gives — and reads that name
+by attribute lookup at call time. The channel half rebinds exactly that name.
+So with both installed, the contact's self-consistency is solved against a
+`C_q` that has itself already been solved, against the wrong series
+capacitance.
+
+### 2. The general form, and why neither existing guard sees it
+
+- **2026-10-14, `bc.rebind()`**: the set a patch must reach is the name's
+  runtime identity class. Guarantees *no binding of a rebound name is stale*.
+- **2026-10-17, `bc.rebind_by_operating_point()`**: a class can span two
+  operating points, so it must be partitioned, and an unassigned member
+  raises. Guarantees *no class member is left at the shipped object*.
+
+Both are statements about **which names move**. Neither says anything about a
+**replacement that reads one of the moved names**. Such a replacement is
+**neither stale nor unassigned** — it is correctly installed, computed by the
+right mechanism, reported as installed by that mechanism's own report, and it
+reads a different object than the one it was validated against. **That is a
+third failure mode beside the two those mechanisms were built for, and it is
+invisible to both.**
+
+### 3. Two mechanisms, and they partially cancel
+
+(i) the inner `C_q` is the channel's `B_T` solve; (ii) that inner solve
+reaches `qca.series_factor`, which reads `gfet.C_ox` at call time, and the
+contact solve has `C_ox` substituted by `C_interface` for its duration.
+Isolated, (i) alone is −52.4054 % to −64.2107 % and **(ii) offsets it by
++1.0204 to +2.2965 percentage points for every metal**. (ii) is the more
+obviously wrong-looking of the two — a module global mutated across a nested
+call is visible on inspection — so **repairing the conspicuous part alone
+would have been a regression**, and the only thing distinguishing that from
+progress is having measured both parts separately.
+
+### 4. The repair, and what did NOT happen
+
+Bind the contact replacement to the shipped object **captured at manager
+entry**. `graphene_default_flip.on_default_flip()` then installs the whole
+flip through the two managers the 2026-10-20 note named, and is the **first
+caller ever to give `rebind_by_operating_point` a non-`None` contact
+assignment** — until 2026-10-17 the contact had no replacement of its own and
+the exclusion was correct exactly as long as that was true.
+
+**18 validations, 0 failures, all against exactly known values**: the identity
+assignment is bitwise neutral on all nineteen committed numbers; the contact
+half reproduces the committed contact-only `B_T` **bitwise** on all seven
+metals; the channel half reproduces `on_consistent_argument()` **bitwise** on
+all eight census entries; `n_contact(ΔW_F = 0)` is exactly `0.0`; the
+antisymmetry is bitwise; an incomplete assignment raises and rebinds nothing;
+an assignment with no stated reason is refused; interleaved channel/contact
+calls under one flip leave both bitwise (the stated reentrancy hazard,
+measured rather than assumed); and **V8 is a positive control on the repair**
+— it asserts the unrepaired flip *does* differ, so if the two ever agree the
+premise is known to have expired rather than silently satisfied. Transcript
+byte-identical across two consecutive runs.
+
+**Every cost item 16 has ever quoted is reproduced exactly** by the composed
+flip: `n` −1.0212 %, `I_d` −0.2530 %, `n_contact` −4.7696 % to −12.4964 %,
+§4.7 `R_extra` −1.2583 % to +47.6925 %, Pd's residual +50.9489 → −203.2764
+Ω·µm, additive decomposition 4-of-4 negative. That reproduction is the
+evidence the defect lives in the composition and in neither half.
+
+**`graphene_fet_model.py` is unedited and the chapter default is still
+(4.29).** The flip is now a single installable validated costed object, so
+what remains is a decision about what the thesis claims rather than a build.
+
+### 5. Annotated in place, not rewritten
+
+§4.6.17 is new. §4.6.9(g) item 1 and Chapter 7 item 16 are **annotated beside
+their existing text**, with no number revised — which is the right call here
+in a stronger sense than usual, since the composed flip reproduces every one
+of those numbers exactly.
+
+### 6. Three defects in this session's own work
+
+- **An unpaired ratio.** §1's first draft divided the smallest-magnitude
+  unrepaired deviation by the **largest**-magnitude committed effect and the
+  other way round, quoting "4.1× to 13.0×" from two pairs of numbers
+  belonging to different metals. The per-metal answer is 4.86× to 10.77×.
+  **Same shape as this repository's recorded dominant failure mode** — a
+  claim answering a weaker question than the one it was written to ask.
+- **Two literal `%%` leaks** in `print` calls carrying no `%` operator.
+- **A FALSE FIGURE TITLE.** Panel (a) read *"overshoots the effect it installs
+  by 4-5x"* — the figure of the superseded unpaired calculation. The prose was
+  repaired and the title was not, **because a title is not in the transcript
+  and nothing reads it.** It is now computed from the same `ratios` the table
+  prints. Beside it, panel (b)'s legend sat on top of Cu's two tallest bars
+  and its `R_tr` annotation.
+
+All three were caught by **reading the transcript and looking at the figure**,
+not by any check in the file. This is the **second consecutive session** in
+which rendering a figure and inspecting it found defects on the first try, and
+the first in which one of them was a **false claim** rather than an
+unreadable one.
+
+### 7. Environment and automation health
+
+The bridge was stable throughout, unlike 2026-10-20. Every commit was pushed
+immediately after commit regardless; that is now the standing pattern and it
+cost nothing. `scipy` absent again and `pip install`ed (1.15.3) — **sixth
+consecutive session**; the 2026-10-15 note that it is present remains false.
+`numpy` 2.2.6, `matplotlib` 3.10.9 present. No live web search was used and
+none was needed — today's result is this repository's own code measured
+against itself. `arxiv.org` was not retried; the 2026-10-18 finding stands. A
+figure was copied into the connected folder to be staged and inspected, then
+moved to `_to_delete/` for Harsh to remove, since deletion inside connected
+folders is blocked and requesting permission was denied by the safety
+classifier on 2026-09-17.
+
+**Not yet covered (candidates for future runs):**
+
+- **DOES ANY REPLACEMENT READ A NAME ITS OWN FLIP REBINDS?** — created today,
+  **ranked first**, and it is ranked first because today's defect was found by
+  accident rather than by a guard. The two existing mechanisms answer *which
+  names move*; nothing answers *what the replacements read*. The work is one
+  question per replacement — which module-level names does this function read
+  at call time, and does any flip that installs it rebind one of them — and
+  the repository has only a handful of replacements, so it is **cheap**.
+  Cheapest entry: the replacements are `qca._carrier_density_consistent`,
+  `qca._quantum_capacitance_consistent`, `blast._cq_consistent_contact` and
+  `flip.make_contact_cq`; `blast._cq_consistent_contact` is the known
+  positive, and the question is whether it is the only one.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, now **ranked second** rather than
+  first, and for the first time the demotion is not a deferral. Every
+  precondition is discharged, composition is repaired, the flip is one
+  installable object and all costs are reproduced. What is left is editing
+  `graphene_fet_model.py`, which moves committed Chapter 4 numbers and is a
+  decision about what the thesis claims. **It should not be landed in the
+  same session as the item ranked first**, because a flip landed over an
+  unaudited replacement set is exactly the state today showed is
+  undiagnosable from a green transcript.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried from 2026-10-20,
+  **ranked third**, and **upgraded today**: the question is no longer only
+  "is the figure legible" but "does the figure assert anything the text no
+  longer says". Today's false title is the first instance of the second kind,
+  and it is the more dangerous one, since an unreadable figure announces
+  itself and a confidently wrong one does not. ~62 committed PNGs, two
+  sessions of sampling, a 100 % hit rate on both. **Any figure carrying a
+  number in its title or annotations should derive it from the computation
+  rather than from a string literal**, which is one mechanical sweep.
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18, and today adds three more
+  instances (§6) for a running total of thirteen across both repositories.
+  Unchanged work: enumerate every check whose predicate is a string operation
+  and either put the question to an oracle or record why the textual form
+  suffices. Cheapest entry: `grep -n "in _src\|in txt\|\.find(\|re\.search"
+  *.py`.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  untouched. `p₁ ∈ [−0.60, 0.30] Å⁻¹`, `p₂ ∈ [−0.10, 0.12] Å⁻²` with no
+  justification from the paper; the `ξ ≥ 3.8482 Å` headline is a minimum over
+  that box. Work: derive a constraint on `P`'s shape, or report the
+  headline's sensitivity to the box — a one-line sweep of its corners.
+- **A LOWER BOUND ON `ℓ`** — carried, still blocked on Fig. 4, which is
+  blocked on `arxiv.org`. A copy of the PDF in the connected folder unblocks
+  it immediately. Worth less than its old ranking suggested, per 2026-10-20.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried, and read alongside
+  the item above: both need Eq. (4)'s coefficients, which need the PDF.
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD** — carried from
+  2026-10-17, untouched for a fourth session.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17; the sibling repository's technique of
+  planting controls as text passed to a predicate transfers directly.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1` in
+  `graphene_standing_list_audit.py` fails on its revival. The live successor
+  is **§4.8.2's form of error is not audited for elsewhere**, created 10-01,
+  untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, untouched for a fifth
+  session; `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, untouched for a sixth session, and **today raises its value**:
+  a hand-listed site is one more place a replacement can read a rebound name
+  unnoticed.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, fifteen sessions
+  overdue; 2026-10-20 supplied its first worked example.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, and belongs in item 15's audit with 2026-10-20's 12-ULP
+  metres/Å measurement.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, ninth session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **fourteenth** session untouched, and **today is an instance of it**: §6's
+  unpaired ratio is exactly the fault this item exists to find.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — twelfth session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, eleventh session.
+- **MECHANISE the magnitude item** — created 2026-10-03, fifteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, twelfth session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** — twelfth
+  session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the flip module with its transcript and figure; the
+thesis annotations and §4.6.17; today's notes). This AUTOMATION_LOG.md entry
+makes **4**. Each was pushed immediately after commit.
