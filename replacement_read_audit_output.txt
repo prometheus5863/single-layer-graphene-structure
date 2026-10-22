@@ -1,0 +1,296 @@
+==============================================================================
+DOES ANY REPLACEMENT READ A NAME ITS OWN FLIP REBINDS?
+==============================================================================
+
+C_ox        = 3.836815e-04 F/m^2
+C_interface = 2.529768e-02 F/m^2   (ratio 65.9341)
+
+------------------------------------------------------------------------------
+0.  NEITHER INSTRUMENT IS THE PERTURBATION
+------------------------------------------------------------------------------
+
+    7 committed contact densities, bitwise, under each reader:
+      Ti   0x1.d384c31aa7bcfp+53  B same  C same
+      Cr   -0x0.0p+0  B same  C same
+      Cu   -0x1.885dd9203b8a0p+53  B same  C same
+      Ni   -0x1.f949ce25e6702p+55  B same  C same
+      Au   -0x1.1d740576b4533p+56  B same  C same
+      Pd   -0x1.286bb0879657ep+56  B same  C same
+      Pt   -0x1.26fce4deb7c3dp+57  B same  C same
+
+    PASS V1  reader B (sentinels) is bitwise neutral on all 7
+    PASS V2  reader C (module type) is bitwise neutral on all 7
+
+------------------------------------------------------------------------------
+1.  WHAT EACH FLIP REBINDS, ASKED OF THE FLIP
+------------------------------------------------------------------------------
+
+    qca.on_consistent_argument()
+        contact_resistance_crossover.carrier_density
+        graphene_fet_model.carrier_density
+        graphene_fet_model.quantum_capacitance
+    blast.contact_on_consistent_argument()
+        graphene_contact_doping_model.quantum_capacitance
+    flip.on_default_flip(live_contact=False)
+        contact_resistance_crossover.carrier_density
+        graphene_contact_doping_model.quantum_capacitance
+        graphene_fet_model.carrier_density
+        graphene_fet_model.quantum_capacitance
+
+    THE COMPOSITION (all three at once)
+        contact_resistance_crossover.carrier_density
+        graphene_contact_doping_model.quantum_capacitance
+        graphene_fet_model.carrier_density
+        graphene_fet_model.quantum_capacitance
+
+    Derived from each manager's own setattr calls, not from a
+    re-run of identity_class() -- so a manager that grows a name
+    is reported with it and this module is not edited.
+    PASS V3a composed rebind set == the two identity classes exactly   -- 4 sites
+
+------------------------------------------------------------------------------
+2.  THE REPLACEMENTS, UNDER ALL THREE READERS
+------------------------------------------------------------------------------
+
+    qca._carrier_density_consistent
+        A static  live reads n=10   in rebind set: --
+                  captured (immune): --
+        B sentinel fired          : --
+        C tracked reads in set    : --
+        C tracked WRITES          : --
+
+    qca._quantum_capacitance_consistent
+        A static  live reads n=7    in rebind set: --
+                  captured (immune): --
+        B sentinel fired          : --
+        C tracked reads in set    : --
+        C tracked WRITES          : --
+
+    blast._cq_consistent_contact
+        A static  live reads n=10   in rebind set: [('graphene_fet_model', 'quantum_capacitance')]
+                  captured (immune): --
+        B sentinel fired          : [('graphene_fet_model', 'quantum_capacitance')]
+        C tracked reads in set    : [('graphene_fet_model', 'quantum_capacitance')]
+        C tracked WRITES          : [('graphene_fet_model', 'C_ox')]
+
+    flip.make_contact_cq(live=False)  [the 10-21 repair]
+        A static  live reads n=8    in rebind set: [('graphene_fet_model', 'quantum_capacitance')]
+                  captured (immune): [('graphene_default_flip', 'cq_of_n'), ('graphene_fet_model', 'quantum_capacitance')]
+        B sentinel fired          : --
+        C tracked reads in set    : --
+        C tracked WRITES          : [('graphene_fet_model', 'C_ox')]
+
+    flip.make_contact_cq(live=True)   [the 10-21 defect]
+        A static  live reads n=8    in rebind set: [('graphene_fet_model', 'quantum_capacitance')]
+                  captured (immune): [('graphene_default_flip', 'cq_of_n'), ('graphene_fet_model', 'quantum_capacitance')]
+        B sentinel fired          : [('graphene_fet_model', 'quantum_capacitance')]
+        C tracked reads in set    : [('graphene_fet_model', 'quantum_capacitance')]
+        C tracked WRITES          : [('graphene_fet_model', 'C_ox')]
+
+    CONTROL positive  (live read of a rebound name)
+        A static  live reads n=3    in rebind set: [('graphene_fet_model', 'carrier_density'), ('graphene_fet_model', 'quantum_capacitance')]
+                  captured (immune): --
+        B sentinel fired          : [('graphene_fet_model', 'carrier_density'), ('graphene_fet_model', 'quantum_capacitance')]
+        C tracked reads in set    : [('graphene_fet_model', 'carrier_density')]
+        C tracked WRITES          : --
+
+    CONTROL negative  (reads nothing rebound)
+        A static  live reads n=0    in rebind set: --
+                  captured (immune): --
+        B sentinel fired          : --
+        C tracked reads in set    : --
+        C tracked WRITES          : --
+
+    CONTROL recursive (self-recursive + live read)
+        A static  live reads n=3    in rebind set: [('graphene_fet_model', 'carrier_density'), ('graphene_fet_model', 'quantum_capacitance')]
+                  captured (immune): --
+        B sentinel fired          : [('graphene_fet_model', 'carrier_density'), ('graphene_fet_model', 'quantum_capacitance')]
+        C tracked reads in set    : [('graphene_fet_model', 'carrier_density')]
+        C tracked WRITES          : --
+
+    CONTROL captured-clean (cell holding gfet.quantum_capacitance)
+        A static  live reads n=1    in rebind set: --
+                  captured (immune): [('graphene_fet_model', 'quantum_capacitance')]
+        B sentinel fired          : --
+        C tracked reads in set    : --
+        C tracked WRITES          : --
+
+    CONTROL captured-leaky (cell holding gfet.carrier_density)
+        A static  live reads n=2    in rebind set: [('graphene_fet_model', 'quantum_capacitance')]
+                  captured (immune): [('graphene_fet_model', 'carrier_density')]
+        B sentinel fired          : [('graphene_fet_model', 'quantum_capacitance')]
+        C tracked reads in set    : --
+        C tracked WRITES          : --
+
+    Reader B could not wrap 0 member(s) of the rebind set: (all callable)
+
+------------------------------------------------------------------------------
+3.  THE CROSS TABLE -- AND THE ITEM AS WORDED IS TOO NARROW
+------------------------------------------------------------------------------
+
+    replacement \ flip                     qca       blast     flip      COMPOSED 
+    --------------------------------------------------------------------------
+    qca._carrier_density_consistent        .         .         .         .        
+    qca._quantum_capacitance_consistent    .         .         .         .        
+    blast._cq_consistent_contact           YES(1)    .         YES(1)    YES(1)   
+    flip.make_contact_cq(live=False)  [the .         .         .         .        
+    flip.make_contact_cq(live=True)   [the YES(1)    .         YES(1)    YES(1)   
+
+    THE ITEM ASKED: "does any flip THAT INSTALLS IT rebind one of
+    the names it reads".  Answered literally, for the one
+    replacement that carries the 2026-10-21 defect:
+        blast._cq_consistent_contact
+        installed by : blast.contact_on_consistent_argument()
+        that flip rebinds : [('graphene_contact_doping_model', 'quantum_capacitance')]
+        it reads          : [('graphene_fet_model', 'quantum_capacitance')]
+        intersection      : EMPTY
+
+    EMPTY.  The item's own wording would have cleared the one
+    replacement whose defect created the item.  The defect is
+    CROSS-FLIP: `blast.contact_on_consistent_argument()` rebinds
+    `cd.quantum_capacitance` and the replacement reads
+    `gfet.quantum_capacitance`, which a DIFFERENT flip rebinds.
+    So the relation is replacement x every flip that can be
+    installed CONCURRENTLY, not the flip that installs it, and
+    the composed column is the one that answers the question.
+
+    PASS V4  the known positive is detected under the composition   -- exactly {gfet.quantum_capacitance}
+    PASS V4b and is NOT detected by the item's own narrow wording   -- the wording is the finding
+    PASS V5  the repair: make_contact_cq(live=False) conflict is EMPTY
+    PASS V6  positive control on V5: live=True conflict == V4's set   -- if both were empty the instrument would be broken
+    PASS V7  of the four replacements the item names, exactly 1 conflicts   -- the accident of 10-21 found the whole exposure, as framed
+
+------------------------------------------------------------------------------
+4.  WHAT THE ITEM DID NOT ASK: THE WRITE/READ RELATION
+------------------------------------------------------------------------------
+
+    A name WRITTEN by one replacement and READ by another is
+    outside both existing guards (it is in nobody's identity
+    class) and outside the item's question (which is about names
+    a flip rebinds).  Reader C sees it because it intercepts
+    writes and because it can see a float.
+
+    graphene_fet_model.C_ox
+        in any rebind set? NO -- invisible to both guards
+        WRITTEN by 3/5 replacements:
+            blast._cq_consistent_contact
+            flip.make_contact_cq(live=False)  [the 10-21 repair]
+            flip.make_contact_cq(live=True)   [the 10-21 defect]
+        READ by 5/5 replacements:
+            qca._carrier_density_consistent
+            qca._quantum_capacitance_consistent
+            blast._cq_consistent_contact
+            flip.make_contact_cq(live=False)  [the 10-21 repair]
+            flip.make_contact_cq(live=True)   [the 10-21 defect]
+
+    PASS V8a the write/read relation is non-empty   -- 1 edge name(s)
+    PASS V8b and none of its names is in any rebind set   -- so neither existing guard can see it
+
+------------------------------------------------------------------------------
+5.  REACHABILITY OF THE EDGE, AND 10-21's TWO MECHANISMS ARE ONE
+------------------------------------------------------------------------------
+
+    channel-replacement arrivals during the contact census:
+        REPAIRED   flip (live_contact=False):   0  (inside the C_interface window: 0)
+        UNREPAIRED flip (live_contact=True) : 192  (inside the C_interface window: 181, outside: 11)
+
+    2026-10-21 decomposed the unrepaired composition into (i) the
+    channel solve being reached at all and (ii) that solve seeing
+    C_ox substituted, and measured them as partially cancelling
+    (+1.0204 to +2.2965 pp).  These counts say they are not two
+    defects: 181 of the 192 arrivals carry BOTH at once, so (ii)
+    cannot occur without (i).  One cause, two consequences --
+    which is why capturing the shipped object repairs both in one
+    move, and why repairing the conspicuous half alone was
+    measured there as a regression.
+
+    PASS V9  the repaired flip reaches the channel replacement 0 times   -- exactly 0
+    PASS V9b the unrepaired flip reaches it, and mostly inside the window   -- 192 arrivals, 181 inside
+    PASS V9c inside + outside == total (the probe partitions its own count)
+    PASS V9d recorded expectation: 0 / 192 / 181   -- got 0 / 192 / 181 -- if this moves, the composition moved
+    PASS V9e the repaired flip reproduces the committed contact-only form B_T BITWISE on all 7 metals   -- the 10-21 claim, re-measured by a different instrument
+    PASS V9f and the unrepaired flip does not (positive control on V9e)   -- deviation 51.3850 % to 61.9143 % over the 6 metals with a non-zero denominator
+    PASS V9g the metal(s) with n_contact exactly 0.0 are 0.0 under BOTH the repaired and the unrepaired flip   -- exact zero at dW_F = 0: Cr -- a defect in the composition cannot move it, so it is not evidence either way and is excluded from the ratio above rather than quietly divided by
+
+------------------------------------------------------------------------------
+6.  THE READERS AGAINST EACH OTHER, AND THE PLANTED CONTROLS
+------------------------------------------------------------------------------
+
+    B (object substitution) vs C (module type), on the rebind set:
+        qca._carrier_density_consistent                      B --                                 C --
+        qca._quantum_capacitance_consistent                  B --                                 C --
+        blast._cq_consistent_contact                         B [('graphene_fet_model', 'quantum_capacitance')] C [('graphene_fet_model', 'quantum_capacitance')]
+        flip.make_contact_cq(live=False)  [the 10-21 repair] B --                                 C --
+        flip.make_contact_cq(live=True)   [the 10-21 defect] B [('graphene_fet_model', 'quantum_capacitance')] C [('graphene_fet_model', 'quantum_capacitance')]
+        CONTROL positive  (live read of a rebound name)      B [('graphene_fet_model', 'carrier_density'), ('graphene_fet_model', 'quantum_capacitance')] C [('graphene_fet_model', 'carrier_density')]
+        CONTROL negative  (reads nothing rebound)            B --                                 C --
+        CONTROL recursive (self-recursive + live read)       B [('graphene_fet_model', 'carrier_density'), ('graphene_fet_model', 'quantum_capacitance')] C [('graphene_fet_model', 'carrier_density')]
+        CONTROL captured-clean (cell holding gfet.quantum_ca B --                                 C --
+        CONTROL captured-leaky (cell holding gfet.carrier_de B [('graphene_fet_model', 'quantum_capacitance')] C --
+
+    PASS V10 B and C agree exactly on all 5 real replacements   -- two mechanisms blind in opposite directions, same answer
+    PASS V10b and DISAGREE on 3 planted control(s) -- C's stated blind spot is real and the controls reach it   -- on CONTROL positive, CONTROL recursive, CONTROL captured-leaky; each is a read of a rebound name made from INSIDE its own module, a globals-dict lookup that never reaches the module type.  B sees them, C cannot.  The five real replacements happen not to exercise it, so without the controls this would have been invisible and C would have looked interchangeable with B.
+    PASS V11 A over-approximates B for every subject (A superset of B)
+    PASS V12 A is branch-insensitive: static(live=False) == static(live=True)
+    PASS V12b so A and B disagree on exactly the repaired replacement   -- the live read is still IN the function, on a branch a caller can take
+
+    That disagreement is the honest limit of the 10-21 repair:
+    `make_contact_cq` is public and `live=True` re-arms the
+    defect.  A default is not a removal.
+
+    PASS V13 planted positive is flagged by all three readers
+    PASS V14 planted negative is flagged by none
+    PASS V15 reader A terminates on a self-recursive subject and flags it
+    PASS V16 captured-CLEAN control: A reports the cell as captured, and no reader flags a live read   -- a reader that cannot tell a cell from a name would pass V5 for the wrong reason
+    PASS V16b captured-LEAKY control: the cell is captured AND B still flags a conflict   -- CAPTURE IS ONE LEVEL DEEP -- see Section 7
+    PASS V16c the 10-21 repair is safe only CONTINGENTLY: the object it captures reads nothing in the rebind set   -- gfet.quantum_capacitance's own live reads: [('graphene_fet_model', '_thermal_rounding')]
+    PASS V16d and the neighbouring shipped object would NOT have been safe to capture (positive control on V16c)   -- gfet.carrier_density reads [('graphene_fet_model', 'quantum_capacitance')] at call time
+    PASS V17 C reports the same read set with B's sentinels installed   -- neither reader is creating the read it reports
+
+------------------------------------------------------------------------------
+7.  CAPTURE IS ONE LEVEL DEEP
+------------------------------------------------------------------------------
+
+    The 2026-10-21 repair binds the contact replacement to the
+    shipped `gfet.quantum_capacitance` CAPTURED AT MANAGER ENTRY,
+    and V5 confirms the conflict is gone.  The two captured
+    controls say why, and the reason is weaker than it looks.
+
+    A cell protects the NAME it holds.  It does not protect the
+    names the held OBJECT reads at call time:
+
+        gfet.quantum_capacitance  live reads: [('graphene_fet_model', '_thermal_rounding')]
+            in the rebind set: NONE -- safe to capture
+        gfet.carrier_density      live reads: [('graphene_fet_model', '_thermal_rounding'), ('graphene_fet_model', 'quantum_capacitance')]
+            in the rebind set: [('graphene_fet_model', 'quantum_capacitance')]  <-- NOT safe to capture
+
+    Both captures look identical at the call site:
+    `make_contact_cq(shipped, live=False)` and
+    `make_captured_control(gfet.carrier_density)` are the same
+    construction.  One is immune and one is not, and which it is
+    depends entirely on what the captured object reads.  So the
+    repair of 2026-10-21 is CORRECT and its correctness is
+    CONTINGENT: had the contact needed the shipped charge
+    relation rather than the shipped capacitance, the same repair
+    would have been written, would have looked right, and would
+    have left the defect in place.
+
+    This is the third member of the family, stated in the form
+    the other two take:
+        2026-10-14  a repair to one binding is not a repair to
+                    the class.
+        2026-10-17  a class can span two operating points, so it
+                    must be partitioned.
+        2026-10-21  a replacement that READS a rebound name is
+                    neither stale nor unassigned.
+        TODAY       a capture that fixes one name does not fix
+                    the names the captured object reads.  The
+                    safe criterion is the TRANSITIVE live-read
+                    set of the captured object, which is what
+                    reader A computes.
+
+    figure -> replacement_read_audit.png
+
+==============================================================================
+VALIDATIONS: 30/30 passed
+==============================================================================
