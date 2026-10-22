@@ -1567,7 +1567,9 @@ Stated as falsifiable items, in order of how much they would move:
    composed flip, which is the evidence that the defect is in the composition
    and not in either half.
    The general form is the part that outlives item 16, and **no guard in this
-   repository currently covers it**. `bc.rebind()` asks whether all bindings
+   repository currently covers it** [*as of 2026-10-21; `graphene_replacement_
+   read_audit.py` covers it as of 2026-10-22, in the broadened cross-flip form
+   — see §4.6.18*]. `bc.rebind()` asks whether all bindings
    of a name move together. `bc.rebind_by_operating_point()` asks whether any
    member of the class is unassigned. Neither asks **whether a replacement
    reads a name the same flip rebinds**. Such a replacement is neither stale
@@ -1592,6 +1594,30 @@ Stated as falsifiable items, in order of how much they would move:
    first time, Pd's implied transmission residual moves **+50.9489 →
    −203.2764 Ω·µm** and the additive decomposition fails **4 of 4**, which is
    §4.10's margin consumed exactly as the paragraph above predicted.
+   **AMENDED 2026-10-22 (§4.6.18). The guard now exists, and it reports two
+   things the 2026-10-21 amendment above did not ask for.** (a) The audit
+   confirms the exposure as framed: of the four replacements, exactly one —
+   `blast._cq_consistent_contact` — reads a name rebound while it is
+   installed. **No number above is revised.** (b) But the question as the
+   amendment above words it, "*whether a replacement reads a name the same
+   flip rebinds*", answers **empty** for that very replacement: the name it
+   reads is rebound by a *different* manager, and the two are concurrent only
+   because this item composes them. A guard written to that wording would
+   have passed the composed flip. The relation is replacement × every flip
+   installable **concurrently**. (c) A second exposure, outside the wording
+   entirely: all five replacements **read** `gfet.C_ox` at call time and
+   three of them **write** it, and `gfet.C_ox` is in no identity class, so
+   neither existing mechanism nor this item's own question can see it.
+   (d) The decomposition into (i) and (ii) is not two defects — **192**
+   channel arrivals under the unrepaired flip, **181** of them with `C_ox`
+   already substituted, **0** under the repaired flip — one cause with two
+   consequences, which is why one change repairs both. (e) The repair is
+   **contingently** correct: a capture protects the name it holds, not the
+   names the held object reads, and it suffices here only because the shipped
+   `gfet.quantum_capacitance` reads nothing rebound. **Status unchanged: the
+   item is still OPEN and the default is still (4.29)**, and the ranking
+   consequence is unchanged too — the flip should not be landed in the same
+   session as this audit, and the audit is now done.
 17. **A two-knob check that reports the ratio, not smallness** (added
    2026-10-10 as "a check that can see a cancellation", **amended 2026-10-11
    on its first use**, §4.6.9(f)). Every check in this repository asks about

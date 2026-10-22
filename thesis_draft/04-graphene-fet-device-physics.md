@@ -2909,6 +2909,18 @@ catch it without running anything is a one-line question asked of each
 replacement: *which module-level names does this function read at call time,
 and does the flip rebind any of them?*
 
+> **Annotated 2026-10-22 (§4.6.18). The question as worded above answers
+> *no* for this very replacement.** It says "*the* flip" — the flip that
+> installs the replacement. `blast.contact_on_consistent_argument()`
+> installs `_cq_consistent_contact` and rebinds `cd.quantum_capacitance`;
+> the replacement reads `gfet.quantum_capacitance`. The intersection is
+> **empty**. The defect is **cross-flip**: the name it reads is rebound by a
+> *different* manager, which is only installed at the same time because
+> item 16 composes them. The audit of §4.6.18 measures both forms and
+> reports 1-of-4 under the composition against 0-of-4 under the wording
+> above. The sentence is left unrevised because it is the record of what was
+> asked; the correct question is *every flip installable concurrently*.
+
 #### (d) Two mechanisms, and they partially cancel
 
 The failure has two parts, not one. **(i)** the inner `C_q` is the channel's
@@ -2931,6 +2943,19 @@ too. Isolating (i) by restoring `C_ox` for the inner call:
 obviously wrong-looking of the two, since a global being mutated across a
 nested call is visible on inspection — would have made the error *larger*.
 The repair has to be made at (i).
+
+> **Annotated 2026-10-22 (§4.6.18). (i) and (ii) are not two defects.** A
+> direct count of how often the channel replacement is reached during the
+> contact census, and of the value `gfet.C_ox` holds at each arrival, gives
+> **192 arrivals under the unrepaired flip, 181 of them with `C_ox` already
+> substituted by `C_interface`** — and **0 arrivals under the repaired
+> flip**. (ii) cannot occur without (i), because (ii) is a property of the
+> context (i)'s arrivals land in. One cause, two consequences, 181/192 of
+> the arrivals carrying both at once. The percentages in the table are
+> unrevised and remain the correct decomposition *of the error*; what is
+> corrected is the reading that they are two independent faults. It also
+> explains why a single change at (i) repairs both, which the table above
+> could not have predicted.
 
 #### (e) The repair, and what it does not do
 
@@ -2966,6 +2991,144 @@ the composition and in neither half.
 unedited and the chapter's charge relation is still (4.29). What has changed
 is that the flip is a single installable, validated, costed object, so what
 remains is a decision about what this thesis claims rather than a build.
+
+> **Annotated 2026-10-22 (§4.6.18). The repair is correct and its
+> correctness is contingent.** Binding to the object captured at entry
+> protects the **name** the cell holds. It does not protect the names the
+> **held object** reads at call time. It is sufficient here only because the
+> shipped `gfet.quantum_capacitance` reads nothing in the rebind set — its
+> own live reads are `{gfet._thermal_rounding}`. Its neighbour
+> `gfet.carrier_density` reads `gfet.quantum_capacitance` at call time, so
+> the identical construction applied to *it* is **not** immune, which
+> §4.6.18 demonstrates with a planted control rather than arguing. Had the
+> contact needed the shipped charge relation instead of the shipped
+> capacitance, the same repair would have been written, would have looked
+> right, and would have left the defect in place. Separately, the live read
+> is still **in** the function on the `live=True` branch, and
+> `make_contact_cq` is public: this is a default, not a removal.
+
+### 4.6.18 Auditing what a replacement reads: three readers, a cross-flip relation, and the depth of a capture
+
+§4.6.17(c) named the audit that would have caught its own defect without
+running anything, and the log of 2026-10-21 ranked it first precisely because
+that defect had been found by accident. This section builds it. The result is
+that the exposure §4.6.17 found is, as framed there, **complete** — and that
+the instrument built to confirm that found two things §4.6.17 did not ask
+about, one of which bears on its own repair.
+
+#### (a) Three readers, chosen so that agreement is evidence
+
+A replacement's dependence on a name is a dependence on the **live binding**,
+so the question is which `(module, attribute)` pairs it resolves at call time.
+
+**Reader A — static.** A bytecode walk of the transitive closure of live name
+lookups: every `LOAD_GLOBAL` of a repository module followed by a `LOAD_ATTR`,
+every repository function reached through such a name or through a global,
+followed into recursively. Closure cells are resolved from the **real function
+object**, so a *captured* object is distinguished from a *live name read* —
+which is the entire content of §4.6.17's repair. Branch-**insensitive**, hence
+an over-approximation; §(d) turns that into a result rather than a caveat.
+
+**Reader B — sentinels.** An identity counting wrapper is installed at each
+member of the flip's rebind set, the replacement is called, and the counters
+that fired are the names it read. Object substitution, so it sees a read
+whether it is spelled `mod.attr` or held as a module global by
+`from mod import attr` — the spelling behind all three of the October delivery
+faults.
+
+**Reader C — module-type interception.** Each module's `__class__` is swapped
+for a `ModuleType` subclass whose `__getattribute__` and `__setattr__` record
+the access and delegate. It sees two things B cannot: reads of
+**non-callables** (`gfet.C_ox` is a float and cannot be wrapped) and
+**writes**.
+
+B and C are blind in **opposite** directions — a read made from inside a
+name's own module is a globals-dict lookup and never reaches the module type —
+so their agreeing is a test and not a restatement. They agree exactly on all
+five replacements. The planted controls confirm the blind spot is real: three
+of them are flagged by B and invisible to C. Rebind sets are obtained by
+entering each manager under reader C and collecting its own `setattr` calls,
+so a manager that grows a name is reported with it.
+
+Both instruments are bitwise neutral on the seven committed contact densities,
+checked before any count is used.
+
+#### (b) The answer, and the question's wording
+
+Of the four replacements §4.6.17 names, **exactly one** reads a name that is
+rebound while it is installed: `blast._cq_consistent_contact`. The accident of
+2026-10-21 found the whole of the exposure as it framed it.
+
+Asked in §4.6.17(c)'s own words, however — *does the flip **that installs
+it*** rebind any of them — the answer for that same replacement is **empty**.
+The defect is cross-flip, and the table makes the two readings explicit:
+
+| Replacement | own flip | the composition |
+|---|---|---|
+| `qca._carrier_density_consistent` | — | — |
+| `qca._quantum_capacitance_consistent` | — | — |
+| `blast._cq_consistent_contact` | **—** | **`gfet.quantum_capacitance`** |
+| `flip.make_contact_cq(live=False)` | — | — |
+| `flip.make_contact_cq(live=True)` | — | `gfet.quantum_capacitance` |
+
+A guard written to §4.6.17(c)'s wording would have passed the composed flip.
+
+#### (c) What the question did not ask: a write/read relation
+
+Reader C reports that **all five** replacements read `gfet.C_ox` at call time
+and that **three** of them write it. `gfet.C_ox` is in nobody's identity
+class, so it is invisible to §4.6.13's mechanism, to §4.6.14's, and to the
+question of §4.6.17(c), all three of which are about names a flip *rebinds*.
+
+The relation that governs composition is therefore not a set of names but a
+**bipartite relation between what replacements write and what replacements
+read**, and §4.6.17(d)'s mechanism (ii) is one edge of it rather than a quirk
+of one function. Its reachability under the repaired flip is currently zero —
+but that zero is a property of the capture, not of the write, and it returns
+the moment the capture is undone.
+
+#### (d) Capture is one level deep
+
+A cell protects the **name** it holds. It does not protect the names the held
+**object** reads at call time:
+
+| Captured object | its own live reads | in the rebind set? |
+|---|---|---|
+| `gfet.quantum_capacitance` | `{gfet._thermal_rounding}` | **no** — safe to capture |
+| `gfet.carrier_density` | `{gfet._thermal_rounding, gfet.quantum_capacitance}` | **yes** — not safe |
+
+Both captures are the same construction and are indistinguishable at the call
+site. §4.6.17's repair is safe because of a contingent fact about the one
+function it happens to capture. A planted control holding `gfet.carrier_
+density` by the identical construction is still flagged, which demonstrates
+the limit rather than asserting it.
+
+Stated in the form the other members of this family take:
+
+- §4.6.13 — a repair to one binding is not a repair to the class.
+- §4.6.14 — a class can span two operating points, so it must be partitioned.
+- §4.6.17 — a replacement that *reads* a rebound name is neither stale nor
+  unassigned.
+- **§4.6.18 — a capture that fixes one name does not fix the names the
+  captured object reads. The safe criterion is the transitive live-read set
+  of the captured object.**
+
+#### (e) What this section does not claim
+
+It does not claim the repository is clean. It audits the four replacements
+§4.6.17 names plus the two variants of the contact replacement; the eleven
+surviving hand-listed rebinding sites are not replacements and are not
+covered. It does not flip the default. And reader A is an
+over-approximation by construction: it reports the `live=True` branch for
+both variants of `make_contact_cq`, which is correct — the read is in the
+function — and is why the three readers are reported separately rather than
+reduced to one verdict.
+
+Machine output: `replacement_read_audit_output.txt` (30/30 validations,
+transcript byte-identical across two runs). Figure:
+`replacement_read_audit.png`. Notes:
+`notes/2026-10-22-what-a-replacement-reads.md`.
+
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
