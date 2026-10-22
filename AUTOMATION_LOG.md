@@ -10294,3 +10294,253 @@ classifier on 2026-09-17.
 **Commits this run:** 3 (the flip module with its transcript and figure; the
 thesis annotations and §4.6.17; today's notes). This AUTOMATION_LOG.md entry
 makes **4**. Each was pushed immediately after commit.
+
+---
+
+## 2026-10-22 — The item's own wording clears the defect that created it, and a capture is one level deep
+
+**Ranked-first item worked:** *does any replacement read a name its own flip
+rebinds?* — created 2026-10-21 and ranked first because that session's defect
+was found **by accident**. The item is now discharged, and two of this
+session's three results are things the item did not ask about.
+
+### 1. The item, answered as asked
+
+Of the four replacements the item names, **exactly one** reads a name that is
+rebound while it is installed: `blast._cq_consistent_contact`. So the
+2026-10-21 diagnosis was **complete as well as correct** — the accident found
+the whole of the exposure as the item framed it. That is now a measurement
+rather than a hope, and it is the least interesting of the three results.
+
+### 2. THE ITEM'S OWN WORDING ANSWERS *EMPTY* FOR THAT SAME REPLACEMENT
+
+The item, and §4.6.17(c) it came from, both ask whether **the flip that
+installs it** rebinds a name it reads. For `blast._cq_consistent_contact`:
+
+```
+installed by      : blast.contact_on_consistent_argument()
+that flip rebinds : cd.quantum_capacitance
+it reads          : gfet.quantum_capacitance
+intersection      : EMPTY
+```
+
+**A guard written to the item's own wording would have passed the composed
+flip and reported nothing.** The defect is **cross-flip**: the name read is
+rebound by a *different* manager, concurrent only because item 16 composes
+them. The relation is replacement × every flip installable **concurrently**,
+and the composed column is the one that answers the question.
+
+Same shape as this repository's recorded dominant failure mode — a check
+answering a weaker question than the one it was written to ask — reached this
+time through **the scope of a quantifier** rather than through a ratio. The
+sentence in §4.6.17(c) is annotated beside and left unrevised, since it is the
+record of what was asked.
+
+### 3. Three readers, and the controls earned their place
+
+**A** static bytecode closure over live lookups, with closure cells resolved
+from the real function object so *captured* is told apart from *live*;
+branch-insensitive. **B** identity sentinels at each rebind-set member
+(object substitution). **C** module-type `__getattribute__`/`__setattr__`
+interception, which sees non-callables and **writes**.
+
+B and C are blind in opposite directions — a read made from inside a name's
+own module is a globals-dict lookup that never reaches the module type — and
+agree **exactly** on all five replacements. **Three of the four planted
+controls are flagged by B and invisible to C.** The five real replacements do
+not exercise that path, so without the controls C would have looked
+interchangeable with B and the blind spot would have been invisible. Two
+readers agreeing because neither was asked a question it could fail is not
+corroboration.
+
+Rebind sets are derived from each manager's own `setattr` calls (entering it
+under reader C), not re-derived by calling `identity_class()` again — so a
+manager that grows a name is reported with it and the audit is not edited.
+
+### 4. NEW: a write/read relation, outside every existing question
+
+All five replacements **read** `gfet.C_ox` at call time; **three write it**.
+`gfet.C_ox` is in no identity class, so it is invisible to `bc.rebind()`, to
+`bc.rebind_by_operating_point()`, **and** to this item's own question — all
+three are about names a flip *rebinds*. What governs composition is therefore
+not a set of names but a **bipartite relation between what replacements write
+and what replacements read**; 2026-10-21's mechanism (ii) is one edge of it.
+
+### 5. 2026-10-21's two mechanisms are ONE
+
+Channel-replacement arrivals during the contact census, with `gfet.C_ox`
+recorded at each arrival: **repaired flip 0**; **unrepaired flip 192, of which
+181 with `C_ox` already substituted**. (ii) cannot occur without (i) — it is a
+property of the context (i)'s arrivals land in. One cause, two consequences,
+181/192 carrying both. That is *why* one change repairs both, which the
+percentage table of 2026-10-21 could not have said and which was being read
+as a coincidence. No percentage is revised; the reading is.
+
+### 6. NEW: CAPTURE IS ONE LEVEL DEEP
+
+A cell protects the **name** it holds, not the names the held **object** reads
+at call time.
+
+| captured object | its own live reads | safe? |
+|---|---|---|
+| `gfet.quantum_capacitance` | `{gfet._thermal_rounding}` | **yes** |
+| `gfet.carrier_density` | `{gfet._thermal_rounding, gfet.quantum_capacitance}` | **no** |
+
+The two captures are the *same construction*, indistinguishable at the call
+site. **§4.6.17's repair is correct and its correctness is contingent**: had
+the contact needed the shipped charge relation rather than the shipped
+capacitance, the same repair would have been written, would have looked right,
+and would have left the defect in place. A planted captured-leaky control
+holding `gfet.carrier_density` is still flagged, which demonstrates the limit
+rather than arguing it.
+
+The family, in the form its members take:
+
+- **10-14** a repair to one binding is not a repair to the class.
+- **10-17** a class can span two operating points, so it must be partitioned.
+- **10-21** a replacement that *reads* a rebound name is neither stale nor
+  unassigned.
+- **10-22** a capture that fixes one name does not fix the names the captured
+  object reads. The safe criterion is the **transitive live-read set of the
+  captured object**.
+
+Second limit, from reader A: the live read is still *in* `make_contact_cq` on
+the `live=True` branch, and that function is public. **A default is not a
+removal.**
+
+### 7. Validation
+
+**30/30, all against exactly known values.** Both instruments bitwise neutral
+on the seven committed contact densities, checked before any count was used;
+the repaired flip reproduces the committed contact-only form `B_T` **bitwise**
+on all seven metals and the unrepaired one does not (positive control,
+51.3850 %–61.9143 %); Cr's exact `0.0` at ΔW_F = 0 is **excluded from the
+ratio rather than quietly divided by**, after the first draft raised
+`ZeroDivisionError` on it; planted positive, negative, recursive, captured-
+clean and captured-leaky controls; and V17, which re-measures reader C with
+reader B's sentinels installed so that neither reader is creating the read it
+reports. Transcript byte-identical across two consecutive runs.
+
+### 8. Three defects in this session's own work — all in the figure
+
+1. Panel (a)'s legend sat on the tallest bar (y-limit set after the legend).
+2. **A FALSE LEGEND.** Panel (b)'s swatch for the "inside the `C_interface`
+   window" overlay was green; the overlay it labelled was drawn dark red.
+   **Second consecutive session with a figure asserting something the data
+   does not say.** 2026-10-21's prescription — *derive any number in a title
+   or annotation from the computation* — was followed and held; what got
+   through was a **colour**, which that prescription does not cover. Repaired
+   by building the legend from the bar **artists** so the two cannot drift.
+   Generalisation: **any property of a mark that the legend restates should be
+   read from the mark.**
+3. An exact zero drawn as a zero-height bar, indistinguishable from missing
+   data, in the panel whose whole point is that the repair gives exactly 0.
+
+**Third consecutive session in which rendering a figure and looking at it
+found a defect on the first try.**
+
+### 9. Environment and automation health
+
+Bridge stable. Every commit pushed immediately after commit and verified
+against the GitHub API rather than against git's own output. `scipy` absent
+again and `pip install`ed (1.15.3) — **seventh consecutive session**; the
+2026-10-15 note that it is present remains false and should be treated as
+settled. `numpy` 2.2.6, `matplotlib` 3.10.9 present. No live web search used
+and none needed — today's subject is this repository's own code measured
+against itself. A figure was copied into the connected folder to be staged and
+inspected, then moved to `_to_delete/`, since deletion inside connected
+folders is blocked and requesting permission was denied by the safety
+classifier on 2026-09-17.
+
+**Not yet covered (candidates for future runs):**
+
+- **GUARD THE WRITE/READ RELATION, DO NOT JUST REPORT IT** — created today,
+  **ranked first**. §4 found that `gfet.C_ox` is written by three
+  replacements and read by all five, and that it is in no identity class, so
+  no existing mechanism can see it. Today's audit *reports* that relation; it
+  does not refuse a composition that contains an edge. The work is to turn
+  the bipartite relation into a check that fails: enumerate (writer, reader)
+  pairs reachable under a given flip and require each to be either impossible
+  or stated with a reason, in the vocabulary `bc.rebind_by_operating_point()`
+  already uses for assignments. Cheapest entry: reader C already returns the
+  write set; the missing piece is reachability, and §5's arrival probe is
+  the mechanism.
+- **AUDIT THE CAPTURES, NOT JUST THE READS** — created today, **ranked
+  second**, and it is the direct consequence of §6. Every capture in the
+  repository should be checked against the **transitive live-read set of the
+  captured object**, which reader A computes today for free. There are few
+  captures; `flip.make_contact_cq`'s `shipped_cq` is the only one audited.
+  Cheapest entry: `grep -n "def make_\|= gfet\.\|= qca\." *.py` and run
+  `static_reads` on each captured object.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **ranked third**. Every
+  precondition is discharged, composition is repaired, the audit that was
+  not to share a session with the flip is **done as of today**, and all
+  costs are reproduced. What is left is editing `graphene_fet_model.py`,
+  which moves committed Chapter 4 numbers and is a decision about what the
+  thesis claims rather than a build. It is below the two items above only
+  because both bear directly on whether the composed flip is sound, and
+  §6 showed its repair is contingent in a way nobody had stated.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, **ranked fourth**,
+  and today extends it: the question is not only "is it legible" and "does it
+  assert a number the text no longer says" but "**does any property of a mark
+  that the legend restates disagree with the mark**". ~63 committed PNGs,
+  three sessions of sampling, 100 % hit rate on all three. Two mechanical
+  sweeps are available: derive every number in a title from the computation,
+  and build every legend from the artists.
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18; running total thirteen
+  across both repositories, unchanged today. Cheapest entry:
+  `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py`.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  untouched for a second session. `p₁ ∈ [−0.60, 0.30] Å⁻¹`,
+  `p₂ ∈ [−0.10, 0.12] Å⁻²` with no justification from the paper; the
+  `ξ ≥ 3.8482 Å` headline is a minimum over that box. One-line corner sweep.
+- **A LOWER BOUND ON `ℓ`** — carried, still blocked on Fig. 4, which is
+  blocked on `arxiv.org`. A copy of the PDF in the connected folder unblocks
+  it immediately.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried; needs the same PDF.
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD** — carried from
+  2026-10-17, fifth session, and **today is the strongest instance yet**:
+  §4's write/read relation is currently a census, which is exactly why the
+  item ranked first above exists.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17. Today's module plants four controls as
+  *functions*, not as text, so it does not add to the exposure.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1`
+  in `graphene_standing_list_audit.py` fails on its revival. Live successor:
+  **§4.8.2's form of error is not audited for elsewhere**, created 10-01,
+  untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, sixth session;
+  `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, seventh session, and today raises its value again: a
+  hand-listed site is a place a replacement can read a rebound name
+  unnoticed, and today's audit explicitly does **not** cover them.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, sixteen sessions
+  overdue.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, tenth session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **fifteenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — thirteenth session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, twelfth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, sixteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, thirteenth session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  thirteenth session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the audit module with its transcript and figure; the
+thesis annotations and §4.6.18; today's notes). This AUTOMATION_LOG.md entry
+makes **4**. Each was pushed immediately after commit and verified against the
+GitHub API.
