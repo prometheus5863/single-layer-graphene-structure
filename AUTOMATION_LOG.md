@@ -10544,3 +10544,266 @@ classifier on 2026-09-17.
 thesis annotations and §4.6.18; today's notes). This AUTOMATION_LOG.md entry
 makes **4**. Each was pushed immediately after commit and verified against the
 GitHub API.
+
+## 2026-10-23 — Two findings are two edges of one relation, and a refusal nothing reaches is not a refusal
+
+**Ranked-first item worked:** *guard the write/read relation, do not just
+report it* — created 2026-10-22 §4. It is discharged, and with it the
+standing item carried since 2026-10-17, *a census that enumerates a fault
+forever is not a guard*, whose strongest instance 2026-10-22 recorded as §4
+itself. Module: `graphene_write_read_guard.py`, 21/21.
+
+### 1. The vocabulary is deliberately not new
+
+This repository already had the refusal twice. `bc.rebind()` refuses an
+exclusion **without a stated reason**; `bc.rebind_by_operating_point()`
+refuses an **unassigned class member**, raises before anything is rebound,
+and makes the reason mandatory for *left alone* as well as for *replaced*.
+The guard is that same refusal applied to an **edge**: every
+`(writer, name, reader)` carries a verdict from
+`{GOVERNED, IMPOSSIBLE, OCCURS}` and a mandatory reason, and an unadjudicated
+edge raises with nothing run.
+
+### 2. WHAT IS NEW: EVERY VERDICT IS MEASURED, AND IN BOTH DIRECTIONS
+
+Completeness is static — `rebind_by_operating_point` can check it because it
+knows the identity class. A verdict is a claim about **reachability**, which
+no static set contains, so a guard that *accepted* the claim would be a
+census with a stricter tone, i.e. the item not discharged. Each verdict is
+therefore checked against an order probe:
+
+| verdict | refused when |
+|---|---|
+| `GOVERNED` | the name is in **no** rebind set |
+| `IMPOSSIBLE` | the probe **observes** the edge |
+| `OCCURS` | the probe **never** observes the edge |
+
+**The third row is the half a census cannot have.** A guard that only catches
+a wrongly-*permissive* claim answers a weaker question than it was written to
+ask — this repository's recorded dominant failure mode. An `OCCURS` reason
+describing an edge that has stopped occurring is a sentence about nothing,
+and it looks true indefinitely because nothing ever asks it the opposite
+question.
+
+### 3. THE TWO FINDINGS ARE ONE RELATION, AND ONE CHANGE REMOVES BOTH
+
+A name is written either by a **replacement** (10-22's `gfet.C_ox`) or by the
+**flip itself**, which is every member of the rebind set (10-21's rebound
+names). Two findings, two sessions — **two sources of writes into one
+relation**, and composing them makes the composed column computable rather
+than argued. Measured, reads traced and each edge derived from the read:
+
+```
+unrepaired (live_contact=True), 3 observed
+    THE FLIP          --gfet.quantum_capacitance--> make_contact_cq   [10-21]
+    make_contact_cq   --gfet.C_ox--> qca._quantum_capacitance_consistent [10-22]
+    make_contact_cq   --gfet.C_ox--> itself
+repaired   (live_contact=False), 1 observed
+    make_contact_cq   --gfet.C_ox--> itself
+```
+
+The survivor is the contact substituting `C_ox` for `cd.C_interface` and
+reading it back **inside its own call** — same operating point, restored
+before return — so it is the substitution, not a leak. **Both
+cross-replacement edges go away with one change.** That is 10-22 §5's "one
+cause, two consequences" as a measurement instead of a reading of a
+coincidence, and it is why 181/192 was never two phenomena. No number from
+10-21 or 10-22 is revised; what is revised is the relation's status.
+
+### 4. THE ITEM, ANSWERED (V21)
+
+The repaired composition's adjudication — **the same stated reasons,
+unchanged** — is **accepted** for `live_contact=False` and **refused** for
+`live_contact=True`, naming three disagreeing verdicts. The difference
+between the two compositions is now a `raise`, not a percentage table a
+reader has to interpret.
+
+### 5. Validation, 21/21, anchored to exactly-known values
+
+**V4–V6** reproduce the 10-22 arrival counts rather than citing them: **0**
+repaired, **192** unrepaired, exactly **181** with `C_ox` already
+substituted — an exact zero a symmetry requires plus two integers measured by
+a previous session independently of this code. **V8** exact zero: no
+cross-replacement edge survives the repair. **V9** the unrepaired composition
+has exactly 2, and they are the two reported defects. **V7** every observed
+edge lies inside the static relation, so the static set is a sound
+over-approximation and not a different answer. **V2–V3** the probe is
+deterministic — census and edge set bitwise identical across consecutive
+runs — checked before any count was used.
+
+**V10–V13 put the DERIVER under exactly-known traces**, because a deriver
+that returns few edges and a repository that *has* few are indistinguishable
+otherwise: write-then-read gives the one edge, read-**before**-write gives
+none (ordered, not a set intersection), a nested reader is attributed to
+itself, a write outside every replacement is attributed to `THE FLIP`.
+**V14–V20** are the refusals, one planted control each.
+
+### 6. Two defects in this session's own work
+
+1. **THE FIRST PROBE DID NOT TRACE READS.** It closed an edge on every
+   *arrival* of a reader following a write — *did this replacement run after
+   that name moved*, which is weaker than *did it read that name*, and wrong
+   in the permissive direction. It reported **twelve** observed edges under
+   the unrepaired flip, four on names the reader does not read at all, and
+   the observed set was **not even a subset** of the relation. A probe whose
+   over-report must be corrected by intersecting it with a static set has not
+   measured reachability. Same shape as the dominant failure mode, reached
+   this time through **the choice of which events to instrument** — not a
+   ratio (10-22), not a quantifier's scope (10-21), but an instrument never
+   asked whether it could see the thing its verdict named.
+2. **A PLANTED CONTROL FOUND A CRASH IN A REFUSAL PATH THAT HAD NEVER RUN.**
+   V18 — a false `GOVERNED` — raised `TypeError` instead of
+   `FalseEdgeVerdict`: a name is a `(module, attr)` **tuple** and the message
+   interpolated it into a single `%s`. Nothing else reaches that branch, so
+   without the control the guard would have shipped with one of its three
+   refusals unable to report itself **while looking correct**, because the two
+   refusals the live subject exercises both work.
+
+The family, in the form its members take:
+
+- **10-14** a repair to one binding is not a repair to the class.
+- **10-17** a class can span two operating points, so it must be partitioned.
+- **10-21** a replacement that *reads* a rebound name is neither stale nor
+  unassigned.
+- **10-22** a capture that fixes one name does not fix the names the captured
+  object reads.
+- **10-23** **a refusal that nothing reaches is not a refusal.** Every verdict
+  in a vocabulary needs its own planted control, not only the verdicts the
+  live subject happens to exercise.
+
+### 7. No figure, stated rather than silent
+
+The result is a 3-edge set and a 1-edge set; a table carries that exactly and
+a plot would decorate it. The last three sessions each found a defect in a
+committed figure, two of them figures asserting something the data did not
+say. Adding a fourth opportunity for a result this small is not worth it.
+**This does not discharge the standing render-and-inspect item**, which is
+about the ~63 figures already committed.
+
+### 8. Environment and automation health
+
+`scipy` absent again and installed (1.15.3) — **eighth consecutive** session;
+the 2026-10-15 note that it is present remains false and is settled. `numpy`
+2.2.6, `matplotlib` 3.10.9 present. **Two new environment faults, both of
+which blocked the documented working pattern and both worked around:** the
+device VM's `/sessions` filesystem is **100 % full** (9.3 G of 9.8 G, ~100
+stale session directories owned by `nobody`, unreadable and undeletable from
+here), so `git clone` into `$HOME/work` fails with *No space left on device*
+and `pip install` fails even with `--target`, because pip builds under
+`TMPDIR`, which also points there. Both are fixed by using `/tmp`, a separate
+filesystem (`/dev/sda1`, 4.4 G free): clone into `/tmp`, and
+`TMPDIR=/tmp/piptmp pip install --no-cache-dir --target /tmp/pylibs scipy`
+with `PYTHONPATH=/tmp/pylibs`. Also: **`pgrep -f` is unusable in this VM** —
+the agent proxy puts a base64 copy of the running command into `HTTP_PROXY`,
+so `pgrep -f <anything>` matches its own wrapper and always reports RUNNING.
+The bridge dropped once mid-session and the session resumed with `/tmp`
+intact. Every commit pushed immediately after commit and verified against the
+GitHub API. No live web search used and none needed — today's subject is this
+repository's own composition measured against itself.
+
+**Not yet covered (candidates for future runs):**
+
+- **AUDIT THE CAPTURES, NOT JUST THE READS** — carried from 2026-10-22, now
+  **ranked first**, and today raises its value rather than leaving it where
+  it was. §6 of 10-22 showed a capture protects the name it holds and not the
+  names the held object reads at call time, and that `§4.6.17`'s repair is
+  therefore *correct and contingent*. Today's guard covers **reads of written
+  names**; a captured object's own live reads are reached by neither the guard
+  nor `bc.*`, so this is now the largest remaining unguarded surface rather
+  than a tidy-up. Cheapest entry unchanged:
+  `grep -n "def make_\|= gfet\.\|= qca\." *.py` and `static_reads` on each
+  captured object — and the natural shape is a fourth verdict in today's
+  vocabulary rather than a separate module.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — created
+  today, **ranked second**, and it is the generalisation of §6.2 rather than
+  a repeat of it. V18 found a crash in the one refusal path the live subject
+  never exercises. The question is not about this module: it is **which
+  refusal branches anywhere in the repository have never been reached by a
+  test**. `bc.UnassignedClassMember` has three raise sites and the
+  not-a-pair and no-reason ones are plausibly unexercised; `bc.rebind()`'s
+  bare-set refusal likewise. Cheapest entry:
+  `grep -n "raise " *.py` and, for each, ask what reaches it.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **ranked third**, unchanged in
+  content and strengthened in precondition. Every precondition was already
+  discharged; today adds that the composition is not merely repaired but
+  **guarded**, so the flip can no longer reintroduce either cross-replacement
+  edge silently. What is left is editing `graphene_fet_model.py`, which moves
+  committed Chapter 4 numbers — still a decision about what the thesis
+  claims, not a build.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, **ranked fourth**.
+  ~63 committed PNGs, three sessions of sampling, 100 % hit rate on all
+  three. Today produced no figure, so the backlog is unchanged and the two
+  mechanical sweeps are still available: derive every number in a title from
+  the computation, and build every legend from the artists.
+- **ADJUDICATE THE RELATION FOR THE FLIPS THIS SESSION DID NOT COMPOSE** —
+  created today. The guard was exercised on `flip.on_default_flip` at both
+  settings. `qca.on_consistent_argument()` and
+  `blast.contact_on_consistent_argument()` have rebind sets and appear in
+  `rra.FLIPS`, but no adjudication was written for compositions headed by
+  them. Stated so today is not read as having guarded every composition.
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18; running total **fourteen**
+  across both repositories, and today's instance is in the sibling repository
+  rather than this one. Cheapest entry:
+  `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py`.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **third** session untouched. `p₁ ∈ [−0.60, 0.30] Å⁻¹`,
+  `p₂ ∈ [−0.10, 0.12] Å⁻²` with no justification from the paper; the
+  `ξ ≥ 3.8482 Å` headline is a minimum over that box. One-line corner sweep.
+- **A LOWER BOUND ON `ℓ`** — carried, still blocked on Fig. 4, which is
+  blocked on `arxiv.org`. A copy of the PDF in the connected folder unblocks
+  it immediately.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried; needs the same PDF.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17. Today's module plants its controls as
+  synthetic **traces**, not as functions or text, so it does not add to the
+  exposure at all — the cleanest instance yet.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1`
+  in `graphene_standing_list_audit.py` fails on its revival. Live successor:
+  **§4.8.2's form of error is not audited for elsewhere**, created 10-01,
+  untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **seventh** session;
+  `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, **eighth** session. Today raises it again: a hand-listed site is
+  a place a replacement can read a written name unnoticed, and today's guard
+  derives its relation from measured writes and reads, so it does **not**
+  cover a site that is never entered.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried, and
+  today is a worked reference for exactly that conversion.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **seventeen**
+  sessions overdue.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12, and today
+  gives it a concrete hook: `gfet.n_puddle` is read by
+  `qca._carrier_density_consistent` and is in no rebind set, so it sits in the
+  same structural position `gfet.C_ox` did before §4 of 10-22 — read across a
+  composition and governed by nothing. It has no writer today, which is the
+  only reason it is not an edge.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **eleventh**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **sixteenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **fourteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **thirteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, seventeen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **fourteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **fourteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched,
+  and the name is now awkward: today's module uses *unadjudicated* for an
+  edge with no verdict. Worth renaming one of the two.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the guard module with its transcript; today's notes;
+the thesis §4.6.19 and the 4.6.18 annotation). This AUTOMATION_LOG.md entry
+makes **4**. Each was pushed immediately after commit and verified against the
+GitHub API.
