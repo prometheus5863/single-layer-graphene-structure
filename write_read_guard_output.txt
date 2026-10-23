@@ -1,0 +1,114 @@
+==============================================================================
+THE WRITE/READ RELATION AS A GUARD, NOT A CENSUS
+  discharges the 2026-10-22 ranked-first item
+==============================================================================
+
+------------------------------------------------------------------------------
+0.  THE PROBE IS NOT THE PERTURBATION
+------------------------------------------------------------------------------
+
+    7 committed contact densities, bitwise, outside the probe and
+    inside it (the flip is entered inside, so the comparison is
+    against the flip's own committed census, not the shipped one):
+      Ti   shipped 0x1.d384c31aa7bcfp+53   under probe(repaired) 0x1.b643157d5d9ddp+53
+      Cr   shipped -0x0.0p+0   under probe(repaired) -0x0.0p+0
+      Cu   shipped -0x1.885dd9203b8a0p+53   under probe(repaired) -0x1.75a6f42bd055dp+53
+      Ni   shipped -0x1.f949ce25e6702p+55   under probe(repaired) -0x1.ba83d47917e5dp+55
+      Au   shipped -0x1.1d740576b4533p+56   under probe(repaired) -0x1.f39cdb30400e1p+55
+      Pd   shipped -0x1.286bb0879657ep+56   under probe(repaired) -0x1.0360f1c27d90fp+56
+      Pt   shipped -0x1.26fce4deb7c3dp+57   under probe(repaired) -0x1.03f62a0a24c5bp+57
+    PASS V1  the probe terminates and returns a full 7-metal census
+    PASS V2  the probe is deterministic -- census bitwise identical across two consecutive runs
+    PASS V3  the observed edge set is deterministic too   -- 1 edges
+
+------------------------------------------------------------------------------
+1.  REPRODUCING THE 2026-10-22 ARRIVAL COUNTS EXACTLY
+------------------------------------------------------------------------------
+
+    repaired   (live_contact=False):   0 arrivals,   0 with C_ox substituted
+    unrepaired (live_contact=True ): 192 arrivals, 181 with C_ox substituted
+    PASS V4  repaired flip gives EXACTLY ZERO channel arrivals
+    PASS V5  unrepaired flip reproduces 192 arrivals exactly
+    PASS V6  of which exactly 181 see C_ox already substituted
+
+    These are the 2026-10-22 numbers, reproduced rather than cited.
+    They are the EXACTLY KNOWN values this module is anchored to:
+    an exact zero that a symmetry requires, and two integers a
+    previous session measured independently of this code.
+
+------------------------------------------------------------------------------
+2.  THE RELATION: STATIC OVER-APPROXIMATION, DYNAMIC TRUTH
+------------------------------------------------------------------------------
+
+    writes and reads, per replacement, asked of reader C:
+      blast._cq_consistent_contact
+          writes ['graphene_fet_model.C_ox']
+      flip.make_contact_cq(live=False)
+          writes ['graphene_fet_model.C_ox']
+      flip.make_contact_cq(live=True)
+          writes ['graphene_fet_model.C_ox']
+      qca._carrier_density_consistent
+          writes --
+      qca._quantum_capacitance_consistent
+          writes --
+
+    STATIC relation (direct calls + the flip's rebind set):  17 edges
+    DYNAMIC, repaired   (live_contact=False): 1 observed
+        flip.make_contact_cq(live=False)       --graphene_fet_model.C_ox--> flip.make_contact_cq(live=False)
+    DYNAMIC, unrepaired (live_contact=True ): 3 observed
+        THE FLIP                               --graphene_fet_model.quantum_capacitance--> flip.make_contact_cq(live=True)
+        flip.make_contact_cq(live=True)        --graphene_fet_model.C_ox--> flip.make_contact_cq(live=True)
+        flip.make_contact_cq(live=True)        --graphene_fet_model.C_ox--> qca._quantum_capacitance_consistent
+
+    PASS V7  every observed edge is in the static relation (the static set is a sound over-approximation)   -- 0 outside
+
+    THE TWO PREVIOUSLY-REPORTED DEFECTS ARE TWO EDGES OF ONE
+    RELATION, and the repair removes both.  Unrepaired:
+      * THE FLIP --gfet.quantum_capacitance--> make_contact_cq
+        is 2026-10-21's defect: a replacement reading a name its
+        own flip rebinds.
+      * make_contact_cq --gfet.C_ox--> qca._quantum_capacitance_
+        consistent is 2026-10-22 Section 4-5: the contact writes
+        C_ox and a CHANNEL replacement reads it.  C_ox is in no
+        identity class, so no existing mechanism can see this one.
+    Repaired, neither is observed; the only survivor is the
+    contact's write-then-read of C_ox WITHIN its own call, which
+    is the substitution and not a leak.
+    PASS V8  EXACT ZERO: the repaired composition has no cross-replacement edge   -- 0 cross edges
+    PASS V9  the unrepaired composition has exactly 2, and they are the two reported defects   -- 2 cross edges
+
+------------------------------------------------------------------------------
+3.  THE DERIVER ITSELF, UNDER EXACTLY-KNOWN INPUTS
+------------------------------------------------------------------------------
+
+    A deriver that returns few edges and a repository that has few
+    are indistinguishable until the deriver is asked a question
+    whose answer is known without it.
+
+    PASS V10 POSITIVE CONTROL: write then read yields exactly the one edge   -- [('W', ('m', 'x'), 'R')]
+    PASS V11 NEGATIVE CONTROL: read BEFORE the write yields no edge -- the deriver is ordered, not a set intersection
+    PASS V12 a nested reader is attributed to itself, not to its caller
+    PASS V13 a write outside every replacement is attributed to THE FLIP
+
+------------------------------------------------------------------------------
+4.  THE GUARD REFUSES -- AND REFUSES IN BOTH DIRECTIONS
+------------------------------------------------------------------------------
+
+    PASS V14 the complete, correct adjudication of the REPAIRED composition is accepted
+    PASS V15 an adjudication missing ONE edge is refused before anything runs   -- the write/read relation of this composition has 1 unadjudicated edge(s
+    PASS V16 IMPOSSIBLE claimed on an edge the probe OBSERVES is refused   -- 1 edge verdict(s) disagree with the order probe:
+    PASS V17 OCCURS claimed on an edge the probe NEVER observes is refused -- the half a census cannot have   -- 1 edge verdict(s) disagree with the order probe:
+    PASS V18 GOVERNED claimed on a name in no rebind set is refused   -- 1 edge verdict(s) disagree with the order probe:
+    PASS V19 an edge with a verdict and NO stated reason is refused -- the bc.rebind() refusal, applied to an edge
+    PASS V20 a verdict outside {GOVERNED/IMPOSSIBLE/OCCURS} is refused
+    PASS V21 THE RESULT: the repaired composition's adjudication is REFUSED for the unrepaired one   -- 3 edge verdict(s) disagree with the order probe:
+
+    V21 is what the item asked for.  The same set of stated
+    reasons is accepted for live_contact=False and refused for
+    live_contact=True, so the difference between the repaired and
+    unrepaired compositions is now a RAISE rather than a
+    percentage table that a reader has to interpret.
+
+==============================================================================
+VALIDATION: 21/21
+==============================================================================
