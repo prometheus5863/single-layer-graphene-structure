@@ -3130,6 +3130,82 @@ transcript byte-identical across two runs). Figure:
 `notes/2026-10-22-what-a-replacement-reads.md`.
 
 
+### 4.6.19 The write/read relation as a guard: the two composition defects are two edges of one relation
+
+Section 4.6.17 reported a replacement reading a name its own flip rebinds.
+Section 4.6.18 §4 reported `gfet.C_ox`, written by three of the five
+replacements and read by all five, in no identity class and therefore
+invisible to `bc.rebind()`, to `bc.rebind_by_operating_point()` and to
+4.6.18's own question — all three of which are about names a flip *rebinds*.
+It closed by stating that what governs composition is not a set of names but
+a bipartite relation between what replacements write and what they read.
+
+**Those are two sources of writes into one relation, not two findings.** A
+name is written either by a replacement or by the flip itself, which is every
+member of the rebind set. Composing the two makes the composed column —
+the one 4.6.18 identified as the column that answers the question —
+computable instead of argued. With reads traced and each edge derived from
+the read:
+
+| composition | observed `(writer, name, reader)` edges |
+|---|---|
+| unrepaired (`live_contact=True`) | `THE FLIP --gfet.quantum_capacitance--> make_contact_cq`; `make_contact_cq --gfet.C_ox--> qca._quantum_capacitance_consistent`; `make_contact_cq --gfet.C_ox-->` itself |
+| repaired (`live_contact=False`) | `make_contact_cq --gfet.C_ox-->` itself |
+
+The first unrepaired edge **is** 4.6.17's defect; the second **is**
+4.6.18 §§4–5. The survivor is the contact substituting `gfet.C_ox` for
+`cd.C_interface` and reading it back inside its own call — the same operating
+point, restored before return — so it is the substitution and not a leak.
+**One change removes both cross-replacement edges**, which is 4.6.18 §5's
+"one cause, two consequences" as a measurement rather than as a reading of a
+coincidence. No number in 4.6.18 is revised; what is revised is the status of
+the relation, from a census to a guard.
+
+**The guard refuses, and it refuses in both directions.** Each edge must
+carry a verdict from `{GOVERNED, IMPOSSIBLE, OCCURS}` and a mandatory reason,
+in the vocabulary `bc.rebind_by_operating_point()` already uses for
+assignments; an unadjudicated edge raises before anything runs. What is new
+is that completeness is static but a verdict is a claim about
+**reachability**, which no static set contains — so every verdict is checked
+against an order probe. `GOVERNED` is refused if the name is in no rebind
+set, `IMPOSSIBLE` if the probe observes the edge, and `OCCURS` **if the probe
+never observes it**. The last is the half a census cannot have: a guard that
+only catches a wrongly-permissive claim answers a weaker question than it was
+written to ask, and an `OCCURS` reason describing an edge that has stopped
+occurring stays true-looking indefinitely because nothing asks it the
+opposite question.
+
+The operational result is that the repaired composition's adjudication — the
+same stated reasons, unchanged — is **accepted** for `live_contact=False` and
+**refused** for `live_contact=True`, naming three disagreeing verdicts. The
+distinction between the two compositions is now a raise rather than a table.
+
+Validation is anchored to exactly-known values: the 4.6.18 arrival counts are
+**reproduced** rather than cited (0 arrivals repaired, 192 unrepaired, exactly
+181 of those with `C_ox` already substituted), the repaired composition has
+**exactly zero** cross-replacement edges, and the deriver itself is put under
+synthetic traces whose answers are known without it — a deriver that returns
+few edges and a repository that has few are otherwise indistinguishable.
+
+Two defects in the work that produced this section are recorded because both
+generalise. The first probe **did not trace reads**: it closed an edge on
+every *arrival* following a write, which asks whether a replacement *ran*
+after a name moved rather than whether it *read* it, and reported twelve
+edges of which four were on names the reader does not read at all. Same shape
+as the dominant failure mode, reached through the choice of which events to
+instrument. The second is sharper: a **planted control found a crash in a
+refusal path that nothing else reaches**, so without it the guard would have
+shipped with one of its three refusals unable to report itself while looking
+correct, because the two refusals the live subject exercises both work. The
+generalisation, and the fourth member of the 4.6.14 / 4.6.17 / 4.6.18 family:
+**a refusal that nothing reaches is not a refusal**, so every verdict in a
+vocabulary needs its own planted control and not only the ones the subject
+happens to exercise.
+
+Machine output: `write_read_guard_output.txt` (21/21). Module:
+`graphene_write_read_guard.py`. Notes:
+`notes/2026-10-23-two-findings-one-relation.md`.
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent
@@ -3522,3 +3598,11 @@ the first narrowing of that open item since it was opened.
 Figure: `sensitivity_audit.png`, panel (a). Machine output:
 `audit_output.txt`. Pre-registration and outcome:
 `notes/2026-09-22-condition-number-audit-of-chapters-4-and-5.md`.
+
+**Annotated 2026-10-23.** Section 4.6.18's closing claim — that what governs
+composition is a bipartite write/read relation rather than a set of names —
+is **correct and was a census**. It enumerated the relation; it did not
+refuse a composition containing an edge. Section 4.6.19 makes it a guard and,
+in doing so, shows that 4.6.17's defect and 4.6.18 §4's `gfet.C_ox` are **two
+edges of the same relation** removed by **one** change. The numbers in
+4.6.18 stand unrevised; its status does not.
