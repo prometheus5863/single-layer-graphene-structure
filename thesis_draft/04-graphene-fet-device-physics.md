@@ -3097,6 +3097,18 @@ A cell protects the **name** it holds. It does not protect the names the held
 | `gfet.quantum_capacitance` | `{gfet._thermal_rounding}` | **no** — safe to capture |
 | `gfet.carrier_density` | `{gfet._thermal_rounding, gfet.quantum_capacitance}` | **yes** — not safe |
 
+> **Annotated 2026-10-24 (§4.6.20). Every entry in this table is correct and
+> the conclusion drawn in its third column is not.** "In the rebind set?" asks
+> whether a flip over the name exists *today*; "safe to capture" was read off
+> it as if it answered whether the name can move the result. §4.6.20 measures
+> the second question directly and finds that a rebind of
+> `gfet._thermal_rounding` — the single live read of the captured object, the
+> `no` row — moves the repaired contact replacement by **+58.3421 %**, to
+> bitwise the same value a rebind of `gfet.quantum_capacitance` moves the
+> *unrepaired* one to. Not being in a rebind set is not safety; it is the
+> absence of a mechanism that would notice. The numbers and the read sets
+> above are unrevised.
+
 Both captures are the same construction and are indistinguishable at the call
 site. §4.6.17's repair is safe because of a contingent fact about the one
 function it happens to capture. A planted control holding `gfet.carrier_
@@ -3205,6 +3217,150 @@ happens to exercise.
 Machine output: `write_read_guard_output.txt` (21/21). Module:
 `graphene_write_read_guard.py`. Notes:
 `notes/2026-10-23-two-findings-one-relation.md`.
+
+
+### 4.6.20 A capture is adjudicated by a counterfactual, and the repaired contact's exact twin was open all along
+
+§4.6.17 repaired a composition defect by binding the contact replacement to
+the shipped `gfet.quantum_capacitance` **captured at manager entry**, so that
+a flip over that name could not reach it. §4.6.18 (d) recorded the limit of
+that construction — a cell protects the name it holds, not the names the held
+object reads — and judged the repair safe on the ground that the held
+object's own live reads, `{gfet._thermal_rounding}`, are in no rebind set.
+§4.6.19 made the write/read relation a guard. This section asks what the
+capture is actually worth, and answers it with a measurement rather than with
+a read set.
+
+#### (a) The instrument used to make the claim cannot check it
+
+§4.6.17's argument and §4.6.18's table are both written in the vocabulary of
+`rra.static_reads`. On the two objects that the entire repair is the
+difference between, that reader returns:
+
+| | static live-read set |
+|---|---|
+| `flip.make_contact_cq(shipped_cq, live=False)` — repaired | 8 names |
+| `flip.make_contact_cq(shipped_cq, live=True)` — unrepaired | the same 8 |
+
+with symmetric difference **zero**, both containing `gfet.quantum_capacitance`
+as a *live* read. `cq_of_n` carries both branches in its bytecode and a
+bytecode walk cannot know which runs, so the reader is sound and
+over-approximate exactly as designed — and therefore **cannot distinguish the
+repaired construction from the unrepaired one at all**. The correctness
+argument was never checkable where it was made.
+
+#### (b) The verdict is a counterfactual, and it is exact
+
+For each name on the capture surface — the holder's own live reads together
+with the live reads of everything it holds — the name is rebound to a
+deliberately wrong stand-in scaled by ×1.5, the holder is called, and the two
+results are compared **bitwise**. Nothing is compared to a tolerance: *does a
+rebind of this name reach this object* has an exact answer. An **identity**
+rebind of all nine names moves the result by exactly zero, checked before any
+verdict is used.
+
+Contact replacement at `V = 0.5 V`, base `C_q = 6.555495551420368 × 10⁻²`
+F/m² (`0x1.0c835a6063492p-4`):
+
+| Name on the capture surface | verdict | repaired | unrepaired |
+|---|---|---|---|
+| `gfet._thermal_rounding` | EXPOSED | **+58.3421 %** | +58.3421 % |
+| `qca.A_FERMI` | EXPOSED | +58.3417 % | +58.3417 % |
+| `qca.series_factor` | EXPOSED | +26.1720 % | +26.1720 % |
+| `qca._fixed_point` | EXPOSED | +22.4740 % | +22.4740 % |
+| `cd.C_interface` | EXPOSED | +18.1154 % | +18.1154 % |
+| `gfet.T` | EXPOSED | +0.0034 % | +0.0034 % |
+| `cd.quantum_capacitance` | UNREACHED | exact 0 | exact 0 |
+| `gfet.C_ox` | PROTECTED | **exact 0** | exact 0 |
+| `gfet.quantum_capacitance` | PROTECTED | **exact 0** | **+58.3421 %** |
+
+The two replacements differ on **exactly one** of the nine names, and it is
+the one §4.6.17 is about. That column is the repair, measured.
+
+#### (c) The result: the repair has an exact twin it does not cover
+
+A rebind of `gfet._thermal_rounding` moves the **repaired** replacement to
+`0x1.a92b527d6852cp-4` — **bitwise** the value a rebind of
+`gfet.quantum_capacitance` moves the **unrepaired** one to.
+`gfet._thermal_rounding` is the *sole* live read of the captured object, so
+the route is the capture itself. §4.6.17 closed one path to that number and
+left an exactly equally powerful one open **through the object it captured**.
+
+It is in no flip's rebind set and is written by no replacement, so
+`bc.rebind_by_operating_point`, §4.6.19's write/read guard and §4.6.17's
+argument all reach it equally: not at all. **A name outside every rebind set
+is not thereby harmless — it is only unwatched**, and §4.6.18 (d) is
+annotated in place to say so.
+
+#### (d) A second result, in the opposite direction
+
+Walking the holder's closure cells on **object identity** recovers not one
+held name but the held object's whole identity class,
+`{gfet.quantum_capacitance, cd.quantum_capacitance}`, reproducing
+`bc.identity_class(gfet, 'quantum_capacitance')` exactly and independently —
+two derivations of one set, which is this section's validation against the
+existing implementation in the overlapping limit. The capture therefore
+neutralises a rebind of **both** members, including
+`blast.contact_on_consistent_argument()`'s, which is **stronger** than
+§4.6.17 claimed. But only one member is ever looked up, so calling both
+PROTECTED would credit the capture with work it did not do — §4.6.18 (d)'s
+conflation with the sign reversed. `UNREACHED` keeps the two apart, and
+separating them needs the one judgement `static_reads` **can** make soundly:
+an over-approximate read set has reliable *negatives*, so *not on the read
+surface* is trustworthy even though *on it* is not.
+
+#### (e) A device-physics consequence, not only a software one
+
+`gfet.C_ox` is **exactly** protected for both variants. §4.6.19 left one
+`OCCURS` edge standing — the contact replacement's write-then-read of
+`gfet.C_ox` inside its own call — adjudicated *the substitution itself and
+not a leak* on the argument that the write and the read are at the same
+operating point. The counterfactual converts that argument into a measured
+zero: the **external** value of `gfet.C_ox` reaches the contact
+replacement's output not at all, because the replacement substitutes
+`cd.C_interface` for the whole solve and restores the old value before
+returning. **The contact self-consistency is referenced to `C_interface` and
+is exactly independent of the oxide capacitance**, so no §4.6 contact number
+inherits an oxide-thickness error through that path. The three names that
+*do* carry the contact `C_q` are `gfet._thermal_rounding` and `qca.A_FERMI`
+at ≈ +58 %, and `cd.C_interface` itself at +18 %, which is the sensitivity
+ranking a reader of §4.5 should have.
+
+#### (f) It is a guard, not a census
+
+`graphene_capture_surface_guard.py` raises `UnadjudicatedCaptureSurface`
+before measuring anything if a surface name carries no `(verdict, reason)`,
+and `FalseCaptureVerdict` after measuring if a verdict disagrees with the
+counterfactual **in either direction**: PROTECTED on a name that moves,
+EXPOSED on a name that does not, UNREACHED on a name that *is* read,
+PROTECTED on a name that is read by nothing, GOVERNED on a name in no rebind
+set. One refusal is §4.6.18 (d)'s error verbatim — a PROTECTED verdict on a
+held name obliges every live read of the object held there to carry its own
+verdict, and any that moves must be adjudicated EXPOSED. The repaired
+capture's adjudication is **refused** for the unrepaired replacement, which
+(a) showed the static reader cannot tell apart.
+
+29/29 checks, with a planted control for every verdict and every refusal
+branch — the §4.6.19 lesson that a refusal nothing reaches is not a refusal,
+applied inside the module that states it. Seven defects injected one at a
+time into a copy of the repository are all detected (7/7); undoing §4.6.17's
+repair drops the score to 23/29, and replacing the bitwise comparison with a
+1 × 10⁻³ relative tolerance is caught too, so the result depends on exactness
+rather than on a threshold.
+
+Stated in the form the other members of this family take:
+
+- §4.6.13 — a repair to one binding is not a repair to the class.
+- §4.6.14 — a class can span two operating points, so it must be partitioned.
+- §4.6.17 — a replacement that *reads* a rebound name is neither stale nor
+  unassigned.
+- §4.6.18 — a capture that fixes one name does not fix the names the captured
+  object reads.
+- §4.6.19 — a refusal that nothing reaches is not a refusal.
+- **§4.6.20 — a name outside every rebind set is not thereby harmless, only
+  unwatched. Whether a name can move a result is a counterfactual, and no
+  read set answers it.**
+
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
