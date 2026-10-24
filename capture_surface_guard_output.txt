@@ -1,0 +1,97 @@
+==============================================================================
+THE CAPTURE SURFACE, ADJUDICATED BY COUNTERFACTUAL
+  discharges the 2026-10-23 ranked-first item
+==============================================================================
+
+------------------------------------------------------------------------------
+0.  THE OBVIOUS INSTRUMENT HAS ZERO DISCRIMINATING POWER
+------------------------------------------------------------------------------
+
+    static live reads of the REPAIRED   replacement: 8
+    static live reads of the UNREPAIRED replacement: 8
+        graphene_contact_doping_model.C_interface        repaired=True unrepaired=True
+        graphene_fet_model.C_ox                          repaired=True unrepaired=True
+        graphene_fet_model.T                             repaired=True unrepaired=True
+        graphene_fet_model._thermal_rounding             repaired=True unrepaired=True
+        graphene_fet_model.quantum_capacitance           repaired=True unrepaired=True
+        graphene_quantum_capacitance_argument.A_FERMI    repaired=True unrepaired=True
+        graphene_quantum_capacitance_argument._fixed_point repaired=True unrepaired=True
+        graphene_quantum_capacitance_argument.series_factor repaired=True unrepaired=True
+    PASS C0  the static read sets of the repaired and unrepaired contact replacements are IDENTICAL -- the instrument the standing item suggested cannot tell them apart   -- 8 names, symmetric difference 0
+
+    Both contain gfet.quantum_capacitance as a LIVE read, because
+    cq_of_n holds both branches in its bytecode.  Sound and
+    over-approximate; useless for the question.  Every verdict
+    below is a counterfactual instead.
+
+------------------------------------------------------------------------------
+1.  THE PROBE IS NOT THE PERTURBATION (exact, before any verdict)
+------------------------------------------------------------------------------
+
+    PASS C1  EXACT ZERO: an IDENTITY rebind of every one of the 9 surface names moves the value by exactly 0   -- base 0x1.0c835a6063492p-4
+    PASS C2  the holder is deterministic -- bitwise identical on two consecutive calls
+    PASS C3  the repaired and unrepaired replacements agree bitwise when nothing is rebound (so every difference below is the rebind)   -- 0x1.0c835a6063492p-4
+
+    held by identity (the capture): ['graphene_contact_doping_model.quantum_capacitance', 'graphene_fet_model.quantum_capacitance']
+    live reads OF the object held at graphene_contact_doping_model.quantum_capacitance, graphene_fet_model.quantum_capacitance: ['graphene_fet_model._thermal_rounding']
+    read surface 8 names, full surface 9 (the extra one is a held name nothing looks up)
+
+------------------------------------------------------------------------------
+2.  THE COUNTERFACTUAL, PER NAME (perturbation x1.5)
+------------------------------------------------------------------------------
+
+    name                                             verdict    base                   rebound                move
+    graphene_contact_doping_model.C_interface        EXPOSED    0x1.0c835a6063492p-4 0x1.3d27c24d086f4p-4 +18.1154 %
+    graphene_contact_doping_model.quantum_capacitance UNREACHED  0x1.0c835a6063492p-4 0x1.0c835a6063492p-4 exact 0
+    graphene_fet_model.C_ox                          PROTECTED  0x1.0c835a6063492p-4 0x1.0c835a6063492p-4 exact 0
+    graphene_fet_model.T                             EXPOSED    0x1.0c835a6063492p-4 0x1.0c85aa34e780cp-4  +0.0034 %
+    graphene_fet_model._thermal_rounding             EXPOSED    0x1.0c835a6063492p-4 0x1.a92b527d6852cp-4 +58.3421 %
+    graphene_fet_model.quantum_capacitance           PROTECTED  0x1.0c835a6063492p-4 0x1.0c835a6063492p-4 exact 0
+    graphene_quantum_capacitance_argument.A_FERMI    EXPOSED    0x1.0c835a6063492p-4 0x1.a92b13f0ab7e3p-4 +58.3417 %
+    graphene_quantum_capacitance_argument._fixed_point EXPOSED    0x1.0c835a6063492p-4 0x1.48dbdd97794eep-4 +22.4740 %
+    graphene_quantum_capacitance_argument.series_factor EXPOSED    0x1.0c835a6063492p-4 0x1.52c9ce29befdbp-4 +26.1720 %
+
+    PASS C4  the repaired and unrepaired replacements differ on EXACTLY ONE surface name, and it is gfet.quantum_capacitance   -- ['graphene_fet_model.quantum_capacitance']
+    PASS C5  exactly 3 of the 9 surface names are bitwise unmoved, and they are the two the capture earns plus the alias nothing looks up   -- ['graphene_contact_doping_model.quantum_capacitance', 'graphene_fet_model.C_ox', 'graphene_fet_model.quantum_capacitance']
+    PASS C5b VALIDATION AGAINST THE EXISTING IMPLEMENTATION: walking the closure cells on object identity reproduces bc.identity_class exactly -- two independent derivations of the same set   -- ['graphene_contact_doping_model.quantum_capacitance', 'graphene_fet_model.quantum_capacitance']
+    PASS C6  THE FINDING, BITWISE: a rebind of gfet._thermal_rounding moves the REPAIRED replacement to exactly the value a rebind of gfet.quantum_capacitance moves the UNREPAIRED one to   -- 0x1.a92b527d6852cp-4
+    PASS C7  gfet._thermal_rounding is the SOLE live read of the captured object -- so the route C6 measures is the capture itself   -- ['graphene_fet_model._thermal_rounding']
+    PASS C8  and it is unguarded on BOTH existing axes: in no flip rebind set, and not a written name in the 2026-10-23 relation   -- rebind sets hold 4 names
+    PASS C9  gfet.C_ox is EXACTLY protected for BOTH replacements -- the quantitative form of the one OCCURS edge the write/read guard left standing
+
+------------------------------------------------------------------------------
+3.  PLANTED CONTROLS: ONE PER VERDICT, ON KNOWN ANSWERS
+------------------------------------------------------------------------------
+
+    PASS C10 POSITIVE: a holder that reads gfet.T live MOVES under a rebind of it
+    PASS C11 NEGATIVE: a holder that reads no module attribute is bitwise unchanged under a rebind of the same name
+    PASS C12 a name the holder does not read at all is bitwise unchanged -- the probe does not report movement it cannot cause
+    PASS C13 the synthetic 2026-10-22 shape: the HELD name is protected and the held object's own read is not
+    PASS C13b the alias member is bitwise unmoved for the synthetic shape too, and is likewise not on its read surface -- UNREACHED is a property of the holder, not of this one capture
+
+------------------------------------------------------------------------------
+4.  THE GUARD REFUSES -- A PLANTED CONTROL FOR EVERY BRANCH
+------------------------------------------------------------------------------
+
+    PASS C14 the complete, correct adjudication of the REPAIRED capture is accepted
+    PASS C15 an adjudication missing ONE surface name is refused before anything is measured   -- repaired contact capture: 1 name(s) on the capture surface are unadjudic
+    PASS C16 PROTECTED claimed on a name a rebind MOVES is refused -- and this is the 2026-10-22 error verbatim   -- repaired contact capture: 2 verdict(s) disagree with the counterfactual:
+    PASS C17 EXPOSED claimed on a name a rebind leaves bitwise unchanged is refused -- the half a census cannot have   -- repaired contact capture: 1 verdict(s) disagree with the counterfactual:
+    PASS C18 GOVERNED claimed on a name in no rebind set is refused   -- repaired contact capture: 1 verdict(s) disagree with the counterfactual:
+    PASS C19 GOVERNED claimed on a name that IS in a rebind set is ACCEPTED -- the verdict is reachable, not decorative
+    PASS C20 a verdict with NO stated reason is refused   -- repaired contact capture: adjudication for graphene_fet_model._thermal_r
+    PASS C21 a verdict outside {PROTECTED/UNREACHED/EXPOSED/GOVERNED} is refused   -- repaired contact capture: adjudication for graphene_fet_model._thermal_r
+    PASS C22 an adjudication that is not a (verdict, reason) pair is refused   -- repaired contact capture: adjudication for graphene_fet_model._thermal_r
+    PASS C23 THE RECORDED ERROR AS A REFUSAL: PROTECTED on the held name with the held object's live read unanswered is refused, and the message says why   -- repaired contact capture: graphene_fet_model.quantum_capacitance is adju
+    PASS C24 PROTECTED claimed on a name NOT on the read surface is refused -- the conflation of 4.6.17, sign reversed   -- repaired contact capture: 1 verdict(s) disagree with the counterfactual:
+    PASS C25 UNREACHED claimed on a name that IS on the read surface is refused   -- repaired contact capture: 1 verdict(s) disagree with the counterfactual:
+    PASS C26 THE RESULT: the repaired capture's adjudication is REFUSED for the UNREPAIRED replacement   -- repaired contact capture: 1 verdict(s) disagree with the counterfactual:
+
+    C26 is what the item asked for.  The same set of stated
+    reasons is accepted for the repaired contact replacement and
+    refused for the unrepaired one -- which Section 0 showed the
+    static reader cannot distinguish at all.
+
+==============================================================================
+VALIDATION: 29/29
+==============================================================================
