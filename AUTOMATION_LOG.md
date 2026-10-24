@@ -10807,3 +10807,275 @@ repository's own composition measured against itself.
 the thesis §4.6.19 and the 4.6.18 annotation). This AUTOMATION_LOG.md entry
 makes **4**. Each was pushed immediately after commit and verified against the
 GitHub API.
+
+---
+
+## 2026-10-24 — The capture surface: a counterfactual, and a twin with the same leverage
+
+**Subject:** the 2026-10-23 **ranked-first** item, *audit the captures, not
+just the reads*. Discharged. Four commits plus this entry.
+
+### 1. The instrument the item named cannot answer the question
+
+The item's own cheapest entry was `rra.static_reads` on each captured object.
+On the two objects the whole 2026-10-21 repair is the difference between,
+that reader returns **the same 8 names**, symmetric difference **zero**, both
+containing `gfet.quantum_capacitance` as a *live* read — `cq_of_n` carries
+both branches in its bytecode and a bytecode walk cannot know which runs. The
+reader is sound and over-approximate exactly as designed, and therefore
+**cannot distinguish the repaired contact replacement from the unrepaired
+one at all**. §4.6.17's correctness argument and §4.6.18 (d)'s table are both
+written in that vocabulary, so the argument was never checkable where it was
+made.
+
+Every verdict in `graphene_capture_surface_guard.py` is therefore a
+**counterfactual**: rebind the name to a wrong stand-in (×1.5), call the
+holder, compare **bitwise**. No tolerance anywhere — *does a rebind of this
+name reach this object* has an exact answer. An **identity** rebind of all
+nine surface names moves the result by exactly zero, checked before any
+verdict is used (C1).
+
+### 2. The result
+
+Contact replacement at `V = 0.5 V`, base `0x1.0c835a6063492p-4` F/m²:
+
+| name | verdict | repaired | unrepaired |
+|---|---|---|---|
+| `gfet._thermal_rounding` | EXPOSED | **+58.3421 %** | +58.3421 % |
+| `qca.A_FERMI` | EXPOSED | +58.3417 % | +58.3417 % |
+| `qca.series_factor` | EXPOSED | +26.1720 % | +26.1720 % |
+| `qca._fixed_point` | EXPOSED | +22.4740 % | +22.4740 % |
+| `cd.C_interface` | EXPOSED | +18.1154 % | +18.1154 % |
+| `gfet.T` | EXPOSED | +0.0034 % | +0.0034 % |
+| `cd.quantum_capacitance` | UNREACHED | exact 0 | exact 0 |
+| `gfet.C_ox` | PROTECTED | **exact 0** | exact 0 |
+| `gfet.quantum_capacitance` | PROTECTED | **exact 0** | **+58.3421 %** |
+
+The two differ on **exactly one** of nine names — that is the repair,
+measured. **And a rebind of `gfet._thermal_rounding` moves the REPAIRED
+replacement to `0x1.a92b527d6852cp-4`, bitwise the value a rebind of
+`gfet.quantum_capacitance` moves the UNREPAIRED one to.**
+`gfet._thermal_rounding` is the *sole* live read of the captured object, so
+the route is the capture itself: §4.6.17 closed one path to that number and
+left an exactly equally powerful one open **through the object it captured**.
+It is in no rebind set and written by no replacement, so
+`bc.rebind_by_operating_point`, the 2026-10-23 write/read guard and
+§4.6.17's argument reach it equally — not at all.
+
+**This reverses the reading of a committed thesis table without changing a
+number in it.** §4.6.18 (d)'s row `gfet.quantum_capacitance` / own live reads
+`{gfet._thermal_rounding}` / *in the rebind set?* **no — safe to capture** is
+correct in every entry and wrong in its conclusion: the column answers
+whether a flip over the name exists *today*, and it was read as answering
+whether the name can move the result. Annotated in place; numbers unrevised.
+
+### 3. A second result, the other way
+
+Walking the closure cells on **object identity** recovers the held object's
+whole **identity class** — `{gfet.quantum_capacitance,
+cd.quantum_capacitance}` — reproducing `bc.identity_class(gfet,
+'quantum_capacitance')` exactly and independently (C5b: the validation
+against the existing implementation in the overlapping limit). So the capture
+neutralises a rebind of **both** members, including
+`blast.contact_on_consistent_argument()`'s — **stronger** than §4.6.17
+claimed. But only one is ever looked up, so calling both PROTECTED would
+credit the capture with work it did not do: §4.6.18 (d)'s conflation with the
+sign reversed. `UNREACHED` keeps them apart, using the one judgement
+`static_reads` **can** make soundly — an over-approximate read set has
+reliable *negatives*.
+
+### 4. An argument became a bitwise zero, and it is device physics
+
+The 2026-10-23 guard's single surviving `OCCURS` edge was adjudicated *the
+substitution itself and not a leak* on an argument. Measured: the
+**external** value of `gfet.C_ox` reaches the contact replacement's output
+**not at all**, for both variants. **The contact self-consistency is
+referenced to `C_interface` and is exactly independent of the oxide
+capacitance**, so no §4.6 contact number inherits an oxide-thickness error
+through that path. The sensitivity ranking of the contact `C_q` —
+`_thermal_rounding` and `A_FERMI` ≈ +58 %, `C_interface` +18 % — is new
+chapter content, not only a software fact.
+
+### 5. Four defects in this session's own work
+
+All four are checks that asked a question **adjacent** to the one they were
+written to ask, and none was found by reading the code.
+
+1. **The literal-number check was a regex over source text** and reported
+   three violations that were *code*: a regex has no notion of where a string
+   literal ends, so the code *between* two literals was scanned as if it were
+   one. **Resolve-on-spelling, running total fifteen.** Replaced with `ast`.
+2. **The `ast` version walked every argument** and flagged `color='0.35'`
+   inside `arrowprops`. `TEXT_ARGS` now names which argument is the text.
+3. **It then flagged the precision in `'%+.4f %%'`** — a digit in a
+   `%`-conversion specifier is a formatting instruction.
+4. **The figure was committed in its third render**, each earlier one having
+   passed every check it had. Render 1 (linear) made `gfet.T`'s +0.0034 % bar
+   indistinguishable from the exact zeros — *the one distinction the figure
+   exists to make* — and `F3` passed because it asked whether the zeros were
+   a different **artist**, not whether a reader could see the difference; it
+   also clipped its own title and x-label. Render 2 put the legend box on top
+   of the `quantum_capacitance` row, the single row the figure is about, and
+   `F2` passed because counting legend entries says nothing about where the
+   box lands.
+
+Each is now a check naming its render (`F7` clipping, `F8` small-move
+visibility, `F9` legend occlusion, `F10` label overrun), and `F0a`–`F0e` are
+planted controls for all five boundaries of the literal-number check.
+
+### 6. A figure, after yesterday declined one
+
+Yesterday's result was a 3-edge set and a plot would have decorated it.
+Today's is a 9 × 2 table whose *point* is a coincidence between two rows, and
+a reader has to hunt for that among hex floats. `capture_surface_leverage.png`
+is committed, and is a worked reference for the two mechanical sweeps the
+standing render-and-inspect item asks for. **It does not discharge that item**
+— ~63 PNGs remain — but it is the **fourth consecutive** session to find a
+defect in a figure by rendering it, and the first where the figure was made
+the same session, which raises the item rather than lowering it.
+
+### 7. Mutation test
+
+7/7 injected defects detected, control clean. M1 (undo §4.6.17's repair) →
+23/29. M2 (bitwise → 1 × 10⁻³ relative tolerance) caught, so the suite
+depends on exactness and not on a threshold.
+
+### 8. Environment and automation health
+
+`scipy` absent again and installed (1.15.3) — **ninth consecutive** session;
+the 2026-10-15 note that it is present remains false and is settled. `numpy`
+2.2.6, `matplotlib` 3.10.9 present. The device VM's `/sessions` filesystem is
+**still 100 % full** (9.3 G of 9.8 G, other sessions' directories, unreadable
+and undeletable from here), so the 2026-10-23 workaround was needed again and
+worked unchanged: clone into `/tmp` (`/dev/sda1`, 4.4 G free),
+`TMPDIR=/tmp/piptmp pip install --no-cache-dir --target /tmp/pylibs scipy`,
+`PYTHONPATH=/tmp/pylibs`. **This is now a standing environment fact, not an
+incident, and a future run should start with `/tmp` rather than discover it.**
+One new operational note: inspecting a figure requires copying it into the
+connected folder so it can be staged, and deletion there is blocked, so the
+copies accumulate — three went into `_to_delete/` today, joining three from
+earlier sessions. **A future run should reuse a single filename** (e.g.
+`_figcheck.png`) instead of a new one per figure. Every commit pushed
+immediately after commit and verified against the GitHub API. No live web
+search used and none needed.
+
+**Not yet covered (candidates for future runs):**
+
+- **AUDIT THE CAPTURE SURFACE OF THE OTHER THREE REPLACEMENTS** — created
+  today, **ranked first**, and it is the direct continuation rather than a
+  new thread. Today adjudicated the capture surface of
+  `flip.make_contact_cq` only. `qca._carrier_density_consistent`,
+  `qca._quantum_capacitance_consistent` and `blast._cq_consistent_contact`
+  hold no closure cells, so they have no *held* names — but they all have a
+  read surface, and the counterfactual on it is exactly the sensitivity
+  ranking §4 above gives the contact. Cheapest entry:
+  `require_capture_adjudication` already takes any callable; run it on the
+  other three and adjudicate. The interesting question is whether
+  `gfet._thermal_rounding` and `qca.A_FERMI` carry ≈ +58 % there too, which
+  would make them repository-wide levers rather than a contact fact.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — created today,
+  **ranked second**, and it is the actionable half of today's finding rather
+  than a restatement. It moves the contact `C_q` by 58.3421 %, is in no
+  identity class anyone flips, and is written by nothing. The question is
+  whether it should be *in* one: `bc.identity_class(gfet,
+  '_thermal_rounding')` is a one-line probe, and if the answer is a class
+  spanning channel and contact then it is the next
+  `rebind_by_operating_point` candidate. Blocked on nothing.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried from
+  2026-10-23, **ranked third**, and today is the second worked instance
+  (every verdict and every refusal branch of the new vocabulary has one,
+  which is what caught corrections 2 and 3 of §5). The repository-wide
+  question is untouched: **which refusal branches anywhere have never been
+  reached by a test**. `bc.UnassignedClassMember` has three raise sites and
+  the not-a-pair and no-reason ones are plausibly unexercised;
+  `bc.rebind()`'s bare-set refusal likewise. Cheapest entry:
+  `grep -n "raise " *.py` and, for each, ask what reaches it.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **ranked fourth**, unchanged in
+  content and strengthened again in precondition: the composition is
+  repaired (10-21), guarded (10-23), and the capture that repairs it is now
+  adjudicated rather than argued (today). What is left is editing
+  `graphene_fet_model.py`, which moves committed Chapter 4 numbers — still a
+  decision about what the thesis claims, not a build.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, **ranked fifth**,
+  and raised by today rather than discharged. ~63 committed PNGs, four
+  sessions, 100 % hit rate on all four. Today supplies the two mechanical
+  sweeps as *working code* (`literal_numbers_in_text_calls`, the legend
+  built from artists, `F7`–`F10`), so the next run can point them at the
+  backlog instead of writing them.
+- **A CLIPPING AND OCCLUSION SWEEP OVER THE COMMITTED FIGURES** — created
+  today, and narrower than the item above: `F7`, `F9` and `F10` are generic
+  (text outside the canvas, legend over a bar, label past the spine) and need
+  only each figure's script re-run under them. Unlike the full inspection
+  item this one is mechanical and needs no judgement.
+- **ADJUDICATE THE RELATION FOR THE FLIPS 10-23 DID NOT COMPOSE** — carried
+  from 2026-10-23, untouched. `qca.on_consistent_argument()` and
+  `blast.contact_on_consistent_argument()` have rebind sets and appear in
+  `rra.FLIPS` but no adjudication was written for compositions headed by
+  them.
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18; running total **fifteen**
+  across both repositories, today's instance being §5.1, in this
+  repository and in this session's own new code. Cheapest entry:
+  `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py`.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **fourth** session untouched. `p₁ ∈ [−0.60, 0.30] Å⁻¹`,
+  `p₂ ∈ [−0.10, 0.12] Å⁻²` with no justification from the paper; the
+  `ξ ≥ 3.8482 Å` headline is a minimum over that box. One-line corner sweep.
+- **A LOWER BOUND ON `ℓ`** — carried, still blocked on Fig. 4, which is
+  blocked on `arxiv.org`. A copy of the PDF in the connected folder unblocks
+  it immediately.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried; needs the same PDF.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17. Today's controls are synthetic *holders*
+  defined in the guard module itself, which do add two functions reading
+  `gfet.T` to the tree; smaller exposure than a text pattern, not zero.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1`
+  in `graphene_standing_list_audit.py` fails on its revival. Live successor:
+  **§4.8.2's form of error is not audited for elsewhere**, created 10-01,
+  untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **eighth** session;
+  `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, **ninth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried; two
+  worked references now (10-23 and today).
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **eighteen**
+  sessions overdue, and today is a worked argument *for* it: M2 shows a
+  suite that swaps a bitwise comparison for a 1 × 10⁻³ tolerance stops
+  measuring what it claims.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12. `gfet.n_puddle`
+  is read by `qca._carrier_density_consistent` and is in no rebind set; the
+  ranked-first item above would give it a counterfactual number, which is
+  the first thing this item has ever had.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **twelfth**
+  session, and today raises it sharply: the rounding form *is*
+  `gfet._thermal_rounding`, which today measures as the single largest lever
+  on the contact `C_q`. This item and the new ranked-second one are the same
+  name approached from two directions.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **seventeenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **fifteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **fourteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, eighteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **fifteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **fifteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched;
+  the naming clash noted on 10-23 is now three-way, since this session uses
+  *unadjudicated* for a capture-surface name as well.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 4 (the guard with its transcript and mutation report;
+the leverage figure with its own provenance checks; today's notes; thesis
+§4.6.20 and the §4.6.18 (d) annotation). This AUTOMATION_LOG.md entry makes
+**5**. Each was pushed immediately after commit and verified against the
+GitHub API.
