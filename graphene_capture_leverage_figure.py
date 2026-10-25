@@ -58,7 +58,6 @@ TEXT_ARGS = {
     'text':            ((2,), ('s',)),
     'set_yticklabels': ((0,), ('labels',)),
 }
-TEXT_CALLS = tuple(sorted(TEXT_ARGS))
 
 
 def measure():

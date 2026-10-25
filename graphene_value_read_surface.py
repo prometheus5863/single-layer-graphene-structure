@@ -547,7 +547,6 @@ BCQS = ('graphene_contact_argument_blast_radius', 'cq_shipped_of_n')
 BNC = ('graphene_contact_argument_blast_radius', 'n_consistent')
 CI = ('graphene_contact_doping_model', 'C_interface')
 GQC = ('graphene_fet_model', 'quantum_capacitance')
-CDQC = ('graphene_contact_doping_model', 'quantum_capacitance')
 
 _SOLVE = ('an ingredient of the self-consistency this replacement IS, so the '
           'dependence is meant; recorded as a measured number so that a '
