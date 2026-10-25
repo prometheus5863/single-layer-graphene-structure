@@ -1,0 +1,159 @@
+==============================================================================
+THE READ SURFACE'S NEGATIVES ARE NOT SOUND
+  answers the 2026-10-24 ranked-first item, and supersedes the
+  completeness claim that item was written under
+==============================================================================
+
+------------------------------------------------------------------------------
+0.  THE SENTENCE 2026-10-24 RESTED `UNREACHED` ON
+------------------------------------------------------------------------------
+
+    "an over-approximate read set has reliable NEGATIVES, so
+     'not in the static read surface' is trustworthy."
+
+    qca._quantum_capacitance_consistent:
+      static read surface              : 7 names
+      qca.A_FERMI in it                : False
+      rebinding qca.A_FERMI moves it by: +29.8900 %
+    PASS V0 a name ABSENT from the static read surface moves the value by nearly a third: the negatives are not sound   -- 0x1.802bd3d3e1cb3p-7 -> 0x1.f3000828eb6b5p-7
+
+------------------------------------------------------------------------------
+1.  THE READER, ON CASES WHOSE ANSWER IS KNOWN IN ADVANCE
+------------------------------------------------------------------------------
+
+    PASS V5a BARE scalar read from inside its own module: absent from the old surface, present in value_reads, and it MOVES the value   -- +50.0000 %
+    PASS V5b QUALIFIED scalar read: the old surface already has it, and value_reads adds nothing -- a reader that reported every scalar would pass V5a and fail this   -- []
+    PASS V5c a holder that reads no module scalar at all: value_reads is EMPTY (the negative control)   -- []
+
+------------------------------------------------------------------------------
+2.  THE COMPLETED SURFACE, AND WHAT IT ADDS
+------------------------------------------------------------------------------
+
+    qca._carrier_density_consistent
+      old surface 10   completed 14   ADDED 4
+    graphene_quantum_capacitance_argument.A_FERMI        (added)   0x1.1eef29209cd8ap+52 0x1.1ef80b5c76ac2p+52    +0.0121 %
+    graphene_quantum_capacitance_argument.CQ_PREFACTOR   (added)   0x1.1eef29209cd8ap+52 0x1.1effd7996d6d1p+52    +0.0227 %
+    graphene_quantum_capacitance_argument.E_CHARGE       (added)   0x1.1eef29209cd8ap+52 0x1.1d6560a30e965p+52    -0.5361 %
+    graphene_quantum_capacitance_argument.KB             (added)   0x1.1eef29209cd8ap+52 0x1.1efbd7b7a239fp+52    +0.0173 %
+
+    qca._quantum_capacitance_consistent
+      old surface  7   completed 11   ADDED 4
+    graphene_quantum_capacitance_argument.A_FERMI        (added)   0x1.802bd3d3e1cb3p-7 0x1.f3000828eb6b5p-7   +29.8900 %
+    graphene_quantum_capacitance_argument.CQ_PREFACTOR   (added)   0x1.802bd3d3e1cb3p-7 0x1.20ecb6f65069ep-6   +50.4145 %
+    graphene_quantum_capacitance_argument.E_CHARGE       (added)   0x1.802bd3d3e1cb3p-7 0x1.1eefe0162e134p-7   -25.3101 %
+    graphene_quantum_capacitance_argument.KB             (added)   0x1.802bd3d3e1cb3p-7 0x1.ea7db0eecb07ep-7   +27.6751 %
+
+    blast._cq_consistent_contact
+      old surface 10   completed 15   ADDED 5
+    graphene_fet_model.e                                 (added)   0x1.0c835a6063492p-4 0x1.fc2628bcccc27p-3  +278.4911 %
+    graphene_fet_model.hbar                              (added)   0x1.0c835a6063492p-4 0x1.87bc5bc0c26d0p-6   -63.5273 %
+    graphene_fet_model.kB                                (added)   0x1.0c835a6063492p-4 0x1.0c93f6505e7ecp-4    +0.0242 %
+    graphene_fet_model.v_F                               (added)   0x1.0c835a6063492p-4 0x1.87bc5bc0c26d0p-6   -63.5273 %
+    graphene_quantum_capacitance_argument.E_CHARGE       (added)   0x1.0c835a6063492p-4 0x1.a6e5f31fff6ddp-5   -21.2518 %
+
+    flip.make_contact_cq(live=False)
+      old surface  9   completed 14   ADDED 5
+    graphene_fet_model.e                                 (added)   0x1.0c835a6063492p-4 0x1.fc2628bcccc27p-3  +278.4911 %
+    graphene_fet_model.hbar                              (added)   0x1.0c835a6063492p-4 0x1.87bc5bc0c26d0p-6   -63.5273 %
+    graphene_fet_model.kB                                (added)   0x1.0c835a6063492p-4 0x1.0c93f6505e7ecp-4    +0.0242 %
+    graphene_fet_model.v_F                               (added)   0x1.0c835a6063492p-4 0x1.87bc5bc0c26d0p-6   -63.5273 %
+    graphene_quantum_capacitance_argument.E_CHARGE       (added)   0x1.0c835a6063492p-4 0x1.a6e5f31fff6ddp-5   -21.2518 %
+
+    PASS V1 the completed surface is a SUPERSET of the old one for every holder (a union of two independent walks; a bug in either shows up only here)
+    PASS V2 the IDENTITY rebind of every added name moves the value by EXACTLY ZERO -- the probe does not perturb what it measures
+    PASS V2b every one of the 18 added (holder, name) pairs MOVES the value: not one is a false positive of the reader
+
+------------------------------------------------------------------------------
+3.  THE 2026-10-24 QUESTION: ARE THESE TWO REPOSITORY-WIDE?
+------------------------------------------------------------------------------
+
+    qca._carrier_density_consistent        graphene_fet_model._thermal_rounding               exact 0
+    qca._carrier_density_consistent        graphene_quantum_capacitance_argument.A_FERMI         +0.0121 %
+
+    qca._quantum_capacitance_consistent    graphene_fet_model._thermal_rounding               exact 0
+    qca._quantum_capacitance_consistent    graphene_quantum_capacitance_argument.A_FERMI        +29.8900 %
+
+    blast._cq_consistent_contact           graphene_fet_model._thermal_rounding                 +58.3421 %
+    blast._cq_consistent_contact           graphene_quantum_capacitance_argument.A_FERMI        +58.3417 %
+
+    PASS V3 gfet._thermal_rounding is BITWISE EXACTLY ZERO on both qca replacements: a CONTACT FACT, not a repository-wide lever -- and the zero is measured, not inferred from absence
+    PASS V3b qca.A_FERMI moves BOTH qca replacements: repository-wide, and the opposite answer to the same question
+
+------------------------------------------------------------------------------
+4.  ONE NAME, ONE VALUE, VISIBILITY DECIDED BY SPELLING
+------------------------------------------------------------------------------
+
+    qca._carrier_density_consistent        old=False completed=True     +0.0121 %
+    qca._quantum_capacitance_consistent    old=False completed=True    +29.8900 %
+    blast._cq_consistent_contact           old=True  completed=True    +58.3417 %
+    flip.make_contact_cq(live=False)       old=True  completed=True    +58.3417 %
+
+    `qca` reads A_FERMI bare; `blast` spells it `qca.A_FERMI`.
+    PASS V4 qca.A_FERMI is OFF the old surface for both qca holders and ON it for both contact holders -- an exact binary prediction of the mechanism, on one name
+    PASS V4b and it is on the COMPLETED surface for all four
+
+------------------------------------------------------------------------------
+5.  THE OLD GUARD ACCEPTS AN ADJUDICATION MISSING EVERY LEVER
+------------------------------------------------------------------------------
+
+    PASS V6 qca._carrier_density_consistent      the 2026-10-24 guard ACCEPTS it   -- accepted, with 4 unadjudicated lever(s)
+    PASS V6 qca._quantum_capacitance_consistent  the 2026-10-24 guard ACCEPTS it   -- accepted, with 4 unadjudicated lever(s)
+    PASS V6 blast._cq_consistent_contact         the 2026-10-24 guard ACCEPTS it   -- accepted, with 5 unadjudicated lever(s)
+
+    PASS V7 qca._carrier_density_consistent      the completed guard REFUSES it   -- qca._carrier_density_consistent: 4 name(s) reach this value throug
+    PASS V7 qca._quantum_capacitance_consistent  the completed guard REFUSES it   -- qca._quantum_capacitance_consistent: 4 name(s) reach this value th
+    PASS V7 blast._cq_consistent_contact         the completed guard REFUSES it   -- blast._cq_consistent_contact: 5 name(s) reach this value through a
+
+    PASS V8 qca._carrier_density_consistent      the FULL adjudication is accepted (surface 14)
+    PASS V8 qca._quantum_capacitance_consistent  the FULL adjudication is accepted (surface 11)
+    PASS V8 blast._cq_consistent_contact         the FULL adjudication is accepted (surface 15)
+
+------------------------------------------------------------------------------
+6.  A PLANTED CONTROL FOR EVERY NEW REFUSAL BRANCH
+------------------------------------------------------------------------------
+
+    PASS V9a a malformed (verdict, reason) spec on an added name is refused   -- UnadjudicatedValueRead
+    PASS V9b a verdict outside the vocabulary is refused   -- UnadjudicatedValueRead
+    PASS V9c an empty reason is refused   -- UnadjudicatedValueRead
+    PASS V9d UNREACHED on a name the walk FOUND is refused -- the one verdict an added name cannot carry   -- FalseValueReadVerdict
+    PASS V9e PROTECTED on an added name that moves is refused   -- FalseValueReadVerdict
+    PASS V9f GOVERNED on an added name in no rebind set is refused   -- FalseValueReadVerdict
+
+    ONE BRANCH HERE HAS NO CONTROL, stated rather than omitted.
+    `EXPOSED` on an added name whose rebind leaves the value
+    BITWISE unchanged is refused by this module and that refusal
+    is never reached above, because all 18 added pairs move.  To
+    reach it needs an added name with exact-zero leverage, and the
+    only ones available are the planted controls, whose sites
+    `csg.leverage` cannot resolve (Section 1).  This is a new
+    instance of the standing "give every verdict in every
+    vocabulary a planted control" item, found in this session's
+    own code, and it is the sixth.
+
+------------------------------------------------------------------------------
+7.  REPOSITORY-WIDE EXTENT OF THE BLIND CLASS
+------------------------------------------------------------------------------
+
+    module-level scalars in imported repo modules : 91
+    of those read BARE inside their own module    : 76  (84 %)
+    with this module's own planted constants out  : 75 of 90
+
+      graphene_fet_model                                 13
+      graphene_exact_charge_rederivation                 10
+      graphene_quantum_capacitance_argument              10
+      graphene_diffusion_current_model                    9
+      graphene_velocity_saturation_model                  7
+      graphene_contact_doping_model                       6
+      rf_small_signal_model                               6
+      graphene_fet_signed_carrier_model                   5
+
+    PASS V10a all 8 distinct names behind the 18 added (holder, name) pairs are in the repository-wide blind class -- the per-holder walk and the module-table census agree exactly   -- []
+    PASS V10d the census is not just reporting every scalar: gfet.t_ox and gfet.epsilon_0 are module-level scalars and are NOT in the blind class, because they are read only at IMPORT time to build C_ox and never inside a function body
+    PASS V10e so the blind class is a STRICT subset: 15 of 91 scalars are outside it
+    PASS V10b the census FINDS this module's own planted constant, so it is not blind to the pattern it censuses
+    PASS V10c the apparatus exclusion is exactly the blind names the census found IN THIS MODULE -- checked against the census, not against itself   -- exclusion [('graphene_value_read_surface', '_PLANTED_BARE')] vs own [('graphene_value_read_surface', '_PLANTED_BARE')]
+    PASS V10f and every excluded name BELONGS to this module, whose name comes from __file__ and not from the exclusion: the exclusion cannot reach a name in a model module, so it cannot be used to hide a finding   -- []
+
+==============================================================================
+VALIDATION: 32/32
+==============================================================================
