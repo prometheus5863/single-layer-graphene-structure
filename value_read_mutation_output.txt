@@ -2,28 +2,28 @@
 MUTATION TEST: graphene_value_read_surface.py
 ==============================================================================
 
-    UNMUTATED  rc=0  32/32  failed=[]  crashed=False
+    UNMUTATED  rc=0  36/36  failed=[]  crashed=False
     PASS the unmutated suite passes (the control)
 
 ------------------------------------------------------------------------------
     PASS M1  delete the bare-scalar branch -- the whole finding
-         21/32  rc=1  caught by V5a,V4b,V7,V7,V7,V9a,V9b,V9c,V9d,V9e,V9f
+         25/36  rc=1  caught by V5a,V4b,V7,V7,V7,V9a,V9b,V9c,V9d,V9e,V9f
     PASS M2  report EVERY module scalar, read or not
          no score  rc=1  caught by V5b,V5c
     PASS M3  compare with a 1e-3 relative tolerance instead of bitwise
-         26/32  rc=1  caught by V2b,V3b,V6,V6,V8,V8
+         30/36  rc=1  caught by V2b,V3b,V6,V6,V8,V8
     PASS M4  key the module table on `m.__name__` again (the fixed bug)
          no score  rc=1  caught by a crash
     PASS M5  drop the pre-measurement unadjudicated-bare-read refusal
          no score  rc=1  caught by a crash
     PASS M6  drop the UNREACHED-is-unavailable refusal
-         31/32  rc=1  caught by V9d
+         35/36  rc=1  caught by V9d
     PASS M7  widen the apparatus exclusion to hide the day's two findings
-         30/32  rc=1  caught by V10c,V10f
+         34/36  rc=1  caught by V10c,V10f
     PASS M8  count every scalar as blind, destroying the census's precision
-         30/32  rc=1  caught by V10d,V10e
+         34/36  rc=1  caught by V10d,V10e
     PASS M9  walk only the holder itself, not the functions it calls
-         22/32  rc=1  caught by V4b,V7,V7,V7,V9a,V9b,V9c,V9d,V9e,V9f
+         26/36  rc=1  caught by V4b,V7,V7,V7,V9a,V9b,V9c,V9d,V9e,V9f
 ------------------------------------------------------------------------------
 
 DETECTED: 9/9 injected defects

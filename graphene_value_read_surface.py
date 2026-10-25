@@ -455,6 +455,8 @@ GHBAR = ('graphene_fet_model', 'hbar')
 GKB = ('graphene_fet_model', 'kB')
 GVF = ('graphene_fet_model', 'v_F')
 TR = ('graphene_fet_model', '_thermal_rounding')
+VF = GVF
+HB = GHBAR
 
 _CONSTANT = ('a physical constant imported from scipy.constants.  No flip '
              'would rebind it and no replacement writes it, so EXPOSED is '
@@ -932,6 +934,84 @@ def main():
           'hide a finding',
           all(m == _THIS_MODULE for m, _ in _PLANTED_APPARATUS),
           sorted(m for m, _ in _PLANTED_APPARATUS if m != _THIS_MODULE))
+    print()
+
+
+    # -- 8.  ONE MATERIAL PARAMETER, TWO FAMILIES, NO SINGLE NAME ----------
+    print('-' * 78)
+    print('8.  v_F CANNOT BE VARIED CONSISTENTLY: A DEVICE-PHYSICS')
+    print('    CONSEQUENCE OF THE SAME BLIND SPOT')
+    print('-' * 78)
+    print()
+    print('    gfet.v_F = %.4e m/s (committed).  C_q carries it as' % gfet.v_F)
+    print('    CQ_PREFACTOR = 2e^3/(pi hbar^2 v_F^2) and E_F/e as')
+    print('    A_FERMI = hbar*v_F*sqrt(pi)/e -- so a change of v_F must move')
+    print('    one name as k^-2 and the other as k^+1.')
+    print()
+    print('    %-38s %-14s %-14s %s'
+          % ('holder', 'gfet.v_F', 'qca.CQ_PREFACT', 'qca.A_FERMI'))
+    for label, fn, _ in HOLDERS:
+        cells = []
+        for site in (VF, CQP, AF):
+            bb, mm, ee = csg.leverage(fn, site, k=1.0 + 1e-6)
+            cells.append('exact 0' if csg.leverage(fn, site)[2]
+                         else '%+10.6f' % ((mm / bb - 1.0) / 1e-6))
+        print('    %-38s %-14s %-14s %s' % ((label,) + tuple(cells)))
+    print()
+    print('    (d ln value / d ln name, and `exact 0` where a x1.5 rebind')
+    print('     leaves the value BITWISE unchanged.)')
+    print()
+    vf_dead = all(csg.leverage(fn, VF)[2] for _, fn, _ in HOLDERS[:2])
+    cqp_dead = csg.leverage(blast._cq_consistent_contact, CQP)[2]
+    check('V11a gfet.hbar and gfet.v_F have BITWISE IDENTICAL leverage on '
+          'both contact holders -- the exact symmetry C_q ~ (hbar*v_F)^-2 '
+          'demands, and the check that the probe is measuring the prefactor '
+          'and not something else',
+          all(csg.leverage(f, HB)[1].hex() == csg.leverage(f, VF)[1].hex()
+              for f in (blast._cq_consistent_contact, cap)),
+          csg.leverage(blast._cq_consistent_contact, VF)[1].hex())
+    check('V11b gfet.v_F is BITWISE UNREACHABLE from both channel '
+          'replacements: changing the Fermi velocity does not move a single '
+          'Chapter 4 channel number', vf_dead)
+    check('V11c and qca.CQ_PREFACTOR is BITWISE UNREACHABLE from the contact '
+          'replacement: the two families carry the SAME material parameter '
+          'through two different names, one live and one precomputed at '
+          'import by graphene_exact_charge_rederivation', cqp_dead)
+    with contextlib.ExitStack() as st:
+        K = 1.5
+        st.enter_context(csg.rebound(VF, lambda old: old * K))
+        st.enter_context(csg.rebound(AF, lambda old: old * K))
+        st.enter_context(csg.rebound(CQP, lambda old: old / (K * K)))
+        moved_all = []
+        for label, fn, _ in HOLDERS:
+            moved_all.append(float(fn(csg.PROBE_V)))
+    base_all = [float(fn(csg.PROBE_V)) for _, fn, _ in HOLDERS]
+    check('V11d the repair takes THREE names: rebinding gfet.v_F by k, '
+          'qca.A_FERMI by k and qca.CQ_PREFACTOR by k^-2 together moves ALL '
+          'THREE holders, which no single name does',
+          all(b.hex() != m.hex() for b, m in zip(base_all, moved_all)),
+          ' '.join('%+.4f %%' % (100.0 * (m - b) / b)
+                   for b, m in zip(base_all, moved_all)))
+    print()
+    print('    THE PHYSICS.  v_F is not a constant of nature: it is')
+    print('    renormalised by substrate screening, measured at')
+    print('    1.15 +/- 0.02 e6 m/s on SiC, 1.49 +/- 0.08 e6 on BN and')
+    print('    2.49 +/- 0.30 e6 on quartz, against a fully screened ab-initio')
+    print('    value of 0.85e6 (C. Hwang, D. A. Siegel, S.-K. Mo, W. Regan,')
+    print('    A. Ismach, Y. Zhang, A. Zettl, A. Lanzara, Sci. Rep. 2, 590')
+    print('    (2012), doi:10.1038/srep00590).  The')
+    print('    committed 1.00e6 sits just above the bare value, while a')
+    print('    90 nm SiO2 back gate (eps ~ 3.9) sits between the BN and')
+    print('    quartz cases, i.e. near 1.5e6 -- which is exactly the x1.5')
+    print('    this probe applies by default.  So the -63.5273 % it reports')
+    print('    for the contact C_q is not a synthetic perturbation: it is')
+    print('    the SiO2-screened Fermi velocity, and Chapter 4 quotes the')
+    print('    contact C_q at a v_F its own substrate does not have.')
+    print('    The channel numbers do not move at all -- not because the')
+    print('    channel is insensitive to v_F, but because its v_F is frozen')
+    print('    into two precomputed constants (V11b, V11c).  A v_F')
+    print('    sensitivity study done by editing gfet.v_F would have')
+    print('    reported channel insensitivity as a RESULT.')
     print()
 
     print('=' * 78)
