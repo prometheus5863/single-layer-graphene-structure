@@ -11079,3 +11079,296 @@ the leverage figure with its own provenance checks; today's notes; thesis
 §4.6.20 and the §4.6.18 (d) annotation). This AUTOMATION_LOG.md entry makes
 **5**. Each was pushed immediately after commit and verified against the
 GitHub API.
+
+---
+
+## 2026-10-25
+
+**Status:** The 2026-10-24 ranked-first item is discharged, and it contradicts
+the sentence it was written under. 6 commits.
+
+### 1. What the item asked, and the answer
+
+"Audit the capture surface of the other three replacements … the interesting
+question is whether `gfet._thermal_rounding` and `qca.A_FERMI` carry ≈ +58 %
+there too, which would make them repository-wide levers rather than a contact
+fact." **The two halves answer opposite ways**, and the reason one of them
+answers at all is the finding:
+
+| name | charge repl. | capacitance repl. | contact repl. |
+|---|---|---|---|
+| `gfet._thermal_rounding` | **exact 0** | **exact 0** | +58.3421 % |
+| `qca.A_FERMI` | +0.0121 % | **+29.8900 %** | +58.3417 % |
+
+`gfet._thermal_rounding` is a **contact fact** — and the zero is a *measured
+bitwise counterfactual*, which matters because after §2 below an *absence*
+would have proved nothing. `qca.A_FERMI` is **repository-wide**, and it was
+**off the read surface of both channel replacements**, which is how it went
+eight sessions unmeasured.
+
+### 2. THE 2026-10-24 GUARD RESTS ON A FALSE SENTENCE
+
+Its Section 0 grounds the `PROTECTED`/`UNREACHED` split on *"an
+over-approximate read set has reliable **negatives**, so 'not in the static
+read surface' is trustworthy even though 'in it' is not."* False.
+`rra.static_reads` records a `(module, attr)` pair only for a **qualified
+module read** (`qca.A_FERMI`) or a **bare global resolving to a repo
+function** (`cq_thermal`). A bare global resolving to a module-level
+**scalar**, read inside the module that defines it — how every constant here
+is read by its own functions — is recorded **nowhere**. A negative means *not
+read in a spelling the walker can see*.
+
+The exhibit is one name, and it is an exact binary prediction:
+`qca.A_FERMI` is **off** the old surface for both `qca` holders and **on** it
+for both contact holders, because `blast` spells it qualified. **One name,
+one value, one mechanism, and its visibility to every audit in this
+repository is decided by the spelling at the read site.** Sixteenth running
+instance of *resolve-on-spelling*, and the first with the sign reversed: the
+**audited surface** resolves on spelling, not a test.
+
+### 3. The 18 levers nothing could ever adjudicate
+
+Completing the surface over the four holders adds **18 (holder, name)
+pairs**, 8 distinct names, and **every one moves the value** — largest
+`gfet.e` at **+278.4911 %**, largest derived prefactor `qca.CQ_PREFACTOR` at
+**+50.4145 %**. None had ever carried a verdict, because a guard can only
+demand one for a name its surface *names*: the transcript shows the
+2026-10-24 guard **accepting** an adjudication of all three replacements with
+every one of them omitted. Repository-wide, **75 of 90 module-level scalars
+(84 %)** are in the blind class; `gfet.t_ox` and `gfet.epsilon_0` are scalars
+*outside* it (read only at import to build `C_ox`), which pins the census
+from the other side, and 15 of 91 sit outside in all.
+
+`require_complete_capture_adjudication` is a **strict strengthening** — it
+enters the 2026-10-24 guard unchanged at the end, so every refusal of that
+guard still applies. `UNREACHED` is unavailable on an added name and refused
+outright: the walk that produced the name contradicts what `UNREACHED`
+asserts.
+
+### 4. The device-physics half: `v_F` is two names, not one knob
+
+`C_q` carries the Fermi velocity as `CQ_PREFACTOR = 2e³/(π ħ² v_F²)` and as
+`A_FERMI = ħ v_F √π / e`, so a consistent change by *k* must move one as
+*k*⁻² and the other as *k*⁺¹. The two families do not share a name:
+
+| holder | `gfet.v_F` | `qca.CQ_PREFACTOR` | `qca.A_FERMI` |
+|---|---|---|---|
+| `qca._carrier_density_consistent` | **exact 0** | +0.000671 | +0.000247 |
+| `qca._quantum_capacitance_consistent` | **exact 0** | +1.008232 | +0.519524 |
+| `blast._cq_consistent_contact` | −2.323463 | **exact 0** | +1.161680 |
+
+*(d ln value / d ln name.)* The contact replacement reads `gfet`'s **live**
+prefactor; both channel replacements read `qca.CQ_PREFACTOR` and
+`qca.A_FERMI`, which `graphene_exact_charge_rederivation` computed from
+`gfet.v_F` **at import time** and copied in. **A `v_F` sensitivity study done
+by editing `gfet.v_F` would have reported channel insensitivity to the Fermi
+velocity as a RESULT.** The 2026-10-14 delivery fault in a new place: the
+name is neither stale nor unassigned but **precomputed**, which no audit here
+looks for and `bc.identity_class` cannot see, because the two values are not
+the same object — a float and a float derived from it.
+
+**And the probe's default perturbation turns out to be the physical case.**
+Hwang *et al.* measure, by ARPES, 1.15 ± 0.02 (SiC, ε = 7.26), 1.49 ± 0.08
+(BN, ε = 4.22) and 2.49 ± 0.30 (quartz, ε = 1.80), ×10⁶ m s⁻¹, against a
+fully screened *ab initio* 0.85 × 10⁶ [Sci. Rep. **2**, 590 (2012),
+doi:10.1038/srep00590]. The committed 1.00 × 10⁶ sits just above the **bare**
+value; §4.2's 90 nm SiO₂ stack has ε ≈ 3.9, putting the
+substrate-appropriate value near 1.5 × 10⁶ — exactly the ×1.5 the probe
+applies. So the **−63.5273 %** it reports for the contact `C_q` is not
+synthetic: it is the SiO₂-screened Fermi velocity, and **Chapter 4 quotes the
+contact `C_q` at a `v_F` its own substrate does not have.** Recorded as §7.9
+item 22, deliberately split into the mechanical half (i) and the *decision*
+half (ii), with (i) ranked first regardless of how (ii) goes.
+
+### 5. Exact-value anchors, and a defect in today's own checks
+
+The whole of §4 rests on a probe, so the probe is anchored to a value known
+in advance: `gfet.hbar` and `gfet.v_F` must have **bitwise identical**
+leverage, since the prefactor depends on them only through `(ħ v_F)²` — and
+both move the contact `C_q` to `0x1.87bc5bc0c26d0p-6`. A probe reaching the
+value by any other route would not reproduce that coincidence. Fourth session
+running in which an **exact** check rather than a plausible-range one is what
+made the result trustworthy.
+
+**And the mutation test caught a tautology in a check written today.** The
+first V10c read `(blind - b_ex) == set(_PLANTED_APPARATUS)`; since `b_ex` is
+`blind - _PLANTED_APPARATUS` by construction, that is true for **any** value
+of the exclusion. M7 widens the exclusion to swallow `qca.A_FERMI` and
+`qca.CQ_PREFACTOR` — hiding the day's two findings behind the apparatus
+carve-out the 2026-10-17 item warned about — and the first draft scored
+**31/31** against it. V10c now compares the exclusion against the census's
+own result for this module and V10f requires every excluded name to belong to
+this module *as named by `__file__`*; neither can be satisfied by editing the
+exclusion. Also fixed while writing: keying the module table on `m.__name__`
+rather than on the table's own key made the script module unresolvable, so
+the isolated control could not be written at all; M4 regression-tests it.
+
+Final: **36/36 checks, 9/9 injected defects detected, control clean.** One
+refusal branch has no control and the transcript says so — `EXPOSED` on an
+added name with exact-zero leverage, unreachable because no added pair has
+exact-zero leverage. Sixth instance of *every verdict needs a planted
+control*, in this session's own code.
+
+### 6. A red suite's SCORE is not its content
+
+Found only because today's work had to be checked against the existing
+suites. `graphene_dead_name_sweep.py` has been red at **6/2 for eight
+sessions** and the standing item has said "still red 6/2 on exactly them"
+throughout. Today it is still 6/2 — with a **DEAD count of 2, not 1**.
+`graphene_capture_leverage_figure.py`, committed **yesterday**, carries
+`TEXT_CALLS = tuple(sorted(TEXT_ARGS))`, which nothing reads; and
+`dead_name_sweep_output.txt` was last regenerated **2026-10-18**, six days
+before that module existed, so the transcript in the tree never showed it. A
+stale transcript plus an unchanged score is how a new dead name hid for a day
+in a repository that runs a dead-name sweep. `TEXT_CALLS` is deleted, the
+transcript refreshed, DEAD back to 1 — and the deletion is **verified, not
+assumed**: the figure module's transcript is byte-identical across it.
+
+The sweep also caught **one of today's own names** in the same run: the first
+draft of the new module defined `CDQC` and never used it, was classed
+CROSS_MODULE (alive) because `graphene_capture_surface_guard.py` uses the
+same spelling, and was then flagged UNSUPPORTED by Section 2b — the
+hidden-dead-name loophole 2b exists for, firing on a name created the same
+session. Removed.
+
+### 7. No figure this session, deliberately
+
+Four consecutive sessions found a defect by rendering a figure, and yesterday
+supplied `F7`–`F10` as working code for the mechanical half. Today's result
+is a 36-check transcript whose load-bearing content is **exact hex values and
+bitwise zeros**, which a bar chart would blur rather than sharpen; the one
+plottable object (the 18 leverages over four decades) is a ranking already
+legible as a table. The standing render-and-inspect item is therefore
+**neither advanced nor discharged** today, and still has ~63 PNGs behind it.
+
+### 8. Environment and automation health
+
+**`/tmp` first, as the 2026-10-24 entry asked.** The device VM's `/sessions`
+filesystem is **still 100 % full** (9.3 G of 9.8 G, other sessions'
+directories, unreadable and undeletable from here) and the first clone
+attempt into `$HOME/work` failed with *"could not create work tree dir …
+No space left on device"* after partially checking out. Cloning into `/tmp`
+(`/dev/sda1`, 4.1 G free) worked unchanged. `scipy` absent and installed
+(1.15.3) — **tenth consecutive** session, via
+`TMPDIR=/tmp/piptmp pip install --no-cache-dir --target /tmp/pylibs scipy`,
+`PYTHONPATH=/tmp/pylibs`; `numpy` 2.2.6 and `matplotlib` 3.10.9 present.
+**A future run should clone straight into `/tmp` and not re-discover this.**
+One new operational note: `python3 -I` cannot be used for this repository's
+scripts — `-I` discards `PYTHONPATH`, so the scipy shim vanishes and every
+import of `graphene_fet_model` fails. Live web search **was** available; one
+search and one fetch, both successful, no retries and no blocked hosts.
+PubMed/PMC not attempted, per the standing note. Every commit pushed
+immediately and verified against the GitHub API.
+
+**Not yet covered (candidates for future runs):**
+
+- **COMPLETE THE SURFACE FOR EVERY REPLACEMENT IN `rra.FLIPS`, NOT FOUR
+  HOLDERS** — created today, **ranked first**, and the direct continuation.
+  Today completed the surface of four holders and found 18 levers, 100 %
+  of them real. The blind class is 75 names and the audited holders are a
+  handful; the question is how many of the remaining 67 are levers on
+  something committed. Cheapest entry: `value_reads` already takes any
+  callable, and `rra.FLIPS` already enumerates the managers — walk every
+  rebind-set member and adjudicate. Blocked on nothing.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — created today, **ranked
+  second**, §7.9 item 22 (i). Mechanical, blocked on nothing, and it is the
+  precondition for item 22 (ii) being answerable at all. Note the general
+  shape while doing it: **a precomputed copy is unreachable from the name it
+  was computed from**, and `graphene_exact_charge_rederivation` is where the
+  copies are made. A census of *every* precomputed cross-module constant is
+  the generalisation, and `A_OX` and `HBAR` in the non-blind list are
+  candidates for the same defect read from the other end.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — created today
+  from §6, **ranked third**, and cheap. `dead_name_sweep` hid a new dead
+  name for a day behind an unchanged 6/2. The repair is a committed
+  expected-failure set per suite, so a new member is a diff; the same
+  argument applies to every suite in this repository that is permanently
+  red, and `graphene_standing_list_audit.py` is the natural home.
+  **Related and now sharper: regenerate every committed transcript as part
+  of a session, not only the ones the session touched** — a transcript six
+  days stale is how §6 happened.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from
+  2026-10-24, **ranked fourth**, and today narrows it usefully: it is a
+  *contact* lever and bitwise dead on the channel, so
+  `bc.identity_class(gfet, '_thermal_rounding')` is still the one-line probe,
+  but the expected answer is now a contact-only class, and a class spanning
+  channel and contact would be the surprise.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried
+  from 2026-10-23, and today is the **sixth** instance, found in this
+  session's own code (the `EXPOSED`-with-exact-zero branch). Repository-wide
+  question still untouched: which refusal branches anywhere have never been
+  reached. `bc.UnassignedClassMember`'s not-a-pair and no-reason raise sites
+  and `bc.rebind()`'s bare-set refusal remain the named candidates.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **nineteen**
+  sessions overdue, and today is another argument for it: M3 shows that
+  swapping the bitwise comparison for a 1 × 10⁻³ relative tolerance makes
+  `gfet.kB`'s +0.0242 % read as an exact zero, i.e. the tolerance would have
+  deleted a lever rather than blurred one.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged in content. Still a
+  decision about what the thesis claims, not a build; and item 22 (ii) is now
+  a second decision of the same kind, so the two should be taken together.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs, four
+  sessions at a 100 % hit rate, explicitly **not** advanced today (§7).
+  `F7`/`F9`/`F10` are generic and mechanical; the narrower **clipping and
+  occlusion sweep** created 2026-10-24 is still the cheapest entry.
+- **ADJUDICATE THE RELATION FOR THE FLIPS 10-23 DID NOT COMPOSE** — carried
+  from 2026-10-23, untouched. `qca.on_consistent_argument()` and
+  `blast.contact_on_consistent_argument()` have rebind sets and appear in
+  `rra.FLIPS` but no adjudication was written for compositions headed by
+  them. Today's ranked-first item would pass straight through this.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **fifth** session untouched. One-line corner sweep.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on Fig. 4 of a paper behind `arxiv.org`.
+  A copy of the PDF in the connected folder unblocks both immediately.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, and today is the first session to
+  **engage** it rather than note it: `_PLANTED_BARE` is a genuine member of
+  the class this module censuses, so the census reports both numbers, V10b
+  requires it to find its own plant, and V10c/V10f make the exclusion
+  uneditable. That is a worked pattern, not a discharge — the plant still
+  adds one member to a class other audits read.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12, and it now
+  has **its first number**: +49.2125 % on the charge replacement, comparable
+  to the solved density itself at V = 0.5. What the name means is not a
+  low-bias detail.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, and now
+  has a number on the outside too: `X.floor_total` at +50.0000 %.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **ninth** session;
+  `dead_name_sweep` red 6/2, and see §6 for why that score is not evidence.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried
+  from 2026-10-14, **tenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried;
+  three worked references now.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — the live
+  successor to the retired Chapters 2–3 wording (which stays retired; `A1` in
+  `graphene_standing_list_audit.py` fails on its revival, and the audit is
+  22/22 today). Created 10-01, untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **thirteenth**
+  session, and today bounds it: the rounding form is a contact-only lever.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **eighteenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **sixteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **fifteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, nineteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **sixteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **sixteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched;
+  the naming clash is now four-way, since this session adds
+  `UnadjudicatedValueRead`.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 5 (the module with its transcripts and mutation report;
+the `v_F` section; today's notes; thesis §4.6.21 with the two §4.6.20
+annotations and §7.9 item 22; the dead-name repair). This AUTOMATION_LOG.md
+entry makes **6**. Each was pushed immediately after commit and verified
+against the GitHub API.
