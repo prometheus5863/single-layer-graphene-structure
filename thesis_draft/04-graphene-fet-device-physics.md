@@ -3309,6 +3309,24 @@ separating them needs the one judgement `static_reads` **can** make soundly:
 an over-approximate read set has reliable *negatives*, so *not on the read
 surface* is trustworthy even though *on it* is not.
 
+> **Annotated 2026-10-25 (§4.6.21). The sentence this paragraph ends on is
+> false.** `rra.static_reads` records a `(module, attr)` pair only when a
+> module object is loaded and an attribute taken from it, or when a bare
+> global resolves to a repo *function*. A bare global resolving to a
+> module-level **scalar**, read from inside the module that defines it —
+> which is how every constant here is read by its own module's functions —
+> is recorded **nowhere**, so a negative means *not read in a spelling the
+> walker can see*, not *not read*. The demonstration is a single name:
+> `qca.A_FERMI` is **off** the read surface of both channel replacements
+> while a rebind of it moves one of them by **+29.8900 %**, and it is **on**
+> the surface of both contact holders, where `blast` spells it qualified.
+> §4.6.21 measures this. **Nothing in (d) above is withdrawn**: the identity
+> class, the two independent derivations of it and the `PROTECTED`/`UNREACHED`
+> distinction all stand, and the `UNREACHED` verdicts of §4.6.20 are
+> re-measured in §4.6.21 and still hold. What is withdrawn is the *ground*
+> offered for them here. `UNREACHED` is sound when it rests on a measured
+> bitwise zero, and unsound when it rests on an absence.
+
 #### (e) A device-physics consequence, not only a software one
 
 `gfet.C_ox` is **exactly** protected for both variants. §4.6.19 left one
@@ -3325,6 +3343,30 @@ inherits an oxide-thickness error through that path. The three names that
 *do* carry the contact `C_q` are `gfet._thermal_rounding` and `qca.A_FERMI`
 at ≈ +58 %, and `cd.C_interface` itself at +18 %, which is the sensitivity
 ranking a reader of §4.5 should have.
+
+> **Annotated 2026-10-25 (§4.6.21). The `gfet.C_ox` result stands; the
+> sensitivity ranking in the last sentence is incomplete and its "three
+> names" is wrong.** The exact zero on `gfet.C_ox` is re-measured in
+> §4.6.21 on `blast._cq_consistent_contact`, which has **no capture at
+> all**, so the zero is a property of the contact model and not of §4.6.17's
+> repair — a strengthening of this paragraph, not a retraction. The ranking
+> is another matter. Five further names reach the contact `C_q` and were
+> invisible to the surface this paragraph was computed from:
+>
+> | name | leverage on contact `C_q` |
+> |---|---|
+> | `gfet.e` | **+278.4911 %** |
+> | `gfet._thermal_rounding` | +58.3421 % |
+> | `qca.A_FERMI` | +58.3417 % |
+> | `gfet.hbar` | −63.5273 % |
+> | `gfet.v_F` | −63.5273 % |
+> | `qca.E_CHARGE` | −21.2518 % |
+> | `cd.C_interface` | +18.1154 % |
+>
+> The true ranking is headed by `gfet.e`, and `gfet.hbar` and `gfet.v_F`
+> are interleaved among the three names named above. The numbers quoted in
+> this paragraph are all correct; the claim that they are *the* ranking is
+> not, and §4.6.21 (c) draws the device-physics consequence for `v_F`.
 
 #### (f) It is a guard, not a census
 
@@ -3357,9 +3399,131 @@ Stated in the form the other members of this family take:
 - §4.6.18 — a capture that fixes one name does not fix the names the captured
   object reads.
 - §4.6.19 — a refusal that nothing reaches is not a refusal.
-- **§4.6.20 — a name outside every rebind set is not thereby harmless, only
+- §4.6.20 — a name outside every rebind set is not thereby harmless, only
   unwatched. Whether a name can move a result is a counterfactual, and no
-  read set answers it.**
+  read set answers it.
+- **§4.6.21 — a name's absence from a read surface is a fact about the
+  surface's vocabulary, not about the name. Two names for one parameter are
+  not one knob, and a precomputed copy is unreachable from the name it was
+  computed from.**
+
+
+### 4.6.21 The negatives were never sound, and `v_F` was never one name
+
+§4.6.20 adjudicated one capture and closed with a sentence it did not test:
+that an over-approximate read set has reliable *negatives*. This section
+tests it on the three remaining replacements, finds it false, and follows the
+consequence into a statement about the Fermi velocity that is a device-physics
+result rather than a software one.
+
+#### (a) The blind spot, and one name that exhibits it
+
+`rra.static_reads` records a name in two situations only: a module object
+loaded and an attribute taken from it (`qca.A_FERMI`), or a bare global
+resolving to a repo **function** (`cq_thermal`). A bare global resolving to a
+module-level **scalar** — the spelling every constant in this repository is
+read by inside its own module — matches neither, and is recorded nowhere.
+
+The cleanest exhibit is one name read two ways:
+
+| holder | on the §4.6.20 surface? | leverage of `qca.A_FERMI` |
+|---|---|---|
+| `qca._carrier_density_consistent` | **no** | +0.0121 % |
+| `qca._quantum_capacitance_consistent` | **no** | **+29.8900 %** |
+| `blast._cq_consistent_contact` | yes | +58.3417 % |
+| `flip.make_contact_cq(live=False)` | yes | +58.3417 % |
+
+One name, one value, one mechanism; `qca` reads it bare and `blast` spells it
+`qca.A_FERMI`, and that spelling is the whole of the difference. This is an
+exact binary prediction of the mechanism on a single name, and it is checked
+as such.
+
+#### (b) The answer to §4.6.20's own question, in both directions
+
+§4.6.20 asked whether `gfet._thermal_rounding` and `qca.A_FERMI` carry its
+≈ +58 % onto the other replacements, which would make them repository-wide
+levers rather than contact facts. The two halves answer oppositely.
+`gfet._thermal_rounding` is **bitwise exactly zero** on both channel
+replacements — a contact fact, and the zero is a *measured counterfactual*,
+not an absence from a surface, which after (a) would prove nothing.
+`qca.A_FERMI` is repository-wide, and off-surface in both places where it
+matters.
+
+Completing the surface on the four holders adds **18 (holder, name) pairs**,
+8 distinct names, and **every one moves the value**; the largest is `gfet.e`
+at +278.4911 % and the largest derived model prefactor is `qca.CQ_PREFACTOR`
+at +50.4145 %. None had ever carried a verdict, because a guard can only
+demand one for a name its surface names — and the §4.6.20 guard is shown to
+**accept** an adjudication of all three replacements with every one of them
+omitted. Repository-wide, **75 of the 90 module-level scalars (84 %)** are in
+the blind class; `gfet.t_ox` and `gfet.epsilon_0` are scalars outside it,
+because they are read only at import time to build `C_ox`, which pins the
+census from the other side.
+
+#### (c) The device-physics consequence: `v_F` is two names, not one
+
+`C_q` carries the Fermi velocity twice, as `CQ_PREFACTOR = 2e³/(π ħ² v_F²)`
+and as `A_FERMI = ħ v_F √π / e`, so a consistent change of `v_F` by *k* must
+move one as *k*⁻² and the other as *k*⁺¹. The two families do not share a
+name for it:
+
+| holder | `gfet.v_F` | `qca.CQ_PREFACTOR` | `qca.A_FERMI` |
+|---|---|---|---|
+| `qca._carrier_density_consistent` | **exact 0** | +0.000671 | +0.000247 |
+| `qca._quantum_capacitance_consistent` | **exact 0** | +1.008232 | +0.519524 |
+| `blast._cq_consistent_contact` | −2.323463 | **exact 0** | +1.161680 |
+
+*(d ln value / d ln name; `exact 0` = a ×1.5 rebind leaves the value bitwise
+unchanged.)* The contact replacement reads `gfet`'s **live** prefactor;
+both channel replacements read `qca.CQ_PREFACTOR` and `qca.A_FERMI`, which
+`graphene_exact_charge_rederivation` computed from `gfet.v_F` **at import
+time** and copied in. So `gfet.v_F` is bitwise unreachable from every
+Chapter 4 channel number, and `qca.CQ_PREFACTOR` is bitwise unreachable from
+the contact number. **A `v_F` sensitivity study performed by editing
+`gfet.v_F` would have reported channel insensitivity to the Fermi velocity
+as a result.** This is the §4.6.13 delivery fault in a new place: the name is
+neither stale nor unassigned but **precomputed**, and `bc.identity_class`
+cannot see it because the two values are not the same object — they are a
+float and a float derived from it.
+
+#### (d) And the perturbation is the physical case
+
+`v_F` is not a constant of nature. Hwang *et al.* measure, by ARPES,
+1.15 ± 0.02, 1.49 ± 0.08 and 2.49 ± 0.30 (×10⁶ m s⁻¹) for graphene on
+SiC(000-1) (ε = 7.26), BN (ε = 4.22) and quartz (ε = 1.80) respectively,
+against a fully screened *ab initio* value of 0.85 × 10⁶ m s⁻¹, with a 1/ε
+dependence at fixed carrier concentration [Sci. Rep. **2**, 590 (2012),
+doi:10.1038/srep00590].
+
+The value committed throughout this chapter, `v_F = 1.00 × 10⁶ m s⁻¹`, sits
+just above the **bare** value. The 90 nm SiO₂ back gate modelled in §4.2 has
+ε ≈ 3.9, between the BN and quartz cases, so the substrate-appropriate value
+is near 1.5 × 10⁶ m s⁻¹ — which is exactly the ×1.5 the probe applies by
+default. The **−63.5273 %** it reports for the contact `C_q` is therefore not
+a synthetic perturbation: it is the SiO₂-screened Fermi velocity, and this
+chapter quotes the contact `C_q` at a `v_F` its own substrate does not have.
+
+This is left as an open question rather than resolved here, and §7.9 records
+it as such. Using the bare value consistently is defensible — it is what most
+compact device models do, and the renormalisation is itself carrier-density
+dependent, so any single number is already an approximation. Quoting it as
+*the* contact `C_q` while the same chapter models a specific SiO₂ stack is
+weaker. What is not defensible is the present state, in which the question
+cannot be *asked* by changing one name.
+
+#### (e) Anchored to an exactly known symmetry
+
+All of (c) and (d) rest on a probe, so the probe is anchored to a value known
+in advance: `gfet.hbar` and `gfet.v_F` must have **bitwise identical**
+leverage, because the prefactor depends on them only through `(ħ v_F)²`. They
+do — both move the contact `C_q` to `0x1.87bc5bc0c26d0p-6`. A probe reaching
+the value by any other route would not reproduce that coincidence. 36/36
+checks, with 9 defects injected one at a time into a copy of the repository
+and all 9 detected; the mutation that hides this section's two findings behind
+the measuring module's own apparatus carve-out scored **31/31** against the
+first draft of the check meant to prevent exactly that, which is recorded in
+`notes/2026-10-25-the-negatives-were-never-sound.md` §8 rather than quietly
+fixed.
 
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result

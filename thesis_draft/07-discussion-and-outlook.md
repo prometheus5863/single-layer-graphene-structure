@@ -1919,6 +1919,38 @@ Stated as falsifiable items, in order of how much they would move:
    between the two days was one module, and the generalisation — *an
    instrument built in one place does not protect the other* — is the
    cross-repository form of §7.5.2.
+22. **Which `v_F` this thesis is quoting, and the fact that it cannot
+   currently say** (added 2026-10-25, §4.6.21 (c)–(d); the first item on this
+   list that is a question about the *physics* produced by an audit of the
+   *code*). Two findings, and the second is a precondition for even asking
+   the first.
+   **(i) The Fermi velocity is two names, not one knob.** `C_q` carries it as
+   `CQ_PREFACTOR = 2e³/(π ħ² v_F²)` and `A_FERMI = ħ v_F √π / e`. The contact
+   replacement follows `gfet.v_F` with d ln `C_q`/d ln `v_F` = −2.323463;
+   both channel replacements are **bitwise unreachable** from `gfet.v_F` and
+   follow `qca.CQ_PREFACTOR` (+1.008232) and `qca.A_FERMI` (+0.519524), which
+   `graphene_exact_charge_rederivation` computed from `gfet.v_F` at import
+   time and copied in. A `v_F` sensitivity study done by editing `gfet.v_F`
+   would have reported **channel insensitivity to the Fermi velocity as a
+   result**. The repair takes three names moved together, one as *k*⁻²; it is
+   a mechanical change and is not blocked on anything.
+   **(ii) And the committed value is the bare one, on a substrate that
+   renormalises it.** Hwang *et al.* measure 1.15 ± 0.02 (SiC, ε = 7.26),
+   1.49 ± 0.08 (BN, ε = 4.22) and 2.49 ± 0.30 (quartz, ε = 1.80), ×10⁶ m s⁻¹,
+   against a fully screened *ab initio* 0.85 × 10⁶ [Sci. Rep. **2**, 590
+   (2012)]. This thesis commits 1.00 × 10⁶ throughout, just above the bare
+   value, while §4.2 models a 90 nm SiO₂ stack whose ε ≈ 3.9 puts the
+   substrate-appropriate value near 1.5 × 10⁶ — and ×1.5 is exactly the
+   perturbation that moves the contact `C_q` by **−63.5273 %**.
+   **What this item asks for is a decision, not a build.** Using the bare
+   value consistently is defensible: most compact device models do, and the
+   renormalisation is carrier-density dependent, so one number is already an
+   approximation. The weak position is the present one, which quotes the
+   contact `C_q` at a `v_F` the modelled substrate does not have *and* cannot
+   express the alternative by changing one name. **(i) should be done first
+   regardless of how (ii) is decided**, because (i) is what makes (ii)
+   measurable, and because until it is done any number this thesis quotes for
+   the `v_F` sensitivity of a channel result is zero for the wrong reason.
 
 
 ---
