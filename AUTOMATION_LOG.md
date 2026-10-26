@@ -11372,3 +11372,343 @@ the `v_F` section; today's notes; thesis §4.6.21 with the two §4.6.20
 annotations and §7.9 item 22; the dead-name repair). This AUTOMATION_LOG.md
 entry makes **6**. Each was pushed immediately after commit and verified
 against the GitHub API.
+
+## 2026-10-26 — A verdict measured in isolation, and the transcripts that hid a repository that no longer exists
+
+**Status:** the 2026-10-25 ranked-first and ranked-third items are both
+discharged, and each one found something its own wording did not predict.
+6 commits.
+
+### 1. The ranked-first item, and the question it did not ask
+
+"COMPLETE THE SURFACE FOR EVERY REPLACEMENT IN `rra.FLIPS`, NOT FOUR
+HOLDERS." Enumerating the population — `rra.FLIPS` × `rra.rebind_set`, **8
+(flip, site) pairs and 6 distinct installed objects** — exposes a property of
+the **measurement** rather than a gap in coverage.
+
+A replacement is a function a flip manager *installs*; it only ever runs with
+that manager entered. All three instruments are relative to the namespace at
+the moment of use: `csg.capture_surface` and `vrs.value_reads` are static
+walks resolving each name to *the object bound now*, and `csg.leverage` calls
+the holder in the current namespace. **Every committed leverage figure —
+2026-10-22's, 2026-10-24's, 2026-10-25's — was taken in isolation, the one
+configuration in which the replacement never runs.** Nothing had asked
+whether that mattered. Two of the six objects (the arrival-counting wrappers
+`flip._counting` builds, i.e. what `gfet.carrier_density` and
+`gfet.quantum_capacitance` *actually become* under the default flip) had never
+had a read surface computed at all.
+
+### 2. The answer, measured over all 6 × 3 cells, and it mostly vindicates the instruments
+
+**All six installed objects are BITWISE flip-invariant under their own
+flip** — every name on the surface, every counterfactual, and the holder's own
+value. *That proposition is what licenses every leverage figure this
+repository has committed*, and it had never been stated, let alone checked.
+It is now check `A1`. Five of the six are invariant under all three flips.
+
+`A1` is the sentence 2026-10-25 would have needed and did not have. The
+pattern is the fourth running instance of *an audit's ground was asserted and
+not measured*, and the first in which the measurement came out in the audit's
+favour.
+
+**A surface change is not a verdict change**, and the table separates them:
+four of the six objects gain surface names in some configuration (the
+counting wrapper for `carrier_density` goes 15 → 17 under
+`qca.on_consistent_argument()`) while every counterfactual stays bitwise
+identical.
+
+### 3. The one row that moves, and what it does NOT revise
+
+`blast._cq_consistent_contact` under `flip.on_default_flip(live_contact=False)`:
+`0x1.0c835a6063492p-4` → `0x1.4ef081d146707p-7`, **a factor of 6.4134**, and
+**11 of 15 names cross the exact-zero boundary**:
+
+| going bitwise DEAD as installed | isolated | | coming ALIVE as installed | installed |
+|---|---|---|---|---|
+| `gfet.e` | **+278.4911 %** | | `qca.cq_thermal` | **+52.4103 %** |
+| `gfet.hbar` | −63.5273 % | | `qca.cq_thermal_of_n` | +52.4103 % |
+| `gfet.v_F` | −63.5273 % | | `qca.CQ_PREFACTOR` | +52.4103 % |
+| `gfet.kB` | +0.0242 % | | `qca.KB` | +35.8863 % |
+| `gfet._thermal_rounding` | +58.3421 % | | `qca.n_arg_EF_thermal` | +9.0738 % |
+| | | | `gfet.C_ox` | **+7.8110 %** |
+
+**The value change is NOT a new result** and is not reported as one: it is
+2026-10-21's *"the two halves do not compose"*, which measured this exact
+composition and costed it at −51 % to −62 % in `n_contact`. What is new is
+that the same non-composition appears as a change in the **read surface**, the
+object every guard here demands adjudication over. The standing *ADJUDICATE
+THE RELATION FOR THE FLIPS 10-23 DID NOT COMPOSE* item is therefore **partly
+discharged**: the relation is measured over all 6 × 3 cells and exactly one
+row is non-composing.
+
+**One reason revised, no number withdrawn.** `gfet.C_ox`'s 2026-10-25
+PROTECTED verdict is correct in the configuration it was measured in. Its
+*stated reason* — "the zero is a property of the contact model and not of the
+2026-10-21 repair" — generalised from that one configuration, and the same
+holder gives +7.8110 % under the default flip. The reason is corrected in
+place with the superseded wording kept.
+
+**And then `G9`, exhaustive over the vocabulary:** for `gfet.C_ox` on this
+holder, `PROTECTED` is admissible in isolation and refused as installed;
+`EXPOSED` is refused in isolation and admissible as installed; `UNREACHED`
+and `GOVERNED` are refused in both. **Exactly one verdict is admissible in
+each configuration and they are different ones.** So non-composition is *not
+dischargeable by adjudication at all* in the present four-verdict vocabulary,
+which is the structural reason that item has survived three sessions of being
+noted rather than worked. §7.9 item 23 (ii) records the repair — a verdict
+indexed by configuration — as a change to the 10-24/10-25 guards rather than
+an addition to them.
+
+### 4. Second finding: `flip._counting` is a capture, and nothing had noticed
+
+Each counting wrapper's surface adds exactly one name — the replacement it
+wraps — and a rebind of it is **bitwise zero**, because `_counting` holds the
+function object in a cell. Third capture in this repository, and its
+consequence is that the channel replacement **name** is immune under the
+default flip. `UNREACHED`, not `PROTECTED`, by `csg`'s own 2026-10-24
+argument for `CDQC`: the wrapper never *looks the name up*. **This module's
+first draft said `PROTECTED` and the 2026-10-24 guard refused it** — fourth
+time a rule planted on an earlier day caught a claim written on a later one.
+`W3`/`W4` then transfer 2026-10-25's verdicts onto the wrappers *with proof*:
+the wrapper's value is bitwise equal to the wrapped replacement's and every
+shared name has bitwise identical leverage on both.
+
+### 5. Exact anchors, and two of today's own checks passing for the wrong reason
+
+Fifth consecutive session in which an **exactly known** value rather than a
+plausible range is what made the result trustworthy: `gfet.hbar` and
+`gfet.v_F` move the capture holder to the bitwise identical
+`0x1.87bc5bc0c26d0p-6` in all four configurations (the prefactor depends on
+them only through `(ħ v_F)²`); the identity control flip leaves value *and*
+surface bitwise unchanged; and — sharpest — **the repaired and unrepaired
+contact replacements are bitwise indistinguishable in isolation**, both
+`0x1.0c835a6063492p-4`, so the entire content of the 2026-10-21 repair appears
+*only* as installed. Five sessions measured both holders in the one
+configuration in which they cannot be told apart.
+
+**The mutation runner found two of today's checks passing for the wrong
+reason**, and both are repaired in the suite under test rather than in the
+runner:
+
+- **N4** (delete the new PROTECTED-must-be-exact-as-installed refusal) scored
+  **26/26 undetected**. The first draft's `G6` planted its false verdict on a
+  holder whose adjudication was *incomplete in that configuration*, so the
+  missing-name refusal fired first and the branch under test was never
+  entered — green, and incapable of being anything else. The refusals are now
+  reachable through an extracted `installed_verdict_errors`, `G6`/`G7` fire
+  on the real names (`gfet.C_ox` PROTECTED, `gfet.e` EXPOSED) and `G8` is the
+  negative half. **Sixth** instance of *every verdict needs a planted
+  control*, and the first where the unreachable control sat in the same file
+  as the branch.
+- **N8** (compare the holder's own value with a relative tolerance) also went
+  undetected: `A4` asserted two hex values and never the invariance **flag**
+  computed from them, so a factor of 6.4 could read as flip-invariant.
+
+Final: audit **30/30**, mutation **9/9 on their own terms**, `N0` clean.
+
+### 6. The ranked-third item, discharged, and it was worse than one session
+
+"REGENERATE EVERY COMMITTED TRANSCRIPT AS PART OF A SESSION, NOT ONLY THE ONES
+THE SESSION TOUCHED." **Six of the fifteen registered transcripts were
+STALE**, and only part of that was today: they were generated against a tree
+with **55 Python files against today's 66**, so they predate whole modules and
+were reporting on a repository that no longer exists. What they hid, all of it
+inside the audit modules the figure-provenance audit's own closing note named
+as "the next run's top item":
+
+- **`graphene_chord_decay_length.py`** (added 2026-10-20) carries **three
+  MIXED names** — `D1_CHORD` (3 frozen / 9 live), `D2_CHORD` (3/4), `D_SPAN`
+  (1/3) — and **7** frozen-vs-live numeric-literal occurrences. MIXED is
+  described by the arrival probe's own transcript as *"the worst class, not a
+  middle one"*, and the committed transcript reported `{'LIVE': 1}` — **no
+  MIXED name anywhere** — for six sessions.
+- **`graphene_capture_surface_guard.py`** (added 2026-10-24) carries
+  `PERTURBATION` and `PROBE_V` as MIXED (2 frozen / 1 live each) and 4
+  provenance occurrences. Those are the two names every counterfactual in
+  this repository is taken with.
+- the cross-module captured-default census goes **3 → 7**, the
+  attribute-default capture census **1 → 12** shipped plus **0 → 4** of its
+  own form, and the computed-name `setattr` note **20 → 28** call sites.
+- the standing-list audit was reading an AUTOMATION_LOG it recorded as
+  latest-entry **2026-10-18** against **27** bullets; it is 2026-10-25 and 31.
+
+**None of it is repaired here.** All of it is reported with its numbers and
+ranked first for the next run: regenerating a transcript and fixing what it
+then says are different pieces of work, and conflating them is how the stale
+state lasted six sessions. The pristine-transcript audit is then **13/13 with
+all 17 registered suites IDENTICAL**, and today's suite is registered in its
+table in the commit that writes it, per the 2026-10-03 wiring rule.
+
+**Three dead names in today's own module**, caught the same way —
+`CTRL_ROUTE`, `DEPENDENCE`, `REVERSING`, defined and never read, exactly the
+2026-10-25 fault. All three are now **asserted on** rather than deleted, and
+the assertion turned up a real fact: `CTRL_ROUTE` is invisible to
+`csg.capture_surface` because the script module is outside
+`rra.repo_modules()` — the gap `vrs._modules()` was written for on 2026-10-25,
+and the reason these controls must measure through `vrs.leverage_here`. DEAD
+count back to 1.
+
+### 7. No figure this session, deliberately
+
+Second consecutive session without one, and for the same reason: the
+load-bearing content is **exact hex values, bitwise zeros and a 6 × 3
+dependence table**, which a bar chart blurs rather than sharpens. The
+standing render-and-inspect item is therefore **neither advanced nor
+discharged**, and still has ~63 PNGs behind it.
+
+### 8. Environment and automation health
+
+**Three operational facts, all consequences of the device VM's `/sessions`
+filesystem being 100 % full** (9.3 G of 9.8 G, other sessions' directories,
+unreadable and undeletable from here) — and all three belong in the next
+session's first command rather than its debugging:
+
+1. **Clone into `/tmp`** (`/dev/sda1`, 3.7 G free). As the 2026-10-25 entry
+   asked. The first attempt into `$HOME/work` failed with *"could not create
+   work tree dir … No space left on device"* after a partial checkout.
+2. **`export TMPDIR=/tmp`.** NEW. `graphene_pristine_transcript_audit.py`
+   clones the commit into `$TMPDIR`, which defaults onto `/sessions`; it
+   aborted with *"fatal: sha1 file … index.lock write error. Out of
+   diskspace"* after a partial checkout, as a `RuntimeError` rather than a
+   verdict, so nothing was audited and the transcript on disk recorded a
+   traceback. The suite does not fail honestly when this happens.
+3. **`export MPLCONFIGDIR=/tmp/mplcache`.** NEW. matplotlib cannot create its
+   cache under `/sessions` and prints **two warning lines into the head of
+   every transcript that imports it**. Those lines are not suite output but
+   are indistinguishable from it to a byte-comparing audit, so without the
+   override every such transcript is committed with two lines of environment
+   noise and every later comparison reads STALE.
+
+`scipy` 1.15.3 was already present in `/tmp/pylibs` from a previous session —
+**first session in eleven that did not have to install it**, because `/tmp`
+survives between sessions on this VM. `numpy` 2.2.6, `matplotlib` 3.10.9.
+`python3 -I` still unusable here (it discards `PYTHONPATH`, so the scipy shim
+vanishes). **Live web search was not used**: today's subject is this
+repository's own instruments measured against themselves, and there is no
+external source for it. PubMed/PMC not attempted, per the standing note.
+Every commit pushed immediately and verified against the GitHub API.
+
+**Not yet covered (candidates for future runs):**
+
+- **FIX THE FIVE MIXED NAMES AND THE 12 FROZEN/LIVE LITERALS §6 EXPOSED** —
+  created today, **ranked first**, and the direct continuation. `D1_CHORD`,
+  `D2_CHORD`, `D_SPAN` in `graphene_chord_decay_length.py` and
+  `PERTURBATION`, `PROBE_V` in `graphene_capture_surface_guard.py` are MIXED,
+  the class that module's own transcript calls the worst one, and the last
+  two are the names every counterfactual in this repository is taken with —
+  so an oracle/measurement split on them is a defect in the instrument, not
+  in a model. Blocked on nothing; the numbers are already in the refreshed
+  transcripts. **Do this before any new measurement**, because it is the
+  instrument the new measurements would use.
+- **A VERDICT INDEXED BY CONFIGURATION** — created today, **ranked second**,
+  §7.9 item 23 (ii). `G9` shows exhaustively that no member of
+  {PROTECTED, UNREACHED, EXPOSED, GOVERNED} is true in both configurations
+  for `gfet.C_ox` on the live contact replacement, so the long-standing
+  "adjudicate the non-composing compositions" item is **not satisfiable in
+  the present vocabulary**. The repair is a verdict naming its configuration,
+  with the guard requiring one per (holder, flip) cell. This is a CHANGE to
+  the 10-24 and 10-25 guards and should be costed before being built.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  created today, **ranked third**, §7.9 item 23 (i). `live_contact=True` is
+  the unrepaired contact replacement *as the default flip installs it*, which
+  is the configuration 2026-10-21 actually costed, and it is not in the 6 × 3
+  table. Mechanical: the table is built from `rra.FLIPS`, so the work is
+  adding managers and supplying verdicts.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  2026-10-25, **ranked fourth**, and today is a second argument for it from
+  the other side: three new DEAD names appeared in a module written today and
+  the sweep's score would have been 6/2 either way. A committed
+  expected-failure set per suite makes a new member a diff.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — created today. The
+  strongest claim of this session (`A1`, all six objects bitwise invariant
+  under their own flip) is asserted at **one** probe point with **one**
+  perturbation. A sweep turns it from a measurement at a point into a
+  measurement over a box, and it shares its cheapest entry with the standing
+  *IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?* item — the two should be done
+  together.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  2026-10-25. Today completed the *population of holders*; the blind class is
+  still 75 names and only the ones reachable from the audited holders have
+  verdicts. Unchanged in content.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 2026-10-25, §7.9
+  item 22 (i), and today narrows it usefully rather than doing it: the
+  −63.5273 % **survives** on `flip.make_contact_cq(live=False)`, the holder
+  the default flip actually installs, in every configuration measured, and
+  `gfet.hbar` carries the bitwise identical figure as `(ħ v_F)²` requires. It
+  does **not** survive on `blast._cq_consistent_contact` composed with either
+  other flip, where `gfet.v_F` is bitwise dead. Still mechanical, still
+  blocked on nothing, and now with its scope stated.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from
+  2026-10-24, and today bounds it further: it is a contact lever *in
+  isolation* and **bitwise dead on the live contact replacement as
+  installed**, so `bc.identity_class(gfet, '_thermal_rounding')` should now be
+  expected to return a class that is configuration-dependent, which
+  `identity_class` cannot express.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **sixth** instance (§5, N4). Repository-wide question still
+  untouched: which refusal branches anywhere have never been reached.
+  `bc.UnassignedClassMember`'s not-a-pair and no-reason raise sites and
+  `bc.rebind()`'s bare-set refusal remain the named candidates.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twenty**
+  sessions overdue, and today is another argument: N8 shows a relative
+  tolerance in the invariance comparison would report a factor of **6.4** as
+  invariant.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged; a decision, not a
+  build, and still to be taken together with item 22 (ii).
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs,
+  explicitly not advanced (§7). The narrower **clipping and occlusion sweep**
+  created 2026-10-24 is still the cheapest entry.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **sixth** session untouched; now pairs with the corner-sweep item above.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on Fig. 4 of a paper behind `arxiv.org`. A
+  copy of the PDF in the connected folder unblocks both immediately.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, and today adds an instance from the other
+  end: today's module plants `_ctrl_route`/`_CTRL_A`/`_CTRL_B` in the tree the
+  dead-name sweep and the delivery audit read, and the delivery audit's
+  captured-default census grew partly because of it.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12; its
+  +49.2125 % is confirmed configuration-independent today.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried;
+  `X.floor_total` at +50.0000 %, also configuration-independent.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **tenth** session;
+  `dead_name_sweep` red 6/2, DEAD count 1.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, **eleventh** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried; four
+  worked references now, counting today's 6 × 3 table.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — the live
+  successor to the retired Chapters 2–3 wording (which stays retired; `A1` in
+  `graphene_standing_list_audit.py` fails on its revival, and the audit is
+  22/22 today). Created 10-01, untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **fourteenth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **nineteenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **seventeenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **sixteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twenty sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **seventeenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **seventeenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+- **Chapters 2–3 are still undrafted** — the largest remaining block of pure
+  writing; their computational results have been complete for weeks.
+
+**Commits this run:** 6 (the installed-surface audit with its transcript; the
+mutation runner with its 9/9 transcript; today's notes; thesis §4.6.22 with
+the two in-place annotations and §7.9 items 22-annotation and 23; the
+six-transcript regeneration with the dead-name repair and the
+pristine-audit registration; the pristine audit's own 13/13 transcript).
+This AUTOMATION_LOG.md entry makes **7**. Each was pushed immediately after
+commit and verified against the GitHub API.

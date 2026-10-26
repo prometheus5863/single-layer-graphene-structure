@@ -7,10 +7,12 @@ Does the COMMITTED code still produce the COMMITTED transcripts?
 SECTION 1 -- the committed state, resolved to a content-addressed id
 --------------------------------------------------------------------------
   pointer file      : .git/HEAD
-  resolved commit   : 506c7e746ad1e48df735c799281d01de9c704ff1
-  tracked files modified in the WORKING TREE : 1
+  resolved commit   : 98155df51f7889b3884f25d32f487848ef6e57b1
+  tracked files modified in the WORKING TREE : 3
     (they are excluded by construction -- that is the point)
-      M pristine_transcript_audit_output.txt
+      M AUTOMATION_LOG.md
+       M pristine_transcript_audit_output.txt
+       M standing_list_audit_output.txt
   pristine clone    : built and detached at the id above
 
 --------------------------------------------------------------------------
@@ -24,15 +26,15 @@ SECTION 2 -- every suite, run from the pristine clone
   graphene_gds_quadrature_audit.py             IDENTICAL         4.5s
   graphene_log_sensitivity_step_audit.py       IDENTICAL         1.8s
   graphene_rootfinder_audit.py                 IDENTICAL         0.7s
-  graphene_transport_optical_audit.py          IDENTICAL         0.7s
+  graphene_transport_optical_audit.py          IDENTICAL         0.6s
   graphene_covariance_probe_audit.py           RAN         0.7s  (no transcript)
   graphene_differential_crossover_model.py     IDENTICAL         4.6s
-  graphene_cross_module_delivery_audit.py      IDENTICAL         3.4s
-  rf_small_signal_model.py                     IDENTICAL         3.2s
-  graphene_fmax_shortfall_decomposition.py     IDENTICAL        24.7s
+  graphene_cross_module_delivery_audit.py      IDENTICAL         3.3s
+  rf_small_signal_model.py                     IDENTICAL         3.1s
+  graphene_fmax_shortfall_decomposition.py     IDENTICAL        24.5s
   graphene_attribute_default_capture.py        IDENTICAL         1.7s  exit 1 (guard red, transcript still checked)
   graphene_standing_list_audit.py              IDENTICAL         0.1s
-  graphene_installed_surface_audit.py          IDENTICAL         4.6s
+  graphene_installed_surface_audit.py          IDENTICAL         4.8s
 
 --------------------------------------------------------------------------
 SECTION 3 -- positive controls on the detector itself
@@ -85,7 +87,7 @@ SECTION 4 -- the standing requirement
 ==========================================================================
 SUMMARY
 ==========================================================================
-  commit audited : 506c7e746ad1e48df735c799281d01de9c704ff1
+  commit audited : 98155df51f7889b3884f25d32f487848ef6e57b1
   PASS  C1 unperturbed output classifies IDENTICAL
   PASS  C2 a within-tolerance change classifies NUMERIC_DRIFT
   PASS  C2b that perturbation is genuinely inside the tolerance
