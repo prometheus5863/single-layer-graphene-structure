@@ -28,6 +28,8 @@ THE INSTALLED SURFACE: a verdict measured in isolation is a
     PASS C2 and the counterfactuals reverse with the surface: _CTRL_A moves the value in isolation and is BITWISE DEAD as installed; _CTRL_B is bitwise dead in isolation and moves as installed   -- A   +50.0000 %/exact 0  B exact 0/  +50.0000 %
     PASS C3 the four-valued axis classes them DEAD_AS_INSTALLED and LIVE_ONLY_AS_INSTALLED -- the two classes that reverse a verdict   -- DEAD_AS_INSTALLED / LIVE_ONLY_AS_INSTALLED
     PASS C4 NEGATIVE control: a holder reading a name no flip touches is BITWISE_SAME, and its value is bitwise equal in both configurations   -- BITWISE_SAME
+    PASS C3b every class the axis returns is a declared member of DEPENDENCE, and exactly two of the four are in REVERSING -- the ones that make a verdict taken in the wrong configuration false   -- DEAD_AS_INSTALLED/LIVE_ONLY_AS_INSTALLED/BITWISE_SAME
+    PASS C3c the control reaches the value through the NAME the flip rebinds -- rebinding CTRL_ROUTE is what swaps _CTRL_A for _CTRL_B on the surface -- yet CTRL_ROUTE is itself INVISIBLE to csg.capture_surface, because the script module is outside rra.repo_modules().  The same gap vrs._modules() was written for on 2026-10-25, and the reason the controls here must measure through vrs.leverage_here rather than csg.leverage   -- graphene_installed_surface_audit._ctrl_route
     PASS C5 IDENTITY control flip: rebinding the route to ITSELF leaves the value and the surface bitwise unchanged -- the instrument is not the perturbation   -- 0x1.8000000000000p+0
     PASS C6 the per-name identity rebind is bitwise neutral in the control too   -- 0x1.8000000000000p+0
 
@@ -121,7 +123,7 @@ THE INSTALLED SURFACE: a verdict measured in isolation is a
       graphene_quantum_capacitance_argument.n_arg_EF_thermal inst  exact 0      +9.0738 %    LIVE_ONLY_AS_INSTALLED
       graphene_quantum_capacitance_argument.series_factor  both  +26.1720 %   +15.4460 %   BOTH_LIVE
     PASS A3 11 of 15 names cross the exact-zero boundary: 5 go bitwise dead and 6 come alive from bitwise zero   -- dead=5 alive=6
-    PASS A4 and this reproduces 2026-10-21 rather than contradicting it: the composition it costed at -51..-62 %% in n_contact is the same one, here measured as a change in the READ SURFACE   -- ratio 6.4134
+    PASS A4 and this reproduces 2026-10-21 rather than contradicting it: the composition it costed at -51..-62 %% in n_contact is the same one, here measured as a change in the READ SURFACE.  The invariance FLAG itself is asserted, bitwise and in both directions -- False for the live replacement, True for the repaired one in the same configuration -- because a tolerant comparison here would report a factor of 6.4 as invariant (N8)   -- ratio 6.4134
     PASS A5 gfet.C_ox: bitwise ZERO in isolation and under this replacement's own flip, +7.8110 %% under the default flip.  The PROTECTED verdict stands; its stated REASON generalised from one configuration and is corrected in place   -- +7.8110 %
 
 ------------------------------------------------------------------------------
@@ -168,10 +170,18 @@ THE INSTALLED SURFACE: a verdict measured in isolation is a
     PASS G3 UNREACHED on a name that IS on the installed READ surface is refused -- and the rule is the READ surface, not the full one, so a name held in a closure cell can still be UNREACHED
     PASS G4 a FALSE flip-invariance declaration is refused -- the declaration is measured, not taken on trust
     PASS G5 an UNDECLARED flip-invariance is refused: there is no default, because 2026-10-25 passed with the question unasked
-    PASS G6 THE REAL SHAPE: a PROTECTED verdict that is bitwise exact in isolation and moves AS INSTALLED is refused -- the refusal the 2026-10-24 and 2026-10-25 guards could not make
-    PASS G7 and the mirror: EXPOSED on a name that is bitwise dead as installed is refused
+    PASS G6 THE REAL SHAPE, on the real name: gfet.C_ox is bitwise exact in isolation, so PROTECTED passes every 2026-10-24 and 2026-10-25 check; AS INSTALLED under the default flip it moves +7.8110 %, and the branch added today refuses it   -- claimed PROTECTED but a rebind of graphene_fet_model.C_ox moves the value BY +7.8110 % AS INSTALLED (it is bitwise exact only in isolation)
+    PASS G7 and the mirror, also on a real name: gfet.e carries +278.4911 % in isolation and is BITWISE DEAD as installed, so EXPOSED is refused there   -- claimed EXPOSED but a rebind of graphene_fet_model.e leaves the value BITWISE UNCHANGED AS INSTALLED
+    PASS G8 NEGATIVE control for both: the verdict that IS true as installed passes the same branch -- so G6 and G7 are not a function that refuses everything
+
+    gfet.C_ox on blast._cq_consistent_contact, all four verdicts:
+      PROTECTED  isolated: ok       as installed: refused
+      UNREACHED  isolated: refused  as installed: refused
+      EXPOSED    isolated: refused  as installed: ok
+      GOVERNED   isolated: refused  as installed: refused
+    PASS G9 EXHAUSTIVE: none of the four verdicts is true in BOTH configurations for gfet.C_ox on this holder, so the vocabulary cannot express the state of this name and "the flips do not compose" is not dischargeable by adjudication alone   -- {'PROTECTED': (False, True), 'UNREACHED': (False, False), 'EXPOSED': (True, False), 'GOVERNED': (False, False)}
 
 ==============================================================================
-VALIDATION: 26/26
-26/26 checks passed
+VALIDATION: 30/30
+30/30 checks passed
 ==============================================================================

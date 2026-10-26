@@ -706,6 +706,26 @@ def main():
           cls_c == BITWISE_SAME
           and _ctrl_base(fixed, False).hex() == _ctrl_base(fixed, True).hex(),
           cls_c)
+    check('C3b every class the axis returns is a declared member of '
+          'DEPENDENCE, and exactly two of the four are in REVERSING -- the '
+          'ones that make a verdict taken in the wrong configuration false',
+          cls_a in DEPENDENCE and cls_b in DEPENDENCE and cls_c in DEPENDENCE
+          and set(REVERSING) == {DEAD_AS_INSTALLED, LIVE_ONLY_AS_INSTALLED}
+          and len(DEPENDENCE) == 4
+          and sorted(c in REVERSING for c in (cls_a, cls_b, cls_c)).count(True)
+          == 2,
+          '%s/%s/%s' % (cls_a, cls_b, cls_c))
+    check('C3c the control reaches the value through the NAME the flip '
+          'rebinds -- rebinding CTRL_ROUTE is what swaps _CTRL_A for _CTRL_B '
+          'on the surface -- yet CTRL_ROUTE is itself INVISIBLE to '
+          'csg.capture_surface, because the script module is outside '
+          'rra.repo_modules().  The same gap vrs._modules() was written for '
+          'on 2026-10-25, and the reason the controls here must measure '
+          'through vrs.leverage_here rather than csg.leverage',
+          CTRL_ROUTE not in csg.capture_surface(routed)[0]
+          and CTRL_A in vrs.value_reads(routed)
+          and _this_module()._ctrl_route is _ctrl_route_a,
+          _dotted(CTRL_ROUTE))
     with control_flip(identity=True):
         id_base = float(routed(csg.PROBE_V))
         id_surf = vrs.complete_read_surface(routed)[0]

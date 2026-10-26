@@ -122,6 +122,17 @@ SUITES = [
     # to a session that trusts that artefact, which is every session.
     ("graphene_standing_list_audit.py",
      "standing_list_audit_output.txt"),
+    # Added 2026-10-26, in the same commit that regenerates the six stale
+    # transcripts this table's own STALE verdict exposed.  The 2026-10-25
+    # standing item asked for every transcript to be regenerated each session
+    # rather than only the ones the session touched; doing that found five
+    # MIXED names and twelve frozen/live numeric literals that had been
+    # invisible for six sessions, because the transcripts predate the modules
+    # containing them.  A suite not in this table is a suite whose transcript
+    # can go stale silently, so today's suite joins the table on the day it is
+    # written rather than on the day someone notices.
+    ("graphene_installed_surface_audit.py",
+     "installed_surface_audit_output.txt"),
 ]
 
 # This module is deliberately absent from SUITES.  It would have to run itself

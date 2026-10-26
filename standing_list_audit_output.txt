@@ -37,8 +37,8 @@ wording this list had already retired.
 ------------------------------------------------------------------------------
 2.  THE REAL STANDING LIST, AS OF THE LATEST ENTRY
 ------------------------------------------------------------------------------
-  latest entry: 2026-10-18
-  top-level bullets in its Not-yet-covered list: 27
+  latest entry: 2026-10-25
+  top-level bullets in its Not-yet-covered list: 31
   baseline assertions checked: 2
 
   id   class          item says tree says
@@ -63,7 +63,7 @@ wording this list had already retired.
        re-verified before it ranks.
 
   [PASS] R1 the latest list parsed to at least 10 top-level bullets
-         got 27
+         got 31
   [PASS] R2 no baseline row is in a fault class ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
          faults: []
   [PASS] R3 every retired row is still justified by the tree

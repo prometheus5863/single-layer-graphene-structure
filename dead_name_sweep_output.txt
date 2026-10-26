@@ -28,12 +28,17 @@ SECTION 2 -- the sweep over this repository
   CROSS_MODULE  graphene_default_flip.py                       VG_RF                            line 105   graphene_exact_charge_rederivation.py,gr
   CROSS_MODULE  graphene_diffusion_current_model.py            HBAR                             line 181   graphene_band_structure_audit.py,graphen
   BODY_ONLY     graphene_fet_signed_carrier_model.py           H_PLANCK                         line 89    
+  CROSS_MODULE  graphene_installed_surface_audit.py            CQP                              line 502   graphene_value_read_surface.py
+  CROSS_MODULE  graphene_installed_surface_audit.py            QCT                              line 499   graphene_value_read_surface.py
+  CROSS_MODULE  graphene_installed_surface_audit.py            QCTN                             line 500   graphene_value_read_surface.py
+  CROSS_MODULE  graphene_installed_surface_audit.py            QKB                              line 503   graphene_value_read_surface.py
+  CROSS_MODULE  graphene_installed_surface_audit.py            QNAE                             line 501   graphene_value_read_surface.py
   CROSS_MODULE  graphene_mutation_arrival_probe.py             CLASS_UNUSED                     line 101   graphene_cross_module_delivery_audit.py
   EXEMPT        graphene_plasmonic_photodetector_model.py      FANG_ANTENNA_TEST_WAVELENGTH_NM  line 126   descriptive-only literature point -- Fan
   DEAD          graphene_potential_census_audit.py             CHANNEL_POTENTIAL_READINGS       line 310   
   CROSS_MODULE  graphene_quantum_capacitance_argument.py       A_OX                             line 66    graphene_exact_charge_rederivation.py
   CROSS_MODULE  graphene_value_read_mutation.py                GUARD                            line 35    graphene_capture_surface_mutation.py
-  BODY_ONLY     graphene_value_read_surface.py                 ADDED_CONTACT                    line 477   
+  CROSS_MODULE  graphene_value_read_surface.py                 ADDED_CONTACT                    line 477   graphene_installed_surface_audit.py
   BODY_ONLY     graphene_value_read_surface.py                 ADDED_QCA_CHARGE                 line 495   
   BODY_ONLY     graphene_value_read_surface.py                 ADDED_QCA_CQ                     line 508   
   BODY_ONLY     graphene_value_read_surface.py                 BCQS                             line 546   
@@ -45,19 +50,19 @@ SECTION 2 -- the sweep over this repository
   BODY_ONLY     graphene_value_read_surface.py                 GQC                              line 549   
   BODY_ONLY     graphene_value_read_surface.py                 GVF                              line 456   
   BODY_ONLY     graphene_value_read_surface.py                 NP                               line 540   
-  BODY_ONLY     graphene_value_read_surface.py                 QCT                              line 542   
-  BODY_ONLY     graphene_value_read_surface.py                 QCTN                             line 543   
+  CROSS_MODULE  graphene_value_read_surface.py                 QCT                              line 542   graphene_installed_surface_audit.py
+  CROSS_MODULE  graphene_value_read_surface.py                 QCTN                             line 543   graphene_installed_surface_audit.py
   BODY_ONLY     graphene_value_read_surface.py                 QEC                              line 451   
   BODY_ONLY     graphene_value_read_surface.py                 QFP                              line 541   
-  BODY_ONLY     graphene_value_read_surface.py                 QKB                              line 452   
-  BODY_ONLY     graphene_value_read_surface.py                 QNAE                             line 544   
+  CROSS_MODULE  graphene_value_read_surface.py                 QKB                              line 452   graphene_installed_surface_audit.py
+  CROSS_MODULE  graphene_value_read_surface.py                 QNAE                             line 544   graphene_installed_surface_audit.py
   BODY_ONLY     graphene_value_read_surface.py                 QSF                              line 545   
   BODY_ONLY     graphene_value_read_surface.py                 VD                               line 539   
   BODY_ONLY     graphene_value_read_surface.py                 XFT                              line 536   
   BODY_ONLY     graphene_velocity_saturation_model.py          HBAR_OMEGA_EV                    line 178   
   CROSS_MODULE  graphene_write_read_guard.py                   COX                              line 388   graphene_capture_surface_guard.py,graphe
   BODY_ONLY     graphene_write_read_guard.py                   CQ                               line 389   
-  totals: {'BODY_ONLY': 24, 'CROSS_MODULE': 15, 'DEAD': 1, 'EXEMPT': 1, 'LIVE': 290}
+  totals: {'BODY_ONLY': 19, 'CROSS_MODULE': 25, 'DEAD': 1, 'EXEMPT': 1, 'LIVE': 311}
   [FAIL] no module-level constant in this repository is DEAD  -- 1 dead
 
 SECTION 2b -- is every CROSS_MODULE resolution supported by an IMPORT?
@@ -82,13 +87,19 @@ SECTION 2b -- is every CROSS_MODULE resolution supported by an IMPORT?
     UNSUPPORTED  graphene_default_flip.py                       VG_RF                    line 105    graphene_quantum_capacitance_argument.py does not import graphene_default_flip.py
     UNSUPPORTED  graphene_diffusion_current_model.py            HBAR                     line 181    graphene_band_structure_audit.py does not import graphene_diffusion_current_model.py
     UNSUPPORTED  graphene_diffusion_current_model.py            HBAR                     line 181    graphene_velocity_saturation_model.py does not import graphene_diffusion_current_model.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            CQP                      line 502    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            QCT                      line 499    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            QCTN                     line 500    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            QKB                      line 503    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            QNAE                     line 501    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
     UNSUPPORTED  graphene_quantum_capacitance_argument.py       A_OX                     line 66     graphene_exact_charge_rederivation.py does not import graphene_quantum_capacitance_argument.py
     UNSUPPORTED  graphene_value_read_mutation.py                GUARD                    line 35     graphene_capture_surface_mutation.py does not import graphene_value_read_mutation.py
     UNSUPPORTED  graphene_value_read_surface.py                 CI                       line 548    graphene_capture_surface_guard.py does not import graphene_value_read_surface.py
     UNSUPPORTED  graphene_value_read_surface.py                 COX                      line 537    graphene_capture_surface_guard.py does not import graphene_value_read_surface.py
     UNSUPPORTED  graphene_value_read_surface.py                 COX                      line 537    graphene_write_read_guard.py does not import graphene_value_read_surface.py
+    UNSUPPORTED  graphene_write_read_guard.py                   COX                      line 388    graphene_installed_surface_audit.py does not import graphene_write_read_guard.py
     UNSUPPORTED  graphene_write_read_guard.py                   COX                      line 388    graphene_value_read_surface.py does not import graphene_write_read_guard.py
-  CROSS_MODULE rows: 15   unsupported: 22
+  CROSS_MODULE rows: 25   unsupported: 28
   [PASS] 2b positive control: a resolution with no import is reported  -- a synthetic CROSS_MODULE row naming a module that does not exist and
 therefore imports nothing must be flagged; got 1
   [FAIL] every CROSS_MODULE resolution is supported by a real import  -- an unsupported resolution is a HIDDEN DEAD name: nothing that can
@@ -110,11 +121,17 @@ unrelated module spells something the same way.
   graphene_default_flip.py.VG_RF <- graphene_quantum_capacitance_argument.py does not import graphene_default_flip.py
   graphene_diffusion_current_model.py.HBAR <- graphene_band_structure_audit.py does not import graphene_diffusion_current_model.py
   graphene_diffusion_current_model.py.HBAR <- graphene_velocity_saturation_model.py does not import graphene_diffusion_current_model.py
+  graphene_installed_surface_audit.py.CQP <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+  graphene_installed_surface_audit.py.QCT <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+  graphene_installed_surface_audit.py.QCTN <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+  graphene_installed_surface_audit.py.QKB <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+  graphene_installed_surface_audit.py.QNAE <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
   graphene_quantum_capacitance_argument.py.A_OX <- graphene_exact_charge_rederivation.py does not import graphene_quantum_capacitance_argument.py
   graphene_value_read_mutation.py.GUARD <- graphene_capture_surface_mutation.py does not import graphene_value_read_mutation.py
   graphene_value_read_surface.py.CI <- graphene_capture_surface_guard.py does not import graphene_value_read_surface.py
   graphene_value_read_surface.py.COX <- graphene_capture_surface_guard.py does not import graphene_value_read_surface.py
   graphene_value_read_surface.py.COX <- graphene_write_read_guard.py does not import graphene_value_read_surface.py
+  graphene_write_read_guard.py.COX <- graphene_installed_surface_audit.py does not import graphene_write_read_guard.py
   graphene_write_read_guard.py.COX <- graphene_value_read_surface.py does not import graphene_write_read_guard.py
 
 ----------------------------------------------------------------------

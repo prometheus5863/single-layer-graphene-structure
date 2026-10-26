@@ -88,25 +88,31 @@ SECTION 3 -- the repository today, and the two censuses added up
 The two spellings partition the fault (C4), so the inert-knob total is
 their sum -- and the Name census has been reported ALONE for five sessions.
 --------------------------------------------------------------------------
-  python files in repository (minus the probe exclusions) : 55
+  python files in repository (minus the probe exclusions) : 66
 
     spelling                                  total  FROZEN   LIVE
     ---------------------------------------- ------ ------- ------
-    def f(p=NAME)        -- shipped census       1       -      -
-    def f(p=alias.ATTR)  -- this module          0       0      0
+    def f(p=NAME)        -- shipped census      12       -      -
+    def f(p=alias.ATTR)  -- this module          4       4      0
       + this module's own scaffolding            0       0      0
 
     note: the shipped census is SYNTACTIC and does not split FROZEN
           from LIVE; yesterday's module did that for it, and this
           morning's commit converted all 20 of its FROZEN rows, which
-          is why its total now stands at 1 (the single LIVE capture
+          is why its total now stands at 12 (the single LIVE capture
           at graphene_velocity_saturation_model.py line 589).
 
     per-file, the attribute captures:
     file                                             sites  FROZEN
+      graphene_installed_surface_audit.py                1       1
+      graphene_value_read_surface.py                     3       3
 
+      graphene_installed_surface_audit.py       :233  base_invariance          V=csg.PROBE_V  -> graphene_capture_surface_guard
+      graphene_value_read_surface.py            :177  leverage_here            k=csg.PERTURBATION -> graphene_capture_surface_guard
+      graphene_value_read_surface.py            :177  leverage_here            V=csg.PROBE_V  -> graphene_capture_surface_guard
+      graphene_value_read_surface.py            :185  identity_leverage_here   V=csg.PROBE_V  -> graphene_capture_surface_guard
   [PASS] R1 every attribute capture in the repository is FROZEN
-        0 site(s) outside this module, 0 of them enclosed by a function body.  With
+        4 site(s) outside this module, 0 of them enclosed by a function body.  With
         the baseline converted this reads 0 of 0 and is VACUOUS -- R4/R5 below are the
         non-vacuous half of Section 3, which is why they exist.  R1 earns its place
         again the moment a capture reappears.  This module's own 0 are excluded and
@@ -122,15 +128,19 @@ their sum -- and the Name census has been reported ALONE for five sessions.
     against the baseline recorded before this morning's conversion:
       baseline FROZEN sites            : 13
       of those, still present today    : 0
-      FROZEN sites NOT in the baseline  : 0
+      FROZEN sites NOT in the baseline  : 4   <-- REGROWN OR NEW
+        graphene_installed_surface_audit.py  base_invariance(V=csg.PROBE_V)
+        graphene_value_read_surface.py  identity_leverage_here(V=csg.PROBE_V)
+        graphene_value_read_surface.py  leverage_here(V=csg.PROBE_V)
+        graphene_value_read_surface.py  leverage_here(k=csg.PERTURBATION)
   [PASS] R4 every one of the baseline's 13 sites is gone
         the conversion is checked against a written-down list of what it was meant to
         convert, not against a count.  A count can be satisfied by the wrong 13.
-  [PASS] R5 and no attribute capture has appeared that the baseline did not name
+  [FAIL] R5 and no attribute capture has appeared that the baseline did not name
         the standing half of this guard: this is the pattern that regrew between
         2026-10-04 and 2026-10-16 in front of three censuses, in the other spelling,
         and nothing was reading them
-  [PASS] R3 the shipped census is down to its one LIVE capture
+  [FAIL] R3 the shipped census is down to its one LIVE capture
         this morning's conversion is still in force; if this fails, a Name capture
         regrew between that commit and this one and the TOTAL below is understated
 
@@ -140,15 +150,19 @@ graphene_cross_module_delivery_audit.cross_module_captures().  This
 section exists because this session claimed, in two commit messages,
 that no instrument here could see the attribute spelling.
 --------------------------------------------------------------------------
-  its census over the repository TODAY (after the conversion): 3 row(s)
+  its census over the repository TODAY (after the conversion): 7 row(s)
     graphene_diffusion_current_model.py      _dd_integrals          numpy.pi                           in an expression
+    graphene_installed_surface_audit.py      base_invariance        graphene_capture_surface_guard.PROBE_V direct
+    graphene_value_read_surface.py           identity_leverage_here graphene_capture_surface_guard.PROBE_V direct
+    graphene_value_read_surface.py           leverage_here          graphene_capture_surface_guard.PERTURBATION direct
+    graphene_value_read_surface.py           leverage_here          graphene_capture_surface_guard.PROBE_V direct
     graphene_velocity_saturation_model.py    _channel_integrals     numpy.pi                           in an expression
     graphene_velocity_saturation_model.py    v_sat_of_n             numpy.pi                           in an expression
 
   its COMMITTED transcript, before the conversion            : 16
   of those 16, parameter-default captures of a module CONSTANT: 13
   the remaining 3 are `numpy.pi` inside an expression            :  3
-  [PASS] T4 13 + 3 accounts for the committed 16 with nothing left over
+  [FAIL] T4 13 + 3 accounts for the committed 16 with nothing left over
         a reconciliation with a remainder would mean a third cause is present and
         unaccounted for -- yesterday's R3 requirement, applied to the census that was
         never reconciled.  The 3 survivors are `v_sat_prefactor=2.0 / np.pi` and its two
@@ -273,8 +287,8 @@ band-structure fault in a new costume.
 ==========================================================================
 SUMMARY
   FROZEN attribute captures recorded 2026-10-17 : 13
-  FROZEN attribute captures in the repository NOW: 0
-  Name captures, by the shipped census           : 1
+  FROZEN attribute captures in the repository NOW: 4
+  Name captures, by the shipped census           : 12
   THE INERT-KNOB TOTAL FOR 2026-10-16 WAS 20 + 13 = 33, NOT 20.
   Every "the census reads zero" since 2026-10-01 -- and this
   morning's commit, which restored that number -- was a statement
@@ -290,5 +304,5 @@ SUMMARY
   red in the transcript committed one commit earlier, which is the
   BEFORE state and is deliberately on the record -- now measure the
   rebinding arriving at the real function.
-  Validations: 34 passed, 0 failed
+  Validations: 31 passed, 3 failed
 ==========================================================================
