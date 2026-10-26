@@ -1,0 +1,177 @@
+==============================================================================
+THE INSTALLED SURFACE: a verdict measured in isolation is a
+  verdict about a configuration the replacement never runs in
+==============================================================================
+
+------------------------------------------------------------------------------
+0.  THE POPULATION, DERIVED FROM rra.FLIPS (the ranked-first item)
+------------------------------------------------------------------------------
+
+    qca.on_consistent_argument()                 contact_resistance_crossover.carrier_density   -> _carrier_density_consistent
+    qca.on_consistent_argument()                 graphene_fet_model.carrier_density             -> _carrier_density_consistent
+    qca.on_consistent_argument()                 graphene_fet_model.quantum_capacitance         -> _quantum_capacitance_consistent
+    blast.contact_on_consistent_argument()       graphene_contact_doping_model.quantum_capacitance -> _cq_consistent_contact
+    flip.on_default_flip(live_contact=False)     contact_resistance_crossover.carrier_density   -> wrapper
+    flip.on_default_flip(live_contact=False)     graphene_contact_doping_model.quantum_capacitance -> replacement
+    flip.on_default_flip(live_contact=False)     graphene_fet_model.carrier_density             -> wrapper
+    flip.on_default_flip(live_contact=False)     graphene_fet_model.quantum_capacitance         -> wrapper
+
+    8 (flip, site) pairs, 6 distinct installed objects
+    PASS P1 the population is DERIVED: every pair comes from rra.FLIPS via rra.rebind_set, so a flip that grew a rebinding is audited without editing this file   -- 8 pairs, 6 objects
+    PASS P2 two of the six installed objects had NEVER had a read surface computed: the arrival-counting wrappers the default flip installs   -- ['_counting(_carrier_density_consistent)', '_counting(_quantum_capacitance_consistent)']
+
+------------------------------------------------------------------------------
+1.  THE MECHANISM ON CASES WHOSE ANSWER IS KNOWN IN ADVANCE
+------------------------------------------------------------------------------
+
+    PASS C1 a holder reading a name the flip rebinds: _CTRL_A is on the ISOLATED surface and off the INSTALLED one, and _CTRL_B the other way round -- the real contact finding with no solver in it   -- iso=['_CTRL_A'] inst=['_CTRL_B']
+    PASS C2 and the counterfactuals reverse with the surface: _CTRL_A moves the value in isolation and is BITWISE DEAD as installed; _CTRL_B is bitwise dead in isolation and moves as installed   -- A   +50.0000 %/exact 0  B exact 0/  +50.0000 %
+    PASS C3 the four-valued axis classes them DEAD_AS_INSTALLED and LIVE_ONLY_AS_INSTALLED -- the two classes that reverse a verdict   -- DEAD_AS_INSTALLED / LIVE_ONLY_AS_INSTALLED
+    PASS C4 NEGATIVE control: a holder reading a name no flip touches is BITWISE_SAME, and its value is bitwise equal in both configurations   -- BITWISE_SAME
+    PASS C5 IDENTITY control flip: rebinding the route to ITSELF leaves the value and the surface bitwise unchanged -- the instrument is not the perturbation   -- 0x1.8000000000000p+0
+    PASS C6 the per-name identity rebind is bitwise neutral in the control too   -- 0x1.8000000000000p+0
+
+------------------------------------------------------------------------------
+2.  EVERY INSTALLED OBJECT x EVERY FLIP
+------------------------------------------------------------------------------
+
+    _carrier_density_consistent
+      installed at: contact_resistance_crossover.carrier_density, graphene_fet_model.carrier_density
+      by          : qca.on_consistent_argument()
+      configuration                                  |surf|  base      dependence classes
+      (isolation)                                    14      --       
+      qca.on_consistent_argument()                   14      bitwise   BITWISE_SAME=14  <== its own flip
+      blast.contact_on_consistent_argument()         14      bitwise   BITWISE_SAME=14
+      flip.on_default_flip(live_contact=False)       14      bitwise   BITWISE_SAME=14
+
+    _counting(_carrier_density_consistent)
+      installed at: contact_resistance_crossover.carrier_density, graphene_fet_model.carrier_density
+      by          : flip.on_default_flip(live_contact=False)
+      configuration                                  |surf|  base      dependence classes
+      (isolation)                                    15      --       
+      qca.on_consistent_argument()                   17      bitwise   BITWISE_SAME=17
+      blast.contact_on_consistent_argument()         15      bitwise   BITWISE_SAME=15
+      flip.on_default_flip(live_contact=False)       15      bitwise   BITWISE_SAME=15  <== its own flip
+
+    _counting(_quantum_capacitance_consistent)
+      installed at: graphene_fet_model.quantum_capacitance
+      by          : flip.on_default_flip(live_contact=False)
+      configuration                                  |surf|  base      dependence classes
+      (isolation)                                    12      --       
+      qca.on_consistent_argument()                   13      bitwise   BITWISE_SAME=13
+      blast.contact_on_consistent_argument()         12      bitwise   BITWISE_SAME=12
+      flip.on_default_flip(live_contact=False)       12      bitwise   BITWISE_SAME=12  <== its own flip
+
+    _cq_consistent_contact
+      installed at: graphene_contact_doping_model.quantum_capacitance
+      by          : blast.contact_on_consistent_argument()
+      configuration                                  |surf|  base      dependence classes
+      (isolation)                                    15      --       
+      qca.on_consistent_argument()                   15      MOVES     BOTH_LIVE=9, DEAD_AS_INSTALLED=5, LIVE_ONLY_AS_INSTALLED=6
+      blast.contact_on_consistent_argument()         15      bitwise   BITWISE_SAME=15  <== its own flip
+      flip.on_default_flip(live_contact=False)       15      MOVES     BOTH_LIVE=9, DEAD_AS_INSTALLED=5, LIVE_ONLY_AS_INSTALLED=6
+
+    _quantum_capacitance_consistent
+      installed at: graphene_fet_model.quantum_capacitance
+      by          : qca.on_consistent_argument()
+      configuration                                  |surf|  base      dependence classes
+      (isolation)                                    11      --       
+      qca.on_consistent_argument()                   11      bitwise   BITWISE_SAME=11  <== its own flip
+      blast.contact_on_consistent_argument()         11      bitwise   BITWISE_SAME=11
+      flip.on_default_flip(live_contact=False)       11      bitwise   BITWISE_SAME=11
+
+    replacement
+      installed at: graphene_contact_doping_model.quantum_capacitance
+      by          : flip.on_default_flip(live_contact=False)
+      configuration                                  |surf|  base      dependence classes
+      (isolation)                                    14      --       
+      qca.on_consistent_argument()                   19      bitwise   BITWISE_SAME=19
+      blast.contact_on_consistent_argument()         13      bitwise   BITWISE_SAME=14
+      flip.on_default_flip(live_contact=False)       18      bitwise   BITWISE_SAME=19  <== its own flip
+
+    PASS A1 EVERY one of the six installed objects is BITWISE flip-invariant under ITS OWN flip -- every name, every counterfactual, and the value itself.  This is the proposition every committed leverage number rests on, measured for the first time
+    PASS A2 exactly ONE object is not invariant under the other flips, and it is the live unrepaired contact replacement   -- ['_cq_consistent_contact']
+
+------------------------------------------------------------------------------
+3.  THE ONE ROW THAT MOVES, NAME BY NAME
+------------------------------------------------------------------------------
+
+    blast._cq_consistent_contact under flip.on_default_flip(live_contact=False)
+      value  isolation 0x1.0c835a6063492p-4   as installed 0x1.4ef081d146707p-7   ratio 6.4134
+
+      name                                                 surf  ISOLATED     INSTALLED    class
+      graphene_contact_argument_blast_radius.cq_shipped_of_n both  +58.3421 %   +51.8166 %   BOTH_LIVE
+      graphene_contact_argument_blast_radius.n_consistent  both  +22.4740 %   +3.7310 %    BOTH_LIVE
+      graphene_contact_doping_model.C_interface            both  +18.1154 %   +3.1971 %    BOTH_LIVE
+      graphene_fet_model.C_ox                              both  exact 0      +7.8110 %    LIVE_ONLY_AS_INSTALLED
+      graphene_fet_model.T                                 both  +0.0034 %    +0.1725 %    BOTH_LIVE
+      graphene_fet_model._thermal_rounding                 iso   +58.3421 %   exact 0      DEAD_AS_INSTALLED
+      graphene_fet_model.e                                 iso   +278.4911 %  exact 0      DEAD_AS_INSTALLED
+      graphene_fet_model.hbar                              iso   -63.5273 %   exact 0      DEAD_AS_INSTALLED
+      graphene_fet_model.kB                                iso   +0.0242 %    exact 0      DEAD_AS_INSTALLED
+      graphene_fet_model.quantum_capacitance               both  +58.3421 %   +51.8166 %   BOTH_LIVE
+      graphene_fet_model.v_F                               iso   -63.5273 %   exact 0      DEAD_AS_INSTALLED
+      graphene_quantum_capacitance_argument.A_FERMI        both  +58.3417 %   +41.7502 %   BOTH_LIVE
+      graphene_quantum_capacitance_argument.CQ_PREFACTOR   inst  exact 0      +52.4103 %   LIVE_ONLY_AS_INSTALLED
+      graphene_quantum_capacitance_argument.E_CHARGE       both  -21.2518 %   -32.2411 %   BOTH_LIVE
+      graphene_quantum_capacitance_argument.KB             inst  exact 0      +35.8863 %   LIVE_ONLY_AS_INSTALLED
+      graphene_quantum_capacitance_argument._fixed_point   both  +22.4740 %   +14.5902 %   BOTH_LIVE
+      graphene_quantum_capacitance_argument.cq_thermal     inst  exact 0      +52.4103 %   LIVE_ONLY_AS_INSTALLED
+      graphene_quantum_capacitance_argument.cq_thermal_of_n inst  exact 0      +52.4103 %   LIVE_ONLY_AS_INSTALLED
+      graphene_quantum_capacitance_argument.n_arg_EF_thermal inst  exact 0      +9.0738 %    LIVE_ONLY_AS_INSTALLED
+      graphene_quantum_capacitance_argument.series_factor  both  +26.1720 %   +15.4460 %   BOTH_LIVE
+    PASS A3 11 of 15 names cross the exact-zero boundary: 5 go bitwise dead and 6 come alive from bitwise zero   -- dead=5 alive=6
+    PASS A4 and this reproduces 2026-10-21 rather than contradicting it: the composition it costed at -51..-62 %% in n_contact is the same one, here measured as a change in the READ SURFACE   -- ratio 6.4134
+    PASS A5 gfet.C_ox: bitwise ZERO in isolation and under this replacement's own flip, +7.8110 %% under the default flip.  The PROTECTED verdict stands; its stated REASON generalised from one configuration and is corrected in place   -- +7.8110 %
+
+------------------------------------------------------------------------------
+4.  flip._counting IS A CAPTURE (the second finding)
+------------------------------------------------------------------------------
+
+    _counting(_carrier_density_consistent)
+      surface 15 vs wrapped 14; adds ['graphene_quantum_capacitance_argument._carrier_density_consistent']
+      rebinding the wrapped name: exact 0
+      wrapper value 0x1.1eef29209cd8ap+52   wrapped value 0x1.1eef29209cd8ap+52
+    _counting(_quantum_capacitance_consistent)
+      surface 12 vs wrapped 11; adds ['graphene_quantum_capacitance_argument._quantum_capacitance_consistent']
+      rebinding the wrapped name: exact 0
+      wrapper value 0x1.802bd3d3e1cb3p-7   wrapped value 0x1.802bd3d3e1cb3p-7
+
+    PASS W1 each counting wrapper adds EXACTLY ONE name to the surface of the replacement it wraps: that replacement's own name
+    PASS W2 and a rebind of that name is BITWISE ZERO on the wrapper -- `_counting` holds the function in a cell, so this is a third capture in this repository and the channel replacement NAME is immune under the default flip
+    PASS W3 EXACT ANCHOR: the wrapper returns a value bitwise identical to the replacement it wraps, so the wrapper is not a perturbation
+    PASS W4 and every name the two surfaces SHARE has bitwise identical leverage on both -- which is what transfers the 2026-10-25 verdicts onto the wrappers with proof
+
+------------------------------------------------------------------------------
+5.  EXACT ANCHORS: TWO NAMES THAT MUST MOVE THE VALUE IDENTICALLY
+------------------------------------------------------------------------------
+
+    isolation                                      hbar 0x1.87bc5bc0c26d0p-6   v_F 0x1.87bc5bc0c26d0p-6
+    qca.on_consistent_argument()                   hbar 0x1.87bc5bc0c26d0p-6   v_F 0x1.87bc5bc0c26d0p-6
+    blast.contact_on_consistent_argument()         hbar 0x1.87bc5bc0c26d0p-6   v_F 0x1.87bc5bc0c26d0p-6
+    flip.on_default_flip(live_contact=False)       hbar 0x1.87bc5bc0c26d0p-6   v_F 0x1.87bc5bc0c26d0p-6
+    PASS X1 hbar and v_F move the capture holder to the BITWISE IDENTICAL value in every configuration, because the C_q prefactor depends on them only through (hbar v_F)^2.  A probe reaching the value by any other route would not reproduce this
+    PASS X2 and both are BITWISE DEAD on the live replacement under the default flip, where the channel path supplies C_q instead
+
+------------------------------------------------------------------------------
+6.  THE STRENGTHENED GUARD, ON EVERY HOLDER
+------------------------------------------------------------------------------
+
+    _carrier_density_consistent                    installed surface 14   adjudicated rows 28
+    _counting(_carrier_density_consistent)         installed surface 15   adjudicated rows 30
+    _counting(_quantum_capacitance_consistent)     installed surface 12   adjudicated rows 24
+    _cq_consistent_contact                         installed surface 15   adjudicated rows 30
+    _quantum_capacitance_consistent                installed surface 11   adjudicated rows 22
+    replacement                                    installed surface 18   adjudicated rows 32
+    PASS G1 the guard accepts all six holders once every name on the INSTALLED surface carries a verdict that agrees with the installed counterfactual
+    PASS G2 a name on the installed surface with NO verdict is refused
+    PASS G3 UNREACHED on a name that IS on the installed READ surface is refused -- and the rule is the READ surface, not the full one, so a name held in a closure cell can still be UNREACHED
+    PASS G4 a FALSE flip-invariance declaration is refused -- the declaration is measured, not taken on trust
+    PASS G5 an UNDECLARED flip-invariance is refused: there is no default, because 2026-10-25 passed with the question unasked
+    PASS G6 THE REAL SHAPE: a PROTECTED verdict that is bitwise exact in isolation and moves AS INSTALLED is refused -- the refusal the 2026-10-24 and 2026-10-25 guards could not make
+    PASS G7 and the mirror: EXPOSED on a name that is bitwise dead as installed is refused
+
+==============================================================================
+VALIDATION: 26/26
+26/26 checks passed
+==============================================================================
