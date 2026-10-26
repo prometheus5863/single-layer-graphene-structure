@@ -1,0 +1,30 @@
+==============================================================================
+MUTATION TEST: graphene_installed_surface_audit.py
+==============================================================================
+
+    UNMUTATED  rc=0  28/28  failed=[]  crashed=False
+    PASS N0 the unmutated suite passes (the negative control)
+
+------------------------------------------------------------------------------
+    PASS N1  compute the surface WITHOUT entering the flip -- the whole finding
+         27/28  rc=1  caught by A3   expected one of G1,G2,G6,A3,A5
+    PASS N2  take the counterfactual WITHOUT entering the flip
+         20/28  rc=1  caught by A2,A3,A5,X2,G6,G7,G8,G9   expected one of A1,A2,A3,A5,G1,G6,X2
+    PASS N3  give flip_invariant a silent default of True
+         27/28  rc=1  caught by G5   expected one of G5
+    PASS N4  drop the PROTECTED-must-be-exact-AS-INSTALLED refusal
+         26/28  rc=1  caught by G6,G9   expected one of G6
+    PASS N5  collapse the four-valued dependence axis to two values
+         26/28  rc=1  caught by C3,A3   expected one of C3,A3
+    PASS N6  put vrs.ADJ_CONTACT back as the capture holder's adjudication
+         27/28  rc=1  caught by G1   expected one of G1
+    PASS N7  relax the UNREACHED rule to the FULL installed surface
+         27/28  rc=1  caught by G1   expected one of G1
+    PASS N8  compare the holder's own value with a relative tolerance
+         27/28  rc=1  caught by A4   expected one of A4
+    PASS N9  measure the rebind set INSIDE the flip (nested entry) -- the population bug made while exploring this, which reports 10 pairs instead of 8
+         no score  rc=1  caught by P1   expected one of P1,P2
+------------------------------------------------------------------------------
+
+DETECTED ON THEIR OWN TERMS: 9/9 injected defects
+==============================================================================
