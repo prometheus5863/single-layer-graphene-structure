@@ -1951,6 +1951,42 @@ Stated as falsifiable items, in order of how much they would move:
    regardless of how (ii) is decided**, because (i) is what makes (ii)
    measurable, and because until it is done any number this thesis quotes for
    the `v_F` sensitivity of a channel result is zero for the wrong reason.
+   **Annotated 2026-10-26 (§4.6.22).** The −63.5273 % of (ii) was measured on
+   the contact replacement **in isolation**. It **survives** for the holder the
+   default flip actually installs — on `flip.make_contact_cq(live=False)`,
+   `gfet.v_F` carries −63.5273 % in *every* configuration measured, and
+   `gfet.hbar` carries the bitwise identical figure, as `(ħ v_F)²` requires. It
+   does **not** survive on `blast._cq_consistent_contact` composed with either
+   other flip, where `gfet.v_F` is bitwise dead. (i) and (ii) are unchanged in
+   substance; what is added is that the number has a stated configuration.
+23. **The configurations §4.6.22 did not measure, and a verdict indexed by
+   configuration** (added 2026-10-26, §4.6.22 (d) and (g)). §4.6.22 measures
+   six installed objects against three flips and isolation, and finds exactly
+   one non-composing row. Three things are open, in descending order of cost.
+   **(i) The missing cells.** `live_contact=True` is the unrepaired contact
+   replacement *as the default flip installs it*, which is the configuration
+   §4.6.17 actually costed, and it is not in the 6 × 3 table. The
+   *simultaneous* entry of two managers is not either, and it is the
+   configuration a future chapter that flips both halves would run in. Both
+   are mechanical: the table is built from `rra.FLIPS`, so the work is adding
+   managers to it and supplying the verdicts.
+   **(ii) A verdict indexed by configuration.** §4.6.22 (d) shows
+   exhaustively that no single member of {PROTECTED, UNREACHED, EXPOSED,
+   GOVERNED} is true in both configurations for `gfet.C_ox` on the live
+   contact replacement. So the long-standing item asking for the
+   non-composing compositions to be *adjudicated* is not merely unfinished —
+   it is **not satisfiable in the present vocabulary**, and that is why three
+   sessions have noted it without discharging it. The repair is a verdict
+   that names its configuration, with the guard requiring one per
+   (holder, flip) cell rather than one per (holder, name) pair. This is a
+   change to §4.6.20's and §4.6.21's guards, not an addition to them, and it
+   should be costed before being built.
+   **(iii) The probe point.** "Invariant under its own flip" is asserted
+   bitwise at a single `csg.PROBE_V` with a single `csg.PERTURBATION`. A
+   corner sweep over both would turn the strongest claim of §4.6.22 (b) from
+   a measurement at a point into a measurement over a box, and it shares its
+   cheapest entry with the standing *is the admissible shape box the right
+   one?* item.
 
 
 ---

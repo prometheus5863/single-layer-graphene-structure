@@ -3408,6 +3408,17 @@ Stated in the form the other members of this family take:
   computed from.**
 
 
+**Annotated 2026-10-26 (§4.6.22).** This section's `gfet.C_ox` **PROTECTED**
+verdict on `blast._cq_consistent_contact`, and the number behind it, are
+**correct and are not withdrawn** — but every leverage figure in this section
+and in §4.6.21 was measured with the replacement's **flip not entered**, and
+§4.6.22 shows that for this one holder the two configurations disagree about
+eleven of fifteen names. The stated reason here generalised from one
+configuration; §4.6.22 §(c) states the scope and corrects the wording in the
+code, keeping the superseded text. The §4.6.20 counterfactual instrument
+itself is vindicated: it is bitwise identical to the as-installed instrument
+for five of the six objects the flips install.
+
 ### 4.6.21 The negatives were never sound, and `v_F` was never one name
 
 §4.6.20 adjudicated one capture and closed with a sentence it did not test:
@@ -3524,6 +3535,166 @@ the measuring module's own apparatus carve-out scored **31/31** against the
 first draft of the check meant to prevent exactly that, which is recorded in
 `notes/2026-10-25-the-negatives-were-never-sound.md` §8 rather than quietly
 fixed.
+
+**Annotated 2026-10-26 (§4.6.22).** Every number in (a)–(d) above is measured
+on the replacement **in isolation**, with its own flip not entered, and
+§4.6.22 shows that this is bitwise equivalent to the as-installed measurement
+for both channel holders and for `flip.make_contact_cq(live=False)` — so
+(a)–(c) stand unrevised, and the ×1.5 `v_F` figure of **−63.5273 %** holds in
+*every* configuration on the holder the default flip actually installs. The
+one exception is `blast._cq_consistent_contact`, on which `gfet.v_F` is
+**bitwise dead** once either other flip is entered. The 18 added pairs and
+the 84 % blind-class census are unaffected: both are statements about
+spelling, not about configuration.
+
+
+### 4.6.22 A verdict measured in isolation is a verdict about a configuration the replacement never runs in
+
+§4.6.20 and §4.6.21 adjudicate four *holders* — the replacement functions the
+flip managers of §4.6.16 install. Both measure them by calling them
+**directly**, with no manager entered. A replacement only ever runs with its
+manager entered, and all three instruments used here are relative to the
+namespace at the moment of use: `csg.capture_surface` and `vrs.value_reads`
+are static walks that resolve each name to the object *bound now*, and
+`csg.leverage` calls the holder in the current namespace. So the question
+§4.6.21 left untouched is whether isolation and installation agree. Until this
+section, nothing had asked.
+
+#### (a) The population, derived rather than listed
+
+`rra.FLIPS` × `rra.rebind_set` gives **8 (flip, site) pairs and 6 distinct
+installed objects**. §4.6.20 and §4.6.21 between them audited four. The two
+that had never had a read surface computed at all are the arrival-counting
+wrappers `flip._counting` builds — the objects `gfet.carrier_density`,
+`gfet.quantum_capacitance` and `crx.carrier_density` *actually become* under
+the default flip.
+
+#### (b) The answer: the instruments are vindicated on five of six objects
+
+Measured over all 6 × 3 cells, with the dependence of each (holder, name)
+pair classified on a four-valued axis (`BITWISE_SAME`, `BOTH_LIVE`,
+`DEAD_AS_INSTALLED`, `LIVE_ONLY_AS_INSTALLED`):
+
+| installed object | under its own flip | under the other two |
+|---|---|---|
+| `qca._carrier_density_consistent` | 14/14 `BITWISE_SAME` | invariant |
+| `qca._quantum_capacitance_consistent` | 11/11 | invariant |
+| `_counting(_carrier_density_consistent)` | 15/15 | invariant |
+| `_counting(_quantum_capacitance_consistent)` | 12/12 | invariant |
+| `flip.make_contact_cq(live=False)` | 19/19 | invariant |
+| **`blast._cq_consistent_contact`** | **15/15** | **not invariant under either** |
+
+**Every one of the six is bitwise flip-invariant under its own flip** — every
+name on its surface, every counterfactual, and the holder's own value. That
+proposition is what licenses every leverage figure quoted in §4.6.20,
+§4.6.21 and §4.6.18, and it had never been stated, let alone checked. It is
+now an assertion rather than an assumption.
+
+A **surface** change is also not a **verdict** change, and the measurement
+separates them: four of the six objects gain names on their surface in some
+configuration — the counting wrapper for `carrier_density` goes 15 → 17 under
+`qca.on_consistent_argument()` — while every one of their counterfactuals
+stays bitwise identical.
+
+#### (c) The one row that moves, and what it does and does not revise
+
+`blast._cq_consistent_contact` under `flip.on_default_flip(live_contact=False)`
+returns `0x1.4ef081d146707p-7` instead of `0x1.0c835a6063492p-4`, a factor of
+**6.4134**, and **eleven of its fifteen names cross the exact-zero
+boundary**: five go bitwise dead (`gfet.e` +278.4911 %, `gfet.hbar` and
+`gfet.v_F` −63.5273 %, `gfet.kB` +0.0242 %, and `gfet._thermal_rounding`
++58.3421 % — the whole of §4.6.20's finding) and six come alive from bitwise
+zero (`qca.cq_thermal`, `qca.cq_thermal_of_n` and `qca.CQ_PREFACTOR` at
++52.4103 %, `qca.KB` +35.8863 %, `qca.n_arg_EF_thermal` +9.0738 %).
+
+**The value change is not a new result.** It is §4.6.17's — *the two halves do
+not compose* — which measured this exact composition and costed it at −51 %
+to −62 % in `n_contact`. What is new is that the same non-composition appears
+as a change in the **read surface**, which is the object §4.6.19's and
+§4.6.20's guards demand adjudication over. §7.9's standing item on the
+unadjudicated compositions is therefore partly discharged: the relation is
+measured over all 6 × 3 cells and exactly one row is non-composing.
+
+What it revises is one **reason**, not one number. §4.6.21's dictionary gives
+`gfet.C_ox` on this holder the verdict PROTECTED with the reason *"the contact
+solve closes against `C_interface`, so the oxide capacitance reaches this
+value not at all … the zero is a property of the contact model and not of the
+2026-10-21 repair."* The first clause is right. The generalisation is not: the
+same holder gives `gfet.C_ox` **+7.8110 %** under the default flip, so the
+exact zero is a property of the contact model **composed with nothing else**.
+The reason is corrected in place in the code and the superseded wording is
+kept there.
+
+#### (d) And the vocabulary cannot express the state of that name
+
+Exhaustively over the four verdicts, for `gfet.C_ox` on this holder:
+
+| verdict | in isolation | as installed |
+|---|---|---|
+| `PROTECTED` | admissible | refused — it moves |
+| `UNREACHED` | refused — it is read | refused — it moves |
+| `EXPOSED` | refused — bitwise zero | admissible |
+| `GOVERNED` | refused — in no rebind set | refused |
+
+Exactly one verdict is admissible in each configuration **and they are
+different ones**. The four-verdict vocabulary of §4.6.20 is therefore not
+merely incomplete here; non-composition is **not dischargeable by
+adjudication at all**, which is the structural reason that item has survived
+three sessions of being noted. A fifth value — a verdict indexed by
+configuration — is the repair, and it is not attempted here.
+
+#### (e) A second finding: `flip._counting` is a capture
+
+Each counting wrapper's read surface contains exactly one name the
+replacement it wraps does not — that replacement's **own name** — and a
+rebind of it leaves the wrapper's value **bitwise unchanged**, because
+`_counting` holds the function object in a closure cell. This is a **third**
+capture in the model code, after the §4.6.17 contact repair and the
+`bc.rebind` family, and nothing had noticed it; its consequence is that the
+channel replacement *name* is immune under the default flip. The verdict is
+`UNREACHED` and not `PROTECTED`, by §4.6.20's own argument for the other
+identity-class member: the wrapper never *looks the name up*, so the bitwise
+zero is not a capture neutralising a read. This section's first draft said
+`PROTECTED` and the §4.6.20 guard refused it — the fourth time a rule planted
+in an earlier section has caught a claim written in a later one.
+
+#### (f) Exact anchors, and two of this section's own checks
+
+The result rests on probes, so the probes are anchored to values known in
+advance. `gfet.hbar` and `gfet.v_F` move `flip.make_contact_cq(live=False)` to
+the **bitwise identical** `0x1.87bc5bc0c26d0p-6` in all four configurations,
+because the `C_q` prefactor depends on them only through `(ħ v_F)²`; the
+counting wrapper returns a value bitwise equal to the replacement it wraps;
+an identity control flip leaves value and surface bitwise unchanged; and —
+the sharpest of the four — **the repaired and unrepaired contact replacements
+are bitwise indistinguishable in isolation**, both `0x1.0c835a6063492p-4`, so
+the entire content of the §4.6.17 repair appears *only* as installed. Five
+sections measured both holders in the one configuration in which they cannot
+be told apart.
+
+Nine defects were injected one at a time into a copy of the repository, each
+required to be caught **by a named check** rather than by a non-zero exit, and
+**two of this section's own checks failed that bar on the first run**: the
+positive control for the new PROTECTED-as-installed refusal planted its false
+verdict on a holder whose adjudication was incomplete in that configuration,
+so the missing-name refusal fired first and the branch under test was never
+reached (26/26, undetected); and the flip-invariance check asserted two hex
+values but never the invariance *flag* computed from them, so a relative
+tolerance could report a factor of 6.4 as invariant (27/28, undetected). Both
+are repaired. Final: **28/28 checks, 9/9 defects detected on their own terms,
+control clean.**
+
+#### (g) What this section does not claim
+
+It measures three configurations, not all of them: `live_contact=True` and the
+*simultaneous* composition of two managers are not covered. "Invariant under
+its own flip" is a bitwise statement at one probe point with one perturbation,
+not a theorem. And `vrs.value_reads` remains over-approximate with unsound
+negatives (§4.6.21 (a)); nothing here repairs that.
+
+Machine output: `installed_surface_audit_output.txt`,
+`installed_surface_mutation_output.txt`. Working notes:
+`notes/2026-10-26-the-configuration-the-replacement-runs-in.md`.
 
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
