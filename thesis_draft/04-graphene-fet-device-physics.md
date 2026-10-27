@@ -3697,6 +3697,77 @@ Machine output: `installed_surface_audit_output.txt`,
 `notes/2026-10-26-the-configuration-the-replacement-runs-in.md`.
 
 
+### 4.6.23 A repaired instrument's own repair was mis-predicted twice, and the second prediction was the informative one
+
+Every adjudication in §4.6.16 through §4.6.22 is taken with two constants:
+`csg.PROBE_V`, the gate voltage the holder is evaluated at, and
+`csg.PERTURBATION`, the factor the counterfactual multiplies by. Until
+2026-10-27 both were captured as function defaults rather than read at call
+time, which put them in the delivery class `MIXED` — some readers live, some
+frozen — and `MIXED` is not an intermediate state. A rebind of a `MIXED` name
+reaches the live readers and not the frozen ones, so if the live readers are
+an audit's expected-value expressions and the frozen ones are its measuring
+functions, the audit reports a disagreement its own mutation manufactured.
+These two names are not incidental to this chapter: **every counterfactual in
+it is taken with them**, so the split was a defect in the instrument and not
+in any model the instrument measures. Three further names were `MIXED` for the same
+reason in `graphene_chord_decay_length.py`, the module behind §7.9 item 2's
+2026-10-20 annotation — the one that shows `γ` cancels from the chord/local
+decay-length gap and that `ℓ` is the local decay length at no metal in the
+table. Eleven of the repository's
+twelve capture sites are converted; the twelfth is discussed below.
+
+**No number in this chapter moves.** The two affected modules' machine
+transcripts are bitwise unchanged by the conversion, which is the standard the
+2026-09-30 and 2026-10-01 conversions were held to and the only available
+evidence that a repair to a measuring instrument did not also move the
+measurement. What changes is what a *future* mutation of those names will do.
+
+**The informative part is that the repair was mis-predicted, twice.** The
+suite written to measure it predicted the textbook `MIXED` signature on
+`D1_CHORD`: the live reader `L'(d)` moves under a rebind and the captured
+reader `⟨L'⟩` freezes. It does not freeze. `⟨L'⟩` captured the chord endpoint
+`d₁` as a default, but the function it calls to evaluate `P` reads `D1_CHORD`
+*live*, to re-centre the polynomial at `d − d₁`. So under a rebind the
+pre-repair code averaged `L'` over the **old** interval while evaluating a
+polynomial centred on the **new** `d₁`. The resulting number corresponds to no
+consistent choice of `d₁` at all. That is strictly worse than the frozen case
+the prediction assumed, because a frozen number is at least one the model once
+produced, and the quantity carrying it was Eq. (D) — the γ-free discrepancy
+this chapter quotes.
+
+Restating the check as *coherence* rather than *movement* then caught a second
+wrong draft of the same kind. The reference value for "the old interval" was
+first taken **with the rebind still in place**, which made the reference the
+same incoherent quantity it was meant to be distinguished from; it agreed with
+the measurement to `0.000000e+00` and the check failed for the right reason.
+A reference value has to be taken in the state it claims to describe. Under a
+rebind of `d₁` from 3.3 Å to 3.9 Å the pre-repair default path lands
+`1.617099e-02` from the new-interval value and `3.838368e-02` from the
+pre-rebind one — between the two and equal to neither. After the repair it
+equals the new-interval value **bitwise**.
+
+**The residual, and a conflict this chapter does not resolve.** One capture
+site is left: `n_quad=N_QUAD` in the velocity-saturation module. Its `def` sits
+inside a function *body*, so the default is re-evaluated on every call of the
+enclosing function and a rebind does arrive — it is live by scope, not frozen,
+and is measured as live. It is also the only *real* site the
+frozen-default-semantics suite has for demonstrating that a static pass can
+find a capture its confirmation step then silently discards. So the standing
+guard "no module-level constant is captured as a default anywhere" cannot go
+green while that demonstration keeps its site, while its sibling "and in
+particular none is `MIXED`" now can, for the first time since it was written
+on 2026-10-01. The conflict is in the guard's **vocabulary** — it counts
+syntactic captures and names the class it cares about only in the second check
+— and not in the tree. Resolving it means either splitting the guard, or
+trading a real demonstration site for a synthetic one, which is the trade that
+suite exists to argue against.
+
+Machine output: `mixed_capture_repair_output.txt` (33/33),
+`mutation_arrival_probe_output.txt` (Section 7b, 32/2 → 33/1). Notes:
+`notes/2026-10-27-the-repair-that-refuted-its-own-prediction.md`.
+
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent
