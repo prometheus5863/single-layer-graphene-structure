@@ -11712,3 +11712,297 @@ six-transcript regeneration with the dead-name repair and the
 pristine-audit registration; the pristine audit's own 13/13 transcript).
 This AUTOMATION_LOG.md entry makes **7**. Each was pushed immediately after
 commit and verified against the GitHub API.
+
+## 2026-10-27
+
+**Subject: the 2026-10-26 ranked-first item — the five MIXED names and the
+twelve frozen/live capture sites — repaired, measured against the pinned
+pre-repair blobs, and the measurement refuted the prediction the measuring
+suite was written with. Twice.**
+
+### 1. The repair
+
+Eleven of the repository's twelve syntactic capture sites converted to the
+2026-09-30 sentinel form, in two commits, one module each:
+
+| module | names | before |
+|---|---|---|
+| `graphene_chord_decay_length.py` | `D1_CHORD`, `D2_CHORD`, `D_SPAN` | 3/9, 3/4, 1/3 frozen/live |
+| `graphene_capture_surface_guard.py` | `PERTURBATION`, `PROBE_V` | 2/1 each |
+
+`PERTURBATION` and `PROBE_V` are the two names **every counterfactual in this
+repository is taken with**, so the oracle/measurement split on them was a
+defect in the instrument and not in any model the instrument measures. Both
+affected transcripts are **bitwise unchanged** by the conversion — the
+standard the 09-30 and 10-01 conversions were held to, and the only available
+evidence that a repair to an instrument did not move the measurement.
+
+### 2. What the measurement actually said
+
+`graphene_mixed_capture_repair_audit.py`, **33/33**, registered in the
+pristine audit's `SUITES` table in the same commit that creates it (the
+2026-10-03 wiring rule). It imports the two pre-repair blobs out of the object
+store by hash — `4ef1e3c8`, `8f74a649`, a blob hash and not `HEAD~1`, per the
+Section 8 guard — under prefixed module names, so both states are live in one
+process. `B1`–`B5` reproduce the 10-26 census exactly (3/9, 3/4, 1/3, 2/1,
+2/1) before; `A1`–`A5` are LIVE after.
+
+Section M predicted the textbook `MIXED` signature on `D1_CHORD` — live reader
+moves, captured reader freezes. **It failed.** `mean_dlogP` captured `d1` as a
+default, but its body calls `poly_P`, which reads `D1_CHORD` *live* to
+re-centre the polynomial at `d − D1_CHORD`. Under a rebind the pre-repair code
+therefore averaged `L'` over the **old** interval while evaluating a
+polynomial centred on the **new** `d₁`:
+
+```
+d1 3.3 -> 3.9 A      default path        new interval          pre-rebind
+before          -3.156428052855e-01  off by 1.617099e-02  off by 3.838368e-02
+after           -3.318137959586e-01  BITWISE equal        (and not this one)
+```
+
+The pre-repair number lies **between** the two coherent values and equals
+neither: it corresponds to no consistent choice of `d₁` at all. **Incoherent,
+not frozen — and strictly worse,** because a frozen number is at least one the
+model once produced. The quantity carrying it is Eq. (D), the γ-free
+discrepancy §7.9 item 2's 10-20 annotation quotes.
+
+Restating the check as **coherence** rather than movement then caught a second
+draft error of the same shape: the "old interval" reference was first taken
+*with the rebind still in place*, making it the same incoherent quantity, and
+it agreed with the pre-repair default path to `0.000000e+00`. **A reference
+value has to be taken in the state it claims to describe.** Both wrong drafts
+are kept in the section's docstring; they are the result.
+
+A third error was caught by the suite's own control rather than by reading it:
+the pinned blobs were first registered in `sys.modules` under their **real**
+module names, shadowing the repaired modules, so every "after" lookup returned
+the "before" module and nine checks failed at once. `P2` and the new `P3` make
+that a check rather than a memory.
+
+### 3. The residual, and a conflict between two standing requirements
+
+The twelfth site is `n_quad=N_QUAD` in `graphene_velocity_saturation_model.py`
+— a `def` inside a function **body**, so the default is re-evaluated per call
+of the enclosing function and a rebind arrives. `live_by_scope`, not frozen,
+and measured as live by `graphene_frozen_default_semantics.py`'s own Section 1
+V2. It is also that suite's **only real** demonstration site: its Section 4
+`D1`–`D5` exist to show a static pass finding a capture its confirmation step
+then silently discards, on a site that exists.
+
+So Section 7b splits:
+
+- *"and in particular none is MIXED"* — **GREEN for the first time since it
+  was written on 2026-10-01**;
+- *"no module-level constant is captured as a default anywhere"* — red at one
+  site-group, and **cannot** go green while that demonstration keeps its site.
+
+Reported, not resolved. The conflict is in 7b's **vocabulary**, not in the
+tree: it counts syntactic captures and names the class it cares about only in
+the second check.
+
+### 4. The full regeneration found three more stale transcripts, one of them false in substance
+
+Per the 2026-10-25 standing item, every committed transcript was regenerated,
+not only the ones this session touched.
+
+- **`potential_declaration_output.txt` asserted a defect that had been
+  repaired three days after the transcript was written, and carried the claim
+  for nineteen days.** Written 2026-10-08 (`89b6219`): *"quantum_capacitance()
+  returns a finite value up to dV = 18.3493 V and NaN/inf above 18.3493 V ...
+  It is still a defect ... left as a new item rather than patched today."* The
+  overflow-free spelling was installed 2026-10-11 (`7019f61`, "Item 13
+  CLOSED"). Measured today: finite at 18.3, 18.4, 25, 40, 80 and 200 V. The
+  module is not in `SUITES`, so nothing checked it. **10-26 found transcripts
+  that understated the tree; this one overstated it,** which is the worse
+  direction — a false claim of a defect sends a session to work that is
+  already done. Annotated in place: 18.3493 V and η ≈ 710 are kept as the
+  pre-repair state. The bisection now runs to its search **ceiling**, and a
+  bisection reporting its ceiling is not an onset, so `SEARCH_LO`/`SEARCH_HI`
+  are named rather than written twice and a second check requires the two
+  states to be distinguishable. 11/11.
+- **`import_binding_sweep_output.txt`** — 56 modules parsed against 71;
+  from-imports 158 → 179, `import M as a` aliases 70 → 124.
+- **`potential_census_output.txt`** — 86 names across 25 modules against 133
+  across 35; `COLLECTED_NO_ROLE` 60 → 99, `DUAL_ROLE_TERMINAL` 10 → 16, and
+  eleven new unadjudicated `V_dirac` rows, which is a queue and not a count.
+- **`frozen_default_semantics_output.txt`** — reading 58 python files against
+  71; it predates thirteen modules.
+
+The transcripts the repair moves: `mutation_arrival_probe` 32/2 → **33/1**,
+`attribute_default_capture` 31/3 → **32/2** with `R3` green, `figure_provenance`
+census 12 occurrences across 3 files → 1 across 1, plus line-number shifts in
+`cross_module_delivery_audit` and `dead_name_sweep`.
+
+**Pristine-transcript audit 13/13 after the regeneration: 17 of 17 registered
+suites IDENTICAL, 0 STALE.** Before the regeneration commits it reported 5
+STALE, which is the before-half of that result.
+
+### 5. Environment and automation health
+
+Four facts, and the first is in the repository's own source rather than the
+environment:
+
+1. **Two mutation suites could not create their own working tree, and printed
+   a green control before dying.** `graphene_value_read_mutation.py` and
+   `graphene_installed_surface_mutation.py` built their mutated copies under
+   the **fixed** paths `/tmp/vrs_mut` and `/tmp/isa_mut`. `/tmp` is shared
+   between sessions on this VM and survives them, and another session owned
+   both directories mode 700 under a different uid. So
+   `rmtree(ignore_errors=True)` silently did nothing, `makedirs` on the
+   existing parent succeeded, and `copytree` died with `PermissionError` —
+   **after** the unmutated control had printed PASS. A mutation suite that
+   cannot create its working tree reports **no** score, which is not `0/9` and
+   must not be read as it. Both now use `mkdtemp` under `TMPDIR`. Both
+   transcripts bitwise unchanged at 9/9.
+2. **Transcripts are stdout only.** Capturing stderr puts four numpy
+   `RuntimeWarning` lines at the head of every transcript whose suite imports
+   `graphene_quantum_capacitance_argument.py`, which made three transcripts
+   read STALE on environment noise alone — the 10-26 `MPLCONFIGDIR` fault in a
+   new place, same signature.
+3. **Three modules write their own transcript into the working tree** —
+   `graphene_import_binding_sweep.py`, `graphene_default_flip.py`,
+   `graphene_contact_argument_blast_radius.py`. Running one in place
+   overwrites the file the byte comparison is taken against, so the verdict is
+   **circular** unless taken against the object store. That is how the
+   import-binding staleness was caught and how it was nearly missed.
+4. **Three suites cannot be regenerated here at all.**
+   `graphene_perfect_contact_mutation.py`,
+   `graphene_velocity_saturation_model.py` and
+   `graphene_velocity_saturation_mutation.py` each exceed 170 s; a shell call
+   is capped at 180 s and **no background process survives it** — `nohup` and
+   `setsid` are both killed when the call returns. None is in `SUITES`; their
+   transcripts are left untouched rather than half-written.
+
+`/sessions` is still 100 % full (9.3 G of 9.8 G, other sessions', unreadable
+and undeletable), so the clone goes into `/tmp` on `/dev/sda1` as the 10-25
+and 10-26 entries ask; `TMPDIR=/tmp` and `MPLCONFIGDIR` set per 10-26, except
+that `/tmp/mplcache` is now owned by another session and a differently-named
+directory is needed. `scipy` 1.15.3 already in `/tmp/pylibs`; numpy 2.2.6,
+matplotlib 3.10.9. **Live web search not used:** today's subject is this
+repository's own instruments measured against themselves and there is no
+external source for it. PubMed/PMC not attempted, per the standing note. Every
+commit pushed and verified against the GitHub API.
+
+### 6. No figure this session, and a new entry point for the oldest item
+
+Four committed PNGs do not re-render byte-identically even where their
+transcripts do: `differential_crossover.png` (−38724 B),
+`log_sensitivity_step_audit.png` (−80248 B),
+`perfect_contact_counterfactual.png` (−26968 B) and `import_binding_sweep.png`
+(+5715 B). The first three are **reverted** — their transcripts are bitwise
+identical, so there is no content change to track. The fourth is committed,
+because its transcript genuinely changed and figure and transcript should stay
+in step. "Render and inspect every committed figure" has been carried six
+sessions with ~63 PNGs and no entry point; this is one, with four named files,
+a measured delta each, and a hypothesis a single rendered comparison settles.
+
+**Not yet covered (candidates for future runs):**
+
+- **SPLIT THE 7b GUARD, OR MOVE THE DEMONSTRATION SITE** — created today,
+  **ranked first**, and the direct continuation. 7b's first check cannot go
+  green while `graphene_frozen_default_semantics.py` keeps its only real
+  `live_by_scope` demonstration site; its second check now can. Two repairs:
+  (i) split 7b into FROZEN-or-MIXED (achievable today) and syntactic (not), or
+  (ii) move the demonstration onto a planted fixture — which trades a real
+  site for a synthetic one, the trade that suite exists to argue against.
+  **Cost (i) first.** Blocked on nothing.
+- **REGISTER THE UNREGISTERED TRANSCRIPTS** — created today, **ranked
+  second**, and today is the argument. Four transcripts were stale, and all
+  four are outside `SUITES`; the one that was *false in substance* had been so
+  for nineteen days precisely because nothing checked it. The table has 18
+  rows against roughly 40 committed transcripts. Mechanical for most of them;
+  three are blocked by item 4 of §5 (they exceed the shell's call limit) and
+  that is the honest reason to leave those three out and say so in the table.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — created today, **ranked
+  third**, from the potential census's 86→133 refresh. A real queue, in a
+  census that nothing had regenerated for weeks, and it should be worked
+  before the census grows again.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 2026-10-26, §7.9 item
+  23 (ii), unchanged in content: no member of {PROTECTED, UNREACHED, EXPOSED,
+  GOVERNED} is true in both configurations for `gfet.C_ox`, so the item is not
+  satisfiable in the present vocabulary. **Note that today found the same
+  shape in a second place** — 7b's two checks disagree because one names a
+  class and the other counts syntax — so the repair may be one change rather
+  than two, and that is worth establishing before either is built.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 2026-10-26, §7.9 item 23 (i). Mechanical: the table is built
+  from `rra.FLIPS`.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  2026-10-25, and today is a third argument: `mutation_arrival_probe` went
+  from 2 failures to 1 and `attribute_default_capture` from 3 to 2, both for
+  the right reason — but a count moving the right way is indistinguishable
+  from one failure being fixed while another appears.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from
+  2026-10-26, and **cheaper now than when it was created**: both names are
+  LIVE as of today, so a sweep over them actually reaches the code it sweeps.
+  Pairs with *IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?*
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs, and §6
+  above is the first concrete entry point in six sessions.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  2026-10-25, unchanged.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 2026-10-25, §7.9
+  item 22 (i), still mechanical, still blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from
+  2026-10-24, unchanged.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **seventh** instance (`P1`). The repository-wide question —
+  which refusal branches anywhere have never been reached — is still
+  untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twenty-one**
+  sessions overdue. Today adds an argument from the other side: every claim in
+  the new suite is bitwise, and the coherence finding of §2 would have been
+  invisible to a relative tolerance of 1e-3 (the gap is 1.6e-02 on a quantity
+  of order 3e-01, i.e. 5 %).
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged; a decision, to be taken
+  with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **seventh** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on Fig. 4 of a paper behind `arxiv.org`. A
+  copy of the PDF in the connected folder unblocks both immediately.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, and today adds an instance: the new
+  suite's planted mixed module is written under `TMPDIR` and imported by path
+  rather than into the repository, which is the right shape — so the item now
+  has a worked positive example, not only violations.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **eleventh** session;
+  `dead_name_sweep` red, DEAD count 1.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, **twelfth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01,
+  untouched since 10-06. The retired Chapters 2–3 wording stays retired;
+  `graphene_standing_list_audit.py` is IDENTICAL and green today.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **fifteenth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **twentieth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **eighteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **seventeenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twenty-one sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **eighteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **eighteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched,
+  and now joined by eleven more (see the ranked-third item).
+- **A self-heating term** — created 2026-10-06.
+- **Chapters 2–3 are still undrafted** — the largest remaining block of pure
+  writing; their computational results have been complete for weeks.
+
+**Commits this run:** 8 (the chord-decay conversion; the capture-surface-guard
+conversion; the repair audit with its 33/33 transcript and its registration;
+the two mutation suites' fixed working-tree path; the nineteen-day false claim
+annotated in place; the full transcript regeneration with the three further
+staleness finds; the pristine audit's 13/13; notes and thesis §4.6.23). This
+`AUTOMATION_LOG.md` entry makes **9**. Each was pushed immediately after
+commit and verified against the GitHub API.
