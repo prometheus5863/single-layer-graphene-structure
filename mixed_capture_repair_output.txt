@@ -1,0 +1,136 @@
+==============================================================================
+MIXED-CAPTURE REPAIR AUDIT -- 2026-10-27
+the 2026-10-26 ranked-first item, measured against the pinned pre-repair blobs
+==============================================================================
+  pinned blobs materialised:
+    4ef1e3c837c91c5d268fdc7605fcfb040d066fa7  graphene_chord_decay_length.py
+    8f74a6493fb5510435d424a1de2d009efcae7d05  graphene_capture_surface_guard.py
+
+SECTION B -- the five names, classified in the PRE-REPAIR SOURCE
+  module (pinned blob)               name           verdict  frozen / live
+  graphene_chord_decay_length        D1_CHORD       MIXED    3 / 9
+  [PASS] B1 graphene_chord_decay_length.D1_CHORD was MIXED before the repair
+        verdict=MIXED
+  [PASS] B1'  ... with the 2026-10-26 counts (3 frozen / 9 live)
+        measured 3 frozen / 9 live
+  graphene_chord_decay_length        D2_CHORD       MIXED    3 / 4
+  [PASS] B2 graphene_chord_decay_length.D2_CHORD was MIXED before the repair
+        verdict=MIXED
+  [PASS] B2'  ... with the 2026-10-26 counts (3 frozen / 4 live)
+        measured 3 frozen / 4 live
+  graphene_chord_decay_length        D_SPAN         MIXED    1 / 3
+  [PASS] B3 graphene_chord_decay_length.D_SPAN was MIXED before the repair
+        verdict=MIXED
+  [PASS] B3'  ... with the 2026-10-26 counts (1 frozen / 3 live)
+        measured 1 frozen / 3 live
+  graphene_capture_surface_guard     PERTURBATION   MIXED    2 / 1
+  [PASS] B4 graphene_capture_surface_guard.PERTURBATION was MIXED before the repair
+        verdict=MIXED
+  [PASS] B4'  ... with the 2026-10-26 counts (2 frozen / 1 live)
+        measured 2 frozen / 1 live
+  graphene_capture_surface_guard     PROBE_V        MIXED    2 / 1
+  [PASS] B5 graphene_capture_surface_guard.PROBE_V was MIXED before the repair
+        verdict=MIXED
+  [PASS] B5'  ... with the 2026-10-26 counts (2 frozen / 1 live)
+        measured 2 frozen / 1 live
+
+SECTION A -- the same five names in the REPAIRED tree
+  graphene_chord_decay_length        D1_CHORD       LIVE     12 live reader(s)
+  [PASS] A1 graphene_chord_decay_length.D1_CHORD is LIVE after the repair
+        verdict=LIVE
+  graphene_chord_decay_length        D2_CHORD       LIVE     7 live reader(s)
+  [PASS] A2 graphene_chord_decay_length.D2_CHORD is LIVE after the repair
+        verdict=LIVE
+  graphene_chord_decay_length        D_SPAN         LIVE     4 live reader(s)
+  [PASS] A3 graphene_chord_decay_length.D_SPAN is LIVE after the repair
+        verdict=LIVE
+  graphene_capture_surface_guard     PERTURBATION   LIVE     3 live reader(s)
+  [PASS] A4 graphene_capture_surface_guard.PERTURBATION is LIVE after the repair
+        verdict=LIVE
+  graphene_capture_surface_guard     PROBE_V        LIVE     3 live reader(s)
+  [PASS] A5 graphene_capture_surface_guard.PROBE_V is LIVE after the repair
+        verdict=LIVE
+
+SECTION M -- what the capture actually did to Eq. (D), MEASURED
+  before D1_CHORD 3.3000 -> 3.9000
+         dlogP(d)       [live reader]   -3.400850212553e-01 -> -3.050917336632e-01
+         mean_dlogP()   [default path]  -3.540264836195e-01 -> -3.156428052855e-01
+         discrepancy()  [Eq. (D)]       +1.394146236419e-02 -> +1.055107162238e-02
+         the two values that are COHERENT -- attribute and endpoint agreeing:
+           d1 = 3.9000 everywhere : -3.318137959586e-01   (after the rebind)
+           d1 = 3.3000 everywhere : -3.540264836195e-01   (before it)
+  after  D1_CHORD 3.3000 -> 3.9000
+         dlogP(d)       [live reader]   -3.400850212553e-01 -> -3.050917336632e-01
+         mean_dlogP()   [default path]  -3.540264836195e-01 -> -3.318137959586e-01
+         discrepancy()  [Eq. (D)]       +1.394146236419e-02 -> +2.672206229543e-02
+         the two values that are COHERENT -- attribute and endpoint agreeing:
+           d1 = 3.9000 everywhere : -3.318137959586e-01   (after the rebind)
+           d1 = 3.3000 everywhere : -3.540264836195e-01   (before it)
+  [PASS] M1 BEFORE: the rebind moved the live reader dlogP(d)
+  [PASS] M2 BEFORE: the default path matches NEITHER coherent value -- it is incoherent, not merely frozen
+        default -3.156428052855e-01
+        new      -3.318137959586e-01  (off by 1.617099e-02)
+        old      -3.540264836195e-01  (off by 3.838368e-02)
+  [PASS] M3 AFTER: the default path equals the NEW-interval value BITWISE
+        default and explicit agree to the last bit under the rebind
+  [PASS] M4 AFTER: and it is not the old-interval value either -- M3 is not the rebind being ignored
+  [PASS] M5 the two states respond to the SAME rebind differently in Eq. (D)
+        before 3.390390741807e-03 vs after 1.278059993124e-02
+  [PASS] M6 and the unmutated Eq. (D) is identical in both states
+        the repair moves no published number: Section E is the repo-wide form
+
+SECTION E -- the repair is EXACTLY behaviour-preserving
+  [PASS] E1 discrepancy() is BITWISE equal in both states over 18 (d, shape) points
+        no mutation applied: a repair that changes a published number is a different change
+  [PASS] E2 the default path equals the EXPLICIT-argument path bitwise, 18 points
+        the sentinel substitutes the module attribute and nothing else
+  [PASS] E3 and the explicit path CAN disagree when given a different endpoint -- E2 is not vacuous
+  [PASS] E4 admissible() default span equals the explicit D_SPAN path
+
+SECTION C -- must-change and identity controls on the repaired path
+  [PASS] C1 MUST_CHANGE: a rebind of D2_CHORD reaches the default path
+        base -6.612017254330e-03 -> -2.900298288441e-02
+  [PASS] C2 IDENTITY: a rebind to the SAME value leaves it bitwise unchanged
+
+SECTION P -- planted controls (a classifier that cannot say MIXED certifies nothing)
+  [PASS] P1 the classifier still reports MIXED on a planted mixed name
+        verdict=MIXED
+  [PASS] P2 the pinned before-state is a DIFFERENT object from the repaired module
+        before pinned_before_graphene_chord_decay_length  (pinned_before_graphene_chord_decay_length.py)
+        after  graphene_chord_decay_length  (graphene_chord_decay_length.py)
+  [PASS] P3 and sys.modules still maps the real names to the REPAIRED modules
+        the shadowing that made the first run of this suite report 9 failures is now a check, not a memory
+
+SECTION R -- the residual capture site
+  graphene_velocity_saturation_model.py        _R_harmonic              N_QUAD
+  [PASS] R1 exactly ONE capture site remains repo-wide (11 of 12 converted today)
+        1 site(s): [('graphene_velocity_saturation_model.py', '_R_harmonic', 'N_QUAD')]
+  [PASS] R2 and it is the site graphene_frozen_default_semantics.py names as its own demonstration site
+        found ('graphene_velocity_saturation_model.py', '_R_harmonic', 'N_QUAD'), expected ('graphene_velocity_saturation_model.py', '_R_harmonic', 'N_QUAD')
+  [PASS] R3 and graphene_frozen_default_semantics.py still names it, so R2 is not a coincidence of spelling
+
+==============================================================================
+TOTAL: 33 passed, 0 failed
+==============================================================================
+
+THE RESIDUAL, AND A CONFLICT BETWEEN TWO STANDING REQUIREMENTS
+  11 of the 12 syntactic capture sites are converted.  The 12th,
+  N_QUAD in graphene_velocity_saturation_model.py,
+  is a `def` inside a function BODY, so its default is re-evaluated
+  on every call of the enclosing function and a rebind DOES arrive:
+  it is live_by_scope, not frozen, and graphene_frozen_default_semantics.py
+  measures it as live in its own Section 1 V2.  It is also that
+  suite's ONLY REAL demonstration site: its Section 4 D1-D5 exist
+  to show the silent-drop mechanism on a site that actually exists.
+
+  So the arrival probe's Section 7b check "no module-level constant
+  is captured as a default anywhere" CANNOT go green while that
+  suite keeps its site, and its sibling "and in particular none is
+  MIXED" now can.  The two standing requirements conflict, and the
+  conflict is in the VOCABULARY, not in the tree: 7b counts
+  syntactic captures and names the class it cares about only in the
+  second check.  Not resolved here.  Resolving it means either
+  splitting 7b into FROZEN-or-MIXED (achievable) and syntactic
+  (not), or moving the demonstration site into a planted fixture --
+  and the second trades a real site for a synthetic one, which is
+  the trade that suite was written to argue against.

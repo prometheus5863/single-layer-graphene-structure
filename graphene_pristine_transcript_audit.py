@@ -133,6 +133,16 @@ SUITES = [
     # written rather than on the day someone notices.
     ("graphene_installed_surface_audit.py",
      "installed_surface_audit_output.txt"),
+    # Added 2026-10-27, in the same commit that creates the suite, per the
+    # 2026-10-03 wiring rule.  This one measures a REPAIR -- the 11 of 12
+    # capture sites converted today -- against the pinned pre-repair blobs,
+    # and a suite whose whole content is "the before state was broken and the
+    # after state is not" is exactly the kind whose transcript must not be
+    # allowed to go stale: once the blobs are no longer reachable or the
+    # sentinel form is edited, the claim becomes unfalsifiable without this
+    # table noticing.
+    ("graphene_mixed_capture_repair_audit.py",
+     "mixed_capture_repair_output.txt"),
 ]
 
 # This module is deliberately absent from SUITES.  It would have to run itself
