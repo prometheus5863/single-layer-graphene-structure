@@ -221,13 +221,21 @@ def capture_surface(fn):
 # The counterfactual
 # ---------------------------------------------------------------------------
 
-def perturb(obj, k=PERTURBATION):
+def perturb(obj, k=None):
     """A deliberately wrong stand-in for `obj`, same shape.
 
     k=1.0 on a callable still returns a WRAPPER rather than the object, so the
     identity control (C1) must use `rebind_identity` instead: a wrapper that
     scales by 1.0 would hide a probe that perturbs by wrapping.
     """
+    # Late-bound (2026-10-27, the 2026-10-26 ranked-first item): read at
+    # CALL time, so a rebind of the module attribute reaches this function.
+    # Captured as a default until today, which made PERTURBATION MIXED.  These
+    # two names are the ones every counterfactual in this repository is
+    # taken with, so an oracle/measurement split on them was a defect in
+    # the instrument and not in any model it measures.
+    if k is None:
+        k = PERTURBATION
     if isinstance(obj, bool):
         raise TypeError('no perturbation defined for a bool')
     if isinstance(obj, (int, float)):
@@ -251,7 +259,7 @@ def rebound(site, factory):
         setattr(mod, site[1], old)
 
 
-def leverage(holder, site, k=PERTURBATION, V=PROBE_V):
+def leverage(holder, site, k=None, V=None):
     """(base, moved, exact) -- the holder's value before and under the rebind.
 
     `exact` is True when the two are BITWISE equal.  Nothing here is compared
@@ -259,14 +267,32 @@ def leverage(holder, site, k=PERTURBATION, V=PROBE_V):
     object" has an exact answer, and asking it with a tolerance is the
     2026-10-09 tolerance item in a new place.
     """
+    # Late-bound (2026-10-27, the 2026-10-26 ranked-first item): read at
+    # CALL time, so a rebind of the module attribute reaches this function.
+    # Captured as a default until today, which made PERTURBATION and PROBE_V MIXED.  These
+    # two names are the ones every counterfactual in this repository is
+    # taken with, so an oracle/measurement split on them was a defect in
+    # the instrument and not in any model it measures.
+    if k is None:
+        k = PERTURBATION
+    if V is None:
+        V = PROBE_V
     base = float(holder(V))
     with rebound(site, lambda old: perturb(old, k)):
         moved = float(holder(V))
     return base, moved, base.hex() == moved.hex()
 
 
-def identity_leverage(holder, site, V=PROBE_V):
+def identity_leverage(holder, site, V=None):
     """The same measurement with the SAME OBJECT put back -- must be exact."""
+    # Late-bound (2026-10-27, the 2026-10-26 ranked-first item): read at
+    # CALL time, so a rebind of the module attribute reaches this function.
+    # Captured as a default until today, which made PROBE_V MIXED.  These
+    # two names are the ones every counterfactual in this repository is
+    # taken with, so an oracle/measurement split on them was a defect in
+    # the instrument and not in any model it measures.
+    if V is None:
+        V = PROBE_V
     base = float(holder(V))
     with rebound(site, lambda old: old):
         again = float(holder(V))
