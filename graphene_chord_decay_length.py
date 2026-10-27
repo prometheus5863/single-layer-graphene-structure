@@ -138,13 +138,27 @@ def dlogP(d, p1, p2):
     return (p1 + 2.0 * p2 * x) / (1.0 + p1 * x + p2 * x * x)
 
 
-def mean_dlogP(p1, p2, d1=D1_CHORD, d2=D2_CHORD):
+def mean_dlogP(p1, p2, d1=None, d2=None):
     """<L'> over [d1, d2], in closed form: [L(d2) - L(d1)] / (d2 - d1)."""
+    # Late-bound (2026-10-27, the 2026-10-26 ranked-first item): read at
+    # CALL time, so a rebind of the module attribute reaches this function.
+    # Captured as a default until today, which made D1_CHORD and D2_CHORD MIXED --
+    # the class that moves an oracle while freezing a measurement.
+    if d1 is None:
+        d1 = D1_CHORD
+    if d2 is None:
+        d2 = D2_CHORD
     return (np.log(poly_P(d2, p1, p2)) - np.log(poly_P(d1, p1, p2))) / (d2 - d1)
 
 
-def admissible(p1, p2, span=D_SPAN, n=401):
+def admissible(p1, p2, span=None, n=401):
     """P > 0 everywhere a metal sits or the chord runs.  Refusal, not a skip."""
+    # Late-bound (2026-10-27, the 2026-10-26 ranked-first item): read at
+    # CALL time, so a rebind of the module attribute reaches this function.
+    # Captured as a default until today, which made D_SPAN MIXED --
+    # the class that moves an oracle while freezing a measurement.
+    if span is None:
+        span = D_SPAN
     d = np.linspace(span[0], span[1], n)
     return bool(np.all(poly_P(d, p1, p2) > 0.0))
 
@@ -152,8 +166,16 @@ def admissible(p1, p2, span=D_SPAN, n=401):
 # =====================================================================
 # The three decay lengths
 # =====================================================================
-def inv_ell_chord(gamma, p1, p2, d1=D1_CHORD, d2=D2_CHORD):
+def inv_ell_chord(gamma, p1, p2, d1=None, d2=None):
     """Eq. (C), in 1/A.  gamma in 1/A."""
+    # Late-bound (2026-10-27, the 2026-10-26 ranked-first item): read at
+    # CALL time, so a rebind of the module attribute reaches this function.
+    # Captured as a default until today, which made D1_CHORD and D2_CHORD MIXED --
+    # the class that moves an oracle while freezing a measurement.
+    if d1 is None:
+        d1 = D1_CHORD
+    if d2 is None:
+        d2 = D2_CHORD
     return gamma - mean_dlogP(p1, p2, d1, d2)
 
 
@@ -162,8 +184,16 @@ def inv_ell_local(d, gamma, p1, p2):
     return gamma - dlogP(d, p1, p2)
 
 
-def discrepancy(d, p1, p2, d1=D1_CHORD, d2=D2_CHORD):
+def discrepancy(d, p1, p2, d1=None, d2=None):
     """Eq. (D): 1/ell_chord - 1/ell_local(d), in 1/A.  GAMMA-FREE."""
+    # Late-bound (2026-10-27, the 2026-10-26 ranked-first item): read at
+    # CALL time, so a rebind of the module attribute reaches this function.
+    # Captured as a default until today, which made D1_CHORD and D2_CHORD MIXED --
+    # the class that moves an oracle while freezing a measurement.
+    if d1 is None:
+        d1 = D1_CHORD
+    if d2 is None:
+        d2 = D2_CHORD
     return dlogP(d, p1, p2) - mean_dlogP(p1, p2, d1, d2)
 
 
