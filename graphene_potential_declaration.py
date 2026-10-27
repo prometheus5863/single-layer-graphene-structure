@@ -151,12 +151,21 @@ def n_total_qf(dV):
     return np.sqrt(n_quasi_fermi(dV) ** 2 + gfet.n_puddle ** 2)
 
 
+# The bisection's search range.  Named 2026-10-27 rather than written twice:
+# the reporting code has to be able to tell "found an onset at 40 V" from
+# "ran to the ceiling of 40 V and found nothing", and it cannot do that
+# against a literal it does not share.  Module-level and read at call time
+# (2026-09-30 mutation-arrival rule).
+SEARCH_LO = 1.0
+SEARCH_HI = 40.0
+
+
 def nan_onset_of_series_factor():
     """The drive at which quantum_capacitance() stops returning a number."""
     import warnings
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
-        lo, hi = 1.0, 40.0
+        lo, hi = SEARCH_LO, SEARCH_HI
         for _ in range(60):
             mid = 0.5 * (lo + hi)
             ok = np.isfinite(gfet.quantum_capacitance(mid, T=gfet.T))
@@ -304,18 +313,53 @@ def main():
     print()
     print('  2d  A numerical limit of (D2), found while doing 2a, measured:')
     lo, hi = nan_onset_of_series_factor()
+    ceiling = SEARCH_HI
+    repaired = lo >= ceiling - 1e-9
     print('      quantum_capacitance() returns a finite value up to dV =')
     print('      %.4f V and NaN/inf above %.4f V, because' % (lo, hi))
     print('      log(2*(1 + cosh(eta))) overflows once eta = dV/(kT/e) passes')
     print('      about 710.  kT/e = %.6f V here, so the onset is at eta ~ %.0f.'
           % (KT_OVER_E, lo / KT_OVER_E))
-    check('the overflow is far outside every bias this thesis quotes',
+    # ANNOTATED IN PLACE 2026-10-27.  The paragraph above and the check below
+    # were written on 2026-10-08 against a spelling that DID overflow: the
+    # committed transcript of that date reports an onset of 18.3493 V, eta ~
+    # 710, which is where cosh overflows a float64 and is the correct reading
+    # of the model AS IT THEN STOOD.  The overflow-free spelling was installed
+    # on 2026-10-11 (commit 7019f61, "Item 13 CLOSED"), three days later, and
+    # the transcript was never regenerated -- it is not in the pristine audit's
+    # SUITES table, so nothing checked it.  For NINETEEN DAYS the repository
+    # therefore carried a committed claim that a defect was present which had
+    # already been repaired, and the sentence "it is left as a new item rather
+    # than patched today" named an item that no longer existed.
+    #
+    # The 10-08 numbers are NOT deleted: they are the pre-repair state and are
+    # still in the 10-08 transcript and in this comment.  What changes is that
+    # the bisection now runs to its search CEILING, and a bisection reporting
+    # its own ceiling is not an onset -- so the check is restated to say which
+    # of the two states it is in, rather than reading the ceiling as a number.
+    if repaired:
+        print('      AS OF 2026-10-11 THE OVERFLOW IS REPAIRED.  The bisection')
+        print('      above ran to its search ceiling of %.1f V without finding'
+              % ceiling)
+        print('      a non-finite value, so %.4f V is the CEILING, not an' % lo)
+        print('      onset.  The 2026-10-08 transcript of this module reports')
+        print('      18.3493 V (eta ~ 710) and was correct for the spelling')
+        print('      then installed; see the comment at this line.')
+    check('the overflow is outside every bias this thesis quotes -- or gone',
           lo > 10.0,
-          'onset %.2f V against a maximum swept drive of about 2.7 V, so no '
-          'committed number is affected.  It is still a defect -- the large-eta '
-          'limit of that expression is |eta| + log 2 and is exact -- and it is '
-          'left as a new item rather than patched today, because the module '
-          'owns committed transcripts.' % lo)
+          ('the bisection reached its ceiling of %.2f V with no non-finite '
+           'value: the overflow-free spelling installed 2026-10-11 is in '
+           'place, and no committed number was ever affected (maximum swept '
+           'drive about 2.7 V).  The 2026-10-08 onset of 18.3493 V is the '
+           'pre-repair state and is kept, not overwritten.' % lo) if repaired
+          else
+          ('onset %.2f V against a maximum swept drive of about 2.7 V, so no '
+           'committed number is affected.  It is still a defect -- the '
+           'large-eta limit of that expression is |eta| + log 2 and is exact.'
+           % lo))
+    check('and the two states are distinguishable, not conflated',
+          repaired != (hi < ceiling - 1e-9),
+          'ceiling %.1f V, lo %.4f V, hi %.4f V' % (ceiling, lo, hi))
 
     print()
     print('SECTION 3.  Validation against exactly known values')
