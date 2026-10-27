@@ -52,6 +52,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 SRC = os.path.dirname(os.path.abspath(__file__))
 ISA = 'graphene_installed_surface_audit.py'
@@ -184,7 +185,19 @@ def main():
     print()
 
     results = []
-    work = os.path.join('/tmp', 'isa_mut')
+    # 2026-10-27: a FIXED path under /tmp, which is shared between sessions on
+    # this VM and survives them.  Another session's run had already created
+    # /tmp/isa_mut with mode 700 under a different uid, so `shutil.rmtree(root,
+    # ignore_errors=True)` silently did nothing, `os.makedirs` on the parent
+    # succeeded because the parent existed, and `copytree` then died with
+    # PermissionError on the first mutation -- AFTER the unmutated control had
+    # printed PASS, so the transcript on disk began with a green control and
+    # ended in a traceback.  A mutation suite that cannot create its own
+    # working tree reports NO score, which is not the same as 0/9 and must
+    # not be mistaken for it.  Per-run and under TMPDIR, so it cannot collide
+    # with another session or with another run of itself.
+    work = tempfile.mkdtemp(prefix='isa_mut_',
+                            dir=os.environ.get('TMPDIR', '/tmp'))
     for tag, why, apply in MUTATIONS:
         root = os.path.join(work, tag)
         shutil.rmtree(root, ignore_errors=True)
