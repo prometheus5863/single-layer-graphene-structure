@@ -62,8 +62,8 @@ SECTION 2 -- positive and negative controls on the arbiter itself
 --------------------------------------------------------------------------
 SECTION 3 -- the two standing censuses, reconciled over one path set
 --------------------------------------------------------------------------
-  python files in repository                : 58
-  minus mutation_arrival_probe's exclusions : 54
+  python files in repository                : 71
+  minus mutation_arrival_probe's exclusions : 67
     excluded: initialize_repo, main, generate_plots, graphene_mutation_arrival_probe
 
   instrument                                           count

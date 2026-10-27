@@ -7,21 +7,27 @@ SECTION 1 -- the census
 ------------------------------------------------------------------------------
   UNDETERMINED           0
   DECLARED_NO_REASON     0
-  DUAL_ROLE_TERMINAL    10
+  DUAL_ROLE_TERMINAL    16
   DECLARED               2
-  DETERMINED            14
-  COLLECTED_NO_ROLE     60
+  DETERMINED            16
+  COLLECTED_NO_ROLE     99
   PARSE_ERROR            0
-  TOTAL NAMES           86   across 25 modules
+  TOTAL NAMES          133   across 35 modules
 
   UNDETERMINED -- both roles AND channel-swept (the 10-07 defect):
     (none)
 
   DUAL_ROLE_TERMINAL -- both roles, NOT channel-swept, not a fault:
     contact_resistance_crossover.py::V_g                   TERMINAL_BIAS
+    graphene_contact_argument_blast_radius.py::V_dirac     ?
     graphene_diffusion_current_model.py::V_g               TERMINAL_BIAS
+    graphene_double_regularisation.py::V_dirac             ?
+    graphene_exact_charge_rederivation.py::V_dirac         ?
     graphene_fet_model.py::V_dirac                         REFERENCE_LEVEL
     graphene_fet_model.py::V_g                             TERMINAL_BIAS
+    graphene_fet_signed_carrier_model.py::V_dirac          ?
+    graphene_quantum_capacitance_argument.py::V_dirac      ?
+    graphene_quantum_capacitance_overflow.py::V_dirac      ?
     graphene_velocity_saturation_model.py::V_SAT_ANCHOR    UNADJUDICATED
     graphene_velocity_saturation_model.py::V_g             TERMINAL_BIAS
     graphene_velocity_saturation_model.py::V_hi            TERMINAL_BIAS
@@ -30,15 +36,15 @@ SECTION 1 -- the census
     rf_small_signal_model.py::V_dirac                      REFERENCE_LEVEL
 
   DECLARED in the source:
-    graphene_fet_model.py::V_ch                        QUASI_FERMI (line 97)
+    graphene_fet_model.py::V_ch                        QUASI_FERMI (line 141)
         reason: the quasi-Fermi (electrochemical) potential of the channel carriers, in volts, from the source; Pasadas and Ji
-    graphene_fet_model.py::V_channel_profile           QUASI_FERMI (line 187)
+    graphene_fet_model.py::V_channel_profile           QUASI_FERMI (line 266)
         reason: the gradual-channel integration variable, 0 at the source to Vds at the drain, same reading as V_ch above
 
 SECTION 2 -- registry completeness: a census that cannot go stale
 ------------------------------------------------------------------------------
-  PASS  every potential-like name found is in POTENTIAL_REGISTRY
-        86 names, every one adjudicated or explicitly UNADJUDICATED
+  FAIL  every potential-like name found is in POTENTIAL_REGISTRY
+        unregistered (the census has gone stale): graphene_capture_surface_guard.py::E_F, graphene_contact_argument_blast_radius.py::E_F, graphene_contact_argument_blast_radius.py::V_dirac, graphene_contact_argument_blast_radius.py::V_g, graphene_contact_consistent_argument.py::E_F, graphene_contact_consistent_argument.py::V_ch, graphene_contact_consistent_argument.py::V_g, graphene_contact_consistent_argument.py::V_g_minus_Vdirac
   PASS  POTENTIAL_REGISTRY has no rows for names that do not exist
         no dead rows
 
@@ -54,9 +60,10 @@ SECTION 2 -- registry completeness: a census that cannot go stale
     TERMINAL_BIAS               22
     TRANSPORT_ONLY               2
     UNADJUDICATED                5
+    UNREGISTERED                47
     VELOCITY_NOT_A_POTENTIAL     1
 
-  5 of 86 names are UNADJUDICATED. That is OPEN WORK, not a pass:
+  5 of 133 names are UNADJUDICATED. That is OPEN WORK, not a pass:
     graphene_contact_doping_nonlinear_model.py::phi
     graphene_diffusion_current_model.py::mu_resp
     graphene_diffusion_mutation.py::V_F
@@ -96,8 +103,8 @@ SECTION 4 -- controls
         got UNDETERMINED
   4c NULL, at the point where the failure enters:
   PASS  the census is EMPTY when every potential-like name is renamed away
-        45 files rewritten (the instrument itself excluded, see
-        null_control for why), 31 distinct names renamed; leftovers=[]
+        70 files rewritten (the instrument itself excluded, see
+        null_control for why), 37 distinct names renamed; leftovers=[]
   4d MUTATION:
   PASS  M1 a charge role injected into a TRANSPORT_ONLY terminal bias  [expect DUAL_ROLE_TERMINAL]
         got DUAL_ROLE_TERMINAL
@@ -114,8 +121,8 @@ SECTION 4 -- controls
 
 SECTION 5 -- what the census says
 ------------------------------------------------------------------------------
-  86 potential-like names, over-collected on purpose, across 25
-  modules.  0 are in both roles and channel-swept; 10 are in both
+  133 potential-like names, over-collected on purpose, across 35
+  modules.  0 are in both roles and channel-swept; 16 are in both
   roles and are terminal biases, where dual use is not ambiguity.
 
   The 10-07 entry listed three places it expected siblings of the
@@ -126,10 +133,10 @@ SECTION 5 -- what the census says
   evaluated by the closed form that replaced the derivation.
 
   The base rate the 10-07 entry asked for, measured: ONE defect in
-  86 names, confined to one variable in one module, and a further
+  133 names, confined to one variable in one module, and a further
   5 names whose status as potentials is undecided.  The guess that
   the class was widespread is not supported.
 
 ==============================================================================
-TOTAL: 15 passed, 1 failed (1 of them EXPECTED)
+TOTAL: 14 passed, 2 failed (1 of them EXPECTED)
 ==============================================================================

@@ -88,18 +88,18 @@ SECTION 3 -- the repository today, and the two censuses added up
 The two spellings partition the fault (C4), so the inert-knob total is
 their sum -- and the Name census has been reported ALONE for five sessions.
 --------------------------------------------------------------------------
-  python files in repository (minus the probe exclusions) : 66
+  python files in repository (minus the probe exclusions) : 67
 
     spelling                                  total  FROZEN   LIVE
     ---------------------------------------- ------ ------- ------
-    def f(p=NAME)        -- shipped census      12       -      -
+    def f(p=NAME)        -- shipped census       1       -      -
     def f(p=alias.ATTR)  -- this module          4       4      0
       + this module's own scaffolding            0       0      0
 
     note: the shipped census is SYNTACTIC and does not split FROZEN
           from LIVE; yesterday's module did that for it, and this
           morning's commit converted all 20 of its FROZEN rows, which
-          is why its total now stands at 12 (the single LIVE capture
+          is why its total now stands at 1 (the single LIVE capture
           at graphene_velocity_saturation_model.py line 589).
 
     per-file, the attribute captures:
@@ -140,7 +140,7 @@ their sum -- and the Name census has been reported ALONE for five sessions.
         the standing half of this guard: this is the pattern that regrew between
         2026-10-04 and 2026-10-16 in front of three censuses, in the other spelling,
         and nothing was reading them
-  [FAIL] R3 the shipped census is down to its one LIVE capture
+  [PASS] R3 the shipped census is down to its one LIVE capture
         this morning's conversion is still in force; if this fails, a Name capture
         regrew between that commit and this one and the TOTAL below is understated
 
@@ -288,7 +288,7 @@ band-structure fault in a new costume.
 SUMMARY
   FROZEN attribute captures recorded 2026-10-17 : 13
   FROZEN attribute captures in the repository NOW: 4
-  Name captures, by the shipped census           : 12
+  Name captures, by the shipped census           : 1
   THE INERT-KNOB TOTAL FOR 2026-10-16 WAS 20 + 13 = 33, NOT 20.
   Every "the census reads zero" since 2026-10-01 -- and this
   morning's commit, which restored that number -- was a statement
@@ -304,5 +304,5 @@ SUMMARY
   red in the transcript committed one commit earlier, which is the
   BEFORE state and is deliberately on the record -- now measure the
   rebinding arriving at the real function.
-  Validations: 31 passed, 3 failed
+  Validations: 32 passed, 2 failed
 ==========================================================================

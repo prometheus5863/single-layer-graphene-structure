@@ -82,16 +82,11 @@ SECTION 4 -- identity re-assignments: the OTHER dead mutation
   [PASS] every identity re-assignment found is a null control, not a MUST_CHANGE  -- a MUST_CHANGE that re-assigns its own value would be a live bug
 
 SECTION 5 -- repository-wide delivery census
-  MIXED       graphene_capture_surface_guard.py            PERTURBATION           2 frozen / 1 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_capture_surface_guard.py            PROBE_V                2 frozen / 1 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_chord_decay_length.py               D1_CHORD               3 frozen / 9 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_chord_decay_length.py               D2_CHORD               3 frozen / 4 live <<< MIXED: oracle/measurement split
-  MIXED       graphene_chord_decay_length.py               D_SPAN                 1 frozen / 3 live <<< MIXED: oracle/measurement split
   LIVE        graphene_velocity_saturation_model.py        N_QUAD                 0 frozen / 2 live / 1 rescoped-live
-  totals: {'MIXED': 5, 'LIVE': 1}
-  [PASS] the census reports at least one name in every class it defines or says so  -- classes present: ['LIVE', 'MIXED']
+  totals: {'LIVE': 1}
+  [PASS] the census reports at least one name in every class it defines or says so  -- classes present: ['LIVE']
 
-  5 MIXED name(s).  MIXED is the worst class, not a middle one:
+  0 MIXED name(s).  MIXED is the worst class, not a middle one:
   a mutation of a MIXED name moves the live readers and freezes
   the captured ones, so where the live readers are an audit's
   expected values and the captured ones are its measurement, the
@@ -112,14 +107,9 @@ SECTION 7 -- standing guard: no audit module may capture a constant
   [PASS] every *audit*.py module is free of captured module constants  -- 14 sites in 4 modules converted 2026-09-30, all four transcripts bitwise unchanged
 
 SECTION 7b -- the same guard over the MODEL modules (2026-10-01)
-  MIXED       graphene_capture_surface_guard.py              PERTURBATION           2 frozen / 1 live
-  MIXED       graphene_capture_surface_guard.py              PROBE_V                2 frozen / 1 live
-  MIXED       graphene_chord_decay_length.py                 D1_CHORD               3 frozen / 9 live
-  MIXED       graphene_chord_decay_length.py                 D2_CHORD               3 frozen / 4 live
-  MIXED       graphene_chord_decay_length.py                 D_SPAN                 1 frozen / 3 live
   LIVE        graphene_velocity_saturation_model.py          N_QUAD                 0 frozen / 2 live / 1 rescoped-live
-  [FAIL] no module-level constant is captured as a default anywhere  -- 6 site-groups remaining
-  [FAIL] and in particular none is MIXED  -- 5 MIXED
+  [FAIL] no module-level constant is captured as a default anywhere  -- 1 site-groups remaining
+  [PASS] and in particular none is MIXED  -- MIXED was the majority class on 09-30 (7 of 10 names)
 
   C7b -- the fired-guard reporting path, on a SYNTHETIC census
   FROZEN      example_model.py                               SOME_CONSTANT          3 frozen / 0 live
@@ -131,5 +121,5 @@ SECTION 8 -- standing guard: no RELATIVE git revision anywhere
   [PASS] no source file references HEAD, HEAD~n or HEAD^  -- the 09-30 HEAD~2 read is pinned to a blob hash; a position is not a state
 
 ==============================================================================
-TOTAL: 32 passed, 2 failed
+TOTAL: 33 passed, 1 failed
 ==============================================================================
