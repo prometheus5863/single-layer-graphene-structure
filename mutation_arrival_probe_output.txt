@@ -106,10 +106,35 @@ SECTION 6 -- the fix, MEASURED on T_HOP before and after
 SECTION 7 -- standing guard: no audit module may capture a constant
   [PASS] every *audit*.py module is free of captured module constants  -- 14 sites in 4 modules converted 2026-09-30, all four transcripts bitwise unchanged
 
-SECTION 7b -- the same guard over the MODEL modules (2026-10-01)
+SECTION 7b -- the same guard over the MODEL modules (2026-10-01),
+              SPLIT INTO ITS TWO VOCABULARIES (2026-10-28)
   LIVE        graphene_velocity_saturation_model.py          N_QUAD                 0 frozen / 2 live / 1 rescoped-live
-  [FAIL] no module-level constant is captured as a default anywhere  -- 1 site-groups remaining
-  [PASS] and in particular none is MIXED  -- MIXED was the majority class on 09-30 (7 of 10 names)
+  [PASS] 7b-i   SEMANTIC: no capture site anywhere FREEZES a read (FROZEN / MIXED / IMPORT_FAILED)  -- the 23 sites in 7 model modules converted 2026-10-01 and the 11 of 12 remaining converted 2026-10-27; MIXED was the majority class on 09-30 (7 of 10 names).  This is the statement 7b was written to make, stated so that it CAN be true.
+  registered syntactic exemptions: 1
+    graphene_velocity_saturation_model.py        N_QUAD     LIVE
+      nested `def _R_harmonic(V_g, V_hi, n_quad=N_QUAD)`, inside a
+      function BODY rather than at module level: the default is
+      re-evaluated on every call of the ENCLOSING function, so a rebind of
+      N_QUAD does arrive. classify() reports it under live_by_scope and
+      not under frozen_sites, and the 2026-10-17 amendment that closed the
+      silent drop is count-neutral on it (D5 of
+      graphene_frozen_default_semantics.py's Section 4). It is also the
+      only real live_by_scope site in the tree, and that suite takes its
+      Section 4 demonstration from live_rows[0]: remove the site and D1-D5
+      stop RUNNING rather than start failing, which is the trade option
+      (ii) of the 2026-10-27 item would have made.
+  [PASS] 7b-ii  SYNTACTIC: no capture site in the tree is unregistered  -- 1 site-group(s) in the census, all 1 registered with a class and a reason
+  [PASS] 7b-iii the exemption registry still describes the tree (no VANISHED, no DRIFTED entry)  -- each of the 1 entries matches a census row carrying the class the entry claims for it
+
+  C7c -- the three 7b predicates, on PLANTED censuses
+  [PASS]   C7c a FROZEN row anywhere fires 7b-i  -- 1 row(s) reported
+  [PASS]   C7c a MIXED row anywhere fires 7b-i  -- 1 row(s) reported
+  [PASS]   C7c an unimportable module fires 7b-i -- UNKNOWN is not green  -- 1 row(s) reported
+  [PASS]   C7c an UNREGISTERED live capture fires 7b-ii  -- 1 row(s) reported
+  [PASS]   C7c a VANISHED registry entry fires 7b-iii (empty census)  -- 1 row(s) reported
+  [PASS]   C7c a DRIFTED registry entry fires 7b-iii  -- 1 row(s) reported
+  [PASS]   C7c and the REGISTERED site, turned FROZEN, STILL fires 7b-i: the registry cannot silence the semantic check  -- 1 row(s) reported
+  [PASS]   C7c the REGISTERED site does NOT fire 7b-ii -- the exemption path is actually reached  -- 0 row(s) reported
 
   C7b -- the fired-guard reporting path, on a SYNTHETIC census
   FROZEN      example_model.py                               SOME_CONSTANT          3 frozen / 0 live
@@ -121,5 +146,5 @@ SECTION 8 -- standing guard: no RELATIVE git revision anywhere
   [PASS] no source file references HEAD, HEAD~n or HEAD^  -- the 09-30 HEAD~2 read is pinned to a blob hash; a position is not a state
 
 ==============================================================================
-TOTAL: 33 passed, 1 failed
+TOTAL: 43 passed, 0 failed
 ==============================================================================

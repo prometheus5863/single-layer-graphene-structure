@@ -695,6 +695,127 @@ def repo_wide_frozen_census(paths=None):
     return rows
 
 
+# ---------------------------------------------------------------------------
+# SECTION 7b's TWO VOCABULARIES, SPLIT (2026-10-28)
+# ---------------------------------------------------------------------------
+# Section 7b carried two checks over ONE census, and they asked different
+# questions:
+#
+#   (a) "no module-level constant is captured as a default anywhere"
+#       -- a count of SYNTACTIC capture sites;
+#   (b) "and in particular none is MIXED"
+#       -- a statement about the delivery CLASS of those sites.
+#
+# On 2026-10-27 (b) went green for the first time since 7b was written and
+# (a) stayed red at one site-group, and that day's entry recorded WHY (a)
+# cannot go green: the one remaining site is the only real live_by_scope
+# capture in the tree, and graphene_frozen_default_semantics.py takes its
+# Section 4 D1-D5 demonstration from it.  A red check that cannot go green
+# has stopped being a guard.  It is indistinguishable, on sight, from a red
+# check nobody has looked at in a month -- and the number it reports ("1
+# site-groups remaining") is indistinguishable from a NEW capture having
+# appeared while the known one was removed.
+#
+# The split below is option (i) of the 10-27 ranked-first item.  Three
+# checks over the same census, in two vocabularies plus one hygiene
+# statement:
+#
+#   7b-i   SEMANTIC   -- no capture site anywhere actually freezes a read.
+#                        FROZEN, MIXED and IMPORT_FAILED all fail it; an
+#                        unimportable module is UNKNOWN, and unknown is not
+#                        green.  It takes NO exemptions -- the registry
+#                        below is not a parameter of it, and C7c arm 7 is
+#                        the planted control for that.
+#   7b-ii  SYNTACTIC  -- the tree contains no capture site except the ones
+#                        registered below, each with the class it is
+#                        expected to carry and the reason it is permitted.
+#                        A NEW capture site anywhere still fails the suite,
+#                        which is what (a) was for.
+#   7b-iii HYGIENE    -- every registry entry still matches a real census
+#                        row carrying the class the registry claims for it.
+#                        An exemption that nothing checks is a hole; this is
+#                        what checks it.
+#
+# What the split gives up is the claim that the syntactic count is ZERO,
+# which was never true of this tree and is not going to become true.  What
+# it gains is three statements that can each be false, where there was one
+# that could not become true and one that could.
+SEMANTIC_CAPTURE_FAULTS = (CLASS_FROZEN, CLASS_MIXED, 'IMPORT_FAILED')
+
+# (path, name) -> (expected class, reason).  Keyed on the path as
+# repo_wide_frozen_census emits it.
+SYNTACTIC_CAPTURE_EXEMPTIONS = {
+    ('graphene_velocity_saturation_model.py', 'N_QUAD'): (
+        CLASS_LIVE,
+        'nested `def _R_harmonic(V_g, V_hi, n_quad=N_QUAD)`, inside a '
+        'function BODY rather than at module level: the default is '
+        're-evaluated on every call of the ENCLOSING function, so a rebind '
+        'of N_QUAD does arrive.  classify() reports it under live_by_scope '
+        'and not under frozen_sites, and the 2026-10-17 amendment that '
+        'closed the silent drop is count-neutral on it (D5 of '
+        "graphene_frozen_default_semantics.py's Section 4).  It is also the "
+        'only real live_by_scope site in the tree, and that suite takes its '
+        'Section 4 demonstration from live_rows[0]: remove the site and '
+        'D1-D5 stop RUNNING rather than start failing, which is the trade '
+        'option (ii) of the 2026-10-27 item would have made.')
+}
+
+
+def census_semantic_faults(rows, faults=SEMANTIC_CAPTURE_FAULTS):
+    """Census rows whose capture actually breaks delivery (7b-i).
+
+    No exemption applies here, by construction: SYNTACTIC_CAPTURE_EXEMPTIONS
+    is not a parameter of this function and cannot be made one by a caller.
+    A REGISTERED site that turns FROZEN fails 7b-i exactly as an
+    unregistered one does, which is the single property the split had to
+    preserve and the only one of the three worth a dedicated control.
+    """
+    return [r for r in rows if r[2] in faults]
+
+
+def census_unregistered_sites(rows, registry=SYNTACTIC_CAPTURE_EXEMPTIONS):
+    """Syntactic capture sites that nobody has registered as exempt (7b-ii)."""
+    return [r for r in rows if (r[0], r[1]) not in registry]
+
+
+def registry_hygiene_faults(rows, registry=SYNTACTIC_CAPTURE_EXEMPTIONS):
+    """Registry entries that no longer describe the tree (7b-iii).
+
+    Two failure modes, reported under separate names because they call for
+    opposite repairs: VANISHED means the site is gone and the entry should
+    be deleted; DRIFTED means the site is still there but its class has
+    moved under the entry, so the entry's stated reason is now a claim about
+    something that is not the case.
+    """
+    seen = {}
+    for r in rows:
+        seen[(r[0], r[1])] = r[2]
+    out = []
+    for key, value in sorted(registry.items()):
+        want = value[0]
+        if key not in seen:
+            out.append((key, 'VANISHED',
+                        'no census row for this site: the exemption '
+                        'describes nothing and should be deleted'))
+        elif seen[key] != want:
+            out.append((key, 'DRIFTED',
+                        'registered as %s, census says %s' % (want, seen[key])))
+    return out
+
+
+def _wrapped(text, width=68, indent='      '):
+    """Yield `text` wrapped, for the registry's reasons in the transcript."""
+    words, line = text.split(), ''
+    for w in words:
+        if line and len(line) + 1 + len(w) > width:
+            yield indent + line
+            line = w
+        else:
+            line = (line + ' ' + w) if line else w
+    if line:
+        yield indent + line
+
+
 def _print_census(rows):
     """Render the Section 7b census.
 
@@ -1078,19 +1199,107 @@ def main():
           'bitwise unchanged')
 
     print()
-    print('SECTION 7b -- the same guard over the MODEL modules (2026-10-01)')
+    print('SECTION 7b -- the same guard over the MODEL modules (2026-10-01),')
+    print('              SPLIT INTO ITS TWO VOCABULARIES (2026-10-28)')
     rows = repo_wide_frozen_census()
     partial = [r for r in rows if r[2] in PARTIAL]
     frozen = [r for r in rows if r[2] == CLASS_FROZEN]
     _print_census(rows)
-    check('no module-level constant is captured as a default anywhere',
-          not rows,
-          '%d site-groups remaining' % len(rows) if rows else
-          '23 sites in 7 model modules converted 2026-10-01, all seven '
-          'transcripts bitwise unchanged')
-    check('and in particular none is MIXED', not partial,
-          '%d MIXED' % len(partial) if partial else
-          'MIXED was the majority class on 09-30 (7 of 10 names)')
+
+    sem = census_semantic_faults(rows)
+    unreg = census_unregistered_sites(rows)
+    hyg = registry_hygiene_faults(rows)
+
+    for r in sem:
+        print('  SEMANTIC FAULT  %-44s %-16s %s' % (r[0], r[1], r[2]))
+    check('7b-i   SEMANTIC: no capture site anywhere FREEZES a read '
+          '(FROZEN / MIXED / IMPORT_FAILED)',
+          not sem,
+          '%d site-group(s): %s'
+          % (len(sem), ', '.join('%s:%s=%s' % (r[0], r[1], r[2]) for r in sem))
+          if sem else
+          'the 23 sites in 7 model modules converted 2026-10-01 and the 11 '
+          'of 12 remaining converted 2026-10-27; MIXED was the majority '
+          'class on 09-30 (7 of 10 names).  This is the statement 7b was '
+          'written to make, stated so that it CAN be true.')
+
+    print('  registered syntactic exemptions: %d'
+          % len(SYNTACTIC_CAPTURE_EXEMPTIONS))
+    for key in sorted(SYNTACTIC_CAPTURE_EXEMPTIONS):
+        cls, reason = SYNTACTIC_CAPTURE_EXEMPTIONS[key]
+        print('    %-44s %-10s %s' % (key[0], key[1], cls))
+        for line in _wrapped(reason):
+            print(line)
+    for r in unreg:
+        print('  UNREGISTERED    %-44s %-16s %s' % (r[0], r[1], r[2]))
+    check('7b-ii  SYNTACTIC: no capture site in the tree is unregistered',
+          not unreg,
+          '%d unregistered site-group(s): %s'
+          % (len(unreg), ', '.join('%s:%s' % (r[0], r[1]) for r in unreg))
+          if unreg else
+          '%d site-group(s) in the census, all %d registered with a class '
+          'and a reason' % (len(rows), len(SYNTACTIC_CAPTURE_EXEMPTIONS)))
+
+    for key, mode, why in hyg:
+        print('  REGISTRY %-9s %s:%s -- %s' % (mode, key[0], key[1], why))
+    check('7b-iii the exemption registry still describes the tree '
+          '(no VANISHED, no DRIFTED entry)',
+          not hyg,
+          '%d bad entry/entries' % len(hyg) if hyg else
+          'each of the %d entries matches a census row carrying the class '
+          'the entry claims for it'
+          % len(SYNTACTIC_CAPTURE_EXEMPTIONS))
+
+    # C7c (2026-10-28): planted controls for the three predicates above.
+    # The split could have been a WEAKENING in two specific ways -- an
+    # exemption that silences the semantic check, and a syntactic check that
+    # stops noticing a new site -- and both are planted here rather than
+    # argued in a comment.  Arm 8 is the positive control without which arm
+    # 4 would be green for the wrong reason (every row unregistered).
+    print()
+    print('  C7c -- the three 7b predicates, on PLANTED censuses')
+    reg_key = sorted(SYNTACTIC_CAPTURE_EXEMPTIONS)[0]
+    rp, rn = reg_key
+    arms = [
+        ('a FROZEN row anywhere fires 7b-i',
+         census_semantic_faults,
+         [('planted.py', 'C', CLASS_FROZEN, '3 frozen / 0 live')]),
+        ('a MIXED row anywhere fires 7b-i',
+         census_semantic_faults,
+         [('planted.py', 'C', CLASS_MIXED, '1 frozen / 2 live')]),
+        ('an unimportable module fires 7b-i -- UNKNOWN is not green',
+         census_semantic_faults,
+         [('planted.py', '<import failed>', 'IMPORT_FAILED',
+           "ImportError('planted')")]),
+        ('an UNREGISTERED live capture fires 7b-ii',
+         census_unregistered_sites,
+         [('planted.py', 'C', CLASS_LIVE, '0 frozen / 2 live')]),
+        ('a VANISHED registry entry fires 7b-iii (empty census)',
+         registry_hygiene_faults,
+         []),
+        ('a DRIFTED registry entry fires 7b-iii',
+         registry_hygiene_faults,
+         [(rp, rn, CLASS_FROZEN, '1 frozen / 0 live')]),
+        ('and the REGISTERED site, turned FROZEN, STILL fires 7b-i: '
+         'the registry cannot silence the semantic check',
+         census_semantic_faults,
+         [(rp, rn, CLASS_FROZEN, '1 frozen / 0 live')]),
+    ]
+    for desc, fn, planted in arms:
+        try:
+            got = fn(planted)
+            fired, detail = bool(got), '%d row(s) reported' % len(got)
+        except Exception as exc:
+            fired, detail = False, repr(exc)
+        check('  C7c %s' % desc, fired, detail)
+    try:
+        got = census_unregistered_sites(
+            [(rp, rn, CLASS_LIVE, '0 frozen / 2 live / 1 rescoped-live')])
+        quiet, detail = not got, '%d row(s) reported' % len(got)
+    except Exception as exc:
+        quiet, detail = False, repr(exc)
+    check('  C7c the REGISTERED site does NOT fire 7b-ii -- the exemption '
+          'path is actually reached', quiet, detail)
 
     # C7b (2026-10-04): exercise the FIRED-GUARD reporting path on every
     # run.  The check above is green whenever the census is empty, and an
