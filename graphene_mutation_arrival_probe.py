@@ -761,7 +761,7 @@ SYNTACTIC_CAPTURE_EXEMPTIONS = {
 }
 
 
-def census_semantic_faults(rows, faults=SEMANTIC_CAPTURE_FAULTS):
+def census_semantic_faults(rows, faults=None):
     """Census rows whose capture actually breaks delivery (7b-i).
 
     No exemption applies here, by construction: SYNTACTIC_CAPTURE_EXEMPTIONS
@@ -769,16 +769,32 @@ def census_semantic_faults(rows, faults=SEMANTIC_CAPTURE_FAULTS):
     A REGISTERED site that turns FROZEN fails 7b-i exactly as an
     unregistered one does, which is the single property the split had to
     preserve and the only one of the three worth a dedicated control.
+
+    Late-bound, per the 2026-09-30 sentinel convention.  The first draft of
+    this function wrote `faults=SEMANTIC_CAPTURE_FAULTS`, which is a
+    module-level constant captured as a default -- the exact pattern the
+    section this function implements exists to forbid.  See the 2026-10-28
+    log entry: 7b's census SKIPS this module, so 7b could not see it, and
+    what caught all three was graphene_figure_provenance_audit.py's
+    Section C repository-wide census.
     """
+    if faults is None:
+        faults = SEMANTIC_CAPTURE_FAULTS
     return [r for r in rows if r[2] in faults]
 
 
-def census_unregistered_sites(rows, registry=SYNTACTIC_CAPTURE_EXEMPTIONS):
-    """Syntactic capture sites that nobody has registered as exempt (7b-ii)."""
+def census_unregistered_sites(rows, registry=None):
+    """Syntactic capture sites that nobody has registered as exempt (7b-ii).
+
+    Late-bound, per the 2026-09-30 sentinel convention; see
+    census_semantic_faults for why the first draft was wrong.
+    """
+    if registry is None:
+        registry = SYNTACTIC_CAPTURE_EXEMPTIONS
     return [r for r in rows if (r[0], r[1]) not in registry]
 
 
-def registry_hygiene_faults(rows, registry=SYNTACTIC_CAPTURE_EXEMPTIONS):
+def registry_hygiene_faults(rows, registry=None):
     """Registry entries that no longer describe the tree (7b-iii).
 
     Two failure modes, reported under separate names because they call for
@@ -787,6 +803,8 @@ def registry_hygiene_faults(rows, registry=SYNTACTIC_CAPTURE_EXEMPTIONS):
     moved under the entry, so the entry's stated reason is now a claim about
     something that is not the case.
     """
+    if registry is None:
+        registry = SYNTACTIC_CAPTURE_EXEMPTIONS
     seen = {}
     for r in rows:
         seen[(r[0], r[1])] = r[2]

@@ -35,7 +35,7 @@ SECTION 2 -- the sweep over this repository
   CROSS_MODULE  graphene_installed_surface_audit.py            QNAE                             line 501   graphene_value_read_surface.py
   CROSS_MODULE  graphene_mutation_arrival_probe.py             CLASS_UNUSED                     line 101   graphene_cross_module_delivery_audit.py
   EXEMPT        graphene_plasmonic_photodetector_model.py      FANG_ANTENNA_TEST_WAVELENGTH_NM  line 126   descriptive-only literature point -- Fan
-  DEAD          graphene_potential_census_audit.py             CHANNEL_POTENTIAL_READINGS       line 310   
+  DEAD          graphene_potential_census_audit.py             CHANNEL_POTENTIAL_READINGS       line 338   
   CROSS_MODULE  graphene_quantum_capacitance_argument.py       A_OX                             line 66    graphene_exact_charge_rederivation.py
   CROSS_MODULE  graphene_value_read_mutation.py                GUARD                            line 36    graphene_capture_surface_mutation.py
   CROSS_MODULE  graphene_value_read_surface.py                 ADDED_CONTACT                    line 477   graphene_installed_surface_audit.py
@@ -62,7 +62,7 @@ SECTION 2 -- the sweep over this repository
   BODY_ONLY     graphene_velocity_saturation_model.py          HBAR_OMEGA_EV                    line 178   
   CROSS_MODULE  graphene_write_read_guard.py                   COX                              line 388   graphene_capture_surface_guard.py,graphe
   BODY_ONLY     graphene_write_read_guard.py                   CQ                               line 389   
-  totals: {'BODY_ONLY': 19, 'CROSS_MODULE': 25, 'DEAD': 1, 'EXEMPT': 1, 'LIVE': 322}
+  totals: {'BODY_ONLY': 19, 'CROSS_MODULE': 25, 'DEAD': 1, 'EXEMPT': 1, 'LIVE': 325}
   [FAIL] no module-level constant in this repository is DEAD  -- 1 dead
 
 SECTION 2b -- is every CROSS_MODULE resolution supported by an IMPORT?

@@ -80,7 +80,16 @@ SUITES = [
     ("graphene_log_sensitivity_step_audit.py", "log_sensitivity_step_audit_output.txt"),
     ("graphene_rootfinder_audit.py",          "rootfinder_audit_output.txt"),
     ("graphene_transport_optical_audit.py",   "transport_optical_audit_output.txt"),
-    ("graphene_covariance_probe_audit.py",    None),
+    # REPAIRED 2026-10-28.  This row carried None -- "no committed
+    # transcript to compare" -- from the day the table was written, and that
+    # was false: default_scale_probe_audit_output.txt IS this module's
+    # transcript, byte-identical to its stdout as of today.  The filename
+    # does not contain the module's name, which is why no one matched them.
+    # A None row is worse than an absent row: an absent one shows up as a
+    # gap in the coverage census added below, while this one reported RAN
+    # every session and looked like coverage.
+    ("graphene_covariance_probe_audit.py",
+     "default_scale_probe_audit_output.txt"),
     ("graphene_differential_crossover_model.py", "differential_crossover_output.txt"),
     # Added 2026-10-03, in the same session that created the suite and the
     # transcript.  Registering a new (code, transcript) pair in the SAME
@@ -143,7 +152,136 @@ SUITES = [
     # table noticing.
     ("graphene_mixed_capture_repair_audit.py",
      "mixed_capture_repair_output.txt"),
+    # ---------------------------------------------------------------------
+    # Added 2026-10-28: the 2026-10-27 ranked-second item, worked.
+    #
+    # 10-27 estimated "18 rows against roughly 40 committed transcripts".
+    # The real figure is 49 committed transcripts against 17 compared ones
+    # -- the estimate understated the queue by nine, which is itself the
+    # argument for counting it mechanically rather than by eye.  The
+    # coverage census below now does that every run.
+    #
+    # Every row here was measured before it was added: run from a clean tree
+    # at HEAD and compared byte-for-byte against its committed transcript.
+    # The time in each comment is that measurement, and it is also the
+    # budget argument -- a shell call on this VM is capped at 180 s and
+    # Section 2 already spent about 70 s before today.
+    ("graphene_potential_declaration.py",    "potential_declaration_output.txt"),      # 0.7s
+    ("graphene_capture_leverage_figure.py",  "capture_surface_leverage_output.txt"),   # 0.9s
+    ("graphene_replacement_read_audit.py",   "replacement_read_audit_output.txt"),     # 0.9s
+    ("graphene_capture_surface_guard.py",    "capture_surface_guard_output.txt"),      # 1.0s
+    ("graphene_write_read_guard.py",         "write_read_guard_output.txt"),           # 1.0s
+    ("graphene_second_anchor_bound.py",      "second_anchor_bound_output.txt"),        # 1.0s
+    ("graphene_contact_consistent_argument.py",
+     "contact_consistent_argument_output.txt"),                                        # 1.0s
+    ("graphene_double_regularisation.py",    "double_regularisation_output.txt"),      # 1.2s
+    ("graphene_chord_decay_length.py",       "chord_decay_length_output.txt"),         # 1.2s
+    ("graphene_value_read_surface.py",       "value_read_surface_output.txt"),         # 1.2s
+    ("graphene_quantum_capacitance_overflow.py",
+     "quantum_capacitance_overflow_output.txt"),                                       # 1.3s
+    ("graphene_frozen_default_semantics.py", "frozen_default_semantics_output.txt"),   # 1.4s
+    ("graphene_fet_signed_carrier_model.py", "fet_signed_carrier_output.txt"),         # 1.6s
+    ("graphene_exact_charge_rederivation.py",
+     "exact_charge_rederivation_output.txt"),                                          # 3.6s
+    ("graphene_quantum_capacitance_argument.py",
+     "quantum_capacitance_argument_output.txt"),                                       # 8.3s
+    # Registered RED, per the 2026-10-17 and 10-18 precedent: this suite
+    # exits 1 on 47 unregistered potential-like names, which is open work
+    # and not a broken suite.  run_suite compares its transcript anyway.
+    ("graphene_potential_census_audit.py",   "potential_census_output.txt"),           # 2.0s
+    # audit_output.txt was STALE BY A MONTH when it was measured today, and
+    # stale in the direction that matters: it claims "exact zeros : 3/3"
+    # where this code has printed "BITWISE zeros : 2/3" since 2026-09-27,
+    # when the stepping was corrected to symmetric.  The transcript
+    # OVERSTATES the tree, which is the same direction as the nineteen-day
+    # false claim 10-27 found, and for the same reason -- nothing compared
+    # it.  Regenerated in this commit and registered in it.
+    ("graphene_sensitivity_audit.py",        "audit_output.txt"),                      # 1.0s
 ]
+
+# ---------------------------------------------------------------------------
+# COVERAGE: every committed transcript is REGISTERED or EXCLUDED FOR A REASON
+# ---------------------------------------------------------------------------
+# The 2026-10-27 session found four stale transcripts and all four were
+# outside SUITES; one had asserted a repaired defect for nineteen days.
+# Today's own first commit made a fifth stale, inside one session, for the
+# same reason.  The lesson is not "register more" -- it is that nothing
+# could SEE the gap, so the gap could not be worked down.
+#
+# Below, every committed *_output.txt that is not in SUITES must appear here
+# with a reason, and the census in Section 5 fails if any transcript is in
+# neither table.  Reason classes, and whether the reason is CHECKED or
+# merely DECLARED:
+#
+#   SELF_WRITING   CHECKED.  The module writes this transcript into its own
+#                  working tree, so running it inside the pristine clone
+#                  overwrites the file the comparison is taken against and
+#                  the verdict is circular -- 2026-10-27 section 5 item 3,
+#                  which is how that session nearly missed the
+#                  import-binding staleness.  Registering one of these
+#                  needs run_suite to compare against the object store
+#                  instead, which is a change to the audit and not a row.
+#   SELF           CHECKED.  This module. There is already a runtime
+#                  assertion in main() forbidding it from auditing itself.
+#   NOT_A_STDOUT   DECLARED.  The file is not a capture of the module's
+#                  stdout at all; it is a hand-written excerpt with its own
+#                  header and date.  Byte comparison is not the right
+#                  instrument and pretending otherwise would make the suite
+#                  permanently red for no finding.
+#   UNMEASURED     DECLARED, and the honest name for "next session's work".
+#                  Not yet timed against the 180 s call cap.
+TRANSCRIPT_EXCLUSIONS = {
+    "contact_argument_blast_radius_output.txt":
+        ("SELF_WRITING", "graphene_contact_argument_blast_radius.py"),
+    "default_flip_output.txt":
+        ("SELF_WRITING", "graphene_default_flip.py"),
+    "diffusion_current_output.txt":
+        ("SELF_WRITING", "graphene_diffusion_current_model.py"),
+    "diffusion_mutation_output.txt":
+        ("SELF_WRITING", "graphene_diffusion_mutation.py"),
+    "import_binding_sweep_output.txt":
+        ("SELF_WRITING", "graphene_import_binding_sweep.py"),
+    "perfect_contact_counterfactual_output.txt":
+        ("SELF_WRITING", "graphene_perfect_contact_counterfactual.py"),
+    # The three below are ALSO over the 180 s call cap (2026-10-27 section 5
+    # item 4, measured there), so they carry two independent reasons.
+    "perfect_contact_mutation_output.txt":
+        ("SELF_WRITING", "graphene_perfect_contact_mutation.py"),
+    "velocity_saturation_output.txt":
+        ("SELF_WRITING", "graphene_velocity_saturation_model.py"),
+    "velocity_saturation_mutation_output.txt":
+        ("SELF_WRITING", "graphene_velocity_saturation_mutation.py"),
+    "pristine_transcript_audit_output.txt":
+        ("SELF", "graphene_pristine_transcript_audit.py"),
+    "sensitivity_converged_output.txt":
+        ("NOT_A_STDOUT", "graphene_crossover_sensitivity_model.py"),
+    "capture_surface_mutation_output.txt":
+        ("UNMEASURED", "graphene_capture_surface_mutation.py"),
+    "installed_surface_mutation_output.txt":
+        ("UNMEASURED", "graphene_installed_surface_mutation.py"),
+    "value_read_mutation_output.txt":
+        ("UNMEASURED", "graphene_value_read_mutation.py"),
+}
+
+
+def writes_own_transcript(repo, module, transcript):
+    """Does `module` open `transcript` for writing?  Source-level, no import."""
+    path = os.path.join(repo, module)
+    if not os.path.exists(path):
+        return False
+    try:
+        src = open(path).read()
+    except Exception:
+        return False
+    return bool(re.search(
+        r"open\(\s*(?:os\.path\.join\([^)]*)?[\"']%s[\"']\s*\)?\s*,\s*[\"']w"
+        % re.escape(transcript), src, re.S))
+
+
+def committed_transcripts(repo):
+    """Every *_output.txt tracked by git at the working tree's HEAD."""
+    out = git(["ls-files", "*_output.txt"], repo)
+    return sorted(l.strip() for l in out.split("\n") if l.strip())
 
 # This module is deliberately absent from SUITES.  It would have to run itself
 # inside its own pristine clone, and its transcript would then be a claim that
@@ -595,6 +733,95 @@ def main():
               "so these transcripts are reproducible RESULTS and not reproducible\n"
               "ARTEFACTS.  Byte comparison cannot certify them across environments."
               % NUMERIC_RTOL)
+
+        # ------------------------------------------------------------------
+        print("\n" + "-" * 74)
+        print("SECTION 5 -- coverage: is every committed transcript ACCOUNTED FOR?")
+        print("Created 2026-10-28.  The 10-27 session found four stale")
+        print("transcripts and all four were outside this table; one had")
+        print("asserted a repaired defect for nineteen days.  What was")
+        print("missing was not rows -- it was a count nobody had to make.")
+        print("-" * 74)
+        all_tr = committed_transcripts(repo)
+        registered = {t for _, t in SUITES if t}
+        excluded = set(TRANSCRIPT_EXCLUSIONS)
+        unaccounted = sorted(set(all_tr) - registered - excluded)
+        by_class = {}
+        for t in sorted(excluded):
+            by_class.setdefault(TRANSCRIPT_EXCLUSIONS[t][0], []).append(t)
+        print("  committed *_output.txt   %3d" % len(all_tr))
+        print("  registered in SUITES     %3d" % len(registered))
+        print("  excluded with a reason   %3d" % len(excluded))
+        for cls in sorted(by_class):
+            print("      %-14s %2d   %s"
+                  % (cls, len(by_class[cls]),
+                     ", ".join(t[:-len("_output.txt")] for t in by_class[cls])))
+        print("  UNACCOUNTED              %3d%s"
+              % (len(unaccounted),
+                 "   " + ", ".join(unaccounted) if unaccounted else ""))
+
+        check("every committed transcript is either registered in SUITES or "
+              "excluded with a reason", not unaccounted,
+              "neither compared nor excluded, so nothing can tell whether "
+              "they are stale:\n" + "\n".join("  " + t for t in unaccounted)
+              if unaccounted else
+              "%d transcripts: %d compared, %d excluded.  On 2026-10-27 the "
+              "same tree was 49 / 17 / 0-with-a-reason, and the shortfall "
+              "was invisible because nothing counted it."
+              % (len(all_tr), len(registered), len(excluded)))
+
+        # The exclusions whose reason is a FACT ABOUT THE SOURCE are checked
+        # here rather than believed.  SELF_WRITING is the load-bearing one:
+        # it is the reason that would silently become false if a module
+        # stopped writing its own transcript, at which point the transcript
+        # should be registered and nothing would say so.
+        sw_bad, sw_ok = [], 0
+        for t in sorted(excluded):
+            cls, mod = TRANSCRIPT_EXCLUSIONS[t]
+            if cls != "SELF_WRITING":
+                continue
+            if writes_own_transcript(repo, mod, t):
+                sw_ok += 1
+            else:
+                sw_bad.append("%s: %s does not open it for writing" % (t, mod))
+        check("every SELF_WRITING exclusion is TRUE of the source",
+              not sw_bad,
+              "\n".join("  " + b for b in sw_bad) if sw_bad else
+              "%d modules, each one confirmed to write the transcript it is "
+              "excused from comparing" % sw_ok)
+
+        # Hygiene, the same shape as the 7b registry check added today: an
+        # exclusion naming a transcript that no longer exists is a row that
+        # describes nothing, and it hides the fact that the file is gone.
+        dead = sorted(excluded - set(all_tr))
+        dup = sorted(excluded & registered)
+        check("no exclusion names a transcript that is not committed, and "
+              "none is excluded AND registered",
+              not dead and not dup,
+              "dead: %s; both: %s" % (dead, dup) if (dead or dup) else
+              "%d exclusions, each naming a committed file, none of them "
+              "also in SUITES" % len(excluded))
+
+        # Planted controls for the three checks above, on synthetic sets --
+        # no file is written into the tree other audits read.
+        print()
+        print("  C5 -- the coverage predicates, on PLANTED inputs")
+        planted_all = ["a_output.txt", "b_output.txt"]
+        planted_reg = {"a_output.txt"}
+        check("  C5.1 a transcript in neither table is reported UNACCOUNTED",
+              sorted(set(planted_all) - planted_reg - set()) == ["b_output.txt"],
+              "the set arithmetic Section 5 runs on, on two named files")
+        check("  C5.2 SELF_WRITING is refuted for a module that does not "
+              "write the file",
+              not writes_own_transcript(
+                  repo, "graphene_mutation_arrival_probe.py",
+                  "mutation_arrival_probe_output.txt"),
+              "the arrival probe's transcript is captured by redirection, "
+              "not written by the module, so the predicate must say no")
+        check("  C5.3 and CONFIRMED for one that does",
+              writes_own_transcript(repo, "graphene_default_flip.py",
+                                    "default_flip_output.txt"),
+              "graphene_default_flip.py line ~745 opens it 'w'")
 
         print("\n" + "=" * 74)
         print("SUMMARY")
