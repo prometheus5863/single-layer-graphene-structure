@@ -10,9 +10,9 @@ SECTION 1 -- the census
   DUAL_ROLE_TERMINAL    16
   DECLARED               2
   DETERMINED            16
-  COLLECTED_NO_ROLE     99
+  COLLECTED_NO_ROLE    101
   PARSE_ERROR            0
-  TOTAL NAMES          133   across 35 modules
+  TOTAL NAMES          135   across 36 modules
 
   UNDETERMINED -- both roles AND channel-swept (the 10-07 defect):
     (none)
@@ -48,8 +48,31 @@ SECTION 2 -- registry completeness: a census that cannot go stale
   PASS  POTENTIAL_REGISTRY has no rows for names that do not exist
         no dead rows
 
+  DISPLAY_ONLY rows, CHECKED (2026-10-28):
+    graphene_diffusion_current_model.py::V_                        confirmed
+    graphene_fet_model.py::V_                                      confirmed
+    graphene_fmax_shortfall_decomposition.py::V_                   confirmed
+    graphene_gds_quadrature_audit.py::V_                           confirmed
+    graphene_mutation_arrival_probe.py::V_g                        confirmed
+    graphene_mutation_arrival_probe.py::V_hi                       confirmed
+    graphene_perfect_contact_counterfactual.py::V_                 confirmed
+    graphene_photodetector_nonuniform_illumination_model.py::V_bias confirmed
+    graphene_photodetector_two_contact_model.py::V_                confirmed
+    graphene_photodetector_two_contact_model.py::V_bias            confirmed
+    graphene_potential_declaration.py::V_                          confirmed
+    graphene_velocity_saturation_model.py::V_                      confirmed
+    rf_small_signal_model.py::V_                                   confirmed
+  PASS  every DISPLAY_ONLY adjudication is TRUE of the source
+        13 rows, each one checked; one row (graphene_photodetector_collection_model.py::V_bias) was FALSE from 2026-10-07 to 2026-10-27 and is re-adjudicated TRANSPORT_ONLY
+  PASS  P-DO1 an IMPORTED name used only in a string and an f-string is confirmed display-only
+        the shape every real DISPLAY_ONLY row in this registry has
+  PASS  P-DO2 the SAME name, divided by something once, is caught -- and the f-string occurrence is still not counted
+        got [(5, 'name')]
+  PASS  P-DO3 a module-level BINDING is reported even though every read of it is a display (the predicate is strict here, deliberately)
+        got [(1, 'name')]
+
   Adjudication breakdown:
-    DISPLAY_ONLY                12
+    DISPLAY_ONLY                13
     ELECTROSTATIC_ONLY           1
     ENERGY_NOT_A_POTENTIAL       8
     GEOMETRIC_PHASE              3
@@ -58,12 +81,12 @@ SECTION 2 -- registry completeness: a census that cannot go stale
     QUASI_FERMI                  8
     REFERENCE_LEVEL             10
     TERMINAL_BIAS               22
-    TRANSPORT_ONLY               2
+    TRANSPORT_ONLY               3
     UNADJUDICATED                5
     UNREGISTERED                47
     VELOCITY_NOT_A_POTENTIAL     1
 
-  5 of 133 names are UNADJUDICATED. That is OPEN WORK, not a pass:
+  5 of 135 names are UNADJUDICATED. That is OPEN WORK, not a pass:
     graphene_contact_doping_nonlinear_model.py::phi
     graphene_diffusion_current_model.py::mu_resp
     graphene_diffusion_mutation.py::V_F
@@ -121,7 +144,7 @@ SECTION 4 -- controls
 
 SECTION 5 -- what the census says
 ------------------------------------------------------------------------------
-  133 potential-like names, over-collected on purpose, across 35
+  135 potential-like names, over-collected on purpose, across 36
   modules.  0 are in both roles and channel-swept; 16 are in both
   roles and are terminal biases, where dual use is not ambiguity.
 
@@ -133,10 +156,10 @@ SECTION 5 -- what the census says
   evaluated by the closed form that replaced the derivation.
 
   The base rate the 10-07 entry asked for, measured: ONE defect in
-  133 names, confined to one variable in one module, and a further
+  135 names, confined to one variable in one module, and a further
   5 names whose status as potentials is undecided.  The guess that
   the class was widespread is not supported.
 
 ==============================================================================
-TOTAL: 14 passed, 2 failed (1 of them EXPECTED)
+TOTAL: 18 passed, 2 failed (1 of them EXPECTED)
 ==============================================================================

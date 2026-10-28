@@ -245,8 +245,19 @@ POTENTIAL_REGISTRY = {
         'imported and printed; it enters no computation in this module -- '
         'collected here as a provenance fact, not a fault'),
     'graphene_photodetector_two_contact_model.py::V_': ('DISPLAY_ONLY', 'LaTeX fragment'),
-    'graphene_photodetector_collection_model.py::V_bias': ('DISPLAY_ONLY',
-        'imported and printed only'),
+    # RE-ADJUDICATED 2026-10-28.  Read 'DISPLAY_ONLY, imported and printed
+    # only' from 2026-10-07 until today, and that was false: line 72 is
+    # `E_BIAS = V_bias / L_channel`, the uniform bias-driven drift field the
+    # module's own docstring describes, which is the TRANSPORT marker shape.
+    # The old reading is kept here rather than deleted, per the standing
+    # rule on superseded claims.  The correct reading is the one its sibling
+    # graphene_photodetector_model.py::V_bias already carries, and for the
+    # same stated reason: no charge relation exists anywhere in Chapter 6,
+    # so a transport-only reading carries no channel ambiguity.
+    'graphene_photodetector_collection_model.py::V_bias': ('TRANSPORT_ONLY',
+        'enters E_BIAS = V_bias / L_channel at line 72 and hence TAU_TRANSIT; '
+        'was DISPLAY_ONLY "imported and printed only" 2026-10-07..10-27, '
+        'which the 10-28 display_only_violations() check refuted'),
     'graphene_photodetector_nonuniform_illumination_model.py::V_bias': ('DISPLAY_ONLY',
         'imported and printed only'),
     'graphene_photodetector_nonuniform_illumination_model.py::mu_e': ('MOBILITY_NOT_A_POTENTIAL',
@@ -299,6 +310,23 @@ POTENTIAL_REGISTRY = {
     'graphene_potential_declaration.py::V_dirac': ('REFERENCE_LEVEL', 'offset'),
     'graphene_potential_declaration.py::V_g_rf': ('TERMINAL_BIAS', 'the RF-bias gate voltage'),
     'graphene_potential_declaration.py::V_': ('DISPLAY_ONLY', 'LaTeX/prose fragment'),
+    # --- added 2026-10-28, by the session that introduced them -------------
+    # graphene_mutation_arrival_probe.py's new Section 7b exemption registry
+    # carries its reason in full, and that reason spells the signature it is
+    # about: `def _R_harmonic(V_g, V_hi, n_quad=N_QUAD)`.  The two names are
+    # inside a string constant -- prose describing code, not code -- and
+    # _string_names_in() collects them anyway, by design ("deliberately
+    # over-wide; every match must be adjudicated").  So the census moved
+    # from 133 names across 35 modules to 135 across 36 within one commit of
+    # the same session, and nothing would have caught it: that transcript
+    # was not in the pristine audit's SUITES table either.  Both facts are
+    # today's argument for the 10-27 ranked-second item.
+    'graphene_mutation_arrival_probe.py::V_g': ('DISPLAY_ONLY',
+        "prose inside the Section 7b exemption registry's reason string; "
+        'confirmed display-only by display_only_violations()'),
+    'graphene_mutation_arrival_probe.py::V_hi': ('DISPLAY_ONLY',
+        'the same string; confirmed display-only by '
+        'display_only_violations()'),
     'graphene_potential_declaration.py::E_F': ('ENERGY_NOT_A_POTENTIAL', 'an energy, in prose'),
     'graphene_fet_model.py::E_F': ('ENERGY_NOT_A_POTENTIAL',
         'appears only in the 2026-10-08 docstring annotation, as E_F(n)/e'),
@@ -626,6 +654,64 @@ def verdict_for(entry):
     return 'DETERMINED'
 
 
+
+# ---------------------------------------------------------------------------
+# DISPLAY_ONLY, CHECKED RATHER THAN DECLARED (2026-10-28)
+# ---------------------------------------------------------------------------
+# DISPLAY_ONLY's definition above is "appears only inside format strings",
+# and from 2026-10-07 to today NOTHING checked it.  An adjudication nobody
+# checks is the same hole as an exemption nobody checks -- which is the
+# other half of today's session, in graphene_mutation_arrival_probe.py's
+# Section 7b -- so it gets the same treatment: a predicate, run over every
+# DISPLAY_ONLY row every time, with planted controls.
+#
+# It found one false row in thirteen, and the first form of the test was
+# itself wrong, which is worth more than the row:
+#
+#   First attempt -- compare the SCOPES the census already records, and call
+#   a row false if any scope is not '<format string>' or '<import>'.  It
+#   reported TWO violations.  One of them,
+#   graphene_photodetector_two_contact_model.py::V_bias, is NOT a violation:
+#   its uses are `{V_bias}` inside f-strings at lines 283 and 343, and an
+#   f-string interpolation is a real ast.Name inside the enclosing function,
+#   so the census records it under make_plots() and
+#   symmetric_vs_single_contact_table() rather than under '<format string>'.
+#   The scope vocabulary cannot express "displayed inside a function".
+#
+#   This form is LEXICAL instead: an occurrence is display if it is inside a
+#   JoinedStr (an f-string, wherever it sits) or inside a string constant
+#   (where it is not a Name node at all).  An import is provenance, not a
+#   computation, so ast.alias is not a violation -- "imported and printed"
+#   is exactly what two of these notes claim.
+#
+# The surviving violation is real: graphene_photodetector_collection_model.py
+# line 72 is `E_BIAS = V_bias / L_channel`, a bias-driven drift field, which
+# is the TRANSPORT marker shape and not a print.  Re-adjudicated below.
+def display_only_violations(path, name):
+    """Occurrences of `name` in `path` that a COMPUTATION could read.
+
+    Returns [(lineno, kind)], empty when the name is genuinely display-only.
+    """
+    try:
+        tree = ast.parse(open(path, 'r').read())
+    except Exception as exc:
+        return [(0, 'PARSE_ERROR: %r' % (exc,))]
+    inside_fstring = set()
+    for sub in ast.walk(tree):
+        if isinstance(sub, ast.JoinedStr):
+            for inner in ast.walk(sub):
+                inside_fstring.add(id(inner))
+    out = set()
+    for sub in ast.walk(tree):
+        if id(sub) in inside_fstring:
+            continue
+        if isinstance(sub, ast.Name) and sub.id == name:
+            out.add((sub.lineno, 'name'))
+        elif isinstance(sub, ast.arg) and sub.arg == name:
+            out.add((sub.lineno, 'parameter'))
+        elif isinstance(sub, ast.Attribute) and sub.attr == name:
+            out.add((sub.lineno, 'attribute'))
+    return sorted(out)
 # ---------------------------------------------------------------------------
 # SECTION 2 -- controls
 # ---------------------------------------------------------------------------
@@ -877,6 +963,95 @@ def main():
           not extra,
           ('dead registry rows: ' + ', '.join(extra[:8])) if extra
           else 'no dead rows')
+
+    # Added 2026-10-28.  Every DISPLAY_ONLY row, checked against the source
+    # rather than believed.  See display_only_violations() for what the
+    # first form of this test got wrong and why the lexical form is right.
+    print()
+    print('  DISPLAY_ONLY rows, CHECKED (2026-10-28):')
+    do_rows = sorted(k for k, v in POTENTIAL_REGISTRY.items()
+                     if v[0] == 'DISPLAY_ONLY')
+    do_bad = []
+    for key in do_rows:
+        mod, name = key.split('::')
+        path = os.path.join(HERE, mod)
+        if not os.path.exists(path):
+            do_bad.append((key, [(0, 'module absent')]))
+            continue
+        v = display_only_violations(path, name)
+        if v:
+            do_bad.append((key, v))
+        print('    %-62s %s'
+              % (key, ('%d computable occurrence(s): %s'
+                       % (len(v), ', '.join('line %d %s' % o for o in v[:3])))
+                 if v else 'confirmed'))
+    check('every DISPLAY_ONLY adjudication is TRUE of the source',
+          not do_bad,
+          '\n'.join('%s -- %s' % (k, v) for k, v in do_bad) if do_bad else
+          '%d rows, each one checked; one row '
+          '(graphene_photodetector_collection_model.py::V_bias) was FALSE '
+          'from 2026-10-07 to 2026-10-27 and is re-adjudicated '
+          'TRANSPORT_ONLY' % len(do_rows))
+
+    # Planted controls for the predicate, written under TMPDIR and never
+    # into the tree other audits read (the 2026-10-17 standing item).
+    #
+    # The FIRST draft of these two controls failed, and the failure was the
+    # control's and not the predicate's: both planted modules opened with
+    # `V_probe = 1.0`, and an assignment target is an ast.Name in Store
+    # context, so the predicate reported line 1 and P-DO1 went red on a
+    # module whose name is genuinely only ever printed.  Every real
+    # DISPLAY_ONLY row in this registry is either a LaTeX fragment that is
+    # no Python name at all, or a name IMPORTED from another module -- so
+    # the controls now have that shape, and the behaviour that tripped them
+    # is pinned as P-DO3 instead of patched away.
+    #
+    # P-DO3 is the stricter half of the predicate's meaning, stated: a
+    # module-level BINDING is a value in that module and not a label, so
+    # 'appears only inside format strings' is false of it even when nothing
+    # reads it yet.  Reporting it is the safe direction, and no row in the
+    # tree has that shape today.
+    pc_dir = tempfile.mkdtemp(prefix='potcensus_displayonly_')
+    try:
+        neg = os.path.join(pc_dir, 'planted_display.py')
+        with open(neg, 'w') as fh:
+            fh.write('from planted_src import V_probe\n'
+                     'def show():\n'
+                     '    print("V_probe is a label")\n'
+                     '    print(f"V_probe = {V_probe}")\n')
+        pos = os.path.join(pc_dir, 'planted_computed.py')
+        with open(pos, 'w') as fh:
+            fh.write('from planted_src import V_probe\n'
+                     'L = 2.0\n'
+                     'def compute():\n'
+                     '    print(f"V_probe = {V_probe}")\n'
+                     '    return V_probe / L\n')
+        bound = os.path.join(pc_dir, 'planted_bound.py')
+        with open(bound, 'w') as fh:
+            fh.write('V_probe = 1.0\n'
+                     'def show():\n'
+                     '    print(f"V_probe = {V_probe}")\n')
+        got1 = display_only_violations(neg, 'V_probe')
+        check('P-DO1 an IMPORTED name used only in a string and an '
+              'f-string is confirmed display-only',
+              not got1,
+              'got %s -- an ast.alias is provenance, not a computation, and '
+              'an f-string interpolation is a display wherever it sits'
+              % (got1,) if got1 else
+              'the shape every real DISPLAY_ONLY row in this registry has')
+        got2 = display_only_violations(pos, 'V_probe')
+        check('P-DO2 the SAME name, divided by something once, is caught '
+              '-- and the f-string occurrence is still not counted',
+              len(got2) == 1 and got2[0][1] == 'name',
+              'got %s' % (got2,))
+        got3 = display_only_violations(bound, 'V_probe')
+        check('P-DO3 a module-level BINDING is reported even though every '
+              'read of it is a display (the predicate is strict here, '
+              'deliberately)',
+              len(got3) == 1 and got3[0] == (1, 'name'),
+              'got %s' % (got3,))
+    finally:
+        shutil.rmtree(pc_dir, ignore_errors=True)
 
     adj = {}
     for key in c:
