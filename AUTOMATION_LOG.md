@@ -12006,3 +12006,324 @@ annotated in place; the full transcript regeneration with the three further
 staleness finds; the pristine audit's 13/13; notes and thesis §4.6.23). This
 `AUTOMATION_LOG.md` entry makes **9**. Each was pushed immediately after
 commit and verified against the GitHub API.
+
+## 2026-10-28 — three claims nothing checked, and the guard that is blind to its own source
+
+**Subject: the 2026-10-27 ranked-first and ranked-second items, worked in
+order. The second caught the first committing the fault it guards against,
+on the same day; and registering the two names the first introduced exposed
+a third unchecked claim, false in one row of thirteen for twenty-one days.**
+
+### 1. The ranked-first item: Section 7b split into its two vocabularies
+
+Option (i) of the two the 10-27 entry named. 7b carried two checks over one
+census, and they asked different questions: one counted **syntactic** capture
+sites, the other named the delivery **class** it cared about. On 10-27 the
+second went green and the first stayed red at one site-group — and the same
+entry recorded that the first *cannot* go green, because the site is the only
+real `live_by_scope` capture in the tree and
+`graphene_frozen_default_semantics.py` takes its Section 4 `D1`–`D5`
+demonstration from `live_rows[0]`.
+
+A red check that cannot go green has stopped being a guard, and it had lost
+two properties: it is indistinguishable from a red check nobody has read in a
+month, and its report (`1 site-groups remaining`) is indistinguishable from a
+**new** capture appearing while the known one was removed — the standing
+"pin a red suite's failing membership, not its count" item, inside one check.
+
+Three checks now:
+
+| | statement | exemptions | state |
+|---|---|---|---|
+| **7b-i** | no capture site anywhere **FREEZES a read** (`FROZEN`, `MIXED`, `IMPORT_FAILED` — unknown is not green) | **none, by construction** | GREEN |
+| **7b-ii** | no capture site in the tree is **unregistered** | one, with class and reason | GREEN |
+| **7b-iii** | every registry entry still **describes the tree**: `VANISHED` (delete it) and `DRIFTED` (its claim is now false) reported separately | — | GREEN |
+
+Eight planted controls (`C7c`). Seven require a predicate to fire on a
+planted census; the eighth requires one *not* to. The load-bearing arm is the
+seventh: **the registered site, planted as `FROZEN`, must still fire 7b-i** —
+so `census_semantic_faults()` does not take the registry as a parameter and
+no caller can supply one. The eighth is the positive control without which
+arm 4 would be green for the wrong reason (every row unregistered, exemption
+path never reached).
+
+What the split gives up is the claim that the syntactic count is zero, which
+was never true of this tree. What it gains is three statements that can each
+be false, where there was one that could not become true.
+
+Suite **33/1 → 43/0**, transcript diff confined to the 7b block and `TOTAL`.
+`graphene_mixed_capture_repair_audit.py`'s closing note — which named the two
+available repairs and said "Not resolved here" — is annotated **in place**,
+verbatim, with the resolution appended under it; 33/0 before and after, and
+the residual it measures is still one site and still the same site.
+
+### 2. And then the split committed the fault it guards against
+
+`graphene_figure_provenance_audit.py`'s Section C repository-wide census of
+the inert-knob pattern went from **1 occurrence in 1 file to 4 in 2**. The
+three new ones were written an hour earlier, in this session:
+
+```
+def census_semantic_faults(rows, faults=SEMANTIC_CAPTURE_FAULTS):
+def census_unregistered_sites(rows, registry=SYNTACTIC_CAPTURE_EXEMPTIONS):
+def registry_hygiene_faults(rows, registry=SYNTACTIC_CAPTURE_EXEMPTIONS):
+```
+
+Module-level constants captured as function defaults, in the module that
+implements the guard against exactly that. Converted to the 2026-09-30
+late-bound sentinel form; **43/0 and the transcript bitwise unchanged**, the
+standard the 09-30, 10-01 and 10-27 conversions were held to.
+
+**Section 7b did not catch it, and cannot.** `repo_wide_frozen_census()`
+skips four modules by name and one of them is
+`graphene_mutation_arrival_probe` — the module that defines the census. The
+exclusion is defensible (that module is full of capture patterns planted
+deliberately for its own controls); its **consequence** had never been
+stated. The only reason today's three were found on the day they were written
+is that a *different* suite censuses the whole tree. New standing item, and a
+sharper instance of §4.6.8 than the `fmax` one it echoes, because here the
+module committing the capture is the module defining the class.
+
+### 3. The ranked-second item: the queue was nine larger than the estimate
+
+10-27 wrote "18 rows against roughly 40 committed transcripts". Counted
+mechanically: **49 committed transcripts, 17 compared.** Understated by nine,
+which is the argument for counting rather than eyeballing.
+
+**`SUITES` 17 → 35 compared transcripts.** Every added row was measured first
+— run from a clean tree at HEAD, compared byte-for-byte — with its measured
+seconds in the comment beside it, because Section 2 spent ~70 s of a 180 s
+shell cap before today and now spends ~105 s.
+
+Three things fell out of the counting that a row-by-row pass would not have
+produced:
+
+1. **A row that said `None` for a transcript that exists.**
+   `graphene_covariance_probe_audit.py` was registered with
+   `transcript=None` — "no committed transcript to compare" — from the day
+   the table was written. Its transcript is
+   `default_scale_probe_audit_output.txt`; the filename does not contain the
+   module's name, which is why nobody paired them, and it is byte-identical
+   to the module's stdout today. **A `None` row is worse than an absent one:**
+   an absent row is a gap, while this one printed `RAN` every session and
+   looked like coverage.
+2. **A fifth stale transcript, stale by a month, overstating the tree.**
+   `audit_output.txt` claims `exact zeros : 3/3`. The code has printed
+   `BITWISE zeros : 2/3   zeros within the derived floor 5.7e-11 : 3/3` since
+   **2026-09-27**, when the stepping was corrected to symmetric — and the
+   source's own annotation says one of the three exact zeros was
+   floating-point luck. Same direction as 10-27's nineteen-day false claim.
+   Verified deterministic run-to-run before registering, then regenerated.
+3. **Section 5, new: the gap is now a number the suite prints.**
+   `49 = 35 registered + 14 excluded + 0 UNACCOUNTED`, and the suite fails if
+   any committed transcript is in neither table. Two of the four exclusion
+   classes are **checked, not declared**: `SELF_WRITING` (9 — the module
+   opens that transcript `'w'` in its own tree, so the pristine comparison
+   would read the file the run just wrote; `writes_own_transcript()` confirms
+   all nine, `C5.2` is the negative control) and `SELF` (1). `NOT_A_STDOUT`
+   (1 — a hand-written excerpt with its own header and date) and `UNMEASURED`
+   (3 mutation suites) are declared, and said to be. Plus the hygiene check
+   today's 7b work argues for: no exclusion may name an uncommitted
+   transcript, and none may be excluded *and* registered.
+
+**Pristine audit 13/0 → 19/0: 35 of 35 IDENTICAL, 0 STALE, 0 NUMERIC_DRIFT.**
+Three suites exit nonzero (`attribute_default_capture`, `dead_name_sweep`,
+`potential_census_audit`) and their transcripts agree with their exit codes,
+which is the consistency check and not a fault. **103 s wall against a 180 s
+cap — measured, not estimated — so 77 s of headroom**, and the three
+`UNMEASURED` exclusions are mutation suites that could each be large.
+
+### 4. The third unchecked claim, found by accident
+
+The 7b exemption carries its reason in full, and the reason spells the
+signature it is about: ``def _R_harmonic(V_g, V_hi, n_quad=N_QUAD)``.
+`graphene_potential_census_audit.py`'s `_string_names_in()` collects
+potential-like tokens out of string constants **by design** ("deliberately
+over-wide; every match must be adjudicated"), so two names in **prose**
+entered the census: **133 names across 35 modules → 135 across 36, within one
+commit of the same session,** and nothing would have caught it because that
+transcript was not in `SUITES` either. **Today's own first commit is the
+ranked-second item's argument, restated.**
+
+Both are `DISPLAY_ONLY`. Which raised: what checks a `DISPLAY_ONLY` row?
+Nothing, from 2026-10-07 until today.
+
+- **One false row in thirteen.**
+  `graphene_photodetector_collection_model.py::V_bias` read `DISPLAY_ONLY,
+  imported and printed only`; line 72 is `E_BIAS = V_bias / L_channel`, the
+  uniform bias-driven drift field its own docstring describes and the
+  `TRANSPORT_MARKER_RE` shape. Re-adjudicated `TRANSPORT_ONLY`, the reading
+  its sibling `graphene_photodetector_model.py::V_bias` already carries for
+  the same stated reason. Old reading kept above the new one.
+- **And the first form of the check was wrong, which is worth more than the
+  row.** Comparing the scopes the census already records reported **two**
+  violations; the second,
+  `graphene_photodetector_two_contact_model.py::V_bias`, is not one — its uses
+  are `{V_bias}` inside f-strings, and an f-string interpolation is a real
+  `ast.Name` inside the enclosing function, so the census files it under
+  `make_plots()` rather than under `<format string>`. **The scope vocabulary
+  cannot express "displayed inside a function"** — the same
+  two-vocabularies-over-one-census fault the 7b split repaired this morning,
+  in a third place on the same day. The shipped form is lexical.
+- **And the planted controls' first draft failed too,** and that failure was
+  the control's: both planted modules opened with `V_probe = 1.0`, and an
+  assignment target is an `ast.Name` in `Store` context. The controls now
+  have the shape every real row has (a LaTeX fragment, or an imported name),
+  and the behaviour that tripped them is pinned as `P-DO3` rather than
+  patched away.
+
+14/2 → **18/2**, same two failures; `UNREGISTERED` 47 before and after,
+because the two names this session introduced are adjudicated by the session
+that introduced them.
+
+### 5. What the day was actually about
+
+| claim | unchecked for | how it failed |
+|---|---|---|
+| 7b's syntactic count | 2026-10-01 → today | could not go green; its count hid membership |
+| a `SUITES` row's `None` | since the table was written | printed `RAN`, looked like coverage |
+| a `DISPLAY_ONLY` adjudication | 2026-10-07 → today | 1 of 13 was false |
+
+Each repair is the same shape: **a registry entry carries its reason, and a
+check confirms the reason is still true of the source.** Implemented three
+times today — `7b-iii`, `writes_own_transcript()`,
+`display_only_violations()` — which is the first time this repository has had
+the *pattern* rather than instances of it. The counter-lesson is §2's.
+
+### 6. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, other sessions', unreadable and
+undeletable) for the fourth consecutive session, so the clone goes to `/tmp`
+on `/dev/sda1` (4.0 G free) per 10-25..10-27. **New:** `pip` fails there too,
+because its build and cache directories default under `$HOME` —
+`TMPDIR=/tmp/pt PIP_CACHE_DIR=/tmp/pipcache --no-cache-dir` installs `scipy`
+1.15.3 into `/tmp/pylibs`. **`/tmp/pylibs` did not survive from 10-27**, so
+`/tmp` is per-VM and not per-machine and the install is a cost every session
+pays. `numpy` 2.2.6, `matplotlib` 3.10.9, `MPLCONFIGDIR=/tmp/mplcache_1028`
+(a fresh name, per 10-27). Two PNGs (`differential_crossover.png`,
+`log_sensitivity_step_audit.png`) re-rendered with byte differences beside
+unchanged transcripts and are **reverted**, per 10-27 §6; the ~63-PNG item is
+otherwise untouched. **Live web search not used:** today's subject is this
+repository's own instruments measured against themselves and there is no
+external source for it. PubMed/PMC not attempted, per the standing note.
+Every commit pushed and verified against the GitHub API.
+
+**Not yet covered (candidates for future runs):**
+
+- **SECTION 7b IS BLIND TO ITS OWN MODULE** — created today, **ranked
+  first**, and the direct continuation. `repo_wide_frozen_census()` skips
+  `graphene_mutation_arrival_probe` by name, so the guard cannot see captures
+  in the module that defines the guard — and today it committed three. The
+  repair is not simply to stop skipping it: that module plants capture
+  patterns deliberately for `C7b` and its before/after sections, so the honest
+  form is a **registry of planted sites** (the same shape as 7b-ii's
+  exemptions, and the third use of the day's pattern) with everything else in
+  the module censused. Blocked on nothing.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — created today, **ranked
+  second**, and now a short, bounded list rather than a vague queue:
+  `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`. Each is a mutation suite that builds a working tree,
+  so time them against the 77 s of headroom Section 5 measured *before*
+  adding them, and quote the seconds the way the new rows do. If one does not
+  fit, the honest outcome is an `OVER_CALL_LIMIT` exclusion class with a
+  measured number in it.
+- **THE SIX `SELF_WRITING` TRANSCRIPTS NEED `run_suite` TO READ THE OBJECT
+  STORE** — created today, **ranked third**. Nine transcripts are excluded
+  because their modules overwrite the file the comparison is taken against;
+  three of those nine are also over the call limit, so six are reachable. The
+  change is to `run_suite`: compare against `git show <commit>:<transcript>`
+  rather than the clone's working copy. That is one change that moves six
+  rows, and it also removes the circularity the 10-27 entry called "nearly
+  missed".
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 2026-10-27,
+  where it was ranked third, and **now cheaper**: the census is registered in
+  `SUITES` as of today, so a session that works the queue will have its
+  transcript compared instead of silently going stale. `UNREGISTERED` is 47.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii). The 10-27 entry noted 7b's two checks were the same shape; **that half
+  is now resolved**, so the item is back to being about `gfet.C_ox` alone, and
+  the split is the worked precedent for how to resolve it.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, §7.9 item 23 (i). Mechanical; built from `rra.FLIPS`.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, and today is a **fourth** argument from a new direction: 7b's own
+  single red check was a count that could not distinguish its known site from
+  a new one, which is the same defect one level down. Three suites exit
+  nonzero today and the pristine audit reports only the exit code.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26,
+  both names LIVE since 10-27. Pairs with *IS THE ADMISSIBLE SHAPE BOX THE
+  RIGHT ONE?*
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs. 10-27 §6
+  named four files with measured deltas; two of them churned again today and
+  were reverted again, which is the second occurrence and makes the
+  hypothesis (nondeterministic rasterisation, not content) cheaper to settle.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25, unchanged.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **eighth** instance (`C7c` ×8, `C5.1`–`C5.3`, `P-DO1`–`P-DO3`
+  — fourteen new controls in one session). The repository-wide question —
+  which refusal branches anywhere have never been reached — is still
+  untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twenty-two**
+  sessions overdue. Today adds an argument: `audit_output.txt`'s stale claim
+  was `exact zeros : 3/3` against a real `2/3 bitwise, 3/3 within 5.7e-11`,
+  i.e. the difference between the two was *exactly* a tolerance question.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged; a decision, to be taken
+  with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **eighth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on Fig. 4 of a paper behind `arxiv.org`. A
+  copy of the PDF in the connected folder unblocks both immediately.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 10-17, and today adds a **second** positive example
+  (`P-DO1`–`P-DO3` write their planted modules under `TMPDIR`) and, via the
+  ranked-first item, the first case where the rule's *cost* is visible: the
+  arrival probe's planted patterns are why it is excluded from its own census.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twelfth** session;
+  `dead_name_sweep` red, DEAD count 1, and today it moved for an unrelated
+  reason (LIVE 322 → 325, a line number 310 → 338).
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **thirteenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01,
+  untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **sixteenth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **twenty-first** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **nineteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **eighteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twenty-two sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **nineteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **nineteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched,
+  joined by eleven more; see the `V_dirac` item.
+- **A self-heating term** — created 2026-10-06.
+- **Chapters 2–3 are still undrafted** — the largest remaining block of pure
+  writing; their computational results have been complete for weeks, and both
+  chapters' suites (`transport_optical_audit`, and as of today
+  `frozen_default_semantics` and `exact_charge_rederivation`) are registered
+  and IDENTICAL, so the numbers to draft from are certified.
+
+**Commits this run:** 7 (the 7b split with its eight controls; the 10-27
+conflict annotated in place as resolved; the `DISPLAY_ONLY` check with its
+false row re-adjudicated; the 18 transcript registrations with Section 5's
+coverage census, the `None`-row repair, the month-stale `audit_output.txt`
+and the self-committed-capture conversion; the pristine audit's 19/0; notes
+and thesis §4.6.24). This `AUTOMATION_LOG.md` entry makes **8**. Each was
+pushed and verified against the GitHub API.

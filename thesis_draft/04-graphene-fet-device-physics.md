@@ -3767,6 +3767,64 @@ Machine output: `mixed_capture_repair_output.txt` (33/33),
 `mutation_arrival_probe_output.txt` (Section 7b, 32/2 → 33/1). Notes:
 `notes/2026-10-27-the-repair-that-refuted-its-own-prediction.md`.
 
+**Resolved 2026-10-28** by splitting the guard — see §4.6.24. The paragraph
+above is left as written because it is the diagnosis the split was built from.
+
+### 4.6.24 A guard stated so that it cannot be true, and a guard blind to its own source
+
+The conflict §4.6.23 ends on is not about this chapter's physics. It is about
+a sentence. Section 7b asserted *"no module-level constant is captured as a
+default anywhere"* — a count of **syntactic** sites — and separately *"none is
+`MIXED`"* — a statement about a **delivery class**. By 2026-10-27 the second
+was true and the first could not become true, because the one remaining
+syntactic site is live by scope and is the only real demonstration site the
+frozen-default-semantics suite has. A check that cannot go green is not a
+guard; and its report, `1 site-groups remaining`, cannot distinguish the known
+site from a new one appearing while the known one was removed.
+
+Split into three, with no coverage given up:
+
+| | statement | exemptions | state |
+|---|---|---|---|
+| 7b-i | no capture site anywhere **freezes a read** (`FROZEN`, `MIXED`, or an unimportable module) | **none, by construction** | GREEN |
+| 7b-ii | no capture site in the tree is **unregistered** | one, with its class and its reason | GREEN |
+| 7b-iii | every registry entry still **describes the tree** (`VANISHED` / `DRIFTED`) | — | GREEN |
+
+The load-bearing control of the eight planted ones is the seventh: the
+*registered* site, planted as `FROZEN`, must still fire 7b-i. A registry that
+could silence the semantic check would make the split a weakening rather than
+a restatement, so `census_semantic_faults()` does not take the registry as a
+parameter at all and no caller can supply one. Suite 33/1 → 43/0.
+
+**Then the split committed the fault it guards against.** The three new
+predicates were first written with their tables as parameter defaults —
+`faults=SEMANTIC_CAPTURE_FAULTS`, `registry=SYNTACTIC_CAPTURE_EXEMPTIONS` —
+module-level constants captured at `def` time, in the module that defines the
+class. `graphene_figure_provenance_audit.py`'s repository-wide census of the
+pattern went from 1 occurrence in 1 file to 4 in 2 and that is how it was
+found. Converted to the 2026-09-30 late-bound form; transcript bitwise
+unchanged.
+
+Section 7b did **not** catch it and cannot: `repo_wide_frozen_census()` skips
+`graphene_mutation_arrival_probe` by name, because that module is full of
+capture patterns planted deliberately for its own controls. The exclusion is
+defensible; its consequence had never been written down. **A guard excluded
+from its own census is blind in exactly the place where being wrong is most
+likely**, since the module that defines a fault class is the one most often
+editing that class's shape. This is the same lesson as §4.6.8 — knowing a
+failure mode is not the same as not committing it — and a sharper instance of
+it, because here the committing module is the defining module.
+
+For this chapter's numbers nothing changes: the residual is still one site and
+still the same site, and `mixed_capture_repair_output.txt` reports 33/33
+before and after. What changes is that the guard now says which site, in which
+vocabulary, and why it is permitted.
+
+Machine output: `mutation_arrival_probe_output.txt` (Section 7b split, 43/0),
+`figure_provenance_audit_output.txt` (Section C, 4 occurrences → 1 after the
+conversion), `pristine_transcript_audit_output.txt` (19/0). Notes:
+`notes/2026-10-28-three-unchecked-claims-and-the-guard-blind-to-itself.md`.
+
 
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 

@@ -37,8 +37,8 @@ wording this list had already retired.
 ------------------------------------------------------------------------------
 2.  THE REAL STANDING LIST, AS OF THE LATEST ENTRY
 ------------------------------------------------------------------------------
-  latest entry: 2026-10-27
-  top-level bullets in its Not-yet-covered list: 37
+  latest entry: 2026-10-28
+  top-level bullets in its Not-yet-covered list: 38
   baseline assertions checked: 2
 
   id   class          item says tree says
@@ -63,7 +63,7 @@ wording this list had already retired.
        re-verified before it ranks.
 
   [PASS] R1 the latest list parsed to at least 10 top-level bullets
-         got 37
+         got 38
   [PASS] R2 no baseline row is in a fault class ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
          faults: []
   [PASS] R3 every retired row is still justified by the tree
@@ -74,9 +74,9 @@ wording this list had already retired.
 ------------------------------------------------------------------------------
 3.  A1 IS NOT A STALE ITEM.  IT IS A RETIRED WORDING REVIVED
 ------------------------------------------------------------------------------
-  entries asserting UNDRAFTED : 2026-09-17, 2026-09-18, 2026-09-19, 2026-09-20, 2026-09-21, 2026-09-22, 2026-09-22, 2026-09-23, 2026-09-24, 2026-09-25, 2026-09-26, 2026-09-27, 2026-10-17, 2026-10-26, 2026-10-27
+  entries asserting UNDRAFTED : 2026-09-17, 2026-09-18, 2026-09-19, 2026-09-20, 2026-09-21, 2026-09-22, 2026-09-22, 2026-09-23, 2026-09-24, 2026-09-25, 2026-09-26, 2026-09-27, 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28
   entries asserting DRAFTED   : 2026-10-01, 2026-10-02, 2026-10-03, 2026-10-04, 2026-10-05, 2026-10-06
-  revived (undrafted AFTER the last drafted) : 2026-10-17, 2026-10-26, 2026-10-27
+  revived (undrafted AFTER the last drafted) : 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28
 
   entries between the last corrected one and the revival : 10 (2026-10-07..2026-10-16)
 
@@ -89,7 +89,7 @@ wording this list had already retired.
   [PASS]   V1 the list did at one point carry the corrected wording
          entries: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06']
   [PASS]   V2 at least one entry revived the retired wording
-         revived: ['2026-10-17', '2026-10-26', '2026-10-27']
+         revived: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28']
   [PASS]   V3 the revival is strictly later than the last corrected entry
          first revival 2026-10-17 vs last corrected 2026-10-06
 
