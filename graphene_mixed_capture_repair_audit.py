@@ -79,6 +79,16 @@ WHAT IT CHECKS
          "no module-level constant is captured as a default anywhere" cannot
          go green while that suite requires a real live-by-scope site to
          exist, and the two standing requirements are in direct conflict.
+
+         RESOLVED 2026-10-28, by option (i) of the two this file's closing
+         note names, and the conflict above is kept as written because it is
+         the diagnosis the repair was built from.  The arrival probe's 7b is
+         now three checks: a SEMANTIC one with no exemptions (green), a
+         SYNTACTIC one governed by a named registry (green, one entry), and a
+         HYGIENE one that fails if the registry stops describing the tree.
+         R1-R2 are unaffected -- the residual is still one site and still the
+         same site; what changed is that the probe no longer reports it as a
+         failure without saying which site or why.
 """
 
 import ast
@@ -537,6 +547,22 @@ def main():
     print('  (not), or moving the demonstration site into a planted fixture --')
     print('  and the second trades a real site for a synthetic one, which is')
     print('  the trade that suite was written to argue against.')
+    print()
+    print('  RESOLVED 2026-10-28 -- option (i), and the paragraph above is')
+    print('  kept verbatim because it is the diagnosis the repair was built')
+    print('  from.  Section 7b is now three checks over the same census:')
+    print('    7b-i   SEMANTIC  no site FREEZES a read (FROZEN / MIXED /')
+    print('                     IMPORT_FAILED).  No exemptions.  GREEN.')
+    print('    7b-ii  SYNTACTIC no site is unregistered.  One registered')
+    print('                     entry, carrying its class and its reason.')
+    print('    7b-iii HYGIENE   the registry still describes the tree:')
+    print('                     VANISHED and DRIFTED reported separately.')
+    print('  Eight planted controls (C7c) in the probe, of which arm 7 is')
+    print('  the load-bearing one: the REGISTERED site, planted as FROZEN,')
+    print('  must still fire 7b-i.  An exemption that could silence the')
+    print('  semantic check would have made the split a weakening, so')
+    print('  census_semantic_faults() does not take the registry at all.')
+    print('  The residual measured here is unchanged: one site, same site.')
     return 0 if not _FAIL else 1
 
 

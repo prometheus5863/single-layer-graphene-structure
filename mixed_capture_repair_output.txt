@@ -134,3 +134,19 @@ THE RESIDUAL, AND A CONFLICT BETWEEN TWO STANDING REQUIREMENTS
   (not), or moving the demonstration site into a planted fixture --
   and the second trades a real site for a synthetic one, which is
   the trade that suite was written to argue against.
+
+  RESOLVED 2026-10-28 -- option (i), and the paragraph above is
+  kept verbatim because it is the diagnosis the repair was built
+  from.  Section 7b is now three checks over the same census:
+    7b-i   SEMANTIC  no site FREEZES a read (FROZEN / MIXED /
+                     IMPORT_FAILED).  No exemptions.  GREEN.
+    7b-ii  SYNTACTIC no site is unregistered.  One registered
+                     entry, carrying its class and its reason.
+    7b-iii HYGIENE   the registry still describes the tree:
+                     VANISHED and DRIFTED reported separately.
+  Eight planted controls (C7c) in the probe, of which arm 7 is
+  the load-bearing one: the REGISTERED site, planted as FROZEN,
+  must still fire 7b-i.  An exemption that could silence the
+  semantic check would have made the split a weakening, so
+  census_semantic_faults() does not take the registry at all.
+  The residual measured here is unchanged: one site, same site.
