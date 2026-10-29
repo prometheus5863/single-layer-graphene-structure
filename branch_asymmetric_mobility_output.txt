@@ -1,0 +1,182 @@
+==============================================================================
+ELECTRON-HOLE MOBILITY ASYMMETRY IN THE GFET CHANNEL
+closes the follow-on item created 2026-10-09 (twenty sessions carried)
+==============================================================================
+Shipped parameters: mu = 0.4 m^2/Vs, n_puddle = 5e+15 m^-2, V_dirac = 0.8 V
+                    C_ox = 0.000383681 F/m^2, L = 2e-07 m, W = 1e-06 m
+
+SECTION 1.  The symmetric limit must reproduce the shipped model
+  [PASS] C1 species-split form matches shipped sigma within the counted 8-ulp budget
+         max ulp distance 3, max relative deviation 4.441e-16 (= 2.00 eps)
+  [PASS] C1 even/odd closed form (A3) matches shipped sigma within the counted 8-ulp budget
+         max ulp distance 3, max relative deviation 4.441e-16 (= 2.00 eps)
+         Exact bitwise equality is NOT claimed: the forms differ in
+         association order.  The claim is the counted bound above.
+  [PASS] C1 deviation is a rounding floor, not a model difference (10x refinement does not grow it)
+         601-point sweep 4.441e-16, 6001-point sweep 6.661e-16, budget 1.776e-15
+
+SECTION 2.  The zeros that must be exactly zero
+  [PASS] C2 mu_e == mu_h gives sigma(+dV) - sigma(-dV) == 0.0 bitwise
+         max |difference| = 0.0 (must be exactly 0.0)
+  [PASS] C3 mass action n_e*n_h == n_p^2/4 at mu_e/mu_h = 1.0
+         max absolute residual 3.3777e+15 (relative 5.40e-16) -- mobility must not enter the electrostatics
+  [PASS] C3 mass action n_e*n_h == n_p^2/4 at mu_e/mu_h = 1.3
+         max absolute residual 3.3777e+15 (relative 5.40e-16) -- mobility must not enter the electrostatics
+  [PASS] C3 mass action n_e*n_h == n_p^2/4 at mu_e/mu_h = 2.0
+         max absolute residual 3.3777e+15 (relative 5.40e-16) -- mobility must not enter the electrostatics
+
+  Monotonicity of n_net(dV), required before inverting it:
+  [PASS] n_net(dV) strictly increasing on [-5, 5] V
+         min forward difference 1.1456e+13 m^-2
+
+SECTION 3.  The closed form (A4)/(A5)
+  mu_e/mu_h r           n*/n_p      sigma_min num  sigma_min (A5) rel. dev.  
+  1.00      0.000000    -0.000000   3.2043533e-04  3.2043533e-04  2.22e-16   
+  [PASS] C4 d(sigma)/d(n) == 0 at n* for mu_e/mu_h = 1.00
+         derivative at n* = 0.0000e+00  (scale e*mu*n_p = 3.2044e-04)
+  [PASS]     grid minimum agrees with (A5) for mu_e/mu_h = 1.00
+         relative deviation 2.220e-16
+  1.10      0.047619    -0.047673   3.2007182e-04  3.2007182e-04  3.60e-10   
+  [PASS] C4 d(sigma)/d(n) == 0 at n* for mu_e/mu_h = 1.10
+         derivative at n* = 0.0000e+00  (scale e*mu*n_p = 3.2044e-04)
+  [PASS]     grid minimum agrees with (A5) for mu_e/mu_h = 1.10
+         relative deviation 3.602e-10
+  1.20      0.090909    -0.091287   3.1910847e-04  3.1910847e-04  8.26e-11   
+  [PASS] C4 d(sigma)/d(n) == 0 at n* for mu_e/mu_h = 1.20
+         derivative at n* = 0.0000e+00  (scale e*mu*n_p = 3.2044e-04)
+  [PASS]     grid minimum agrees with (A5) for mu_e/mu_h = 1.20
+         relative deviation 8.261e-11
+  1.30      0.130435    -0.131559   3.1769781e-04  3.1769781e-04  8.38e-10   
+  [PASS] C4 d(sigma)/d(n) == 0 at n* for mu_e/mu_h = 1.30
+         derivative at n* = -1.1117e-36  (scale e*mu*n_p = 3.2044e-04)
+  [PASS]     grid minimum agrees with (A5) for mu_e/mu_h = 1.30
+         relative deviation 8.382e-10
+  1.50      0.200000    -0.204124   3.1396122e-04  3.1396122e-04  2.80e-10   
+  [PASS] C4 d(sigma)/d(n) == 0 at n* for mu_e/mu_h = 1.50
+         derivative at n* = 0.0000e+00  (scale e*mu*n_p = 3.2044e-04)
+  [PASS]     grid minimum agrees with (A5) for mu_e/mu_h = 1.50
+         relative deviation 2.798e-10
+  2.00      0.333333    -0.353553   3.0210932e-04  3.0210932e-04  9.66e-10   
+  [PASS] C4 d(sigma)/d(n) == 0 at n* for mu_e/mu_h = 2.00
+         derivative at n* = 4.4469e-36  (scale e*mu*n_p = 3.2044e-04)
+  [PASS]     grid minimum agrees with (A5) for mu_e/mu_h = 2.00
+         relative deviation 9.655e-10
+  3.00      0.500000    -0.577350   2.7750513e-04  2.7750513e-04  9.27e-10   
+  [PASS] C4 d(sigma)/d(n) == 0 at n* for mu_e/mu_h = 3.00
+         derivative at n* = 0.0000e+00  (scale e*mu*n_p = 3.2044e-04)
+  [PASS]     grid minimum agrees with (A5) for mu_e/mu_h = 3.00
+         relative deviation 9.274e-10
+
+  C5 exchange symmetry mu_e <-> mu_h:
+  [PASS]     n*(mu_h, mu_e) == -n*(mu_e, mu_h) bitwise at ratio 1.3
+         n* = -657793514480272.0 vs 657793514480272.0
+  [PASS]     sigma_min symmetric in the pair, bitwise, at ratio 1.3
+         sigma_min = 0.0003176978130008445 vs 0.0003176978130008445
+  [PASS]     n*(mu_h, mu_e) == -n*(mu_e, mu_h) bitwise at ratio 2.0
+         n* = -1767766952966368.8 vs 1767766952966368.8
+  [PASS]     sigma_min symmetric in the pair, bitwise, at ratio 2.0
+         sigma_min = 0.00030210932334934324 vs 0.00030210932334934324
+
+  C6 AM-GM, i.e. the asymmetric floor never exceeds the symmetric one:
+  [PASS]     sqrt(mu_e*mu_h) == mu_bar at ratio 1.00
+         GM = 0.4, AM = 0.4, GM/AM = 1.000000000
+  [PASS]     sqrt(mu_e*mu_h) < mu_bar at ratio 1.05
+         GM = 0.399881006, AM = 0.4, GM/AM = 0.999702514
+  [PASS]     sqrt(mu_e*mu_h) < mu_bar at ratio 1.20
+         GM = 0.398343678, AM = 0.4, GM/AM = 0.995859195
+  [PASS]     sqrt(mu_e*mu_h) < mu_bar at ratio 1.50
+         GM = 0.391918359, AM = 0.4, GM/AM = 0.979795897
+  [PASS]     sqrt(mu_e*mu_h) < mu_bar at ratio 2.00
+         GM = 0.377123617, AM = 0.4, GM/AM = 0.942809042
+  [PASS]     sqrt(mu_e*mu_h) < mu_bar at ratio 4.00
+         GM = 0.32, AM = 0.4, GM/AM = 0.800000000
+
+  CORRECTION OF RECORD.  sigma_min_ch4() in
+  graphene_fet_signed_carrier_model.py returns e*mu*n_puddle and its
+  docstring calls that EXACT.  Measured here:
+  [PASS]     (A5) reduces to the shipped sigma_min on the diagonal within 1 ulp
+         sigma_min_ch4 = 0.0003204353268, (A5) at mu_e=mu_h = 0.00032043532680000003, ulp distance 1
+         So no committed number moves; what was wrong was the SCOPE of
+         the word "exactly".  e*mu*n_p is the mu_e == mu_h case of
+         e*n_p*sqrt(mu_e*mu_h), and off the diagonal it is an
+         OVERESTIMATE of the floor by mu_bar/sqrt(mu_e*mu_h).
+
+SECTION 4.  A mobility asymmetry impersonates a doping offset
+  mu_e/mu_h r         dV_app (V)       as frac of V_dirac n_mis (cm^-2) 
+  1.05      0.024390  -0.052352        0.0654           1.2537e+10    
+  1.10      0.047619  -0.101125        0.1264           2.4217e+10    
+  1.20      0.090909  -0.192214        0.2403           4.6030e+10    
+  1.30      0.130435  -0.276301        0.3454           6.6167e+10    
+  1.50      0.200000  -0.427814        0.5348           1.0245e+11    
+
+  Reading: at the shipped 90 nm SiO2 back gate (C_ox = 0.0003837 F/m^2)
+  a 30 % electron-hole mobility asymmetry moves the resistance
+  maximum by 0.276 V, which is 34.5 % of the 0.80 V this repository
+  attributes entirely to built-in doping.  A doping extraction that
+  reads V_dirac off a transfer curve without an independent mobility
+  measurement on each branch cannot separate the two.
+  The sign is informative: mu_e > mu_h puts the minimum on the HOLE
+  side (n* < 0), i.e. the apparent Dirac point moves to LOWER V_g.
+  [PASS] direction: mu_e > mu_h shifts the apparent Dirac point to lower V_g
+         dV_app = -0.276301 V
+
+SECTION 5.  The length discriminator, and C7
+  R_odd(L) = (L/W)*(1/sigma(-dV) - 1/sigma(+dV)) + (Rc_p - Rc_n)
+  exactly linear in L: slope = channel asymmetry, intercept = contact.
+
+  scenario       slope (Ohm/m)    intercept (Ohm)  max resid      verdict     
+  channel only   4.046389e+08     -0.000000        1.364e-12      CHANNEL     
+  [PASS] C7 slope recovers the planted channel asymmetry (channel only)
+         fitted 4.046388649e+08 vs planted 4.046388649e+08, relative 2.22e-16
+  [PASS] C7 intercept recovers the planted contact asymmetry (channel only)
+         fitted -0.000000000 vs planted 0.000000000 Ohm
+  [PASS] C7 residual to the straight line is at the rounding floor (channel only)
+         max residual 1.364e-12 Ohm over 25 lengths
+  contact only   0.000000e+00     120.000000       1.137e-13      CONTACT     
+  [PASS] C7 slope recovers the planted channel asymmetry (contact only)
+         fitted 0.000000000e+00 vs planted 0.000000000e+00, relative 0.00e+00
+  [PASS] C7 intercept recovers the planted contact asymmetry (contact only)
+         fitted 120.000000000 vs planted 120.000000000 Ohm
+  [PASS] C7 residual to the straight line is at the rounding floor (contact only)
+         max residual 1.137e-13 Ohm over 25 lengths
+  both           4.046389e+08     120.000000       1.364e-12      CHANNEL     
+  [PASS] C7 slope recovers the planted channel asymmetry (both)
+         fitted 4.046388649e+08 vs planted 4.046388649e+08, relative 2.22e-16
+  [PASS] C7 intercept recovers the planted contact asymmetry (both)
+         fitted 120.000000000 vs planted 120.000000000 Ohm
+  [PASS] C7 residual to the straight line is at the rounding floor (both)
+         max residual 1.364e-12 Ohm over 25 lengths
+
+  Why this is the discriminator rather than a fit convenience:
+  the contact term enters R_odd with NO factor of L, so it cannot be
+  absorbed into the slope at any length, and the channel term enters
+  with L and cannot be absorbed into the intercept.  Huard et al.
+  (arXiv:0804.2040) report exactly this: their odd resistance
+  collapses when scaled by the metal/graphene INTERFACE WIDTH, and the
+  bulk-only reading of the same data gives a resistivity asymmetry
+  that drifts with probe spacing -- the signature of a nonzero
+  intercept being misread as a slope.
+
+  Cost of the simplification: a single-length measurement cannot do
+  this at all.  At the shipped L = 200 nm the contact-only and
+  channel-only scenarios differ in R_odd by only:
+    channel-only R_odd =    80.9278 Ohm
+    contact-only R_odd =   120.0000 Ohm
+    ratio              =     0.6744
+  i.e. at 200 nm the two mechanisms are within a factor 1.48 of each
+  other and a single-length experiment is blind between them.
+
+SECTION 6.  What the shipped model is, in the new vocabulary
+  The committed GFET model sits exactly on the mu_e == mu_h diagonal,
+  i.e. r = 0, so every number already in this repository is the r = 0
+  case of the forms above and NONE of them moves.  What changes is
+  what they are claims ABOUT: the floor e*mu*n_p is a geometric mean
+  evaluated on a diagonal, and the V_dirac = 0.80 V offset is a
+  doping offset only under an assumption (r = 0) that the model makes
+  silently and that no committed check tests.
+
+  Figure written: branch_asymmetric_mobility.png
+
+==============================================================================
+CHECKS: 43 passed, 0 failed
+==============================================================================
