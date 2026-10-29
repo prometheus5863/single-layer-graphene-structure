@@ -12327,3 +12327,342 @@ coverage census, the `None`-row repair, the month-stale `audit_output.txt`
 and the self-committed-capture conversion; the pristine audit's 19/0; notes
 and thesis §4.6.24). This `AUTOMATION_LOG.md` entry makes **8**. Each was
 pushed and verified against the GitHub API.
+
+---
+
+## 2026-10-29 — The floor is a geometric mean, and a correction that came back three times
+
+**Subject: the ASYMMETRIC ELECTRON/HOLE MOBILITY item, created 2026-10-09 and
+carried untouched for twenty sessions — the only item on the standing list
+that had been deferred *in writing inside the source*. Closing it produced a
+closed-form correction of record, and the session's second finding was that a
+list item this repository had already refuted had been silently re-imported
+three sessions running.**
+
+### 1. Why this item and not the ranked-first one
+
+The 10-28 list ranked **SECTION 7b IS BLIND TO ITS OWN MODULE** first. It was
+not taken. The reason is worth stating because it is a judgement about the
+repository rather than about the item: the 7b item is the fourth consecutive
+ranked-first item about the behaviour of this repository's own audit
+instruments, and the tree now holds roughly eighty Python modules of which a
+large fraction audit other modules in it. The item is real and stays ranked
+first. But the thesis's subject is the device physics of single-layer
+graphene, and the largest *physics* item on the list had been carried for
+twenty sessions with a designed interface already waiting for it.
+
+That interface is the distinguishing feature.
+`graphene_fet_signed_carrier_model.sheet_conductivity_two_carrier` was written
+on 2026-10-07 with `mu_e` and `mu_h` parameters, both defaulted to the single
+shipped `gfet.mu`, and a docstring saying in as many words that the asymmetry
+"is NOT introduced here ... logged as a follow-on item instead". No other
+standing item comes with its own signature.
+
+### 2. The result: the minimum conductivity is a geometric mean
+
+Mobility is a transport parameter and does not enter the charge relation, so
+the electrostatics were left untouched and the asymmetry put only into the
+two-carrier Drude sum on the 10-07 signed species split:
+
+```
+  σ(n_net) = e(μ_e n_e + μ_h n_h) = e(μ̄ S + (Δμ/2) n_net),  S = sqrt(n_net²+n_p²)
+```
+
+`S` is even in `n_net` and `n_net` is odd in the overdrive, so this is a clean
+even/odd split: the even part is the conductivity the repository already had,
+and the whole effect of the asymmetry is an odd part linear in `Δμ`.
+Minimising gives
+
+```
+  n_net* = -n_p r/sqrt(1-r²),   r = (μ_e-μ_h)/(μ_e+μ_h)
+  σ_min  = e n_p μ̄ sqrt(1-r²) = e n_p sqrt(μ_e μ_h)
+```
+
+and the last equality is an **identity**, since `1-r² = 4μ_eμ_h/(μ_e+μ_h)²`.
+The floor is set by the **geometric** mean of the two branch mobilities.
+
+The reason it is geometric is visible in `n_net*`, not in `σ_min`: the minimum
+is **not at charge neutrality**: it is displaced onto the low-mobility branch,
+at the density where the slow species' extra carriers exactly pay for the fast
+species' lost ones, and evaluating the sum at that displaced point is what
+turns an arithmetic mean into a geometric one. Recorded because I went looking
+for the arithmetic mean; the surprise is the part worth keeping.
+
+### 3. Correction of record, and why no number moves
+
+`sigma_min_ch4()` returns `e·μ·n_puddle` and its docstring calls that
+**EXACTLY**. On the `μ_e = μ_h` diagonal — where the shipped model lives and
+where that function evaluates — it is exact, and the general form reproduces
+it to **1 ulp**, checked. Off the diagonal the sentence fails in two
+distinguishable ways: `e·μ·n_puddle` **overestimates** the floor by
+`μ̄/sqrt(μ_eμ_h)`, and the accompanying "at `dV = 0`" is no longer *where the
+minimum is*.
+
+So the 2026-10-09 Chapter 3 / Chapter 4 floor adjudication stands exactly as
+written, and nothing is recomputed or deleted. What was wrong was the **scope
+of a word**. Annotated in place in both docstrings and in Chapter 3 §3.3.2 and
+Chapter 4 §4.11.3, with the numbers left where they are.
+
+**This is the fourth consecutive session whose finding has the same shape, and
+the shape now has a name: A CLAIM EVALUATED ON A DIAGONAL, ASSERTED OFF IT.**
+`sigma_min_ch4` evaluates at `μ_e = μ_h`; `C7b`'s verdict (10-26) evaluated at
+one `gfet.C_ox`; the §7b census (10-28) evaluated on a tree with its own module
+skipped. In all four the evaluation was right and the **quantifier** was
+missing. That is a sharper statement than "claims nothing checked", which is
+what the previous three entries called it, and it suggests the generic repair:
+a claim should carry the set it is quantified over, not just its value.
+
+### 4. The device result: first order against second order
+
+```
+  apparent Dirac-point shift :  ∝ r                       FIRST order
+  floor change               :  sqrt(1-r²) = 1 - r²/2     SECOND order
+```
+
+Inverting `n_net*` through the repository's own series-factor charge relation
+at the shipped 90 nm back gate:
+
+| `μ_e/μ_h` | `r` | apparent `ΔV_dirac` | fraction of the shipped 0.80 V | misattributed density |
+|---|---|---|---|---|
+| 1.10 | 0.0476 | −0.1011 V | 0.126 | 2.42 × 10¹⁰ cm⁻² |
+| 1.20 | 0.0909 | −0.1922 V | 0.240 | 4.60 × 10¹⁰ cm⁻² |
+| 1.30 | 0.1304 | −0.2763 V | **0.345** | 6.62 × 10¹⁰ cm⁻² |
+| 1.50 | 0.2000 | −0.4278 V | 0.535 | 1.02 × 10¹¹ cm⁻² |
+
+A 30 % asymmetry — inside the range both papers in §5 report — moves the
+resistance maximum 0.276 V to lower `V_g`, **34.5 %** of the `V_dirac` the
+model attributes entirely to built-in doping. The practical statement is a
+caveat on an extraction, not a defect in a model: **reading a doping level off
+a transfer-curve minimum assumes `r = 0`, and nothing in a two-terminal
+transfer curve tests that assumption.** The split of orders also explains,
+without invoking sample quality, why reported minimum conductivities cluster
+tightly while reported Dirac offsets scatter: the floor moves −0.88 % at
+`μ_e/μ_h = 1.3` and −2.02 % at 1.5, inside anybody's error bar.
+
+### 5. Live search: two mechanisms, and they disagree about sign
+
+Both papers were reached and read this session.
+
+| | channel origin | contact origin |
+|---|---|---|
+| source | Zion *et al.*, arXiv:1801.03565 | Huard *et al.*, arXiv:0804.2040 |
+| finding | `μ_h < μ_e`, asymmetry shrinking with `\|n\|` | `ρ_e/ρ_h = 1 ± 0.03` away from the metal, ≈ 1.20 through it |
+| mechanism | beyond-Born scattering off negatively charged acceptors, ≈ 1.5 × 10¹² cm⁻² in the SiO₂ | the metal pins the graphene p-type, so the junction is p–n for an n-type channel and p–p′ for a p-type one |
+| scales with | the channel | the metal/graphene **interface width** |
+| worse branch | holes | electrons |
+
+Two Huard numbers land on this repository's own calibration: `λ = 135 Ω·µm`
+sits at the bottom of the 110–500 Ω·µm band `Rc_total` is calibrated against,
+and their 4600 cm²/V·s is within 15 % of the shipped 4000.
+
+The conflict is **not adjudicated**, and could not be from a model. What is
+shown instead is that the two are distinguishable exactly: the odd part of the
+two-terminal resistance is exactly linear in channel length, slope carrying
+the channel asymmetry and intercept the contact asymmetry, neither absorbable
+into the other. Planting `μ_e/μ_h = 1.3` and `ΔRc = 120 Ω` and solving two
+points of a 25-length sweep recovers the slope to **2.2 × 10⁻¹⁶** relative and
+the intercept to the printed digit. The cost is stated with it: at the shipped
+`L = 200 nm` the two mechanisms sit a factor **1.48** apart in `R_odd`, so a
+single-length measurement — which is what this repository models — is blind
+between them.
+
+**The arxiv item is two different items.** Since 2026-10-18 the list has
+carried "blocked on Fig. 4, which is blocked on `arxiv.org`, refused by the
+egress proxy". Today `arxiv.org/pdf/0804.2040` fetched cleanly. The 10-18
+refusal was the **device VM's** egress proxy; the web tool runs cloud-side on a
+different path with a different allowlist. The items do **not** become
+actionable, because Fig. 4 is a plotted curve and text extraction cannot read
+a value off one — but the reason has changed from "the domain is refused" to
+"the datum is a picture", and the remedy the item already names (a copy of the
+PDF in the connected folder, where a page can be rendered and looked at)
+addresses the second reason and would not have addressed the first. Reworded
+in the list below.
+
+### 6. The second finding: a correction that did not hold
+
+On 2026-10-18, item A1 of that entry refuted the list's claim about Chapters 2
+and 3, naming `5bbd5f3` (2026-09-28) and `c1d5abc` (2026-09-29). **The refuted
+claim then came back**, absent from 10-18 through 10-25 and present again in
+the "Not yet covered" lists of 10-26, 10-27 and 10-28 — three consecutive
+sessions re-asserting, against files in this tree, something this repository
+had already shown to be false.
+
+This is a defect class the previous entries have not seen. The others are
+claims nothing checked. **This one was checked, and the check did not
+survive**, because the correction lived in a log entry and nothing in this
+repository reads log entries. The authority for the claim is outside the tree
+— which the 10-18 entry's own title already said — so every session that
+rebuilds the list from outside re-imports it, and no quantity of prose
+corrections closes a one-way channel.
+
+So the correction became a check: `graphene_chapter_status_audit.py` measures
+each chapter's state from the file and refuses a latest log entry that
+describes a measured-drafted chapter as not yet written. 12/13 green on the
+10-28 entry, the one red being the regression itself; the red transcript is
+committed as the evidence, and this entry turns it green. Two planted controls
+(a fabricated Chapter 5 claim must be flagged; a stub written under `TMPDIR`
+must classify as a stub), per the standing requirement.
+
+**The metric was wrong on its first run**, and this is recorded in the source
+rather than replaced quietly. Version one counted lines of ≥ 40 characters and
+required 5 `##` sections; it misclassified `01-introduction.md` at 3 sections
+and 97 such lines. Chapter 1 is **5340 words — more than Chapters 2, 3 and
+5** — written unwrapped in 120 lines averaging ~314 characters, with three
+sections because an introduction legitimately has three. The metric was
+measuring the author's line-wrapping. It now counts words outside code fences,
+and §5 of the module is the check that would have caught it: re-wrap a real
+chapter two ways and require the count not to move. That check then failed by
+exactly +1 word, because `textwrap`'s default `break_on_hyphens` splits
+"device-physics" across lines — fixed in the harness, not absorbed into a
+tolerance, since an off-by-one is exactly what a tolerance would have hidden.
+
+### 7. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, other sessions', unreadable and
+undeletable) for the **fifth** consecutive session, so the clone goes to `/tmp`
+on `/dev/sda1` (4.0 G free) per 10-25..10-28. `/tmp/pylibs` again did not
+survive, confirming 10-28's conclusion that `/tmp` is per-VM: `scipy` 1.15.3
+reinstalled with `TMPDIR=/tmp/pt PIP_CACHE_DIR=/tmp/pipcache --no-cache-dir
+--target /tmp/pylibs`, `numpy` 2.2.6, `matplotlib` 3.10.9,
+`MPLCONFIGDIR=/tmp/mplcache_1029`. **New data point on the ~63-PNG item:**
+annotating the signed-carrier module re-ran it 19/19 with a **byte-identical
+transcript and a byte-identical figure**, so the nondeterministic-rasterisation
+hypothesis is now constrained — the churn is per-figure, not per-run, since
+this figure does not churn while 10-27's two named ones do. No PNG was
+reverted today. The new figure was **not visually inspected** (it is verified
+as a well-formed 1950×1425 PNG and by its underlying numbers only), which is
+the standing ~63-PNG item and is stated rather than glossed. Every commit
+pushed and verified against the GitHub API.
+
+**Not yet covered (candidates for future runs):**
+
+- **SECTION 7b IS BLIND TO ITS OWN MODULE** — carried from 10-28, where it was
+  ranked first, and **still ranked first**, explicitly passed over today for
+  the reason in §1 rather than by default. `repo_wide_frozen_census()` skips
+  `graphene_mutation_arrival_probe` by name, so the guard cannot see captures
+  in the module defining it, and 10-28 committed three. The repair is a
+  registry of planted sites with everything else censused. Blocked on nothing.
+- **A DENSITY-DEPENDENT MOBILITY PAIR** — created today, **ranked second**, and
+  the direct continuation of today's work. `μ_e` and `μ_h` are constants in
+  `graphene_branch_asymmetric_mobility.py`, and Zion *et al.*'s central
+  observation is that the asymmetry **dies off as `|n|` grows** (hole crossover
+  at `p ≈ 3 × 10¹² cm⁻²`) as the long-range potential screens. A constant pair
+  cannot represent that, and the module says so in its own docstring. The
+  honest form is `μ(n)` per branch with the crossover as a parameter, and the
+  check that matters is that it reduces to today's constant pair in the
+  unscreened limit — the same diagonal-versus-general structure as §3.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — carried from 10-28, ranked
+  second there: `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`, each to be timed against the 77 s of headroom, with
+  an `OVER_CALL_LIMIT` exclusion class and a measured number if one does not
+  fit. Today adds two more unregistered transcripts
+  (`branch_asymmetric_mobility_output.txt`, `chapter_status_audit_output.txt`),
+  so `UNREGISTERED` is **49**.
+- **`run_suite` SHOULD READ THE OBJECT STORE, NOT THE WORKING COPY** — carried
+  from 10-28, ranked third there. One change to `run_suite` (`git show
+  <commit>:<transcript>`) moves six of the nine `SELF_WRITING` rows and removes
+  the circularity.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — created today. The new
+  module is a guard whose own transcript nothing compares, which is the exact
+  defect it was built to fix, one level up. Mechanical; register it.
+- **THE ONE-WAY CHANNEL ITSELF** — created today, and the general form of §6.
+  Any list item whose authority is outside this tree will regress, and today's
+  check covers exactly one such claim (chapter drafted-ness). The other
+  externally-sourced claims in the standing list have never been enumerated,
+  let alone checked. Enumerating them is cheap and is the item.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii), about `gfet.C_ox`; today's §3 is a **fourth** worked precedent for the
+  shape, and the strongest, since it names the general form of the defect.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** — carried
+  from 10-26, §7.9 item 23 (i). Mechanical; built from `rra.FLIPS`.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from 10-25,
+  and today is a **fifth** argument for it from a new direction: the new
+  chapter-status check exits nonzero with a *named membership* (`[2, 3]`), which
+  is what the item asks for, so it is now a worked precedent rather than only a
+  complaint. Three other suites still exit nonzero reporting only a code.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs, now ~65.
+  Today's new figure is among the uninspected, and today's byte-identical
+  re-render narrows the hypothesis (see §7).
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25, unchanged.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **ninth** instance (two new controls in the chapter-status
+  module). The repository-wide question — which refusal branches anywhere have
+  never been reached — is still untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twenty-three**
+  sessions overdue, and today adds two arguments from opposite directions: a
+  `C1` threshold that was 1 ulp because 1 looked strict and failed at 3, and a
+  `+1` word discrepancy that a tolerance would have hidden. Both were
+  thresholds chosen rather than counted.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged; a decision, to be taken
+  with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20, **ninth**
+  session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, and both **reworded today**: they are blocked on reading a
+  value off *Fig. 4*, i.e. on a datum that is a picture, **not** on the
+  `arxiv.org` domain, which fetched cleanly cloud-side today. The 10-18 "refused
+  by the egress proxy" finding was about the device VM's path. A copy of the PDF
+  in the connected folder still unblocks both, now for the right reason.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 10-17, and today adds a **third** positive example (the
+  chapter-status stub is written under `TMPDIR`).
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12, and today
+  sharpens it: under asymmetry the Chapter-3-matched `n_puddle` is an
+  underestimate by `μ̄/sqrt(μ_eμ_h)`, so the name denotes a quantity that
+  depends on a mobility ratio nothing in the repository measures.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **thirteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **fourteenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01,
+  untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13, and
+  today adds one to the list: the contact resistance is branch-independent in
+  `graphene_fet_model`, which §5 shows is exactly the assumption that makes
+  the contact mechanism invisible.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **seventeenth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **twenty-second** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twentieth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **nineteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twenty-three sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twentieth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twentieth** session untouched, and **now much cheaper**: today's module
+  supplies branch-resolved mobilities and a signed `n_net*`, which is the
+  machinery that item was missing.
+- **A SELF-HEATING TERM** — created 2026-10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 2026-10-08, untouched.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  Chapter 4 favours high-work-function metals (Ni, Au, Pd) for low contact
+  resistance while Chapter 6 §6.7 finds those same metals worst for symmetric
+  two-terminal photoresponse. Today adds a third strand worth synthesising with
+  them: the same work-function mismatch that pins the contact doping is the
+  mechanism behind the contact-origin branch asymmetry of §5.
+
+**Chapter status, measured rather than asserted** (`chapter_status_audit_output.txt`):
+all seven chapters measure DRAFTED — Chapter 1 at 5318 words / 3 sections,
+Chapter 2 at 3445 / 11, Chapter 3 at 3795 / 9, Chapter 4 at 37686 / 11,
+Chapter 5 at 3240 / 5, Chapter 6 at 16273 / 15, Chapter 7 at 20124 / 10. The
+largest remaining *writing* gaps are therefore not whole chapters: they are
+Chapter 7's synthesis item above and Chapter 6 beyond §6.8.
+
+**Commits this run:** 5 (the new asymmetric-mobility module with its figure and
+transcript; the two superseded claims annotated in place; the notes file; the
+Chapter 4 §4.11 / Chapter 3 §3.3.2 drafting; the chapter-status check committed
+red on purpose). This `AUTOMATION_LOG.md` entry, with the re-run green
+transcript, makes **6**. Each was pushed and verified against the GitHub API.

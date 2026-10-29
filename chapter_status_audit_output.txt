@@ -36,19 +36,16 @@ SECTION 1.  Measured state of every chapter, against its registry claim
     07-discussion-and-outlook.md                 sections +7    words +18624 
 
 SECTION 2.  The live check: does the latest log entry contradict the tree?
-  latest entry: ## 2026-10-28 — three claims nothing checked, and the guard that is blind to its own source
-  Chapter 2  -> 02-electronic-structure.md                   DRAFTED   CONTRADICTS TREE
-      "- **Chapters 2–3 are still undrafted** — the largest remaining block of pure"
-  Chapter 3  -> 03-transport-and-optical-properties.md       DRAFTED   CONTRADICTS TREE
-      "- **Chapters 2–3 are still undrafted** — the largest remaining block of pure"
-  [FAIL] the latest log entry describes no measured-DRAFTED chapter as undrafted
-         contradicted chapters: [2, 3].  A prose correction was already made on 2026-10-18 (item A1) and did not hold; this check is the committed form of it.
+  latest entry: ## 2026-10-29 — The floor is a geometric mean, and a correction that came back three times
+  no chapter is described as undrafted in that entry.
+  [PASS] the latest log entry describes no measured-DRAFTED chapter as undrafted
+         contradicted chapters: none.  A prose correction was already made on 2026-10-18 (item A1) and did not hold; this check is the committed form of it.
 
 SECTION 3.  Planted control: the detector must FIRE on a fabricated claim
   [PASS] detector flags a planted "Chapter 5 ... still undrafted"
-         planted-claim chapters detected: [2, 3, 5]
+         planted-claim chapters detected: [5]
   [PASS] planted control does not perturb the real verdict
-         real [2, 3], planted-minus-5 [2, 3]
+         real [], planted-minus-5 []
 
 SECTION 4.  Planted control: the classifier must call a stub UNDRAFTED
   [PASS] a stub chapter classifies as UNDRAFTED
@@ -66,5 +63,5 @@ SECTION 5.  The metric must not measure the line-wrapping
          original 3 sections / 5318 words, variant 3 / 5318
 
 ==============================================================================
-CHECKS: 12 passed, 1 failed
+CHECKS: 13 passed, 0 failed
 ==============================================================================
