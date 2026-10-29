@@ -167,6 +167,22 @@ def sheet_conductivity_two_carrier(n_e, n_h, mu_e=None, mu_h=None):
     in contact-doped devices and is NOT introduced here, because this module's
     contract is to add a branch without moving a number.  Asymmetric mobility
     is logged as a follow-on item instead.
+
+    ANNOTATION 2026-10-29.  That follow-on item is now CLOSED, in
+    graphene_branch_asymmetric_mobility.py, and the hooks above are what it
+    uses.  Two corrections to the paragraph above, neither of which changes a
+    number this function returns:
+
+      (a) "IDENTICAL" is too strong by three ulp.  Measured over a 601-point
+          V_g sweep, this form and the shipped abs(n)*e*mu differ by at most
+          3 ulp (4.441e-16 relative, 2.00 eps), because the two association
+          orders round a different number of times -- seven between them.  The
+          closing module states a COUNTED 8-ulp budget instead of asserting
+          bitwise equality, and checks by 10x sweep refinement that the
+          deviation is a rounding floor rather than a small model difference.
+      (b) The asymmetry is not merely "a real effect ... not introduced here".
+          It changes what sigma_min_ch4() below is a statement ABOUT; see the
+          annotation on that function.
     """
     mu_e = gfet.mu if mu_e is None else mu_e
     mu_h = gfet.mu if mu_h is None else mu_h
@@ -244,6 +260,33 @@ def sigma_min_ch4(n_puddle=None):
     it is the signed decomposition that makes clear n_puddle is the TOTAL
     (n_e + n_h), which is the step that turns the comparison below from a
     factor-of-2 convention argument into a number.
+
+    ANNOTATION 2026-10-29, graphene_branch_asymmetric_mobility.py Section 3.
+    "EXACTLY" above is EXACT ONLY ON THE mu_e == mu_h DIAGONAL, and this
+    function evaluates there, so the number it returns is unchanged and the
+    Chapter 3/Chapter 4 floor adjudication built on it still stands as
+    written.  What is corrected is the SCOPE of the claim.  The general
+    result, derived in closed form rather than fitted, is
+
+        sigma_min = e*n_puddle*sqrt(mu_e*mu_h)                          (A5)
+
+    the GEOMETRIC mean of the two branch mobilities, reached at a NONZERO net
+    density n* = -n_puddle*r/sqrt(1-r^2), r = (mu_e-mu_h)/(mu_e+mu_h).  Two
+    consequences:
+
+      (i)  e*mu*n_puddle OVERESTIMATES the floor off the diagonal, by
+           mu_bar/sqrt(mu_e*mu_h).  The "dV = 0" in the sentence above is
+           therefore not where the minimum is unless r = 0; at dV = 0 this
+           function returns a value on the curve, which only coincides with
+           its minimum on the diagonal.
+      (ii) The error is SECOND order in r (sqrt(1-r^2) = 1 - r^2/2 + O(r^4)):
+           -0.88 % at mu_e/mu_h = 1.3, -2.02 % at 1.5.  The apparent Dirac
+           point moves at FIRST order over the same range (-0.276 V at 1.3),
+           which is why the floor comparison survives an asymmetry that would
+           wreck a doping extraction.
+
+    (A5) reproduces this function's value to 1 ulp at mu_e == mu_h; that is
+    checked, not asserted.  No number in this docstring is deleted.
     """
     if n_puddle is None:
         n_puddle = gfet.n_puddle
