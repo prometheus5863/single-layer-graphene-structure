@@ -1,0 +1,70 @@
+==============================================================================
+CHAPTER STATUS AUDIT -- does the standing list agree with the tree?
+==============================================================================
+
+SECTION 1.  Measured state of every chapter, against its registry claim
+  file                                         claimed    measured  ## secs words   
+  01-introduction.md                           DRAFTED    DRAFTED   3       5318    
+  [PASS] registry claim matches the file: 01-introduction.md
+         claimed DRAFTED because "drafted before the log begins"; measured DRAFTED (3 sections, 5318 prose words; thresholds 3 / 1500)
+  02-electronic-structure.md                   DRAFTED    DRAFTED   11      3445    
+  [PASS] registry claim matches the file: 02-electronic-structure.md
+         claimed DRAFTED because "drafted 2026-09-28, 5bbd5f3, eleven sections"; measured DRAFTED (11 sections, 3445 prose words; thresholds 3 / 1500)
+  03-transport-and-optical-properties.md       DRAFTED    DRAFTED   9       3795    
+  [PASS] registry claim matches the file: 03-transport-and-optical-properties.md
+         claimed DRAFTED because "drafted 2026-09-29, c1d5abc, ten sections"; measured DRAFTED (9 sections, 3795 prose words; thresholds 3 / 1500)
+  04-graphene-fet-device-physics.md            DRAFTED    DRAFTED   11      37686   
+  [PASS] registry claim matches the file: 04-graphene-fet-device-physics.md
+         claimed DRAFTED because "the chapter the device work lands in"; measured DRAFTED (11 sections, 37686 prose words; thresholds 3 / 1500)
+  05-graphene-interconnects.md                 DRAFTED    DRAFTED   5       3240    
+  [PASS] registry claim matches the file: 05-graphene-interconnects.md
+         claimed DRAFTED because "drafted with Chapter 4"; measured DRAFTED (5 sections, 3240 prose words; thresholds 3 / 1500)
+  06-graphene-photodetectors.md                DRAFTED    DRAFTED   15      16273   
+  [PASS] registry claim matches the file: 06-graphene-photodetectors.md
+         claimed DRAFTED because "drafted through Section 6.8"; measured DRAFTED (15 sections, 16273 prose words; thresholds 3 / 1500)
+  07-discussion-and-outlook.md                 DRAFTED    DRAFTED   10      20124   
+  [PASS] registry claim matches the file: 07-discussion-and-outlook.md
+         claimed DRAFTED because "drafted; carries the standing item list"; measured DRAFTED (10 sections, 20124 prose words; thresholds 3 / 1500)
+
+  Margin to the DRAFTED thresholds, so a drift is visible:
+    01-introduction.md                           sections +0    words +3818  
+    02-electronic-structure.md                   sections +8    words +1945  
+    03-transport-and-optical-properties.md       sections +6    words +2295  
+    04-graphene-fet-device-physics.md            sections +8    words +36186 
+    05-graphene-interconnects.md                 sections +2    words +1740  
+    06-graphene-photodetectors.md                sections +12   words +14773 
+    07-discussion-and-outlook.md                 sections +7    words +18624 
+
+SECTION 2.  The live check: does the latest log entry contradict the tree?
+  latest entry: ## 2026-10-28 — three claims nothing checked, and the guard that is blind to its own source
+  Chapter 2  -> 02-electronic-structure.md                   DRAFTED   CONTRADICTS TREE
+      "- **Chapters 2–3 are still undrafted** — the largest remaining block of pure"
+  Chapter 3  -> 03-transport-and-optical-properties.md       DRAFTED   CONTRADICTS TREE
+      "- **Chapters 2–3 are still undrafted** — the largest remaining block of pure"
+  [FAIL] the latest log entry describes no measured-DRAFTED chapter as undrafted
+         contradicted chapters: [2, 3].  A prose correction was already made on 2026-10-18 (item A1) and did not hold; this check is the committed form of it.
+
+SECTION 3.  Planted control: the detector must FIRE on a fabricated claim
+  [PASS] detector flags a planted "Chapter 5 ... still undrafted"
+         planted-claim chapters detected: [2, 3, 5]
+  [PASS] planted control does not perturb the real verdict
+         real [2, 3], planted-minus-5 [2, 3]
+
+SECTION 4.  Planted control: the classifier must call a stub UNDRAFTED
+  [PASS] a stub chapter classifies as UNDRAFTED
+         1 sections, 1 prose words -> UNDRAFTED
+         (written under TMPDIR, not in the tree, per the standing rule
+          that a module must not plant its pattern where other audits read)
+
+SECTION 5.  The metric must not measure the line-wrapping
+  The first version of this metric counted long LINES and called
+  Chapter 1 undrafted because it is written unwrapped.  Re-wrap a real
+  chapter two ways and require the measurement not to move.
+  [PASS] word count is wrapping-independent (paragraphs collapsed to one line)
+         original 3 sections / 5318 words, variant 3 / 5318
+  [PASS] word count is wrapping-independent (hard-wrapped at 60 columns)
+         original 3 sections / 5318 words, variant 3 / 5318
+
+==============================================================================
+CHECKS: 12 passed, 1 failed
+==============================================================================
