@@ -179,6 +179,43 @@ is the stronger finding.
 Source: `graphene_fet_signed_carrier_model.py` §4,
 `fet_signed_carrier_output.txt`.
 
+### 3.3.2 Annotation (2026-10-29): the floor is a geometric mean, so the matched puddle density is an underestimate
+
+§3.3.1 divides Chapter 3's measured floor by `e·μ` to obtain the puddle density
+that would reproduce it, and that division assumes the two branches carry the
+same mobility. They do not, in any real device (§1 of
+`notes/2026-10-29-the-floor-is-a-geometric-mean.md` tabulates the two competing
+mechanisms and the measurements behind each). Minimising the two-carrier Drude
+conductivity over the signed net density — derived in §4.11 — gives
+
+```
+  σ_min = e · n_p · sqrt(μ_e μ_h)
+```
+
+**the geometric mean of the two branch mobilities, not the arithmetic mean**,
+and the minimum does not sit at charge neutrality but displaced onto the
+low-mobility branch at `n* = -n_p r/sqrt(1-r²)`, `r = (μ_e-μ_h)/(μ_e+μ_h)`.
+
+Consequences for this section, both second order and both small:
+
+1. The divisor in `n_puddle_matching_ch3()` should be `e·sqrt(μ_e μ_h)`, not
+   `e·μ`, so the **matched puddle density is an underestimate** by
+   `μ̄/sqrt(μ_eμ_h)` — **+0.88 %** at `μ_e/μ_h = 1.3`, +2.06 % at 1.5.
+2. The 2.88× and 5.95× ratios against Wiedmann et al. above move by the same
+   factor and **no conclusion in §3.3 or §3.3.1 changes**. The numbers above
+   are left exactly as they were; this annotation does not revise them.
+
+The reason the effect is this small is worth stating, because it is the same
+reason the floor literature is so much cleaner than the doping literature:
+`sqrt(1-r²) = 1 - r²/2 + O(r⁴)`, so a branch asymmetry reaches the **floor only
+at second order**, while it moves the apparent Dirac point at **first** order —
+by a third of a volt at `μ_e/μ_h = 1.3` (§4.11). §3.3's central negative result
+— that graphene's off state is a 6.45 kΩ/□ resistor and therefore that graphene
+cannot switch off — is robust to the asymmetry for exactly this reason.
+
+Source: `graphene_branch_asymmetric_mobility.py` §3,
+`branch_asymmetric_mobility_output.txt`.
+
 ## 3.4 The half-integer quantum Hall effect
 
 In a perpendicular field the Dirac spectrum gives Landau levels

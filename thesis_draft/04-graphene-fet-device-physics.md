@@ -4226,3 +4226,179 @@ refuse a composition containing an edge. Section 4.6.19 makes it a guard and,
 in doing so, shows that 4.6.17's defect and 4.6.18 §4's `gfet.C_ox` are **two
 edges of the same relation** removed by **one** change. The numbers in
 4.6.18 stand unrevised; its status does not.
+
+---
+
+## 4.11 Electron–hole mobility asymmetry: the floor is a geometric mean, and the Dirac point is not a doping measurement
+
+Every number in this chapter so far has been computed with a single mobility.
+`graphene_fet_model.sheet_conductivity()` takes `|n|` and multiplies by one
+`μ`, so the electron and hole branches of every transfer curve in §4.3–§4.5
+are identical by construction. That is not an approximation the chapter
+declared; it is one the code made silently, and this section is about what it
+costs.
+
+### 4.11.1 Why the branches differ, and why the literature does not agree about it
+
+Coulomb scattering of a Dirac fermion from a charged impurity depends, within
+the Born approximation, on the *square* of the impurity charge. The sign drops
+out, electrons and holes scatter identically, and electron–hole symmetry is
+exact at that order. Any measured asymmetry therefore originates outside
+leading-order Born, and two mechanisms compete:
+
+| | channel origin | contact origin |
+|---|---|---|
+| source | Zion *et al.*, arXiv:1801.03565 | Huard *et al.*, arXiv:0804.2040 |
+| geometry | Hall bar, probes 30 µm from the metal | probes crossing the strip vs. external arms |
+| result | `μ_h < μ_e`, asymmetry shrinking with `\|n\|` | `ρ_e/ρ_h = 1 ± 0.03` away from the metal, ≈ 1.20 through it |
+| mechanism | beyond-Born scattering off negatively charged acceptors (≈ 1.5 × 10¹² cm⁻² in the SiO₂) | the metal pins the graphene beneath it p-type, making the junction p–n for an n-type channel and p–p′ for a p-type one |
+| scales with | channel length | metal/graphene **interface width** |
+| worse branch | holes | electrons |
+
+They disagree about sign as well as mechanism. This thesis does not adjudicate
+that — it cannot, from a model — but §4.11.4 shows the two are distinguishable
+in principle and says exactly what experiment would distinguish them.
+
+Two of Huard *et al.*'s numbers land on this chapter's own calibration, which
+is the reason to take the contact mechanism seriously here rather than treating
+it as somebody else's samples: their specific contact resistance
+`λ = 135 Ω·µm` sits at the **bottom of the 110–500 Ω·µm band** §4.2 calibrates
+`Rc_total` against, and their mobility 4600 cm²/V·s is within 15 % of the
+shipped 4000 cm²/V·s.
+
+### 4.11.2 The model, and the closed form it turns on
+
+Mobility is a transport parameter and does not enter the charge relation, so
+the electrostatics of §4.3 are kept **untouched** and the asymmetry goes only
+into the two-carrier Drude sum, evaluated on the signed species decomposition
+of §4.6.7:
+
+```
+  n_e, n_h = (S ± n_net)/2,          S = sqrt(n_net² + n_p²)
+  σ(n_net) = e(μ_e n_e + μ_h n_h)
+           = e(μ̄ S + (Δμ/2) n_net)                                     (4.31)
+```
+
+with `μ̄ = (μ_e+μ_h)/2` and `Δμ = μ_e-μ_h`. Equation (4.31) is the useful form
+because `S` is **even** in `n_net` while `n_net` is **odd** in the overdrive:
+the chapter's existing conductivity is the even part, and the entire effect of
+the asymmetry is an odd part linear in the mobility difference. Minimising it:
+
+```
+  dσ/dn_net = e(μ̄ n_net/S + Δμ/2) = 0
+    ⇒  n_net* = -n_p r/sqrt(1-r²),   r ≡ (μ_e-μ_h)/(μ_e+μ_h)            (4.32)
+    ⇒  σ_min  = e n_p μ̄ sqrt(1-r²) = e n_p sqrt(μ_e μ_h)                (4.33)
+```
+
+The last equality is an identity, not an expansion, because
+`1-r² = 4μ_eμ_h/(μ_e+μ_h)²`. **The minimum sheet conductivity of a disordered
+graphene channel is set by the geometric mean of the two branch mobilities.**
+
+(4.32) is the part worth dwelling on: the conductivity minimum is **not at
+charge neutrality**. It sits displaced onto the low-mobility branch, at the
+density where the slow species' extra carriers exactly compensate the fast
+species' lost ones. Evaluating (4.31) at that displaced point is what converts
+an arithmetic mean into a geometric one.
+
+### 4.11.3 Correction of record, and the result for a device
+
+**§4.6.7's floor claim is correct where it was evaluated and overstated as
+written.** `graphene_fet_signed_carrier_model.sigma_min_ch4()` returns
+`e·μ·n_puddle` and calls it *exact*. On the `μ_e = μ_h` diagonal — where the
+shipped model lives and where that function evaluates — it is exact, and (4.33)
+reproduces it to **1 ulp**, checked rather than asserted. Off the diagonal:
+
+1. `e·μ·n_puddle` **overestimates** the floor by `μ̄/sqrt(μ_eμ_h)`;
+2. the accompanying phrase "at `dV = 0`" is no longer *where the minimum is*.
+
+No number in §4.6.7 or §3.3.1 moves, and none is deleted; both are annotated
+in place, and §3.3.2 carries the knock-on (the matched puddle density is an
+underestimate by +0.88 % at `μ_e/μ_h = 1.3`).
+
+The device-relevant result is the **difference in orders**:
+
+```
+  apparent Dirac shift :  ∝ r                        FIRST order
+  floor change         :  sqrt(1-r²) = 1 - r²/2      SECOND order
+```
+
+Inverting (4.32) through this chapter's own series-factor charge relation at
+the shipped 90 nm SiO₂ back gate (`C_ox = 3.8368 × 10⁻⁴ F/m²`):
+
+| `μ_e/μ_h` | `r` | apparent `ΔV_dirac` | fraction of the shipped `V_dirac = 0.80 V` | misattributed density |
+|---|---|---|---|---|
+| 1.05 | 0.0244 | −0.0524 V | 0.065 | 1.25 × 10¹⁰ cm⁻² |
+| 1.10 | 0.0476 | −0.1011 V | 0.126 | 2.42 × 10¹⁰ cm⁻² |
+| 1.20 | 0.0909 | −0.1922 V | 0.240 | 4.60 × 10¹⁰ cm⁻² |
+| 1.30 | 0.1304 | −0.2763 V | **0.345** | 6.62 × 10¹⁰ cm⁻² |
+| 1.50 | 0.2000 | −0.4278 V | 0.535 | 1.02 × 10¹¹ cm⁻² |
+
+A 30 % asymmetry — inside the range both papers above report — moves the
+resistance maximum **0.276 V** to lower gate voltage, **34.5 %** of the 0.80 V
+that §4.2 attributes entirely to built-in doping. The sign follows from (4.32)
+with no sweep: `μ_e > μ_h` puts the minimum on the hole side, so the apparent
+Dirac point moves **down** in `V_g`.
+
+**The measurement consequence, stated plainly:** reading a doping level off the
+position of a transfer-curve minimum assumes `r = 0`, and nothing in a
+two-terminal transfer curve tests that assumption. This is a caveat on an
+extraction method, not a defect in a model, and it is the practical reason this
+section exists. It also explains a pattern in the literature — that reported
+minimum conductivities cluster tightly while reported Dirac-point offsets
+scatter widely — without needing to invoke sample quality.
+
+### 4.11.4 Telling the two mechanisms apart, exactly
+
+The odd part of the two-terminal resistance is
+
+```
+  R_odd(L) ≡ R(-ΔV) - R(+ΔV)
+           = (L/W)(1/σ(-ΔV) - 1/σ(+ΔV)) + (Rc_p - Rc_n)                (4.34)
+```
+
+**exactly linear in channel length.** The slope carries the channel asymmetry;
+the intercept carries the contact asymmetry. Neither can be absorbed into the
+other at any length, because the contact term enters with no factor of `L`.
+This is the structure Huard *et al.* report from the measurement side: their
+odd resistance collapses when scaled by interface width, and a bulk-only
+reading of the same data yields a resistivity asymmetry that **drifts with
+probe spacing** — the signature of a nonzero intercept being misread as a
+slope.
+
+Because (4.34) is exactly linear, a planted truth must come back out of it, and
+that is the strongest check on this section. Planting `μ_e/μ_h = 1.3` and
+`ΔRc = 120 Ω` and solving two points of a 25-length sweep recovers the slope to
+**2.2 × 10⁻¹⁶ relative** and the intercept to the printed digit, residuals
+**1.4 × 10⁻¹² Ω**; all three scenarios (channel only, contact only, both) are
+adjudicated correctly from the fitted pair alone.
+
+**The cost, which is this section's honest limit.** At the shipped
+`L = 200 nm`, channel-only `R_odd` is 80.93 Ω and contact-only `R_odd` is
+120.00 Ω — a factor **1.48** apart. A single-length measurement is blind
+between the two mechanisms, and the device this chapter models is a single
+length. (4.34) is therefore a statement about an experiment this thesis does
+**not** model, offered as a method rather than claimed as a result.
+
+### 4.11.5 What this section does not claim
+
+`μ_e` and `μ_h` are **constants** here. Zion *et al.*'s central observation is
+that the asymmetry is density-dependent and dies off as the long-range
+impurity potential screens (their hole crossover is at `p ≈ 3 × 10¹² cm⁻²`),
+and a constant pair cannot represent that. A density-dependent pair is logged
+as an open item rather than guessed at. Likewise the contact asymmetry here is
+a constant resistance difference, not Huard *et al.*'s `n^{-1/2}` junction
+law; §4.11.4's separation argument needs only that the contact term be
+`L`-independent, which the `n^{-1/2}` law also is, so the argument survives the
+simplification even though the fitted intercept would then be bias-dependent.
+
+Nothing in §4.3–§4.10 is recomputed. The shipped model sits exactly on the
+`r = 0` diagonal, so every published number in this chapter is the `r = 0` case
+of the forms above. What this section changes is what those numbers are claims
+*about*: the floor is a geometric mean evaluated on a diagonal, and the 0.80 V
+`V_dirac` is a doping offset only under an assumption the chapter had never
+stated and no committed check had ever tested.
+
+Source: `graphene_branch_asymmetric_mobility.py`, 43/43 checks green. Figure:
+`branch_asymmetric_mobility.png`. Machine output:
+`branch_asymmetric_mobility_output.txt`. Derivation and literature:
+`notes/2026-10-29-the-floor-is-a-geometric-mean.md`.
