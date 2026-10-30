@@ -126,6 +126,31 @@ SECTION 7b -- the same guard over the MODEL modules (2026-10-01),
   [PASS] 7b-ii  SYNTACTIC: no capture site in the tree is unregistered  -- 1 site-group(s) in the census, all 1 registered with a class and a reason
   [PASS] 7b-iii the exemption registry still describes the tree (no VANISHED, no DRIFTED entry)  -- each of the 1 entries matches a census row carrying the class the entry claims for it
 
+  THE TOTAL SYNTACTIC PASS (2026-10-30): no exclusions, no imports
+    73 file(s) in the tree, 1 capture site-group(s) found
+    SITE  graphene_velocity_saturation_model.py          N_QUAD           in _R_harmonic
+    this module (graphene_mutation_arrival_probe.py) is IN the pass: True
+  [PASS] 7b-iv  COVERAGE: the syntactic pass visited every *.py in the tree, this module included  -- 73 files walked, 0 unparseable, and the file defining the census is one of them -- which it was not before 2026-10-30
+
+  semantic-census exclusions: 3 (import-only, each with a reason)
+    generate_plots               
+      a driver script: importing it renders every figure.
+    initialize_repo              
+      a repository-scaffolding script: importing it writes files into the
+      working tree.
+    main                         
+      a driver script: importing it runs the whole demonstration.
+  [PASS] 7b-v   EXCLUSIONS: no module excluded from the semantic census carries a syntactic capture site  -- the 3 exclusions are all scripts whose import has side effects; measured here, every one of them carries zero capture sites, so the exclusion skips an import and hides nothing
+
+  C7d -- planted controls for the two new predicates
+  [PASS]   C7d a captured default in a plain module fires the syntactic pass
+  [PASS]   C7d a LATE-BOUND sentinel in the same shape does NOT fire it -- the pass distinguishes the convention from the defect
+  [PASS]   C7d an unparseable file is REPORTED, not silently skipped
+  [PASS]   C7d an exclusion that hides a site fires 7b-v
+  [PASS]   C7d A CAPTURE PLANTED IN THIS VERY MODULE IS NOW FOUND -- the self-blindness of the pre-10-30 census, as a control
+  [PASS]   C7d and the OLD skip list would have missed it: with this module excluded, the same planted file reports nothing
+    (all five planted files written under TMPDIR, never in the tree -- the 2026-10-17 item)
+
   C7c -- the three 7b predicates, on PLANTED censuses
   [PASS]   C7c a FROZEN row anywhere fires 7b-i  -- 1 row(s) reported
   [PASS]   C7c a MIXED row anywhere fires 7b-i  -- 1 row(s) reported
@@ -146,5 +171,5 @@ SECTION 8 -- standing guard: no RELATIVE git revision anywhere
   [PASS] no source file references HEAD, HEAD~n or HEAD^  -- the 09-30 HEAD~2 read is pinned to a blob hash; a position is not a state
 
 ==============================================================================
-TOTAL: 43 passed, 0 failed
+TOTAL: 51 passed, 0 failed
 ==============================================================================

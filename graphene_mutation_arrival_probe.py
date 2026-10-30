@@ -636,20 +636,173 @@ def _module_level_children_of(module, name):
     return out
 
 
-def repo_wide_frozen_census(paths=None):
+# ---------------------------------------------------------------------------
+# WHAT THE CENSUS IS ALLOWED NOT TO LOOK AT (2026-10-30)
+# ---------------------------------------------------------------------------
+# `repo_wide_frozen_census` used to carry this skip list inline:
+#
+#     if modname in ('initialize_repo', 'main', 'generate_plots',
+#                    'graphene_mutation_arrival_probe'):
+#         continue
+#
+# Three of those four names are scripts; the fourth was THIS MODULE, and that
+# line is why Section 7b was blind to the module that defines it.  The
+# consequence was not hypothetical: on 2026-10-28 this module committed three
+# captured defaults (`faults=SEMANTIC_CAPTURE_FAULTS` and two siblings), 7b
+# could not see any of them, and what caught them was a DIFFERENT module's
+# census -- graphene_figure_provenance_audit.py's Section C.  A guard that
+# needs another guard to cover its own file is not a guard over the tree; it
+# is a guard over the tree minus itself, and nothing said so.
+#
+# The repair, which is the 10-28/10-29 ranked-first item, is to notice that
+# the skip existed for ONE reason and was doing TWO jobs:
+#
+#   * the reason: `classify()` needs the module IMPORTED, and importing a
+#     script runs it.  `main.py` and `generate_plots.py` execute figures and
+#     `initialize_repo.py` writes files, so a census that imports them has
+#     side effects and can take minutes.  That reason is real, and it applies
+#     to the SEMANTIC pass only.
+#   * the job it should never have been doing: hiding capture SITES.  Finding
+#     a site is pure syntax -- an AST walk over `__defaults__`/`__kwdefaults__`
+#     expressions -- and needs no import at all.
+#
+# So the two passes are separated.  `syntactic_capture_sites()` below visits
+# EVERY `*.py` in the tree with no exclusions and no imports, including this
+# file; `repo_wide_frozen_census()` keeps its 4-tuple shape and its import,
+# and excludes only what it must, from a registry that states why.  The
+# arrival probe is NOT in that registry: this module imports cleanly (nothing
+# in the repository imports it, and importing it has no side effects beyond
+# binding names), so there was never a reason for it to be there.
+#
+# Two new checks make the remaining exclusions non-hiding: 7b-iv asserts the
+# syntactic pass left no file unvisited, and 7b-v asserts every excluded
+# module carries ZERO syntactic capture sites -- so an exclusion cannot
+# conceal a site even though it still skips the import.
+SEMANTIC_CENSUS_EXCLUSIONS = {
+    'initialize_repo': 'a repository-scaffolding script: importing it writes '
+                       'files into the working tree.',
+    'main': 'a driver script: importing it runs the whole demonstration.',
+    'generate_plots': 'a driver script: importing it renders every figure.',
+}
+# REMOVED 2026-10-30: 'graphene_mutation_arrival_probe'.  See the comment
+# above.  This module is the one being censused and always should have been.
+
+
+def syntactic_capture_sites(paths=None):
+    """
+    Every (path, name, [function names]) where a module-level name of that
+    file is captured as a default argument -- by AST only, with NO import and
+    NO exclusions whatsoever.
+
+    This is the arm that has to be total, because it is the arm that answers
+    "is there a capture site here?", and that question has an answer for a
+    script and for this file just as much as for a model module.  It takes no
+    `exclusions` parameter, and that absence is the point rather than an
+    omission: a caller cannot narrow it.  C7d arm 5 is the planted control
+    for the specific blindness this function removes.
+
+    `UNUSED`/`ABSENT`/`DEAD` are not reachable here and are not reported: a
+    name that is captured syntactically is by construction present and read.
+    Classifying the site is the semantic pass's job.
+    """
+    paths = paths if paths is not None else sorted(glob.glob('*.py'))
+    rows = []
+    for path in paths:
+        try:
+            tree = ast.parse(open(path, encoding='utf-8',
+                                  errors='replace').read())
+        except (OSError, SyntaxError) as exc:
+            rows.append((path, '<parse failed>', [repr(exc)]))
+            continue
+        gnames = set()
+        for node in tree.body:
+            if isinstance(node, ast.Assign):
+                for tgt in node.targets:
+                    if isinstance(tgt, ast.Name):
+                        gnames.add(tgt.id)
+        found = {}
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            a = node.args
+            dflts = list(a.defaults) + [d for d in a.kw_defaults if d]
+            for d in dflts:
+                for sub in ast.walk(d):
+                    if isinstance(sub, ast.Name) and sub.id in gnames:
+                        found.setdefault(sub.id, set()).add(node.name)
+        for name in sorted(found):
+            rows.append((path, name, sorted(found[name])))
+    return rows
+
+
+def census_coverage_gap(paths=None, sites=None):
+    """Files in the tree that the syntactic pass did not visit (7b-iv).
+
+    Green means the total arm really is total.  This is cheap and it is the
+    only thing standing between "no exclusions" as a property and "no
+    exclusions" as a sentence in a docstring.
+    """
+    paths = paths if paths is not None else sorted(glob.glob('*.py'))
+    if sites is None:
+        sites = syntactic_capture_sites(paths)
+    visited = {r[0] for r in sites}
+    # A file with no capture site emits no row, so presence in `sites` cannot
+    # be the test.  Re-walk instead and report any path that cannot be read
+    # or parsed at all, which is the only way the pass can skip one.
+    gap = []
+    for path in paths:
+        try:
+            ast.parse(open(path, encoding='utf-8', errors='replace').read())
+        except (OSError, SyntaxError) as exc:
+            gap.append((path, repr(exc)))
+    del visited
+    return gap
+
+
+def unjustified_exclusions(sites=None, exclusions=None):
+    """Semantic-census exclusions that are nevertheless hiding a site (7b-v).
+
+    An exclusion skips an IMPORT, which is legitimate for a script.  It must
+    not skip a capture site.  Any excluded module carrying a syntactic site
+    fires here, which is what stops the registry from being a place to put a
+    file one does not want censused.
+
+    Late-bound, per the 2026-09-30 sentinel convention -- and this module is
+    now inside its own census, so the convention is no longer only a style.
+    """
+    if exclusions is None:
+        exclusions = SEMANTIC_CENSUS_EXCLUSIONS
+    if sites is None:
+        sites = syntactic_capture_sites()
+    out = []
+    for path, name, fns in sites:
+        modname = os.path.splitext(os.path.basename(path))[0]
+        if modname in exclusions:
+            out.append((path, name, fns,
+                        'excluded from the semantic census as: %s'
+                        % exclusions[modname]))
+    return out
+
+
+def repo_wide_frozen_census(paths=None, exclusions=None):
     """
     Every module-level name in the repository that is captured as a default
     somewhere, classified.  This is the 09-29 census re-run through the
     delivery classes, so that MIXED -- the class that moves an oracle while
     freezing a measurement -- is separated out from plain FROZEN.
+
+    AMENDED 2026-10-30: the inline four-name skip list became the late-bound
+    `SEMANTIC_CENSUS_EXCLUSIONS` registry, and this module was taken OUT of
+    it, so the census now covers the file that defines it.  See the comment
+    above the registry for why the skip existed and what it was hiding.
     """
-    import glob
-    paths = paths or sorted(glob.glob('*.py'))
+    paths = paths if paths is not None else sorted(glob.glob('*.py'))
+    if exclusions is None:
+        exclusions = SEMANTIC_CENSUS_EXCLUSIONS
     rows = []
     for path in paths:
         modname = os.path.splitext(os.path.basename(path))[0]
-        if modname in ('initialize_repo', 'main', 'generate_plots',
-                       'graphene_mutation_arrival_probe'):
+        if modname in exclusions:
             continue
         try:
             src = open(path, encoding='utf-8', errors='replace').read()
@@ -1267,6 +1420,115 @@ def main():
           'each of the %d entries matches a census row carrying the class '
           'the entry claims for it'
           % len(SYNTACTIC_CAPTURE_EXEMPTIONS))
+
+    # -- 7b-iv and 7b-v (2026-10-30): the census is no longer blind to the
+    # module that defines it, and the exclusions that remain cannot hide a
+    # site.  These two checks are what make the removal of this module from
+    # the skip list a PROPERTY rather than a diff.
+    print()
+    print('  THE TOTAL SYNTACTIC PASS (2026-10-30): no exclusions, no imports')
+    all_py = sorted(glob.glob('*.py'))
+    sites = syntactic_capture_sites(all_py)
+    print('    %d file(s) in the tree, %d capture site-group(s) found'
+          % (len(all_py), len(sites)))
+    for path, name, fns in sites:
+        print('    SITE  %-46s %-16s in %s' % (path, name, ', '.join(fns)))
+    self_path = os.path.basename(__file__).replace('.pyc', '.py')
+    print('    this module (%s) is IN the pass: %s'
+          % (self_path, self_path in all_py))
+    gap = census_coverage_gap(all_py, sites)
+    for path, why in gap:
+        print('    UNVISITED  %-46s %s' % (path, why))
+    check('7b-iv  COVERAGE: the syntactic pass visited every *.py in the '
+          'tree, this module included',
+          not gap and self_path in all_py,
+          '%d unvisited' % len(gap) if gap else
+          '%d files walked, 0 unparseable, and the file defining the census '
+          'is one of them -- which it was not before 2026-10-30'
+          % len(all_py))
+
+    print()
+    print('  semantic-census exclusions: %d (import-only, each with a reason)'
+          % len(SEMANTIC_CENSUS_EXCLUSIONS))
+    for modname in sorted(SEMANTIC_CENSUS_EXCLUSIONS):
+        print('    %-28s %s' % (modname, ''))
+        for line in _wrapped(SEMANTIC_CENSUS_EXCLUSIONS[modname]):
+            print(line)
+    unjust = unjustified_exclusions(sites)
+    for path, name, fns, why in unjust:
+        print('    HIDDEN SITE  %-40s %-16s %s' % (path, name, why))
+    check('7b-v   EXCLUSIONS: no module excluded from the semantic census '
+          'carries a syntactic capture site',
+          not unjust,
+          '%d hidden site(s)' % len(unjust) if unjust else
+          'the %d exclusions are all scripts whose import has side effects; '
+          'measured here, every one of them carries zero capture sites, so '
+          'the exclusion skips an import and hides nothing'
+          % len(SEMANTIC_CENSUS_EXCLUSIONS))
+
+    # The census that now includes this module must be SEEN to include it,
+    # not merely asserted to.  A row count is not evidence: this file happens
+    # to carry zero captures today (the three committed on 2026-10-28 were
+    # converted the same day), so "no new rows" is exactly what the OLD,
+    # blind census also reported.  The two readings are distinguished by
+    # planting a capture in a COPY of this file under TMPDIR -- never in the
+    # tree, per the 2026-10-17 item -- and requiring the pass to find it.
+    print()
+    print('  C7d -- planted controls for the two new predicates')
+    import tempfile as _tf
+    d = _tf.mkdtemp()
+    probe_copy = os.path.join(d, 'graphene_mutation_arrival_probe.py')
+    with open(__file__.replace('.pyc', '.py'), encoding='utf-8') as fh:
+        body = fh.read()
+    planted_src = body + (
+        '\n\n# PLANTED, under TMPDIR only, for C7d:\n'
+        'PLANTED_CONSTANT = 7\n'
+        'def _planted_reader(x=PLANTED_CONSTANT):\n'
+        '    return x\n')
+    with open(probe_copy, 'w', encoding='utf-8') as fh:
+        fh.write(planted_src)
+    clean_mod = os.path.join(d, 'clean_module.py')
+    with open(clean_mod, 'w', encoding='utf-8') as fh:
+        fh.write('A = 1\n\n\ndef f(x=None):\n'
+                 '    if x is None:\n        x = A\n    return x\n')
+    frozen_mod = os.path.join(d, 'frozen_module.py')
+    with open(frozen_mod, 'w', encoding='utf-8') as fh:
+        fh.write('B = 2\n\n\ndef g(x=B):\n    return x\n')
+    broken_mod = os.path.join(d, 'broken_module.py')
+    with open(broken_mod, 'w', encoding='utf-8') as fh:
+        fh.write('def h(:\n')
+
+    d7 = [
+        ('a captured default in a plain module fires the syntactic pass',
+         lambda: bool(syntactic_capture_sites([frozen_mod]))),
+        ('a LATE-BOUND sentinel in the same shape does NOT fire it -- the '
+         'pass distinguishes the convention from the defect',
+         lambda: not syntactic_capture_sites([clean_mod])),
+        ('an unparseable file is REPORTED, not silently skipped',
+         lambda: bool(census_coverage_gap([broken_mod]))),
+        ('an exclusion that hides a site fires 7b-v',
+         lambda: bool(unjustified_exclusions(
+             syntactic_capture_sites([frozen_mod]),
+             {'frozen_module': 'planted exclusion, TMPDIR only'}))),
+        ('A CAPTURE PLANTED IN THIS VERY MODULE IS NOW FOUND -- the '
+         'self-blindness of the pre-10-30 census, as a control',
+         lambda: any(n == 'PLANTED_CONSTANT'
+                     for _, n, _ in syntactic_capture_sites([probe_copy]))),
+        ('and the OLD skip list would have missed it: with this module '
+         'excluded, the same planted file reports nothing',
+         lambda: not repo_wide_frozen_census(
+             [probe_copy],
+             exclusions={'graphene_mutation_arrival_probe': 'the pre-10-30 '
+                         'skip, reinstated here as a control only'})),
+    ]
+    for desc, fn in d7:
+        try:
+            fired, detail = bool(fn()), ''
+        except Exception as exc:
+            fired, detail = False, repr(exc)
+        check('  C7d %s' % desc, fired, detail)
+    print('    (all five planted files written under TMPDIR, never in the '
+          'tree -- the 2026-10-17 item)')
 
     # C7c (2026-10-28): planted controls for the three predicates above.
     # The split could have been a WEAKENING in two specific ways -- an
