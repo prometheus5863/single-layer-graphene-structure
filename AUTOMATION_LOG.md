@@ -12666,3 +12666,299 @@ transcript; the two superseded claims annotated in place; the notes file; the
 Chapter 4 §4.11 / Chapter 3 §3.3.2 drafting; the chapter-status check committed
 red on purpose). This `AUTOMATION_LOG.md` entry, with the re-run green
 transcript, makes **6**. Each was pushed and verified against the GitHub API.
+
+---
+
+## 2026-10-30 — the census can finally see itself, and four thresholds I got wrong before lunch
+
+**Status:** The item ranked first on 10-28 and again on 10-29 is closed, and
+so is the item ranked second on 10-29. Five commits.
+
+### 1. Section 7b can see the module that defines it
+
+`repo_wide_frozen_census()` skipped `graphene_mutation_arrival_probe` **by
+name**, so the repository-wide capture census was blind to the file defining
+it. Not hypothetical: on 10-28 this module committed three captured defaults,
+7b saw none of them, and what caught them was a *different* module's census.
+A guard that needs another guard to cover its own file is a guard over the
+tree **minus itself**, and nothing said so.
+
+The repair came from noticing the skip existed for **one** reason and was
+doing **two** jobs. The reason is real and applies only to the SEMANTIC arm:
+`classify()` needs the module imported, and importing `main.py`,
+`generate_plots.py` or `initialize_repo.py` runs figures and writes files. The
+job it should never have been doing is hiding capture **sites**, which are
+pure syntax and need no import at all. So:
+
+- `syntactic_capture_sites()` — total AST pass, **73 files, no imports, no
+  exclusions**, and deliberately **no `exclusions` parameter** a caller could
+  narrow. One site found, the registered `N_QUAD`; this file among the 73.
+- `SEMANTIC_CENSUS_EXCLUSIONS` — the former inline 4-name tuple, now a
+  late-bound registry with a reason per entry. The arrival probe is **out** of
+  it: it imports cleanly with no side effects and never belonged there.
+- **7b-iv** COVERAGE: the syntactic pass left no file unvisited, and
+  unparseable files are *reported*, not skipped.
+- **7b-v** EXCLUSIONS: no module excluded from the semantic census carries a
+  syntactic capture site — measured, all three carry zero — so an exclusion
+  now skips an import and **hides nothing**.
+
+**A row count could not have evidenced this**, and that is the part worth
+keeping. This file carries zero captures today (10-28's three were converted
+the same day), so "no new rows" is exactly what the *blind* census also
+reported. **C7d** plants a capture in a COPY of this file under `TMPDIR`
+(never in the tree, per the 10-17 item) and requires the pass to find it, then
+**reinstates the old skip as an exclusion and shows the same planted file
+reports nothing** — the pre-10-30 blindness reproduced as a control rather
+than described. Transcript 43/43 → **51/51**, additions only; the single
+removed line is the total.
+
+### 2. A density-dependent mobility pair, and a closed form
+
+The 10-29 second-ranked item. Zion *et al.* (arXiv:1801.03565) supply no
+mobility function — they supply the two Boltzmann limits with their density
+exponents (`tau ~ n^(+1/2)` for screened Coulomb, so `mu ~ const`;
+`tau ~ n^(-1/2)` for neutral defects, so `mu ~ 1/n`), one crossover density
+(`p ~ 3e12 cm^-2`), and a direction with **no numbers** — their `mu_e/mu_h`
+appears only in Fig. 5, which is a picture. The **opposite signs** are what
+make this a crossover rather than two parallel curves, and they are the only
+input the model needs.
+
+Confining the asymmetry to the long-range channel is **determined by the
+literature, not assumed**: their mechanism is the beyond-Born relativistic
+cross-section, where attraction scatters harder than repulsion, and that is an
+argument *about a charged scatterer*. Neutral defects have no sign for it to
+act on.
+
+Matthiessen on the two channels, `1/mu_b(n) = 1/mu_L,b + |n|/(n_c*mu_L_bar)`.
+The common denominator `(a+s)(b+s)` cancels **exactly**, and using
+`mu_H/mu_bar = 1-r^2` — the same identity that made 10-29's floor a geometric
+mean — the asymmetry parameter is exactly
+
+    r(n) = r0 / (1 + (1 - r0^2) * |n| / n_c)
+
+**hyperbolic** decay, no expansion, no parameter beyond the two already there.
+17/17.
+
+### 3. The device statement, which is the result worth having
+
+`(B3)` turns `n_c` into a crossover gate overdrive, `dV_c = e*n_c/C_ox`, and
+the answer **splits by gate stack**:
+
+| gate stack | `C_ox` (F/m²) | `dV` at `n_c` | reached in operation? |
+|---|---|---|---|
+| 90 nm SiO₂ back gate (shipped) | 3.84e-4 | **12.53 V** | no — every sweep here is inside ±5 V |
+| 10 nm HfO₂ top gate | 2.21e-2 | **0.217 V** | yes, essentially always |
+
+So whether electron–hole mobility asymmetry is a first-order effect or a
+negligible one is **a property of the gate stack, not of the graphene**: large
+in the thick-oxide back-gated devices most transport papers measure, small in
+the thin-oxide top-gated devices a semiconductor process would build. This is
+the device-physics content and it is the kind of statement the thesis angle
+needs.
+
+### 4. Four thresholds I got wrong, corrected on the day
+
+Item 15 ("AUDIT EVERY TOLERANCE", created 10-09) hit a check **on the day it
+was written** rather than twenty-three sessions later, four times:
+
+- **D1 was the wrong currency.** Written as a relative ulp budget by analogy
+  with C1, counted at 12 roundings. It failed at **1042 ulp / 548 eps**. The
+  roundings were not miscounted; the analogy was wrong. C1 compares
+  *conductivities* — sums of positive terms, where relative error is the right
+  currency. `r` is a **difference of nearly equal mobilities** over their sum,
+  so cancellation amplifies relative error by `1/|r|`, **unboundedly**, since
+  `r(n) -> 0` is the whole point. Now an **absolute** budget (12 eps counted,
+  **0.75 eps** measured), with the relative figure and the ulp count reported
+  as *measurements* rather than thresholds.
+- **D3 reused a number from a narrower sweep.** 10-29's `1e-15` was the ±3 V
+  figure; this sweep is ±5 V, and `n_e*n_h = (S^2-n_net^2)/4` loses
+  `(n_net/n_p)^2`. The bound is now **counted from the sweep width**.
+- **D4's residual is not noise, so it gets a prediction instead of a
+  tolerance.** The log-log slope is −0.99996865, off by 3.14e-5, and a
+  tolerance admitting that would be another number chosen to pass. A fit over
+  `ndec` decades through data with relative subleading shortfalls at each end
+  is tilted by exactly `(eps_bot − eps_top)/(ndec*ln 10)`. Both measured from
+  the `A_k` convergence (Richardson-extrapolated): **predicted 3.1351e-5
+  against an observed 3.1353e-5 — accounted for to 0.01 %.** A statement that
+  can be false in a way a tolerance cannot.
+- **D10's `1e-2` was a guess, and it was comparing against the wrong form.**
+
+### 5. Two corrections of record, both percentages rather than reversals
+
+Annotated **where they were made**, numbers left alone:
+
+- 10-29's constant-pair apparent Dirac offset is an **overestimate — by
+  0.07 %** at `mu_e/mu_h = 1.3`. Small because `n_p/n_c = 0.167`: the **Dirac
+  point is unscreened** even where the high-bias branches are not. Annotated
+  in the *transcript* as well as the source, so a reader of the output sees it.
+- 10-29's `sigma_min = e*n_p*sqrt(mu_e*mu_h)`, proved **exact** for a constant
+  pair, is **not exact** here — the derivation's premise is gone once
+  `mu = mu(S)`, because `mu_bar` and `dmu` can no longer be pulled through
+  `d/dn`. D10 measures **1.17e-3** worst and shows the error is **second order
+  in `n*/S*`**: `dev/(n*/S*)^2` is constant to a factor **1.044** across a
+  **48.6x** range in `(n*/S*)^2`, which is what makes "second order" a
+  measurement. Rescoped, not overturned. The plausible misreading —
+  substituting `S*` for `n_p` — is **24x worse**.
+
+The chain on that one number now reads: exact on the diagonal
+(`sigma_min_ch4`), exact for any constant pair ((A5), 10-29),
+second-order-accurate for a density-dependent pair (10-30). **Three
+narrowings, no change to the value**, which is still `e*mu*n_puddle` and still
+what Chapters 3 and 4 are adjudicated on.
+
+### 6. An unlooked-for corroboration, and the complication the same paper makes
+
+Fetching HfO₂ mobility values turned up arXiv:1010.0913, which reports **in
+passing, for an unrelated purpose**, that in its HfO₂-topped devices *"the
+electron and hole mobilities differ by less than 10%"*. That is a prediction
+of §3, made by a paper not asking the question. Weak — one sentence, no
+density resolution, mobility from a σ-vs-V_BG slope averaged over 25 V with
+the Dirac region *excluded* — and its weaknesses are written into the notes
+rather than omitted.
+
+The same paper **cuts against the simple reading of §3's table**: HfO₂
+deposition adds `1.5–4e12 cm^-2` of charged impurities and costs ~50 % of the
+mobility. That is **the same order as `n_c` itself**, so `n_c` is not a
+material constant across those two rows: in `(B1)`, `A = n_c*mu_L_bar` depends
+only on the *neutral* defect density, so halving `mu_L_bar` **doubles** `n_c`.
+The honest top-gate row is `n_c ~ 6e12 cm^-2` and `dV_c ~ 0.43 V`.
+
+**The conclusion survives and the margin is written down rather than waved
+at**: a 10 nm HfO₂ gate at 1 V reaches `1.38e13 cm^-2`, still **2.3x** the
+corrected `n_c`. But the margin is 2.3, not 46, and a thicker or dirtier
+dielectric could eat it.
+
+### 7. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, other sessions', unreadable and
+undeletable) for the **sixth** consecutive session; clone to `/tmp` on
+`/dev/sda1`. `/tmp/pylibs` again did not survive — `scipy` 1.15.3 reinstalled,
+and worth recording against the slow-link history: **the wheel came down at
+11 MB/s today**, one leg, no resuming needed. `numpy` 2.2.6, `matplotlib`
+3.10.9, `MPLCONFIGDIR=/tmp/mplcache_1030`.
+
+**New data point on the ~63-PNG item**, and it is the third consecutive one in
+the same direction: annotating the branch-asymmetry module re-ran it 43/43
+with a **byte-identical figure AND a byte-identical transcript**, and the
+signed-carrier module likewise re-ran 19/19 byte-identical. The
+nondeterministic-rasterisation hypothesis is now narrowed hard: the churn is
+**per-figure, not per-run**, since these figures do not churn while 10-27's
+two named ones do. No PNG was reverted today. Today's **one new figure was not
+visually inspected** (verified as a well-formed 1950×1425 PNG and by its
+underlying numbers only), which is the standing ~63-PNG item, stated rather
+than glossed.
+
+**The device went offline mid-session** with these commits unpushed, and the
+bridge dropped for several minutes. Everything survived because the scratch
+clone is in `/tmp` on the same VM and the VM returned. A session-scoped
+self-reminder was scheduled as the recovery path and proved unnecessary. The
+lesson is the one the three-firing schedule already encodes — **nothing is
+safe until it is pushed** — and it argues for pushing **per commit** rather
+than once at the end of the session.
+
+**Not yet covered (candidates for future runs):**
+
+- **`n_c` SHOULD BE A FUNCTION OF THE CHARGED-IMPURITY DENSITY** — created
+  today, **ranked first**, and the direct continuation of §6. `N_CROSSOVER` is
+  a single module-level constant, and the gate stack that determines whether
+  the device reaches `n_c` **also determines `n_c`**, through the impurities
+  its deposition adds. The 2.3x margin of §6 is computed by hand in a notes
+  file and belongs in the module with a check. Blocked on nothing.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — carried from 10-28, and
+  today adds two more (`density_dependent_mobility_output.txt`, and the
+  arrival probe's own refreshed transcript), so `UNREGISTERED` grows again.
+  The sibling repository is working the identical gap from its own direction.
+- **`run_suite` SHOULD READ THE OBJECT STORE, NOT THE WORKING COPY** —
+  carried from 10-28. One change to `run_suite` (`git show <commit>:<path>`)
+  moves six of the nine `SELF_WRITING` rows and removes the circularity.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — carried from 10-29,
+  mechanical, still unregistered.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29, and the sibling
+  repository produced a **third** instance today from a new direction: its
+  verification plan's status header read `v2` while eleven revisions sat in
+  the table below it. So the stale-claim problem is not only about open-item
+  lists; it is about **any claim a document makes about itself**. Enumerating
+  the externally-sourced claims is still cheap and still undone.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, and today is a **sixth** argument for it: the four threshold failures
+  of §4 were each diagnosable only because the detail string carried the
+  measured quantity next to the budget. Three suites still exit nonzero
+  reporting only a code.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~65 PNGs, now ~66.
+  Today's byte-identical re-renders narrow the hypothesis (see §7).
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii); today's §4 is a **fifth** worked precedent for the shape.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **tenth** instance (C7d's six arms). The repository-wide
+  question — which refusal branches anywhere have never been reached — is
+  still untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. **Four new arguments
+  today, all from checks written today** (§4), which is the strongest form the
+  item has taken: the failures were not in old code, they were in the code
+  written while the item was open.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, to be taken with item
+  22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **tenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on **a datum that is a picture** (Huard
+  Fig. 4), not on the `arxiv.org` domain, which fetched cleanly cloud-side
+  again today. Zion Fig. 5 joined them today for the same reason. A copy of
+  either PDF in the connected folder unblocks all three.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 10-17, and today adds a **fourth** positive example
+  (C7d's five planted files, all under `TMPDIR`).
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12, and today sharpens
+  it again: `n_p/n_c = 0.167` is now the quantity that decides whether the
+  Dirac point is screened, so `n_puddle` carries weight in a second
+  independent argument.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **fourteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **fifteenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01,
+  untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **eighteenth** session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-third** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-first** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twentieth** session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-first** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-first** session untouched, and **cheaper again**: today's module
+  supplies branch-resolved density-dependent mobilities on top of 10-29's
+  signed `n_net*`.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and **explicitly passed over today** in favour of the two ranked
+  items rather than by default. Chapter 4 favours high-work-function metals
+  (Ni, Au, Pd) for low contact resistance while Chapter 6 §6.7 finds those
+  same metals worst for symmetric two-terminal photoresponse. Today adds a
+  **fourth** strand worth synthesising with them: §3's gate-stack result says
+  the thin-oxide stacks a device process would choose are exactly the ones
+  where branch asymmetry is screened away, so the contact-origin asymmetry of
+  10-29's §5 is itself gate-stack-dependent. **No chapter is undrafted**, so
+  this synthesis and Chapter 6 beyond §6.8 remain the largest writing gaps.
+
+**Commits this run:** 4 before this entry (the §7b self-blindness repair with
+its 51/51 transcript; the density-dependent mobility module with its figure
+and transcript; the three in-place annotations; the notes file), and this
+`AUTOMATION_LOG.md` entry makes **5**. Each pushed and verified against the
+GitHub API.
