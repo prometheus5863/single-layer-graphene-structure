@@ -90,7 +90,21 @@ in the mobility difference.  Minimising (A3):
 (A5) is the result worth having.  Because 1 - r^2 = 4*mu_e*mu_h/(mu_e+mu_h)^2
 identically, the minimum sheet conductivity of a disordered graphene channel is
 set by the GEOMETRIC MEAN of the two mobilities, not the arithmetic mean --
-exactly, with no expansion.  Three consequences, all checked below:
+exactly, with no expansion.
+
+  SCOPE NARROWED 2026-10-30.  "Exactly, with no expansion" is correct and
+  stands, but its premise is a CONSTANT pair, which is the premise of this
+  module and is no longer the premise of the repository.  Once mu = mu(S) the
+  derivation above loses that premise -- mu_bar and dmu can no longer be
+  pulled through d/dn -- and D10 of graphene_density_dependent_mobility.py
+  measures what survives: e*n_p*sqrt(mu_e(S*)*mu_h(S*)) is accurate to
+  1.17e-3 at worst, with the error SECOND ORDER in n*/S*
+  (dev/(n*/S*)^2 constant to a factor 1.044 across a 48.6x range in
+  (n*/S*)^2).  The geometric-mean reading therefore survives as a
+  second-order-accurate statement rather than an exact one.  No number below
+  moves: they are the r = const case, and for that case (A5) is exact.
+
+Three consequences, all checked below:
 
   (i)  CORRECTION OF RECORD.  `graphene_fet_signed_carrier_model.sigma_min_ch4`
        returns `e*mu*n_puddle` and its docstring calls that "EXACTLY".  It is
@@ -147,7 +161,26 @@ which is the standing requirement in this repository since 2026-09-17:
 mu_e and mu_h are constants here.  Zion et al.'s central observation is that
 the asymmetry is DENSITY-DEPENDENT (it shrinks as |n| grows), which a constant
 pair cannot represent; a density-dependent mobility pair is logged as a
-follow-on item rather than guessed at.  The contact asymmetry is likewise a
+follow-on item rather than guessed at.
+
+    SUPERSEDED 2026-10-30, and the numbers it affects are annotated where they
+    are made rather than changed.  graphene_density_dependent_mobility.py
+    closes that item with 1/mu_b(n) = 1/mu_L,b + |n|/(n_c*mu_L_bar) and
+    derives, exactly,
+
+        r(n) = r0 / (1 + (1 - r0^2) * |n| / n_c)
+
+    so the constant pair here is the n_c -> infinity limit of that model, and
+    the deviation from it falls as 1/n_c (measured: asymptotic log-log slope
+    -0.99996865, with the departure from -1 accounted for by the subleading
+    term to 0.01 %).  What makes the simplification harmless FOR THIS DEVICE
+    rather than merely convenient is a device fact and not a modelling one:
+    the shipped 90 nm SiO2 back gate needs 12.53 V of overdrive to reach
+    n_c = 3e12 cm^-2, and every sweep in this repository runs inside +/-5 V.
+    The same simplification is NOT harmless for a 10 nm HfO2 top-gated
+    device, which crosses the same density at 0.217 V.
+
+The contact asymmetry is likewise a
 constant resistance difference, not Huard et al.'s n^(-1/2) junction law
 (r_nc(n) > 2.06*(h/4e^2)*n^(-1/2)); Section 5's discriminator only needs the
 contact term to be L-INDEPENDENT, which the n^(-1/2) law also is, so the
@@ -639,7 +672,15 @@ def main():
           % (abs(apparent_dirac_offset(*mu_pair(1.3))),
              100.0 * abs(apparent_dirac_offset(*mu_pair(1.3))) / gfet.V_dirac,
              gfet.V_dirac))
-    print('  attributes entirely to built-in doping.  A doping extraction that')
+    print('  attributes entirely to built-in doping.')
+    print('  [SUPERSEDED IN SCOPE 2026-10-30: this offset is an OVERESTIMATE')
+    print('   by 0.07 %% at mu_e/mu_h = 1.3 once the mobility pair is allowed')
+    print('   to depend on density.  It is only 0.07 %% because n_p/n_c =')
+    print('   0.167 for this device -- the DIRAC POINT is unscreened even')
+    print('   though the high-bias branches are not.  The same figure for a')
+    print('   thin-oxide top-gated stack is not small.  See')
+    print('   graphene_density_dependent_mobility.py Section 9.]')
+    print('  A doping extraction that')
     print('  reads V_dirac off a transfer curve without an independent mobility')
     print('  measurement on each branch cannot separate the two.')
     print('  The sign is informative: mu_e > mu_h puts the minimum on the HOLE')

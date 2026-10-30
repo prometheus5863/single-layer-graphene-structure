@@ -287,6 +287,20 @@ def sigma_min_ch4(n_puddle=None):
 
     (A5) reproduces this function's value to 1 ulp at mu_e == mu_h; that is
     checked, not asserted.  No number in this docstring is deleted.
+
+    SECOND ANNOTATION 2026-10-30, graphene_density_dependent_mobility.py
+    Section 6 / D10.  (A5) itself is now scope-narrowed one step further, in
+    the same direction and for the same kind of reason.  (A5) is exact for a
+    CONSTANT mobility pair; with the density-dependent pair of
+    1/mu_b(n) = 1/mu_L,b + |n|/(n_c*mu_L_bar) it is no longer exact, because
+    mu_bar and dmu can no longer be pulled through d/dn.  MEASURED: e*n_p*
+    sqrt(mu_e(S*)*mu_h(S*)) is accurate to 1.17e-3 at worst over
+    mu_e/mu_h in [1.1, 2.0], with the error SECOND ORDER in n*/S*.  So the
+    chain of claims about this one number now reads: exact on the diagonal
+    (this function), exact for any constant pair ((A5), 10-29),
+    second-order-accurate for a density-dependent pair (10-30).  Each step
+    narrowed the scope and none moved the value, which is still
+    e*mu*n_puddle and still what Chapters 3 and 4 are adjudicated on.
     """
     if n_puddle is None:
         n_puddle = gfet.n_puddle

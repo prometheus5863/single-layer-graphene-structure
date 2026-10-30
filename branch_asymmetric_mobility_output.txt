@@ -112,7 +112,15 @@ SECTION 4.  A mobility asymmetry impersonates a doping offset
   Reading: at the shipped 90 nm SiO2 back gate (C_ox = 0.0003837 F/m^2)
   a 30 % electron-hole mobility asymmetry moves the resistance
   maximum by 0.276 V, which is 34.5 % of the 0.80 V this repository
-  attributes entirely to built-in doping.  A doping extraction that
+  attributes entirely to built-in doping.
+  [SUPERSEDED IN SCOPE 2026-10-30: this offset is an OVERESTIMATE
+   by 0.07 %% at mu_e/mu_h = 1.3 once the mobility pair is allowed
+   to depend on density.  It is only 0.07 %% because n_p/n_c =
+   0.167 for this device -- the DIRAC POINT is unscreened even
+   though the high-bias branches are not.  The same figure for a
+   thin-oxide top-gated stack is not small.  See
+   graphene_density_dependent_mobility.py Section 9.]
+  A doping extraction that
   reads V_dirac off a transfer curve without an independent mobility
   measurement on each branch cannot separate the two.
   The sign is informative: mu_e > mu_h puts the minimum on the HOLE
