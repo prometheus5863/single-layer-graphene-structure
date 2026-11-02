@@ -80,6 +80,14 @@ any plausible-range check, and the mutant exceeds D1's budget by 3e13.
 | 90 nm SiO₂ back gate (shipped) | 3.84e-4 | **12.53 V** | no — every sweep here is inside ±5 V |
 | 10 nm HfO₂ top gate | 2.21e-2 | **0.217 V** | yes, essentially always |
 
+> **Annotated 2026-11-02.** Both rows of this table use the *same* `n_c`, and
+> §4 below already says they must not. `graphene_impurity_limited_crossover.py`
+> now derives `n_c(N_imp)` and the top-gate row's honest overdrive is
+> **0.478–0.912 V**, not 0.217 V — the uncorrected number is low by a factor of
+> **2.2–4.2**. The back-gate row is unaffected: its dielectric is grown before
+> the channel sits on it, so it adds no impurities the reference mobility does
+> not already contain. **The numbers above are left as they were measured.**
+
 So whether electron–hole mobility asymmetry is a first-order effect or a
 negligible one is **a property of the gate stack, not of the graphene**. It is
 large in the thick-oxide back-gated devices most transport papers measure and
@@ -117,6 +125,27 @@ rather than waving at.** A 10 nm HfO₂ top gate at 1 V reaches
 the uncorrected one. So the device is past the crossover either way. What the
 correction removes is the *comfort* of the factor: the margin is 2.3, not 46, and
 a thicker or dirtier dielectric could eat it.
+
+> **Annotated 2026-11-02 — the hand calculation above is reproduced exactly and
+> then narrowed.** `graphene_impurity_limited_crossover.py` D9 reproduces
+> `n_c = 6.000e12 cm^-2`, `dV_c = 0.4343 V` and `M = 2.303` from this
+> paragraph's own stated input (the mobility halved), so nothing here was
+> arithmetically wrong. What was wrong was the *choice of input*: this
+> paragraph used one of the two numbers arXiv:1010.0913 reports (the mobility
+> loss) where the other one (the added impurity density, `1.5–4e12 cm^-2`) is
+> the more direct route. Taking that route, **`n_c` = 6.6–12.6e12 cm^-2 and the
+> margin is 1.10–2.09×, not 2.3×.** At the dirty end the device clears the
+> crossover by **10 %**.
+>
+> So "a thicker or dirtier dielectric could eat it" was right, and it is nearer
+> to eaten than this paragraph supposed. The falsifiable form is the design rule
+> `N_imp* = C·C_ox·V/(e·A)`: this stack at 1 V tolerates `4.51e12 cm^-2` total,
+> i.e. **12.7 % of headroom** above the paper's dirty end.
+>
+> The two routes disagree because **the paper's two numbers disagree with each
+> other** once Chen's `C` is fixed — its ~50 % mobility loss implies
+> `ΔN_imp = 1.25e12 cm^-2`, below even the bottom of its own `1.5–4e12` range
+> (D10). That is a property of the source, not an error in this paragraph.
 
 This is a new open item, not something the committed module handles: `n_c` is a
 single module-level constant there, and it should be a function of the

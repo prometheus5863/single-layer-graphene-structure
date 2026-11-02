@@ -100,6 +100,12 @@ asymmetry question becomes a device question with two opposite answers:
     percentage, not a reversal -- Section 4 measures it.
   * a scaled top-gated device -- 10 nm HfO2, C_ox = 2.21e-2 F/m^2, which is the
     gate stack an RF or logic GFET actually uses -- reaches n_c at about 0.22 V.
+    [ANNOTATED 2026-11-02: 0.22 V uses the REFERENCE n_c, and the HfO2
+    deposition that makes this gate stack also raises n_c by adding charged
+    impurities.  The corrected overdrive is 0.478-0.912 V and the operating
+    margin at 1 V is 1.10-2.09x rather than the 4.6x this bullet implies.
+    See graphene_impurity_limited_crossover.py Sections 8-9.  The conclusion of
+    this bullet survives: the device is still past the crossover.]
     It is PAST the crossover over essentially its whole operating range, so for
     it the constant pair is wrong by a factor, and wrong in the direction of
     over-predicting a branch asymmetry that screening has already removed.
@@ -161,7 +167,18 @@ EPSILON_0 = 8.8541878128e-12
 # Zion et al., arXiv:1801.03565: hole crossover from long-range to short-range
 # scattering at p ~ 3e12 cm^-2.  Converted to SI once, here, so that no other
 # expression in this module carries a unit conversion.
-N_CROSSOVER = 3e16              # m^-2  (= 3e12 cm^-2)
+#
+# ANNOTATED 2026-11-02.  THIS CONSTANT IS NOT A CONSTANT OF THE MATERIAL.  The
+# short-range term of (B1) is written n_c*mu_L_bar and only the PRODUCT is a
+# neutral-defect property, so n_c moves inversely with the long-range mobility
+# and therefore proportionally with the charged-impurity density:
+# graphene_impurity_limited_crossover.py derives n_c = 2.4*N_imp and checks
+# that THIS value is recovered at N_imp = C/gfet.mu to 0 ulp.  The value below
+# is correct for the reference device and is LEFT AS IT IS; every function here
+# already takes `n_c` as an argument, so the newer module supplies it rather
+# than this default being wrong.  What was wrong is the 10-30 gate-stack table
+# in Section 3 of this docstring, which uses this one value for BOTH rows.
+N_CROSSOVER = 3e16              # m^-2  (= 3e12 cm^-2)  -- reference device only
 
 # The two gate stacks of Section 3.  The back gate is the shipped one and is
 # recomputed from gfet rather than restated, so it cannot drift from it.
