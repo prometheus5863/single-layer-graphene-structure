@@ -12962,3 +12962,316 @@ its 51/51 transcript; the density-dependent mobility module with its figure
 and transcript; the three in-place annotations; the notes file), and this
 `AUTOMATION_LOG.md` entry makes **5**. Each pushed and verified against the
 GitHub API.
+
+## 2026-11-02 — the crossover density was a charged-impurity density all along, and the hand arithmetic it corrects was right
+
+**Status:** The item ranked **first** on 10-30 is closed. Four commits.
+
+### 1. The product is the constant, not either factor
+
+`N_CROSSOVER = 3e16` was a module-level constant used for **both rows** of
+10-30's gate-stack table, and that entry's own §4 had already said in prose
+why it cannot be: the short-range term of `(B1)` is written `n_c*mu_L_bar`
+and **only the product** is a neutral-defect property. The other factor is the
+long-range mobility, which charged impurities change. So
+
+    A == n_c * mu_L_bar            [V^-1 s^-1]                          (C1)
+
+is the material constant and `n_c` alone is a constant of nothing. This
+session moved that from prose into code, with checks — and then found the hand
+calculation's *input* was the wrong one of the two the source offers.
+
+### 2. One paper closes it, and the caveat is load-bearing
+
+Chen, Jang, Adam, Fuhrer, Williams and Ishigami (Nature Physics **4**, 377
+(2008), arXiv:0708.2408) dose graphene with potassium **in situ** and measure
+mobility against *deliberately added* charged-impurity density — `n_imp` a
+**controlled** variable, not a fitted one, which is the strongest form this
+input could take. `mu*n_imp = C`, `C = 5e15 V^-1 s^-1`, stated as the relation
+tested, with the dosing rate measured independently and `C` cross-checked
+against the `V_g,min` shift. Eliminating `mu_L_bar` between it and (C1):
+
+    n_c(N_imp) = (A/C) * N_imp == KAPPA * N_imp,    KAPPA = 2.40        (C3)
+
+The crossover density is a **fixed dimensionless multiple of the
+charged-impurity density**, and the multiple is a **ratio of two literature
+constants** — Zion's crossover over Chen's scaling law. No fitted parameter
+enters anywhere.
+
+**The caveat is stated rather than buried.** Chen's mobility is the TOTAL
+mobility, not the long-range channel alone, so `N_imp` read off as
+`C/mu_total` is overstated by `(1 + |n|/n_c)` at whatever density they
+measured — **and they do not state it**. D7 measures the size of the effect
+here: the long-range channel carries **86 %** of `1/mu` at the puddle density
+and **71 %** at 5 V on the back gate, so (C2) is used inside its regime there.
+At the top-gate operating point it carries **32 %** — not a defect but a
+restatement of `M > 1`.
+
+### 3. Two consequences, both checked rather than asserted
+
+- **`r0` is invariant under `N_imp`** (D2, 1.4e-16 over seven decades).
+  Scaling the impurity density scales **both** branch mobilities equally,
+  because the beyond-Born asymmetry is a per-scatterer cross-section ratio and
+  carries no density.
+- **A dirtier device is MORE asymmetric** (D4-i, strictly monotonic over eight
+  decades). More charged impurities push `n_c` up, so at fixed density the
+  device sits further *below* the crossover. Right sign, and a consistency
+  check on the whole decomposition: the asymmetry lives in the
+  charged-impurity channel, so more of them must mean more of it.
+
+### 4. The reference point is a PAIRING, and D5 measures what carries it
+
+    A_ref     = n_c,Zion * mu_this-repo = 1.20e16 V^-1 s^-1
+    N_imp,ref = C / mu_this-repo        = 1.25e16 m^-2  (1.25e12 cm^-2)
+
+`A` is **not measured anywhere**: it pairs Zion's crossover, measured on
+*their* CVD samples, with *this* repository's mobility. Trying to resolve it
+today reached **the abstract only** — arXiv:1801.03565's abstract page carries
+the asymmetry statements and the T/B ranges but no mobility, substrate or
+impurity number. Recorded as a fetch outcome, not worked around.
+
+D5 then measures, rather than argues, which reported numbers carry it: under a
+**x4** perturbation of `A_ref` every **ratio** is **bitwise unchanged** and
+every **absolute** `n_c` moves by **exactly 4**. A factor of 4 rather than a
+round 3 precisely so the perturbation is exactly representable and the
+invariance is bitwise instead of tolerated.
+
+### 5. The correction of record: the arithmetic was right, the input was not
+
+**D9 reproduces the 10-30 hand calculation from its own stated input before
+correcting it** — `n_c = 6.000e12 cm^-2`, `dV_c = 0.4343 V`, `M = 2.303`, to
+three decimals. A correction that cannot reproduce what it corrects is not a
+correction. So nothing in that paragraph was arithmetically wrong; what was
+wrong was the **choice of input**. arXiv:1010.0913 reports *two* numbers about
+HfO₂ deposition and 10-30 used the mobility loss where the added-impurity
+density is the more direct route:
+
+| channel | `N_imp` (e12 cm⁻²) | `n_c` (e12 cm⁻²) | `dV_c` (V) | `M` at 1 V |
+|---|---|---|---|---|
+| reference, no deposition | 1.250 | 3.000 | 0.2171 | 4.605 |
+| +1.5e12 (paper, clean end) | 2.750 | 6.600 | 0.4777 | **2.093** |
+| mobility-halved (10-30's route) | 2.500 | 6.000 | 0.4343 | 2.303 |
+| +4.0e12 (paper, dirty end) | 5.250 | 12.600 | 0.9120 | **1.096** |
+
+**The conclusion survives and the margin does not.** 10-30 reported 2.3x; the
+honest range is **1.10–2.09x**, and at the dirty end the device clears the
+crossover by **10 %** — not a margin a process would design to. Annotated in
+all three places the superseded numbers were printed (the notes table row, the
+notes hand calculation, the DDM docstring bullet), **numbers left alone**.
+`N_CROSSOVER` itself is annotated but **not changed**: every function there
+already takes `n_c` as an argument, so the value is right as the reference
+default and the newer module supplies the others.
+
+### 6. The source's own two numbers disagree, and the escape is left open
+
+Given `C`, the paper's "~50 % of the mobility" implies
+`dN_imp = 1.25e12 cm^-2` — **below even the bottom of its own stated
+1.5–4e12 range** by a factor of 1.2, and below its top by **3.2**. So the
+paper's mobility datum selects the **clean end of the paper's own impurity
+range** (D10). **The escape is real and is not assumed away:** if HfO₂
+deposition also adds *neutral* defects then `A` grows too, the mobility loss
+is shared between channels, and a larger `dN_imp` becomes consistent. That
+would change `A`, which this module holds fixed. The dirty end is
+**disfavoured, not excluded**, and the difference is logged rather than
+modelled.
+
+### 7. The design rule, which is the device statement
+
+    N_imp* = C * C_ox * V / (e * A)
+
+| gate stack and overdrive | `N_imp*` (e12 cm⁻²) | vs. the reference channel |
+|---|---|---|
+| 10 nm HfO₂ at 1 V | 5.757 | 4.61x dirtier allowed |
+| 90 nm SiO₂ at 5 V | 0.499 | **0.40x — needs to be 2.5x CLEANER** |
+
+**(i) The deposition budget is real but thin.** `dN_imp <= 4.51e12 cm^-2`
+against the paper's reported maximum of `4.0e12`: **12.7 % headroom**. Since
+`N_imp* ~ C_ox*V ~ V/t_ox`, the budget tightens **linearly** with oxide
+thickness at fixed drive, so a process thickening the dielectric for leakage
+spends it directly. This is the falsifiable form of 10-30's "a thicker or
+dirtier dielectric could eat it".
+
+**(ii) Cleaning the channel moves `n_c` DOWN**, so a cleaner channel reaches
+the asymmetry-killing regime at **lower** gate voltage. The back-gated device
+misses `n_c` at 5 V not for being too dirty but for being too **clean for its
+own weak gate** — it would need to be 2.5x cleaner still. For electron–hole
+symmetry, material quality and gate strength act in the **same** direction,
+and the thick-oxide device is short of both. This inverts the usual intuition
+and it is the kind of statement the device-physics angle needs.
+
+### 8. The check that failed, and it failed the useful way
+
+**D4-ii was written as a single tolerance and failed at 83x its counted
+budget.** The budget was not miscounted: at `N_imp = 1e12 x ref` the
+dimensionless group `n/n_c` is still **4.6e-12**, so the shortfall from `r0`
+is a **real first-order term** and a tolerance loose enough to admit it would
+have been a number chosen to pass. Split in two: the limit is taken where it
+genuinely **is** the limit (`1e20 x ref`, where the short-range term is
+4.6e-20 of `1/mu_L` and cannot move the float at all, 3 ulp), and the
+finite-`N_imp` residual gets a **prediction**, `r0*u/(1+u)` — **accounted for
+to 9.7e-5 relative**. Same lesson as 10-30's D4, reached the same way, on the
+day the check was written. **Item 15, third consecutive session of catching
+its own fresh code.**
+
+The other three exact checks: **D1** requires the new model to *be* the 10-30
+model at the reference point rather than approximate it (**0 ulp** on `n_c`,
+**2** on the mobility pair, **0** on sigma over a 401-point sweep; the
+asymmetry on an **absolute** eps budget, for 10-30's own D1 reason). **D3**
+checks the asymptote against `A*X/(1+X)`, an exact consequence of `(B1)` whose
+predicted value **contains no `N_imp`** — the sharpest statement of (C1),
+worst 1 ulp over seven decades. **D6** is a **true bitwise symmetry**:
+`r(2n, 2*N_imp) == r(n, N_imp)` to the last bit, because scaling by a power of
+two is exact and commutes with rounding at every step; it says the model has
+exactly **one** dimensionless group. **D11** reinstates the pre-correction
+model as a **control** and requires D3 to fail against it — it fails by ~3e16
+ulp away from the reference and passes *at* the reference, where the two
+coincide by construction. **21 checks, 21 passing.**
+
+### 9. A figure was LOOKED AT, and one render found two defects
+
+The standing ~66-PNG item got its **first actual instance**. Today's figure
+passed the well-formed-PNG check (1950x712) and passed on its underlying
+numbers — and rendering it and *looking* showed **two colliding labels** in
+panel (a): the "after HfO₂ deposition" annotation sat underneath the legend
+box, and the reference-pairing callout overlapped the green dashed line's
+label. Both fixed, re-rendered, re-inspected clean. **One render, two real
+defects that two passing checks could not see** — an argument for the item
+rather than against it. The inspection copy went to
+`_review/2026-11-02-impurity_limited_crossover.png` in the connected folder,
+which already held one such file from 09-17, so the convention is reused
+rather than invented.
+
+**A fifth data point on the PNG-churn hypothesis**, same direction as the last
+three: re-running the annotated `graphene_density_dependent_mobility.py`
+re-rendered its figure **byte-identically** (17/17, and `git status` showed the
+PNG unmodified). The churn stays narrowed to **per-figure, not per-run**.
+
+### 10. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, other sessions', unreadable and
+undeletable) for the **seventh** consecutive session. New this session and
+worth recording: the clone **failed outright** this time rather than being
+merely tight — `fatal: write error: No space left on device` from `git clone`
+with only **1.8 M** free — and `pip` failed the same way until `TMPDIR` was
+pointed at `/tmp` as well, since pip stages wheels in `$TMPDIR` on the full
+filesystem. Clone to `/tmp` on `/dev/sda1` (3.8 G free), and **set
+`TMPDIR=/tmp/piptmp` for pip**, not just `--target`. `scipy` 1.15.3 installed
+with `--no-cache-dir`; `numpy` 2.2.6, `matplotlib` 3.10.9,
+`MPLCONFIGDIR=/tmp/mplcache_1102`.
+
+Each of the four commits was **pushed immediately** rather than batched at the
+end, which is the 10-30 entry's own recommendation acted on.
+
+**Not yet covered (candidates for future runs):**
+
+- **RESOLVE THE `A` PAIRING** — created today, **ranked first**, and the direct
+  continuation of §4. Every absolute number in today's module carries the
+  pairing of Zion's `n_c` with this repository's `mu`, and D5 shows exactly
+  which ones. Blocked on **a datum in the full text of arXiv:1801.03565** —
+  the abstract page does not carry a mobility. This now joins the two items
+  already blocked on Zion Fig. 5 and Huard Fig. 4; **a copy of either PDF in
+  the connected folder unblocks four items at once**, which makes it the
+  cheapest unblocking action available to a human reader.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — created today, §6,
+  **ranked second**. It is the named escape from D10's inconsistency, it would
+  make `A` gate-stack-dependent as well as `n_c`, and it is the difference
+  between the dirty end being disfavoured and being excluded. Blocked on a
+  literature datum separating the two channels for HfO₂-topped graphene.
+- **`n_c(N_imp)` SHOULD REACH THE CHAPTERS** — created today. Chapters 3 and 4
+  are adjudicated on `sigma_min` and on branch asymmetry, and both now depend
+  on a quantity the thesis text still treats as a material constant. The
+  annotations today are in the *notes and the module*, not in the chapters.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — carried from 10-28, and
+  today adds one more (`impurity_limited_crossover_output.txt`), so
+  `UNREGISTERED` grows again. The sibling repository is working the identical
+  gap from its own direction.
+- **`run_suite` SHOULD READ THE OBJECT STORE, NOT THE WORKING COPY** — carried
+  from 10-28. One change (`git show <commit>:<path>`) moves six of the nine
+  `SELF_WRITING` rows and removes the circularity.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — carried from 10-29,
+  mechanical, still unregistered.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29. Today adds a **fourth**
+  instance and it is this repository's own: the DDM docstring's Section 3
+  asserted a gate-stack table that the *same file's* Section 4 contradicted,
+  and nothing linked the two. Enumerating the externally-sourced claims is
+  still cheap and still undone.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, and today is a **seventh** argument: D4-ii was diagnosable in one
+  reading only because the detail string carried the measured 5.9e-13 next to
+  the 7.1e-15 budget. Three suites still exit nonzero reporting only a code.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~67 PNGs, **one now
+  actually inspected** (§9). The hit rate on the first attempt was two defects
+  per figure, which is the strongest argument this item has had.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii); today's D5 (bitwise under a x4 perturbation) is a **sixth** worked
+  precedent for the shape.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **eleventh** instance (D11). The repository-wide question —
+  which refusal branches anywhere have never been reached — is still
+  untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. **A third consecutive
+  session in which it caught code written the same day** (§8), which remains
+  the strongest form the item takes.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, to be taken with item
+  22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **eleventh** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on **a datum that is a picture** (Huard
+  Fig. 4; Zion Fig. 5 joined them 10-30, and today's pairing item joins them
+  too). `arxiv.org` itself fetched cleanly again today, so the blocker is the
+  figure, not the domain.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 10-17.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12, and today sharpens
+  it a third way: `n_p/n_c` now depends on the **charged-impurity density**, so
+  whether the Dirac point is screened is itself gate-stack-dependent.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **fifteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **sixteenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **nineteenth** session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-fourth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-second** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-first**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-second** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-second** session untouched.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and **explicitly passed over today** in favour of the ranked item
+  rather than by default. Chapter 4 favours high-work-function metals (Ni, Au,
+  Pd) for low contact resistance while Chapter 6 §6.7 finds those same metals
+  worst for symmetric two-terminal photoresponse. 10-30 added a third strand
+  (the gate stack decides whether branch asymmetry is screened); **today adds
+  the fourth and sharpens it into a process statement**: the dielectric that
+  provides the strong gate *also* raises `n_c` through the impurities its
+  deposition adds, so the screening that removes the asymmetry and the damage
+  that restores it come from the same process step. **No chapter is
+  undrafted**, so this synthesis and Chapter 6 beyond §6.8 remain the largest
+  writing gaps.
+
+**Commits this run:** 3 before this entry (the `n_c(N_imp)` module with its
+inspected figure and transcript; the three in-place annotations; the notes
+file), and this `AUTOMATION_LOG.md` entry makes **4**. Each pushed and
+verified against the GitHub API.
