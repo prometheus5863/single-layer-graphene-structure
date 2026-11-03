@@ -4402,3 +4402,69 @@ Source: `graphene_branch_asymmetric_mobility.py`, 43/43 checks green. Figure:
 `branch_asymmetric_mobility.png`. Machine output:
 `branch_asymmetric_mobility_output.txt`. Derivation and literature:
 `notes/2026-10-29-the-floor-is-a-geometric-mean.md`.
+
+#### 4.11.5a Annotation (2026-11-03): the crossover quoted above is a *hole*-branch number, and "dies off as it screens" is conditional on an assumption this chapter never stated
+
+Two things in §4.11.5 need correcting in place. Neither changes a committed
+number in this chapter — §4.11.5 already records that the shipped model sits on
+the `r = 0` diagonal — but both change what the surrounding prose is entitled to
+claim.
+
+**(i) `p ≈ 3 × 10¹² cm⁻²` is not a material constant, and it is 13 % too
+high.** §4.11.5 quotes it as though it were a property of graphene. It is not.
+`graphene_impurity_limited_crossover.py` (2026-11-02) showed that the quantity
+invariant under charged-impurity density is the *product* `A = n_c·μ̄_L`, so
+`n_c` is proportional to the charged-impurity density and moves with the gate
+stack. `graphene_kappa_impurity_bound.py` (2026-11-03) then bounded the
+proportionality constant from Zion *et al.*'s own two numbers — their crossover
+density and the charged-acceptor density `N_A^(S) = C_ox·V_NP/e` they estimate
+for the same sample — giving `κ ≤ 2.089` against the `κ = 2.4` the 11-02 module
+had obtained by pairing Zion's crossover with *this* repository's mobility.
+`κ = 2.4` is therefore **excluded**, and every `n_c` derived from it, including
+the `3 × 10¹² cm⁻²` quoted above, is high by at least 13 %. The superseded
+number is left in the sentence above rather than edited out; the corrected
+reference value is `2.61 × 10¹² cm⁻²`.
+
+**(ii) The clause "dies off as the long-range impurity potential screens" is
+conditional, and the condition has never been checked.** Zion read their
+`3 × 10¹² cm⁻²` off the **hole** branch (their Section III c). The
+Matthiessen form this repository uses applies a *single* `n_c` to both
+branches. Writing it per branch,
+
+&nbsp;&nbsp;&nbsp;&nbsp;`1/μ_b(n) = 1/μ_{L,b} + |n|/(n_{c,b}·μ̄_L)`
+
+and parameterising a split as `n_{c,e/h} = n_c(1 ± s/2)`, there is an exact
+identity at `s = 2r₀`: the common factor `(1 + |n|/n_c)` cancels out of
+`r = (μ_e − μ_h)/(μ_e + μ_h)`, and
+
+&nbsp;&nbsp;&nbsp;&nbsp;**if `n_{c,b} ∝ μ_{L,b}` then `r(n) = r₀` at every density, exactly, and the
+asymmetry does not screen at all.**
+
+So the sentence above does not state a consequence of the model; it states a
+consequence of the model *plus* the assumption that the neutral-defect channel
+is branch-**symmetric** while the charged channel is not. That assumption was
+never argued — it was made by writing one `n_c` — and it is not the obviously
+correct one: `r₀` is derived from a beyond-Born cross-section ratio, which is a
+property of scattering off a potential of a given sign, and vacancies and grain
+boundaries are also potentials.
+
+The magnitude is not marginal. At the top-gated operating point
+(`|n|/n_c = 5.29`) the shipped `s = 0` answer is `r = 0.0160`, a 6.2× screening
+of `r₀ = 0.10`; at `s = 0.10` it is `0.0580`; at `s = 2r₀` it is `0.1000`
+exactly. A 20 % split — modest for a quantity that has never been measured —
+moves `r` by 524 %, and the endpoint is not a perturbation of the shipped
+answer but its negation.
+
+**What this costs the chapter.** Nothing in §4.3–§4.10 moves, for the reason
+§4.11.5 already gives: the shipped model is the `r = 0` case. What moves is
+§4.11.5's own framing. "A density-dependent pair is logged as an open item
+rather than guessed at" is still the right call, but the open item is now
+strictly larger than it was written to be: it is not only *which* pair, it is
+whether the density dependence has the sign and the asymptote this chapter
+attributes to it. Discharging it needs the **electron**-branch transition
+density, which is in Zion Fig. 5 next to the hole one and has never been read.
+
+Source: `graphene_kappa_impurity_bound.py`, 16/16 checks green, six against
+exactly known values. Figure: `kappa_impurity_bound.png` (panel (c) is the
+identity above). Machine output: `kappa_impurity_bound_output.txt`.
+Derivation and literature: `notes/2026-11-03-the-bound-is-in-the-papers-own-numbers.md`.

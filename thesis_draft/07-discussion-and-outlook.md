@@ -1987,6 +1987,59 @@ Stated as falsifiable items, in order of how much they would move:
    a measurement at a point into a measurement over a box, and it shares its
    cheapest entry with the standing *is the admissible shape box the right
    one?* item.
+24. **Does `n_c` differ between the electron and hole branches, and does the
+   asymmetry therefore screen at all?** (added 2026-11-03,
+   `graphene_kappa_impurity_bound.py` §7, and ranked **first** of the open
+   items in this chapter.) Every other item here moves a number. This one
+   decides whether a *qualitative* conclusion of Chapters 3 and 4 survives.
+   §4.11.5 says the electron–hole asymmetry "dies off as the long-range
+   impurity potential screens". That is a consequence of the Matthiessen form
+   **plus** a single `n_c` shared between the branches, and the second part
+   was never argued. Written per branch with a split `n_{c,e/h} = n_c(1±s/2)`,
+   there is an exact identity at `s = 2r₀`: the `(1+|n|/n_c)` factor cancels
+   out of the asymmetry ratio and `r(n) = r₀` at **every** density, with no
+   screening whatever. At the top-gate operating point a 20 % split moves `r`
+   by 524 %, so the range between "screened 6.2×" and "not screened at all" is
+   spanned by an assumption nobody has tested.
+   **Why the symmetric case is not the safe default.** `r₀` is derived from a
+   beyond-Born cross-section ratio — a property of scattering off a potential
+   of a given sign. Neutral defects are also potentials. There is no argument
+   anywhere in this thesis for the asymmetry vanishing for vacancies and grain
+   boundaries while surviving for charged impurities; it was assumed by
+   writing one symbol.
+   **What would settle it, and it is cheap.** Zion *et al.* read their
+   `3 × 10¹² cm⁻²` off the **hole** branch (their Section III c). The electron
+   branch's transition density is in the same figure. Reading both off Zion
+   Fig. 5 gives `s` for one sample directly — and that is the **same picture**
+   the standing *lower bound on ℓ* and *`Δ_c` form for the chemisorbed metals*
+   items are blocked on, so one figure read discharges three items. This is
+   now the cheapest high-value unblocking action available to a human reader,
+   displacing the full-text fetch of arXiv:1801.03565, which was attempted on
+   2026-11-03 and is **closed**: the text contains no mobility anywhere, so
+   the pairing it was meant to resolve is unresolvable from that source and
+   was instead resolved by a different route (item 25).
+25. **The `A` pairing, closed 2026-11-03, and what replaced it.** Recorded here
+   because it is the first item on this list to be discharged by finding that
+   the datum it wanted does not exist. The 11-02 module obtained `κ = A/C`
+   by pairing Zion's crossover density with *this* repository's mobility, and
+   logged "read Zion's own mobility" as the fix. The full text has no mobility
+   in it. But it has Zion's own charged-acceptor density,
+   `N_A^(S) = C_ox·V_NP/e`, for the same sample — so `κ = n_c/N_imp` is
+   readable off **one** device from **two** numbers in **one** paper, with no
+   mobility and no cross-paper pairing. Because `N_A^(S)` is a net charge
+   inferred from a compensating voltage, because Zion's own `N_t` oxide-defect
+   density is acknowledged and unquantified, and because the film is
+   transferred CVD, `N_imp ≥ N_A^(S)` and therefore `κ ≤ 2.089`. The 11-02
+   value `κ = 2.4` is **excluded** by 14.9 %. Every `n_c` and `ΔV_c` in this
+   thesis derived from it falls 13.0 %; every operating margin and impurity
+   budget rises 14.9 %. No verdict reverses — the thinnest margin, `1.10×`,
+   becomes `1.26×`, which is the useful direction. As a by-product the
+   mobility the paper never prints is bounded anyway:
+   `μ_{L,Zion} ≤ 0.348 m²/Vs`. **The methodological point worth carrying
+   forward** is that the blocked item was discharged by asking what the source
+   *does* contain rather than by re-attempting the fetch for what it was
+   assumed to contain, and §7.5's taxonomy has no class for this: it is not a
+   claim that failed, it is a *question* that was mis-posed.
 
 
 ---
