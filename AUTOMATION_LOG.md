@@ -13275,3 +13275,278 @@ end, which is the 10-30 entry's own recommendation acted on.
 inspected figure and transcript; the three in-place annotations; the notes
 file), and this `AUTOMATION_LOG.md` entry makes **4**. Each pushed and
 verified against the GitHub API.
+
+---
+
+## 2026-11-03 — the datum the ranked-first item wanted does not exist, the bound that replaces it excludes the repository's own value, and the screening conclusion turns out to be conditional
+
+### 1. The ranked-first item is closed, and not the way it was posed
+
+11-02 ranked **RESOLVE THE `A` PAIRING** first, blocked on "a datum in the
+full text of arXiv:1801.03565 — the abstract page does not carry a
+mobility." The full text was reached today via
+`ar5iv.labs.arxiv.org/html/1801.03565`, cleanly, first attempt.
+
+**It contains no mobility value anywhere.** Mobility appears only as curves
+against `|n|` in Fig. 5 and as the proportionality of their Eq. 4; the only
+mobility statement in words is "at high temperatures, mobility increases
+with decreasing T, but become temperature-independent below 100 K"
+(Section III c).
+
+So the item **as posed is unresolvable from this source**. That is a
+definite finding, not another blocked fetch — the text is exhausted and must
+not be fetched again. It also **corrects 11-02's own advice**: that entry
+said "a copy of either PDF in the connected folder unblocks four items at
+once", and for Zion that is now wrong. A PDF would help only with **Fig. 5**,
+which is a different blocker.
+
+### 2. What is there instead, and it is strictly better
+
+Zion estimate the charged-acceptor density in the oxide beside **their own**
+channel: `N_A^(S) = C_ox·V_NP/e ≈ 1.5e12 cm⁻²`, with `C_ox = 1.15e-4 F/m²`,
+`V_NP ≈ 20 V`, `t = 300 nm`, `ε = 3.9` (Sections II and III a). That is a
+charged-impurity density for the **same sample** whose crossover density this
+repository has used as `N_CROSSOVER` since 10-30. So
+
+&nbsp;&nbsp;&nbsp;&nbsp;`κ = n_c/N_imp`
+
+is readable off **one** device, from **two** numbers, in **one** paper — no
+mobility, no Chen constant, no assumption that Zion's device resembles this
+one. All three of those were what made the 11-02 pairing the weakest link.
+
+### 3. The source's own two numbers disagree by 4.3 %
+
+Their `C_ox` reproduces **exactly** at their stated precision from `ε₀ε/t`.
+Their `N_A^(S)` does **not**: their own formula and inputs give **1.4362e12
+cm⁻²**, and 1.4362 does not round to 1.5 at any precision. Their "≈" is a
+rounding-**up**.
+
+The **recomputed** value is used, because it is smaller and therefore gives
+the **looser** bound — so the conservative choice is also the one that cannot
+manufacture §4's result. Both are reported and **D2 pins the disagreement**
+rather than silently adopting a side, which is the standing one-way-channel
+item's own prescription.
+
+### 4. `κ = 2.4` is excluded
+
+`N_A^(S)` is a **lower** bound on the charged-scatterer density for three
+reasons, all Zion's own: it is a **net** charge inferred from a compensating
+voltage, while scattering counts centres; their `N_t` oxide-defect density is
+acknowledged and **never given a value**; and the film is transferred CVD.
+Hence `N_imp ≥ N_A^(S)` and
+
+&nbsp;&nbsp;&nbsp;&nbsp;**`κ ≤ 2.089`** (recomputed), or `≤ 2.000` at Zion's rounded figure.
+
+11-02's `κ = 2.4` exceeds the conservative bound by **14.9 %**. Not
+uncertain — **excluded**. The direction is the one 11-02 itself flagged as
+its risk, so this is a flagged failure mode occurring and being quantified.
+
+**D11 mutates the inequality**: read `N_A^(S)` as an *upper* bound and the
+verdict reverses. The exclusion therefore rests on the three reasons above,
+not on the arithmetic, which is identical either way.
+
+**By-product: the mobility the paper never prints, bounded by its other two
+numbers.** `μ_L,Zion ≤ 0.348 m²/Vs = 3481 cm²/Vs`. An ordinary
+long-range-limited value for transferred CVD monolayer on 300 nm SiO₂, which
+is the only external check available and which it passes. The repository had
+paired `gfet.mu = 0.4 m²/Vs` onto Zion's device: **15 % too generous**, the
+same 14.9 % from the other side.
+
+### 5. What moves, and nothing reverses
+
+| quantity | 11-02 | corrected | change |
+|---|---|---|---|
+| `n_c` at `N_imp,ref` (e12 cm⁻²) | 3.0000 | 2.6111 | −12.96 % |
+| `ΔV_c`, 10 nm HfO₂ (V) | 0.2171 | 0.1890 | −12.96 % |
+| `M`, HfO₂ at 1 V, dirtiest case | **1.0965** | **1.2598** | +14.89 % |
+| `N_imp*`, HfO₂ at 1 V (e12 cm⁻²) | 5.7566 | 6.6140 | +14.89 % |
+| `N_imp*`, 90 nm SiO₂ at 5 V (e12) | 0.4989 | 0.5732 | +14.89 % |
+
+Every **ratio** is bitwise unchanged (D8), which is 11-02's D5 collected on a
+correction it did not anticipate. The one 11-02 conclusion that was
+*marginal* — a top-gated device at **1.10x** its own crossover at the dirty
+end of the HfO₂ range — becomes **1.26x**, and the deposition headroom goes
+from 12.7 % to 34.1 %. The correction moves the fragile verdict to safety,
+by replacing the weakest input rather than by widening a tolerance.
+
+### 6. The finding that outranks all of the above
+
+Zion read their `3e12 cm⁻²` off the **hole** branch (Section III c). DDM's
+(B1) applies **one** `n_c` to **both**. Written per branch with a split
+`n_c,e/h = n_c(1 ± s/2)`, the bracket factorises at `s = 2r₀` and the common
+`(1+|n|/n_c)` cancels out of the asymmetry ratio:
+
+&nbsp;&nbsp;&nbsp;&nbsp;**if `n_c,b ∝ μ_L,b`, then `r(n) = r₀` at EVERY density, exactly, and
+the asymmetry does not screen at all.**
+
+| branch split `s` | `r` at `\|n\|/n_c = 5.29` |
+|---|---|
+| 0 | 0.0160 — the shipped answer, `r₀` screened 6.2x |
+| 0.10 | 0.0580 |
+| `2r₀` = 0.20 | **0.1000 = `r₀` exactly: no screening** |
+
+So DDM's central **qualitative** conclusion — that density screens the
+electron-hole asymmetry away — rests entirely on the **neutral-defect channel
+being branch-symmetric while the charged channel is not**. That was never
+argued; it was made by writing a single `n_c`. And the symmetric case is not
+the safe default: `r₀` is derived from a beyond-Born cross-section ratio, a
+property of scattering off a potential of a given sign, and vacancies and
+grain boundaries are also potentials.
+
+A 20 % split moves `r` by **524 %**, and the endpoint is not a perturbation
+of the shipped answer but its **negation**. **This ranks above §§2–5**: they
+move absolute numbers by 13–15 %, this decides whether a conclusion of
+Chapters 3 and 4 holds at all.
+
+### 7. One check was wrong, and failed the same day it was written
+
+**D3 was written as "bitwise" and FAILED at 1 ulp on first run.** `(n_c/N_A)·N_A`
+rounds twice, so the exactness predicted is not available. It was **split,
+not loosened**: D3a asserts the 1 ulp floating point guarantees, D3b recovers
+bitwise exactness where it genuinely holds (`N_A` a power of two times `n_c`,
+`κ` exactly 4.0), isolating the double-rounding as the whole of D3a's 1 ulp.
+
+**Fourth consecutive session in which item 15 caught code written the same
+day**, and the pattern across those four is now consistent enough to state:
+**the checks that fail on first run are the ones predicting exactness**, and
+they fail by one or two ulp in a direction that is a theorem about rounding
+rather than a defect in the model. That is an argument for writing them.
+
+**16 checks, 16 passing**, six against values known exactly in advance. D9b
+checks §6's identity against `r₀` itself — known exactly *and independent of
+density*, which is what makes it a target rather than a band — worst **56
+ulp** over four `r₀` values and 401 densities.
+
+### 8. A figure was looked at, and the inspection paid again
+
+Second instance of the standing ~67-PNG item. The first render put two labels
+within ~20 px of a curve, in panels (b) and (c); both moved, re-rendered,
+re-inspected clean. **Two renders, two sessions, four label defects** — a hit
+rate that keeps arguing for the item. Inspection copy in
+`_review/2026-11-03-kappa_impurity_bound.png`, alongside 11-02's.
+
+### 9. The result reached the chapters
+
+11-02's item **`n_c(N_imp)` SHOULD REACH THE CHAPTERS** is discharged, and the
+survey found the gap narrower and sharper than the item assumed: **Chapter 3
+does not mention `n_c` at all**, and in Chapter 4 the claim lives in exactly
+one place, §4.11.5. New **§4.11.5a** annotates it in place — the superseded
+`3e12` left standing — on both counts: the number is ≥13 % high, and "dies off
+as the long-range impurity potential screens" is conditional on §6's
+unexamined assumption. **§7.9 items 24 and 25** record the branch-split
+question (ranked first in that chapter) and the closure of the pairing, with
+the note that §7.5's failure taxonomy **has no class for it**: it is not a
+claim that failed but a question that was mis-posed.
+
+### 10. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G) for the **eighth** consecutive
+session; `git clone` failed outright at **1.7 M** free, as on 11-02. Clone to
+`/tmp` on `/dev/sda1` (3.5 G free) with `TMPDIR=/tmp/piptmp` for pip.
+
+**New `/tmp` gotcha, and it cost a confusing minute.** `/tmp` is sticky and
+shared between sessions: `mkdir -p /tmp/gwork` **succeeded** against a
+directory left by 11-02's session and owned by another uid, and the very next
+write failed `Permission denied` — which reads as a disk problem and is not.
+**Use a uid-qualified scratch path** (`/tmp/gw-$(id -u)`). The sibling
+repository hit and recorded the same thing today.
+
+`scipy` 1.15.3 installed in ~3 s with `--no-cache-dir --target`; numpy 2.2.6,
+matplotlib 3.10.9, `MPLCONFIGDIR=/tmp/mplcache_1103`. Each commit pushed as it
+landed rather than batched.
+
+**Not yet covered (candidates for future runs):**
+
+- **IS `n_c` BRANCH-DEPENDENT?** — created today, §6, **ranked first**, and it
+  displaces everything below because it is the only open item that can
+  overturn a *qualitative* conclusion rather than move a number. **Blocked on
+  reading the ELECTRON branch's transition density off Zion Fig. 5** — the
+  same picture the *lower bound on ℓ* and *`Δ_c` for the chemisorbed metals*
+  items already need, so **one figure read discharges three items**. That is
+  now the cheapest high-value unblocking action available to a human reader,
+  displacing 11-02's full-text-fetch suggestion, which is closed.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02,
+  ranked second. Today's correction does not touch it: it moves `A`, and this
+  item asks whether `A` is gate-stack-dependent at all. Still blocked on a
+  literature datum separating the two channels for HfO₂-topped graphene.
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  created today, §3. The `V_NP ≈ 20 V` is read from a saturation curve; if the
+  true value is 20.9 V their quoted density is right and the bound tightens to
+  exactly 2.000. Same figure-reading blocker as the ranked-first item, and it
+  would come free with it.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — carried from 10-28, and
+  today adds `kappa_impurity_bound_output.txt`, so `UNREGISTERED` grows again.
+  The sibling repository added **four** today from its own direction.
+- **`run_suite` SHOULD READ THE OBJECT STORE, NOT THE WORKING COPY** — carried
+  from 10-28. One change (`git show <commit>:<path>`) moves six of nine
+  `SELF_WRITING` rows and removes the circularity.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — carried from 10-29,
+  mechanical, still unregistered.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29. Today is the **fifth**
+  instance and the most expensive yet: 11-02's "a PDF unblocks four items"
+  was wrong about Zion and nothing would have caught it except trying.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, and today is an **eighth** argument: D3's 1-ulp failure was
+  diagnosable in one reading only because the detail string carried both
+  floats.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~68 PNGs, **two now
+  inspected** (§8), four defects found in two attempts.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii); today's D5 and D8 are a **seventh** worked precedent for the shape.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **twelfth** instance (D4's 1.9 control, D11's flip).
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. §7 is a **fourth**
+  consecutive session of it catching same-day code, now with a stated pattern.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **twelfth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both blocked on Huard Fig. 4 / Zion Fig. 5, and both now
+  **joined to the ranked-first item by the same picture**.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **sixteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **seventeenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twentieth** session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-fifth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-third** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-second**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-third** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-third** session, and §6 makes it **sharper and more urgent**: if
+  `n_c` is branch-dependent then the hole-branch sign question and the
+  screening question are the same question.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and **passed over again today**, deliberately and in favour of the
+  ranked item. §7.2 already handles the retracted form of the tension; what is
+  still unwritten is the four-strand process synthesis. Chapter 6 beyond §6.8
+  and this synthesis remain the largest writing gaps, with **no chapter
+  undrafted**.
+
+**Commits this run:** 3 before this entry (the `κ` bound module with its
+inspected figure and transcript; the chapter annotations; the notes file), and
+this `AUTOMATION_LOG.md` entry makes **4**. Each pushed and verified against
+the GitHub API.
