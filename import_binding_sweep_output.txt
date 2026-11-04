@@ -3,14 +3,14 @@ IMPORT-BINDING SWEEP -- every module-level alias of every patchable name
 Section 7.9, ranked second on 2026-10-13: the precondition for item 16
 ==============================================================================
 
-Repository modules parsed: 71
+Repository modules parsed: 76
 
 ------------------------------------------------------------------------------
 SECTION 1 -- THE STATIC BINDING TABLE (AST, no import)
 ------------------------------------------------------------------------------
   module-level from-imports of repo names : 179
   function-level (deferred, SAFE)         : 6
-  `import M as a` module aliases (SAFE)   : 124
+  `import M as a` module aliases (SAFE)   : 136
   distinct (owner, name) pairs aliased    : 83
 
   Every owner.name with MORE THAN ONE live binding -- i.e. every name
@@ -107,7 +107,7 @@ SECTION 1 -- THE STATIC BINDING TABLE (AST, no import)
 ------------------------------------------------------------------------------
 SECTION 2 -- THE SAME TABLE BY RUNTIME OBJECT IDENTITY (the control)
 ------------------------------------------------------------------------------
-  modules imported: 57 of 57
+  modules imported: 61 of 61
   static (importable subset): 179   runtime: 196   agreed: 179
   seen at RUNTIME but not statically (identity coincidence, or a
   binding this AST pass cannot see -- each one is a blind spot):
@@ -208,7 +208,7 @@ SECTION 3 -- EVERY REBINDING SITE, AND WHAT IT FAILS TO COVER
 ------------------------------------------------------------------------------
 SECTION 1b -- THE BLIND SPOT SECTION 2 FOUND, AND ITS REPAIR
 ------------------------------------------------------------------------------
-  transitive (renaming) aliases the first AST rule could not see: 16
+  transitive (renaming) aliases the first AST rule could not see: 18
       graphene_default_flip.DV_RF                                <- graphene_quantum_capacitance_argument.DV_RF
       graphene_default_flip.VDS_RF                               <- graphene_quantum_capacitance_argument.VDS_RF
       graphene_default_flip.VG_ON                                <- graphene_quantum_capacitance_argument.VG_ON
@@ -221,6 +221,8 @@ SECTION 1b -- THE BLIND SPOT SECTION 2 FOUND, AND ITS REPAIR
       graphene_exact_charge_rederivation.CQ_PREFACTOR            <- graphene_diffusion_current_model.CQ_PREFACTOR
       graphene_exact_charge_rederivation.VDS_RF                  <- graphene_diffusion_current_model.VDS_REF
       graphene_fet_signed_carrier_model.A_FERMI                  <- graphene_diffusion_current_model.A_FERMI
+      graphene_kappa_impurity_bound.KAPPA_ILC                    <- graphene_impurity_limited_crossover.KAPPA
+      graphene_kappa_impurity_bound.N_C_ZION                     <- graphene_density_dependent_mobility.N_CROSSOVER
       graphene_photodetector_signed_carrier_model.W_CROSS_VACUUM <- graphene_contact_doping_model.W_GRAPHENE
       graphene_quantum_capacitance_argument.A_FERMI              <- graphene_diffusion_current_model.A_FERMI
       graphene_quantum_capacitance_argument.CQ_PREFACTOR         <- graphene_diffusion_current_model.CQ_PREFACTOR
@@ -231,7 +233,7 @@ SECTION 1b -- THE BLIND SPOT SECTION 2 FOUND, AND ITS REPAIR
   or the first-order holder leaves untouched.
 
   reconciliation, with the traced-name set made symmetric:
-    static directed edges 195, runtime identity pairs 212, agreed 195
+    static directed edges 197, runtime identity pairs 214, agreed 197
 
   The 17 remaining runtime-only pairs are not a defect in either
   method.  Runtime identity does not yield a DIRECTED edge; it yields
