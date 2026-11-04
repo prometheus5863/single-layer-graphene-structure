@@ -13550,3 +13550,273 @@ landed rather than batched.
 inspected figure and transcript; the chapter annotations; the notes file), and
 this `AUTOMATION_LOG.md` entry makes **4**. Each pushed and verified against
 the GitHub API.
+
+## 2026-11-04 — the audit was reading the file it had just written, and the first row that read unblocked had been stale for eight sessions
+
+### 0. This entry was written by a later firing than the work it describes
+
+The three commits below landed at 14:53–14:56 UTC. **No log entry was
+appended and the sibling repository was never touched**, so the session was
+cut off between its last code commit and its bookkeeping. The 19:30 firing
+found `git log --since=midnight` non-empty and `AUTOMATION_LOG.md` with no
+`2026-11-04` heading — the "interrupted part-way" case — and completed the
+entry rather than starting new physics work on top of three commits that were
+already a full day's worth.
+
+**Nothing here is reconstructed from the commit messages alone.** §3's
+byte-identity was re-measured today in a fresh pristine clone, out of band,
+and the numbers in §§1–2 are read out of the committed transcript.
+
+### 1. `run_suite` reads the object store — the standing item from 10-28, discharged
+
+Section 2 used to read each committed transcript out of the pristine clone's
+**working tree**. Sound for a transcript captured by shell redirection;
+**circular** for one the module writes itself, because the suite's own run
+overwrites the file moments before it is read, so the comparison is
+`stdout == stdout` and **can only ever return IDENTICAL**. Nine transcripts
+carried a `SELF_WRITING` exclusion for exactly that reason, and the exclusion
+was *correct given the read*.
+
+`read_committed_blob` reads the blob at the resolved commit instead — bytes,
+not text, and deliberately not through the `git()` wrapper, which strips its
+output and therefore cannot carry a byte-for-byte comparison. The object store
+is immutable, so the circularity is removed at the root rather than sequenced
+around.
+
+### 2. The change was adjudicated against the read it replaces, not asserted over it
+
+New **Section 2b**, because a replacement read owes two things: agreement with
+the old read everywhere the old read was sound, and disagreement *somewhere*,
+or it changed nothing.
+
+| check | result |
+|---|---|
+| **E1** 39 suites that do not write their own transcript | **0 differing bytes** — exact, not a tolerance |
+| **E2** a registered self-writing suite whose transcript the run had overwritten | 1 (`import_binding_sweep`), plus 3 rewritten *identically* — which the old read could not tell from soundness |
+| **E3** every changed verdict is the **stricter** one | 1 changed, `IDENTICAL → STALE` |
+
+E1 is the overlapping-limit check the standing rules ask for, and it is
+available **exactly** here rather than as a band: a pristine checkout of a
+commit and that commit's blobs are the same bytes, so any nonzero difference
+would mean the clone is not pristine. E3 is signed — a read that disagreed by
+being *more lenient* fails it rather than passing it.
+
+### 3. The row the new read unblocked first was stale, and in the direction that hides work
+
+`import_binding_sweep_output.txt`: **IDENTICAL** through the working tree,
+**STALE** through the object store. Regenerated 2026-10-27 by the session that
+regenerated every transcript in the tree; 28 commits later it described a
+repository with **71 modules where the tree has 76**.
+
+| claim | transcript | tree |
+|---|---|---|
+| modules parsed | 71 | **76** |
+| `import M as a` aliases (SAFE) | 124 | **136** |
+| modules imported | 57 of 57 | **61 of 61** |
+| transitive (renaming) aliases | 16 | **18** |
+| static / runtime / agreed edges | 195 / 212 / 195 | **197 / 214 / 197** |
+
+**The two missing transitive rows are the 11-03 kappa module's own:**
+
+&nbsp;&nbsp;&nbsp;&nbsp;`graphene_kappa_impurity_bound.KAPPA_ILC ← graphene_impurity_limited_crossover.KAPPA`
+&nbsp;&nbsp;&nbsp;&nbsp;`graphene_kappa_impurity_bound.N_C_ZION ← graphene_density_dependent_mobility.N_CROSSOVER`
+
+— precisely the renaming rebindings this sweep exists to find, in precisely
+the module whose numbers 11-03 had to correct. A reader asking whether
+yesterday's `κ` bound rebinds anything under a new name would have read this
+transcript and found **nothing**; the answer is **two**. Same failure mode as
+10-27's nineteen-day false claim: the artefact **understating** the tree, which
+hides work, rather than overstating it, which makes noise.
+
+It was committed **STALE first** (`082fc63`) and repaired after (`1e81a2c`) —
+the 10-17/10-18 precedent for registering a row while it is red, so the repair
+has a BEFORE state to be measured against. The sweep itself was never
+defective: its numbers today are correct and self-consistent. **The defect was
+that nothing read the committed one.**
+
+**Verified today, out of band:** a fresh pristine clone at `1e81a2c` runs
+`graphene_import_binding_sweep.py` and `cmp` against `git show
+1e81a2c:import_binding_sweep_output.txt` reports **byte-identical**. So the
+repair holds — but see the ranked item below: the audit's *own* committed
+transcript is the BEFORE state and still prints `STALE 10`.
+
+### 4. "Six of nine" was an estimate; four is a stopwatch
+
+The standing list has said since 10-28 that one change "moves six of nine
+`SELF_WRITING` rows". **Each of the six was timed in a pristine clone today
+and only four can move:** `default_flip` 1.3 s,
+`contact_argument_blast_radius` 3.1 s, `import_binding_sweep` 9.3 s,
+`diffusion_current` 18.6 s. `diffusion_mutation` (>80 s) and
+`perfect_contact_counterfactual` (119.7 s) are over the one-call budget as
+surely as the three rows 10-27 measured, so they keep an exclusion — with the
+**reason changed to `OVER_CAP`**, since `SELF_WRITING` no longer excuses
+anything. Six came off the exclusion table; four came off a clock. Same shape
+as 10-27's "18 rows against roughly 40" against a real 49 / 17.
+
+### 5. The coverage census is green for the first time since it was written
+
+| | 10-28 → before today | after |
+|---|---|---|
+| committed `*_output.txt` | 54 | 54 |
+| registered in `SUITES` | 35 | **43** |
+| excluded **with a reason** | 14 | **11** |
+| `UNACCOUNTED` | **5** | **0** |
+
+Four of the five `UNACCOUNTED` transcripts joined green — `impurity_limited_crossover`,
+`kappa_impurity_bound`, `branch_asymmetric_mobility`, `density_dependent_mobility`
+— each measured, each byte-reproducible. The fifth, `chapter_status_audit_output.txt`,
+gets a **new exclusion class rather than a row**: it prints every chapter's prose
+word count, so it goes stale the moment any session writes a sentence (**37686
+committed against a tree holding 38305**). `DRIFTS_BY_MEASUREMENT` is the honest
+name, and unlike `UNMEASURED` it is **not a promise to add a row later** — the
+remedy is to give that module a stable projection.
+
+Section 5 now **checks** the time budget instead of carrying it in prose:
+**130.0 s of a 180.0 s one-call cap, 50.0 s headroom**, and every
+cost-excluded module must be re-measured against the remaining budget. An
+exclusion whose reason is a number nobody recomputes is a declaration, which
+the 10-28 table itself calls the weak class.
+
+**Suite total: 22 passed, 2 failed**, against 16 / 3 before today. The two
+failures are the pre-existing `STALE` set (now **10**, with `import_binding_sweep`
+a newly *visible* member rather than a newly stale one) and the
+summary/exit-code disagreement. Neither is touched by this change, and
+neither is new.
+
+### 6. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G) for the **ninth** consecutive
+session, and `git clone` failed outright again — this time at **0 bytes**
+free. `du` over `/sessions` accounts for only 29 M of the 9.3 G, so the
+consumption is in sibling session directories this uid cannot read: **not
+something a session can clean up, and not worth another minute of trying.**
+Clone to `/tmp` on `/dev/sda1` (3.6 G free).
+
+11-03's uid-qualified-scratch gotcha was applied preemptively and held
+(`/tmp/pylibs_$(id -u)`, `MPLCONFIGDIR=/tmp/mplcache_$(id -u)`,
+`TMPDIR=/tmp/piptmp_$(id -u)`); `scipy` 1.15.3 installed in ~4 s with
+`--no-cache-dir --target`, numpy 2.2.6, matplotlib 3.10.9. **One new wrinkle:**
+matplotlib's *default* config path is under `$HOME`, so on a full `/sessions`
+the import emits an `Errno 28` warning and silently relocates its cache —
+harmless, but it reads like a failure in the middle of unrelated output.
+Set `MPLCONFIGDIR` before the first import and it never appears.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-RUN THE AUDIT SO ITS OWN CENSUS SEES THE REPAIR** — created today,
+  **ranked first**, and it is cheap, mechanical and blocked on nothing. The
+  committed `pristine_transcript_audit_output.txt` is deliberately the BEFORE
+  state: it prints `STALE 10` and `22 passed, 2 failed` at a commit whose
+  successor fixed one of those ten. Today verified the repaired module
+  byte-identical **out of band**, with `cmp` in a throwaway clone — which is
+  evidence, but it is not the audit's own measurement, and the distinction is
+  exactly the one this repository keeps insisting on. Expect `STALE 9`. If it
+  is anything else, that is the finding.
+- **IS `n_c` BRANCH-DEPENDENT?** — carried from 11-03, where it was ranked
+  first, and it keeps that standing among the *physics* items: still the only
+  open item that can overturn a **qualitative** conclusion rather than move a
+  number. **Blocked on reading the ELECTRON branch's transition density off
+  Zion Fig. 5** — the same picture the *lower bound on ℓ* and the *`Δ_c` form
+  for the chemisorbed metals* items need, so **one figure read discharges
+  three items**, and with the 11-03 discrepancy item below, four. Still the
+  cheapest high-value action available to a human reader.
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  carried from 11-03. If `V_NP` is really 20.9 V their quoted density is right
+  and the bound tightens to exactly 2.000. Comes free with the figure read.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02.
+  Blocked on a literature datum separating the two channels for HfO₂-topped
+  graphene.
+- **GIVE `chapter_status_audit` A STABLE PROJECTION** — created today, §5, and
+  it **replaces** the part of the 10-28 transcript item that today closed. A
+  module that prints prose word counts can never hold a transcript; one that
+  prints *chapter present / drafted / section count* can. Until then its
+  exclusion is honest but permanent, which is the thing `DRIFTS_BY_MEASUREMENT`
+  was named to admit.
+- **REGISTER THE THREE REMAINING `UNMEASURED` TRANSCRIPTS** — carried from
+  10-28 with its **scope corrected**: the five `UNACCOUNTED` are gone, and what
+  is left is exactly three mutation suites — `capture_surface_mutation`,
+  `installed_surface_mutation`, `value_read_mutation`. Each needs a
+  stopwatch, not an argument, and §5's 50.0 s headroom is the budget they
+  compete for.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — carried from 10-29, and
+  today explains *why* in a way 10-29 could not: it is the same module as the
+  projection item above. These two should be done together or not at all.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29. Today is the **sixth**
+  instance: "six of nine" (§4) had been carried in the standing list for seven
+  sessions and was wrong by a third, and nothing but trying it with a clock
+  would have caught that.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, **ninth** argument: Section 4's `STALE 10` names its ten members, and
+  that is the only reason §3 above could be written at all.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~68 PNGs, two
+  inspected, four label defects found in two attempts.
+  `import_binding_sweep.png` was regenerated today from the corrected census
+  and **was not inspected** — the first figure to go in uninspected since the
+  item was created.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii). Today's E1/E3 are an **eighth** worked precedent: a verdict indexed by
+  *which read produced it* is the shape, and Section 2b is it in miniature.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25, and the module count moving 71 → 76 (§3) means this number is itself
+  probably stale.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **thirteenth** instance: §3's C1–C6 and §5's C5.1–C5.3 both
+  plant their inputs, and C5.2 is the rare *refutation* control.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. **Not exercised today**,
+  which breaks a four-session streak of it catching same-day code; today's new
+  checks are byte comparisons and set arithmetic, which have no tolerance to
+  audit. Worth noting as the reason rather than as a lapse.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **thirteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same picture.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17,
+  and today is the sharpest instance yet in a different key: a module must not
+  *read the file it writes*. Same disease, one level up.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **seventeenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **eighteenth** session, and §3 is now a concrete argument for it: the
+  two rebindings the stale transcript was missing are of exactly this kind.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-first**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-sixth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-fourth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-third**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-fourth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-fourth** session, and 11-03's §6 still makes it the same question
+  as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+- **CHAPTERS 2 AND 3 ARE UNDRAFTED** — the largest block of pure writing in
+  the repository, with their computational results complete. **Passed over
+  today by circumstance rather than by choice**, since the session that ran
+  was an infrastructure session that never reached the writing step.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and passed over for the same reason. §7.2 handles the retracted
+  form of the tension; the four-strand process synthesis is still unwritten.
+  With Chapter 6 beyond §6.8, these remain the largest writing gaps.
+
+**Commits this run:** 3 code/artefact commits at 14:53–14:56 UTC, each pushed
+and verified against the GitHub API by the session that made them, and this
+`AUTOMATION_LOG.md` entry — written by the 19:30 firing — makes **4**.
