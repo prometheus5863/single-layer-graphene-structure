@@ -48,6 +48,27 @@ CLASSIFICATION
                  the transcript describes code that is no longer here
   ERROR          the suite did not complete in the pristine clone
 
+AMENDED 2026-11-04 -- THE COMPARISON NOW READS THE OBJECT STORE
+---------------------------------------------------------------
+Until today Section 2 read the committed transcript out of the pristine
+clone's WORKING TREE.  That is sound for a suite whose transcript is captured
+by shell redirection, and circular for one that writes its own transcript:
+the run overwrote the file a moment before it was read, so the comparison was
+`stdout == stdout` and could only say IDENTICAL.  Nine transcripts were
+excluded for that reason and the exclusion was correct given the read.
+
+`read_committed_blob` reads the blob at the resolved commit instead.  The
+object store is immutable, so the circularity is removed at the root rather
+than sequenced around.  Four of the nine rows are now registered -- not six,
+as the standing list has claimed since 10-28; two of the six are over the
+call-cap budget and were measured so today.
+
+IT FOUND SOMETHING ON THE FIRST RUN.  `import_binding_sweep_output.txt` is
+STALE: it was regenerated on 2026-10-27 by the session that regenerated every
+transcript in the tree, and 28 commits later it describes a repository with
+71 modules where this one has 76.  Under the old read that row could never
+have been registered, and had it been, it would have reported IDENTICAL.
+
 Run:  python3 graphene_pristine_transcript_audit.py
 """
 
@@ -197,7 +218,70 @@ SUITES = [
     # false claim 10-27 found, and for the same reason -- nothing compared
     # it.  Regenerated in this commit and registered in it.
     ("graphene_sensitivity_audit.py",        "audit_output.txt"),                      # 1.0s
+    # ---------------------------------------------------------------------
+    # Added 2026-11-04: the standing "run_suite SHOULD READ THE OBJECT STORE"
+    # item, worked -- and these rows are the whole point of it.
+    #
+    # Every row below is SELF_WRITING: the module opens its own transcript
+    # for writing, so running it inside the pristine clone overwrites the
+    # file the comparison used to be taken against.  Under the old
+    # working-tree read those four rows were UNREGISTRABLE, not merely
+    # unregistered: registering one would have compared the suite's stdout
+    # against a file that same stdout had just written, which is IDENTICAL by
+    # construction and carries no information.  Section 2b measures that
+    # directly rather than asserting it.
+    #
+    # The standing list has carried "one change moves SIX of nine
+    # SELF_WRITING rows" since 2026-10-28.  THAT ESTIMATE IS WRONG, and
+    # today's measurement is the correction: only FOUR of the nine can move.
+    # `graphene_diffusion_mutation.py` ( > 80 s, timed out at 80 s) and
+    # `graphene_perfect_contact_counterfactual.py` (119.7 s) are over the
+    # call-cap budget as surely as the three rows 10-27 already measured, so
+    # they acquire a SECOND reason today and stay excluded.  Six was an
+    # estimate made by reading the exclusion table; four is a number from a
+    # stopwatch, and the gap is the same shape as 10-27's "18 rows against
+    # roughly 40" against a real 49 / 17.
+    #
+    # Times are measured at this commit in a pristine clone, which is the
+    # budget argument: Section 2 cost 96.2 s before today.
+    ("graphene_default_flip.py",             "default_flip_output.txt"),               # 1.3s
+    ("graphene_contact_argument_blast_radius.py",
+     "contact_argument_blast_radius_output.txt"),                                      # 3.1s
+    ("graphene_import_binding_sweep.py",     "import_binding_sweep_output.txt"),       # 9.3s
+    ("graphene_diffusion_current_model.py",  "diffusion_current_output.txt"),          # 18.6s
+    # ---------------------------------------------------------------------
+    # Added 2026-11-04: four of the five transcripts Section 5 has been
+    # reporting UNACCOUNTED.  These are not SELF_WRITING and never were --
+    # they were simply never registered, which is the "REGISTER THE NEW
+    # TRANSCRIPTS" item that has been carried since 10-28 and has widened
+    # every session since.  Each was measured at this commit and each
+    # reproduces its committed transcript byte for byte, so each joins as a
+    # green row rather than a red one.
+    ("graphene_impurity_limited_crossover.py",
+     "impurity_limited_crossover_output.txt"),                                         # 1.2s
+    ("graphene_kappa_impurity_bound.py",     "kappa_impurity_bound_output.txt"),       # 1.2s
+    ("graphene_branch_asymmetric_mobility.py",
+     "branch_asymmetric_mobility_output.txt"),                                         # 1.3s
+    ("graphene_density_dependent_mobility.py",
+     "density_dependent_mobility_output.txt"),                                         # 1.5s
 ]
+
+# ---------------------------------------------------------------------------
+# THE CALL-CAP BUDGET, as a checked number rather than a remembered one
+# ---------------------------------------------------------------------------
+# A shell call on this VM is capped at 180 s.  Section 2 runs every suite in
+# SUITES serially, so the table above is a spending decision and the cap is
+# the budget.  Two facts were being carried in prose and are now checked in
+# Section 5: that the registered table still fits, and that each module
+# excluded FOR being too expensive really is too expensive.
+CALL_CAP_S = 180.0
+# Measured 2026-11-04 in a pristine clone at this commit.  Only modules whose
+# cost was measured today appear here; the three rows 2026-10-27 measured over
+# the cap are named in their exclusion comments and not re-timed.
+MEASURED_OVER_CAP_S = {
+    "graphene_perfect_contact_counterfactual.py": 119.7,
+    "graphene_diffusion_mutation.py": 80.0,   # a LOWER bound: timed out at 80 s
+}
 
 # ---------------------------------------------------------------------------
 # COVERAGE: every committed transcript is REGISTERED or EXCLUDED FOR A REASON
@@ -230,21 +314,31 @@ SUITES = [
 #                  permanently red for no finding.
 #   UNMEASURED     DECLARED, and the honest name for "next session's work".
 #                  Not yet timed against the 180 s call cap.
+#   DRIFTS_BY_MEASUREMENT
+#                  DECLARED, added 2026-11-04.  The module's stdout contains
+#                  a measurement of the repository that every session moves,
+#                  so a byte comparison is red by construction and carries no
+#                  finding.  Distinct from UNMEASURED: the remedy is a change
+#                  to the MODULE, not a row in SUITES.
+#   OVER_CAP       CHECKED, as of 2026-11-04.  The module is SELF_WRITING
+#                  too, but that reason stopped being load-bearing today:
+#                  the object-store read removes it.  What remains is cost.
+#                  Section 5 checks the measurement against CALL_CAP_S
+#                  rather than taking the word of this comment.
 TRANSCRIPT_EXCLUSIONS = {
-    "contact_argument_blast_radius_output.txt":
-        ("SELF_WRITING", "graphene_contact_argument_blast_radius.py"),
-    "default_flip_output.txt":
-        ("SELF_WRITING", "graphene_default_flip.py"),
-    "diffusion_current_output.txt":
-        ("SELF_WRITING", "graphene_diffusion_current_model.py"),
+    # AMENDED 2026-11-04.  Four rows left this table for SUITES -- see the
+    # block at the end of SUITES.  The two below stayed, and their reason
+    # CHANGED: SELF_WRITING no longer excuses anything now that run_suite
+    # reads the object store, so each was timed, and each is over budget.
     "diffusion_mutation_output.txt":
-        ("SELF_WRITING", "graphene_diffusion_mutation.py"),
-    "import_binding_sweep_output.txt":
-        ("SELF_WRITING", "graphene_import_binding_sweep.py"),
+        ("OVER_CAP", "graphene_diffusion_mutation.py"),
     "perfect_contact_counterfactual_output.txt":
-        ("SELF_WRITING", "graphene_perfect_contact_counterfactual.py"),
+        ("OVER_CAP", "graphene_perfect_contact_counterfactual.py"),
     # The three below are ALSO over the 180 s call cap (2026-10-27 section 5
-    # item 4, measured there), so they carry two independent reasons.
+    # item 4, measured there), so they carry two independent reasons.  They
+    # keep the SELF_WRITING class because that is the reason 10-27 recorded
+    # and their cost was measured elsewhere; the OVER_CAP rows above are the
+    # two measured today.
     "perfect_contact_mutation_output.txt":
         ("SELF_WRITING", "graphene_perfect_contact_mutation.py"),
     "velocity_saturation_output.txt":
@@ -261,6 +355,20 @@ TRANSCRIPT_EXCLUSIONS = {
         ("UNMEASURED", "graphene_installed_surface_mutation.py"),
     "value_read_mutation_output.txt":
         ("UNMEASURED", "graphene_value_read_mutation.py"),
+    # Added 2026-11-04.  The fifth UNACCOUNTED transcript, and the only one
+    # of the five that could not simply be registered.  It is not stale by
+    # anybody's mistake: `graphene_chapter_status_audit.py` prints the PROSE
+    # WORD COUNT of every chapter, so its transcript goes stale the moment
+    # any session writes a sentence -- today it reads 37686 words for
+    # Chapter 4 against a tree holding 38305.  Registering it would make
+    # Section 2 permanently red for a drift that carries no finding, and a
+    # permanently red check is one nobody reads.  DRIFTS_BY_MEASUREMENT is
+    # the honest name for that, and unlike UNMEASURED it is not a promise to
+    # do the work later: the work is to give the module a stable projection
+    # (a section/threshold verdict without the raw counts), which is a change
+    # to that module and not a row here.
+    "chapter_status_audit_output.txt":
+        ("DRIFTS_BY_MEASUREMENT", "graphene_chapter_status_audit.py"),
 }
 
 
@@ -319,6 +427,31 @@ def git(args, cwd, check_rc=True):
     if check_rc and p.returncode != 0:
         raise RuntimeError("git %s failed: %s" % (" ".join(args), p.stderr.strip()))
     return p.stdout.strip()
+
+
+def read_committed_blob(repo, commit, relpath):
+    """The committed BYTES of `relpath` at `commit`, or None if absent.
+
+    ADDED 2026-11-04, and this is the whole of the repair.  Until today the
+    comparison in Section 2 read the transcript out of the pristine clone's
+    WORKING TREE, which is sound only for a module that does not write its
+    own transcript.  For one that does, the suite's own run overwrote the
+    file a moment before it was read, so the comparison was
+    `stdout == stdout` and reported IDENTICAL whatever the committed blob
+    said.  Nine transcripts were excluded from Section 2 for exactly that
+    reason, and the exclusion was correct given the read.
+
+    The object store is immutable and content-addressed, so reading the blob
+    removes the circularity at the root instead of sequencing around it.
+    Deliberately NOT `git()`: that helper `.strip()`s its output, and a
+    byte-for-byte comparison cannot be built on a stripped read.  Bytes, not
+    text, for the same reason.
+    """
+    p = subprocess.run(["git", "show", "%s:%s" % (commit, relpath)],
+                       cwd=repo, capture_output=True)
+    if p.returncode != 0:
+        return None
+    return p.stdout
 
 
 def resolve_committed_id(repo):
@@ -480,6 +613,16 @@ def main():
         results = {}
         cached = {}
         exits = {}
+        # Both reads of every registered transcript, taken BEFORE any suite
+        # runs.  The working-tree read is kept only so that Section 2b can
+        # measure the two against each other; nothing compares against it.
+        pre_tree, pre_blob = {}, {}
+        for _m, _t in SUITES:
+            if not _t:
+                continue
+            _p = os.path.join(clone, _t)
+            pre_tree[_t] = open(_p, "rb").read() if os.path.exists(_p) else None
+            pre_blob[_t] = read_committed_blob(clone, commit, _t)
         for module, transcript in SUITES:
             if not os.path.exists(os.path.join(clone, module)):
                 results[module] = ("MISSING", 0.0, ["not present at this commit"])
@@ -496,19 +639,132 @@ def main():
                 results[module] = ("RAN", dt, ["no committed transcript to compare"])
                 print("  %-44s RAN      %6.1fs  (no transcript)" % (module, dt))
                 continue
-            tpath = os.path.join(clone, transcript)
-            if not os.path.exists(tpath):
-                results[module] = ("NO_FILE", dt, [transcript + " absent"])
+            # THE COMMITTED TRANSCRIPT, FROM THE OBJECT STORE.  Not from the
+            # clone's working tree: see read_committed_blob.  The bytes were
+            # taken before any suite ran, but that is belt-and-braces -- a
+            # blob at a fixed commit cannot change under us, which is the
+            # property the old read lacked.
+            blob = pre_blob.get(transcript)
+            if blob is None:
+                results[module] = ("NO_FILE", dt,
+                                   [transcript + " is not committed at this id"])
                 print("  %-44s NO_FILE  %6.1fs" % (module, dt))
                 continue
-            with open(tpath) as fh:
-                committed_text = fh.read()
+            committed_text = blob.decode("utf-8", "replace")
             verdict, evidence = classify(committed_text, out)
             results[module] = (verdict, dt, evidence)
             tag = "" if rc == 0 else "  exit %d (guard red, transcript still checked)" % rc
             print("  %-44s %-14s %6.1fs%s" % (module, verdict, dt, tag))
             for e in evidence[:6]:
                 print("        " + e)
+
+        # ------------------------------------------------------------------
+        print("\n" + "-" * 74)
+        print("SECTION 2b -- the two reads, measured against each other")
+        print("Created 2026-11-04.  The object-store read replaces a")
+        print("working-tree read, so it owes two things: that it agrees with")
+        print("the old read everywhere the old read was sound, and that it")
+        print("disagrees somewhere -- or it changed nothing.")
+        print("-" * 74)
+
+        # E1 -- THE OVERLAPPING LIMIT, AND IT IS AN EXACT ONE.
+        # For a module that does not write its own transcript, nothing in the
+        # pristine clone can have touched the file, so the working-tree bytes
+        # and the object-store bytes must be EQUAL -- not close, equal.  This
+        # is the check that the new read is a read of the same thing.
+        e1_bad, e1_n = [], 0
+        for module, transcript in SUITES:
+            if not transcript or transcript not in pre_tree:
+                continue
+            if writes_own_transcript(clone, module, transcript):
+                continue
+            t, b = pre_tree[transcript], pre_blob[transcript]
+            if t is None or b is None:
+                e1_bad.append("%s: working tree %s, object store %s"
+                              % (transcript,
+                                 "absent" if t is None else "present",
+                                 "absent" if b is None else "present"))
+            elif t != b:
+                e1_bad.append("%s: %d working-tree bytes vs %d committed bytes"
+                              % (transcript, len(t), len(b)))
+            else:
+                e1_n += 1
+        check("E1 for every suite that does NOT write its own transcript, the "
+              "object-store read is byte-identical to the old working-tree read",
+              not e1_bad,
+              "\n".join("  " + b for b in e1_bad) if e1_bad else
+              "%d transcripts, 0 differing bytes.  An EXACT agreement, not a "
+              "tolerance: a pristine checkout of a commit and that commit's "
+              "blobs are the same bytes, so any difference here would mean "
+              "the clone is not pristine." % e1_n)
+
+        # E2 -- THE POSITIVE CONTROL, and the reason the change was worth
+        # making.  For a registered SELF_WRITING suite the file in the clone
+        # has been overwritten by the suite's own run, so the old read and the
+        # new read now differ.  If none of them differ, the repair is
+        # cosmetic and this check says so.
+        e2_same, e2_diff = [], []
+        for module, transcript in SUITES:
+            if not transcript or module not in cached:
+                continue
+            if not writes_own_transcript(clone, module, transcript):
+                continue
+            post = os.path.join(clone, transcript)
+            post_bytes = open(post, "rb").read() if os.path.exists(post) else None
+            if post_bytes == pre_blob.get(transcript):
+                e2_same.append(transcript)
+            else:
+                e2_diff.append(transcript)
+        check("E2 at least one registered self-writing suite has overwritten "
+              "its transcript in the clone, so the old read would have been "
+              "circular",
+              bool(e2_diff),
+              ("the old read would have compared these against a file the run "
+               "had just written:\n"
+               + "\n".join("  " + t for t in e2_diff)
+               + ("\n  (and these %d were rewritten identically, which the old "
+                  "read could not have distinguished)" % len(e2_same)
+                  if e2_same else ""))
+              if e2_diff else
+              "every registered self-writing suite rewrote its transcript "
+              "byte-identically, so the object-store read found nothing the "
+              "working-tree read would have missed")
+
+        # E3 -- THE TWO READS, ADJUDICATED.  E2 shows the bytes differ; this
+        # shows it CHANGES A VERDICT, which is the only form of the claim that
+        # matters.  Where they disagree the object-store verdict must be the
+        # stricter one: a read that disagreed by being more lenient would be a
+        # worse read, not a better one.
+        _RANK = {"IDENTICAL": 0, "NUMERIC_DRIFT": 1, "STALE": 2}
+        e3_flips, e3_wrong = [], []
+        for module, transcript in SUITES:
+            if not transcript or module not in cached:
+                continue
+            if not writes_own_transcript(clone, module, transcript):
+                continue
+            post = os.path.join(clone, transcript)
+            if not os.path.exists(post):
+                continue
+            old_text = open(post, encoding="utf-8", errors="replace").read()
+            new_text = pre_blob[transcript].decode("utf-8", "replace")
+            v_old, _ = classify(old_text, cached[module])
+            v_new, _ = classify(new_text, cached[module])
+            if v_old == v_new:
+                continue
+            e3_flips.append("%s: working-tree read %s -> object-store read %s"
+                            % (transcript, v_old, v_new))
+            if _RANK.get(v_new, 9) <= _RANK.get(v_old, 9):
+                e3_wrong.append("%s: the object-store read is the WEAKER "
+                                "verdict (%s vs %s)" % (transcript, v_new, v_old))
+        check("E3 where the two reads disagree, the object-store verdict is "
+              "the stricter one", not e3_wrong,
+              "\n".join("  " + b for b in e3_wrong) if e3_wrong else
+              ("%d verdict(s) changed, every one in the strict direction:\n"
+               % len(e3_flips)) + "\n".join("  " + f for f in e3_flips)
+              if e3_flips else
+              "no verdict changed: the self-writing suites all rewrote their "
+              "transcripts to the committed bytes, so this run has no "
+              "disagreement to adjudicate")
 
         # ------------------------------------------------------------------
         print("\n" + "-" * 74)
@@ -802,6 +1058,46 @@ def main():
               "%d exclusions, each naming a committed file, none of them "
               "also in SUITES" % len(excluded))
 
+        # ------------------------------------------------------------------
+        # THE BUDGET, CHECKED (2026-11-04).  Two sentences that have been
+        # carried in prose since 10-27 become numbers here: the registered
+        # table still fits in one shell call, and every module excluded FOR
+        # its cost really does not.  An exclusion whose reason is a number
+        # nobody recomputes is a declaration, and the 10-28 table already
+        # says declarations are the weak class.
+        spent = sum(dt for _, dt, _ in results.values())
+        print()
+        print("  SECTION 2 BUDGET")
+        print("    measured this run        %6.1f s  over %d suites"
+              % (spent, len([1 for _, t in SUITES if t])))
+        print("    one-shell-call cap       %6.1f s" % CALL_CAP_S)
+        print("    headroom                 %6.1f s" % (CALL_CAP_S - spent))
+        check("Section 2 still fits inside one shell call", spent < CALL_CAP_S,
+              "%.1f s of a %.1f s cap.  Four rows were added today at a "
+              "measured 32.3 s and four more at 5.2 s; the table is a "
+              "spending decision and this is the balance."
+              % (spent, CALL_CAP_S))
+        oc_bad = []
+        _excluded_modules = set(m for _c, m in TRANSCRIPT_EXCLUSIONS.values())
+        for mod, secs in sorted(MEASURED_OVER_CAP_S.items()):
+            if mod not in _excluded_modules:
+                oc_bad.append("%s is timed as over-cap but is not excluded" % mod)
+                continue
+            if spent + secs <= CALL_CAP_S:
+                oc_bad.append("%s: %.1f s + %.1f s spent = %.1f s, which is "
+                              "INSIDE the %.1f s cap, so cost is no longer a "
+                              "reason to exclude it"
+                              % (mod, secs, spent, spent + secs, CALL_CAP_S))
+        check("every module excluded for cost is measured over the remaining "
+              "budget", not oc_bad,
+              "\n".join("  " + b for b in oc_bad) if oc_bad else
+              "%d modules, each measured today: %s.  Adding any one to the "
+              "%.1f s already spent exceeds the %.1f s cap."
+              % (len(MEASURED_OVER_CAP_S),
+                 ", ".join("%s %.1fs" % (m.replace("graphene_", "").replace(".py", ""), s)
+                           for m, s in sorted(MEASURED_OVER_CAP_S.items())),
+                 spent, CALL_CAP_S))
+
         # Planted controls for the three checks above, on synthetic sets --
         # no file is written into the tree other audits read.
         print()
@@ -818,10 +1114,17 @@ def main():
                   "mutation_arrival_probe_output.txt"),
               "the arrival probe's transcript is captured by redirection, "
               "not written by the module, so the predicate must say no")
+        # NOTE 2026-11-04: this control's donor is now REGISTERED in SUITES
+        # rather than excluded.  The control is unaffected, and deliberately
+        # left pointing at it: writes_own_transcript is a predicate on the
+        # SOURCE, not on the tables, and a module being registered no longer
+        # has any bearing on whether it writes its own transcript.  That
+        # independence is exactly what today's change bought.
         check("  C5.3 and CONFIRMED for one that does",
               writes_own_transcript(repo, "graphene_default_flip.py",
                                     "default_flip_output.txt"),
-              "graphene_default_flip.py line ~745 opens it 'w'")
+              "graphene_default_flip.py line ~745 opens it 'w', and is now a "
+              "registered suite as well -- the predicate does not care")
 
         print("\n" + "=" * 74)
         print("SUMMARY")
