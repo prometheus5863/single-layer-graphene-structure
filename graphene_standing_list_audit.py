@@ -248,9 +248,35 @@ def p_item16_ii_untouched(root):
 # the finding landed and silent forever after -- which is precisely how the
 # Name census came to be read as a clean bill of health for five sessions.
 
+# ---------------------------------------------------------------------------
+# A1's TRIGGER.  BROADENED 2026-11-05, and the superseded form kept.
+#
+# The 2026-10-18 form required the literal word "still":
+#
+#     chapters? 2 ?(?:and|-|--) ?3 (?:are still|remain) undrafted
+#
+# The 2026-11-04 list carries "**CHAPTERS 2 AND 3 ARE UNDRAFTED** - the largest
+# block of pure writing in the repository, with their computational results
+# complete."  That is A1's assertion exactly, in a wording one word shorter,
+# and the trigger above does not match it.  So the row read CLEARED, R2 and R4
+# passed, and the item this module exists to catch was back at the bottom of
+# the live list for a day without the module noticing.  P5d-P5g below are the
+# planted record of that: the new trigger matches the 11-04 bullet, the old one
+# does not, and the old one still matches everything it used to.
+#
+# The two regexes also differed from each other before today -- the BASELINE
+# row's lacked the en-dash alternative and the Section 3 one lacked "&" -- so
+# they are now ONE constant, read in both places.  Two spellings of one
+# predicate is a thing this repository has been bitten by before.
+A1_TRIG_PRE_1105 = re.compile(
+    r'chapters? 2 ?(?:and|-|–) ?3 (?:are still|remain) undrafted', re.I)
+A1_TRIG = re.compile(
+    r'chapters? 2 ?(?:and|-|–|&) ?3 (?:are|remain)(?:\s+still)? undrafted',
+    re.I)
+
 BASELINE = [
     # id, trigger, what the item asserts, tree predicate, gloss, retired_on
-    ('A1', re.compile(r'chapters? 2 and 3 are still undrafted', re.I),
+    ('A1', A1_TRIG,
      True, p_chapters_23_undrafted,
      'the item asserts both chapters are undrafted', '2026-10-18'),
     ('A2', re.compile(r'\(ii\)[^|]*?is still untouched', re.I),
@@ -321,6 +347,19 @@ def audit(root, logtext):
 FAULT_CLASSES = ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
 
 
+def _rows_against(logtext, baseline):
+    """Run audit() with BASELINE forced to `baseline`.  Added 2026-11-05 so a
+    plant can be driven through the real row machinery without each call site
+    repeating the save/restore dance."""
+    global BASELINE
+    saved, BASELINE = BASELINE, baseline
+    try:
+        rows, _ = audit(HERE, logtext)
+    finally:
+        BASELINE = saved
+    return rows
+
+
 def revivals(logtext, trig, antitrig):
     """Entries whose bullet matches `trig`, and entries whose bullet matches
     `antitrig` (the retired/corrected wording).  A trig entry strictly LATER
@@ -366,6 +405,21 @@ PLANT_LOG_PARTIAL = """\
 **Not yet covered (candidates for future runs):**
 
 - **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted; A2's wording is absent.
+
+**Commits this run:** 0
+"""
+
+# THE 2026-11-04 BULLET, VERBATIM.  The wording that escaped the pre-11-05
+# trigger, kept here as a literal so the escape cannot be re-introduced by a
+# future edit to the regex without P5e going red.
+PLANT_LOG_REWORDED = """\
+## 2026-01-01 - a plant carrying the 2026-11-04 rewording
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE UNDRAFTED** - the largest block of pure writing in
+  the repository, with their computational results complete.
+- **SOMETHING WITH NO TREE ASSERTION AT ALL** - carried.
 
 **Commits this run:** 0
 """
@@ -486,6 +540,34 @@ def main():
     check('P5c REVIVED is a fault class, so a revival cannot pass quietly',
           'REVIVED' in FAULT_CLASSES)
 
+    # P5d-P5g -- THE BROADENING, MEASURED AGAINST EXACTLY KNOWN ANSWERS.
+    # One bullet, two regexes, and the answers are known before the code runs:
+    # the new trigger must match it, the old one must not, and the old one must
+    # still match what it always matched.  No tolerance and nothing read off
+    # the live tree -- these hold whatever the list currently says.
+    bullet_1104 = ('**CHAPTERS 2 AND 3 ARE UNDRAFTED** - the largest block of '
+                   'pure writing in the repository, with their computational '
+                   'results complete.')
+    bullet_1017 = ('**CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - their '
+                   'computational results have been complete for weeks.')
+    check('P5d the 2026-11-04 wording IS matched by the broadened trigger',
+          bool(A1_TRIG.search(bullet_1104)),
+          'the bullet asserts A1 and the row must therefore fire on it')
+    check('P5e and was NOT matched by the pre-2026-11-05 trigger',
+          not A1_TRIG_PRE_1105.search(bullet_1104),
+          'this is why R2/R4 passed on 2026-11-04 with the item live: the '
+          'trigger required the word "still" and the list had dropped it')
+    check('P5f the broadening is a superset -- the "still" wording still '
+          'matches both triggers',
+          bool(A1_TRIG.search(bullet_1017))
+          and bool(A1_TRIG_PRE_1105.search(bullet_1017)),
+          'a broadening that stopped matching the old wording would be a '
+          'replacement, not a broadening')
+    check('P5g end to end: the reworded plant classifies A1 REVIVED',
+          (lambda: (lambda g: g.get('A1') == 'REVIVED')(
+              {r[0]: r[1] for r in _rows_against(PLANT_LOG_REWORDED, retd)}))(),
+          'through the real row machinery, not just the regex')
+
     # VACUITY.  A list the parser cannot find must not read as a clean bill of
     # health -- that is exactly how the inert-knob census came to be read as
     # one for five sessions (2026-10-17).  ABSENT is not CONFIRMED.
@@ -572,8 +654,8 @@ def main():
     print('3.  A1 IS NOT A STALE ITEM.  IT IS A RETIRED WORDING REVIVED')
     print('-' * 78)
 
-    trig = re.compile(r'chapters? 2 ?(?:and|-|–) ?3 (?:are still|remain) undrafted',
-                      re.I)
+    # The same constant the BASELINE row uses -- see A1_TRIG.
+    trig = A1_TRIG
     anti = re.compile(r'chapters? 2 and 3 are drafted', re.I)
     t, a, revived = revivals(logtext, trig, anti)
     print('  entries asserting UNDRAFTED : %s' % ', '.join(t))
