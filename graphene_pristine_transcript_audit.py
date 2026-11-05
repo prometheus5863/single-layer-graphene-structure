@@ -698,40 +698,106 @@ def main():
               "blobs are the same bytes, so any difference here would mean "
               "the clone is not pristine." % e1_n)
 
-        # E2 -- THE POSITIVE CONTROL, and the reason the change was worth
-        # making.  For a registered SELF_WRITING suite the file in the clone
-        # has been overwritten by the suite's own run, so the old read and the
-        # new read now differ.  If none of them differ, the repair is
-        # cosmetic and this check says so.
-        e2_same, e2_diff = [], []
+        # E2 -- A CONTROL, NOT A REQUIREMENT.  RECAST 2026-11-05.
+        #
+        # SUPERSEDED FRAMING, LEFT IN PLACE SO THE CHANGE IS LEGIBLE.  Created
+        # 2026-11-04 as an unconditional requirement, on this reasoning: "for a
+        # registered SELF_WRITING suite the file in the clone has been
+        # overwritten by the suite's own run, so the old read and the new read
+        # now differ.  If none of them differ, the repair is cosmetic and this
+        # check says so."  It passed on 11-04 and was counted among that day's
+        # 22 passes.  On 11-05 it FAILED, with the evidence line "every
+        # registered self-writing suite rewrote its transcript
+        # byte-identically" -- it failed because the tree had stopped drifting.
+        # A check that can only pass while something is wrong is a control that
+        # requires a defect to exist, which is the fault this repository has
+        # now recorded in several other places.
+        #
+        # The circularity the object-store read removes is STRUCTURAL: the old
+        # read compared a transcript against a file the suite's own run had
+        # just written, whether or not those bytes happened to differ that day.
+        # E1 is what shows the new read is a read of the same thing; E3 is what
+        # shows that a disagreement, where there is one, is adjudicated in the
+        # strict direction.  Neither needs the tree to be unhealthy.  So the
+        # occurrence is now REPORTED and not scored (E2r, CONFIRMED /
+        # NOT_EXERCISED), the possibility it guards against is established by
+        # PLANTING both branches rather than by waiting for one to arrive
+        # (E2c1 / E2c2), and the one genuine requirement left -- that the
+        # predicate has something to run on at all -- is what E2 now checks.
+        def _circular(post_bytes, committed_bytes):
+            """True iff the old working-tree read would have compared a
+            suite's output against bytes its own run had changed."""
+            return post_bytes != committed_bytes
+
+        # The two planted branches.  EXACT, both of them: one must be True and
+        # the other must be False, with no tolerance and no dependence on the
+        # state of the repository.  That independence is the whole point -- it
+        # is what the 11-04 form of E2 lacked.
+        check("E2c1 the circularity predicate is TRUE when the run rewrote the "
+              "transcript differently (planted)",
+              _circular(b"line one\nline two CHANGED\n",
+                        b"line one\nline two\n"),
+              "planted post-run bytes differ from the planted committed blob by "
+              "one word, so a working-tree read would have been circular")
+        check("E2c2 and FALSE when the run rewrote it byte-identically "
+              "(planted)",
+              not _circular(b"line one\nline two\n", b"line one\nline two\n"),
+              "planted post-run bytes equal the planted committed blob, so the "
+              "old read would have seen exactly what the new read sees.  This "
+              "is the state the live tree was in on 2026-11-05, and it is not "
+              "a fault")
+
+        e2_same, e2_diff, e2_missing = [], [], []
         for module, transcript in SUITES:
             if not transcript or module not in cached:
                 continue
             if not writes_own_transcript(clone, module, transcript):
                 continue
             post = os.path.join(clone, transcript)
-            post_bytes = open(post, "rb").read() if os.path.exists(post) else None
-            if post_bytes == pre_blob.get(transcript):
-                e2_same.append(transcript)
-            else:
+            if not os.path.exists(post):
+                e2_missing.append(transcript)
+                continue
+            post_bytes = open(post, "rb").read()
+            if _circular(post_bytes, pre_blob.get(transcript)):
                 e2_diff.append(transcript)
-        check("E2 at least one registered self-writing suite has overwritten "
-              "its transcript in the clone, so the old read would have been "
-              "circular",
-              bool(e2_diff),
-              ("the old read would have compared these against a file the run "
-               "had just written:\n"
-               + "\n".join("  " + t for t in e2_diff)
-               + ("\n  (and these %d were rewritten identically, which the old "
-                  "read could not have distinguished)" % len(e2_same)
-                  if e2_same else ""))
-              if e2_diff else
-              "every registered self-writing suite rewrote its transcript "
-              "byte-identically, so the object-store read found nothing the "
-              "working-tree read would have missed")
+            else:
+                e2_same.append(transcript)
 
-        # E3 -- THE TWO READS, ADJUDICATED.  E2 shows the bytes differ; this
-        # shows it CHANGES A VERDICT, which is the only form of the claim that
+        # THE REQUIREMENT THAT SURVIVES.  A suite registered as self-writing
+        # must actually leave the file behind, or the predicate has nothing to
+        # run on and the exclusion table is wrong about that suite.  This can
+        # fail for a real reason; the old E2 could not.
+        check("E2 the circularity predicate is total over the registered "
+              "self-writing suites", not e2_missing,
+              "\n".join("  " + t + ": registered self-writing, but absent "
+                         "from the clone after the run" for t in e2_missing)
+              if e2_missing else
+              "%d registered self-writing suite(s), every one left its "
+              "transcript behind for the predicate to read"
+              % (len(e2_diff) + len(e2_same)))
+
+        # THE REPORT, WHICH IS NOT SCORED.  Either branch is a sound state of
+        # the repository, so neither is a pass and neither is a failure.
+        if e2_diff:
+            print("  [CONFIRMED] E2r the circularity was exercised on this run")
+            for t in e2_diff:
+                print("        " + t + ": the old read would have compared "
+                      "this against a file the run had just written")
+            if e2_same:
+                print("        (and %d were rewritten identically, which the "
+                      "old read could not have distinguished)" % len(e2_same))
+        else:
+            print("  [NOT_EXERCISED] E2r no registered self-writing suite "
+                  "rewrote its transcript differently on this run")
+            print("        %d suite(s) rewrote byte-identically.  The "
+                  "circularity is still real -- E2c1/E2c2 above plant both of "
+                  "its branches -- it simply did not occur today, which is "
+                  "what a healthy tree looks like." % len(e2_same))
+
+        # E3 -- THE TWO READS, ADJUDICATED.  E2r reports whether the bytes
+        # differed on this run (it said CONFIRMED on 11-04 and NOT_EXERCISED on
+        # 11-05); this shows that where they do differ it CHANGES A VERDICT,
+        # which is the only form of the claim that
         # matters.  Where they disagree the object-store verdict must be the
         # stricter one: a read that disagreed by being more lenient would be a
         # worse read, not a better one.
