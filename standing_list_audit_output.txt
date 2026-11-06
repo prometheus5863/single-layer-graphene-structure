@@ -45,14 +45,15 @@ wording this list had already retired.
 ------------------------------------------------------------------------------
 2.  THE REAL STANDING LIST, AS OF THE LATEST ENTRY
 ------------------------------------------------------------------------------
-  latest entry: 2026-11-04
+  latest entry: 2026-11-05
   top-level bullets in its Not-yet-covered list: 43
   baseline assertions checked: 2
 
   id   class          item says tree says
-  A1   REVIVED        True      False    
-       retired 2026-10-18 and present again in the 2026-11-04 list;
-       02-electronic-structure.md 375 non-blank lines, 11 sections;
+  A1   RETIRED        True      False    
+       retired 2026-10-18; the tree still contradicts the retired
+       wording, so the retirement stands; 02-electronic-structure.md 375
+       non-blank lines, 11 sections;
        03-transport-and-optical-properties.md 359 non-blank lines, 9
        sections
   A2   RETIRED        True      False    
@@ -71,12 +72,12 @@ wording this list had already retired.
 
   [PASS] R1 the latest list parsed to at least 10 top-level bullets
          got 43
-  [FAIL] R2 no baseline row is in a fault class ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
-         faults: [('A1', 'REVIVED')]
+  [PASS] R2 no baseline row is in a fault class ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
+         faults: []
   [PASS] R3 every retired row is still justified by the tree
          stale retirements: []
-  [FAIL] R4 no retired wording has returned to the list
-         revived: ['A1']
+  [PASS] R4 no retired wording has returned to the list
+         revived: []
 
 ------------------------------------------------------------------------------
 3.  A1 IS NOT A STALE ITEM.  IT IS A RETIRED WORDING REVIVED
@@ -110,5 +111,5 @@ wording this list had already retired.
          7604c05 2026-10-13 thesis: Section 4.6.12, and the two sentences in Sections 4.7 and 4.10 that the measurement makes false, annotated in place
 
 ==============================================================================
-TOTAL: 24 passed, 2 failed
+TOTAL: 26 passed, 0 failed
 ==============================================================================
