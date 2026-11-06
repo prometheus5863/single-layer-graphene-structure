@@ -14104,3 +14104,406 @@ warning 11-04 described never appeared.
 transcript (§1, §2), the E2 recast, its transcript, the `A1_TRIG` broadening
 with four planted controls (§3), and its deliberately-red transcript — and this
 `AUTOMATION_LOG.md` entry makes **6**.
+
+## 2026-11-06 — the ranked item's prediction held on both halves, the same run found the census calling a crash a stale transcript and its own failures a success, and then two of today's own new checks turned out to assert coincidences
+
+Six commits, all in the instrument layer again. The first was the ranked item.
+Everything after it was found by running the first — and the last two are
+defects **in checks written earlier the same session**, both caught only by
+running the suite against this entry before committing it.
+
+### 1. The ranked-first item, discharged, and both halves of the prediction held
+
+The 11-05 list ranked first: **re-run `graphene_standing_list_audit.py` after
+that entry lands**, with a prediction in two parts. Part one: the entry's own
+chapters-2-and-3 bullet matches neither regex, so `A1` should read `RETIRED`,
+`R2`/`R4` should be green, exit 0, and the revival list should be unchanged at
+five entries including 11-04. Part two: the module reads the log it is
+committed beside, so its transcript is stale again by exactly one entry date
+and the pristine census should still read **`STALE 9`, not 8** — "if it reads
+8, the self-reading structure is not what §3 says it is".
+
+Both held. **24/2 → 26/0.** Against the committed transcript the diff is
+exactly four things: the latest-entry line 11-04 → 11-05, the `A1` row
+`REVIVED` → `RETIRED`, and `R2`/`R4` `FAIL` → `PASS`. Nothing in Section 3
+moved. And the census, run at `94b019c` with a **clean tree** — `tracked files
+modified in the WORKING TREE : 0`, where the 11-05 run had 1 — read `STALE 9`
+with `graphene_standing_list_audit.py` in the set at `line count 115 -> 116`.
+Membership identical to 11-05's, not merely the count, which is the thing the
+standing membership item has been asking for since 10-25.
+
+That census (`4220acd`) is committed **before** any of today's repairs, so the
+pre-repair reading stays on the record rather than being reconstructed from
+this entry.
+
+### 2. The census was reporting a crashed suite as a stale transcript
+
+The same run printed two rows the prediction did not name. The first:
+
+    graphene_mixed_capture_repair_audit.py   STALE   1.1s   line count 153 -> 158
+
+against 11-05's
+
+    graphene_mixed_capture_repair_audit.py   STALE   0.0s   line count 153 -> 5
+
+The 11-05 row was **not a stale transcript at all.** That suite printed its
+four banner lines and died on `ModuleNotFoundError: No module named 'scipy'`,
+raised from `graphene_contact_doping_model.py`, an import three modules deep.
+Reproduced today in a pristine clone at `94b019c` with scipy off the path:
+stdout is exactly the four banner lines, **five by `split("\n")`** — which is
+the `-> 5` the census printed — and the exit code is 1. The literal bytes are
+now `CRASH_STDOUT_NO_SCIPY`, so the reproduction is a control and not a memory.
+
+**And the same run passed "no suite fails to complete in a pristine clone".**
+Two readings, one event, both wrong, in opposite directions.
+
+The cause is the 2026-10-16 amendment's blind side. That change rightly
+stopped discarding stdout on a nonzero exit — every suite here ends `return 0
+if failed == 0 else 1`, so a red guard is a nonzero exit by design, and C7 is
+its control. But the test it left behind for *did this run work at all* is
+`if not p.stdout`: **emptiness.** A suite that crashes before its first print
+is `ERROR`; a suite that crashes one line later has stdout, so it is compared,
+and the verdict then names the wrong object entirely. The transcript was fine.
+The run never happened.
+
+The two readings could not see each other. `STALE` fed a check that was already
+red for eight genuine rows, so this one rode along invisibly among them; the
+completion check reads only the `ERROR` bucket, which was empty, so it went
+green. A crash was reported as a documentation defect and as a clean bill of
+health simultaneously.
+
+The repair is a **mechanism-gated verdict**, which is the 2026-10-16 rule
+turned on itself: a suite here announces its own completion by printing
+`TOTAL: n passed, m failed`. New class `INCOMPLETE`, placed in
+`COMPLETION_FAULTS` — named once — so the completion check picked it up with
+no edit at the call site. The expectation is **self-calibrating**: it comes
+from the suite's *own committed transcript*, not from a hard-coded list of
+which modules print a summary, so a suite that never printed one makes no
+completion claim and is compared exactly as before (`C8e`). `SUMMARY_RE` is now
+one constant read by both this test and Section 5, which carried the regex
+inline — two spellings of one predicate has cost this repository two sessions
+already, and this one started as a constant rather than becoming one after the
+drift.
+
+Eight controls, `C8a`–`C8h`, every answer known before the code ran. `C8b` is
+load-bearing: it is the measured reason the 11-05 census called a crash a stale
+transcript.
+
+**Both of C8b's first two drafts failed, and neither failure was the code's.**
+The first built a committed-transcript fixture with the same line count as the
+crash stdout, so `classify()` never reached its line-count branch and reported
+`line 1 is not a numeric difference` instead of `line count N -> 5`; the
+control went red against correct code. The second miscounted ten trailing
+newlines as ten lines, when `split("\n")` gives eleven. The fixture now
+carries a **runtime assert** rather than a comment, and that assert is what
+caught the second one before it could go red for a third unrelated reason.
+Both drafts are recorded in place, as 11-05's `P5` was.
+
+### 3. The census was the one suite its own check exempted
+
+The second unpredicted row: the exit-code consistency check named **three**
+suites where 11-05's named two. The new one was
+`graphene_standing_list_audit.py` — *transcript claims 2 failed, suite exits
+0*. Every prior instance of that class ran the other way, a transcript claiming
+health for broken code; this one claims illness for healthy code, because
+11-05 committed a deliberately-red transcript one commit before the log entry
+that turned the module green. The check caught a direction **its own failure
+message does not describe**, and refreshing the transcript (`df84b5a`) cleared
+it while leaving the staleness row standing. The two instruments decouple
+there, and the decoupling is the information: one was reporting a deliberate
+act, the other a structural fact.
+
+Chasing that row down found something worse. Section 5 asks, of every
+registered suite, whether the transcript's pass/fail summary agrees with the
+suite's exit code — on the stated grounds that a transcript saying "0 failed"
+beside code that exits nonzero "is the exact state this repository shipped from
+2026-10-04 to 2026-10-15". `main()` of `graphene_pristine_transcript_audit.py`
+ended in a bare **`return 0`**.
+
+So the census exited 0 on every run, whatever it found, and its committed
+transcript has read `TOTAL: 24 passed, 2 failed` beside an exit code of 0 since
+at least 11-04 — the mirror image of the state the check exists to catch, in
+the file that does the checking. Measured, not inferred: two `FAIL`s printed
+and the shell's status variable read 0.
+
+**Nothing could see it, and the reason is a good exclusion overreaching.** The
+module is deliberately absent from `SUITES`, because auditing itself inside its
+own pristine clone would make its transcript a claim only it can check — the
+09-30 self-certification rule, still right. But that exclusion was being read
+as an exemption from *every* property, and this one needs no clone, no second
+run and no self-certification. It is the shape of one function's returns. An
+exclusion justified for one check had quietly acquired the authority of all of
+them.
+
+So the module is still not registered. `C9`/`C9b` ask the question of the
+source by **AST**: every `return` in `main()` must be the convention's
+conditional, none may be a bare constant, and the conditional must be on the
+`_FAIL` list this run actually appends to — a conditional on the wrong name
+would exit 0 while red and still pass the control.
+
+**AST and not a regex, and the regex is why.** A source-level pattern for the
+convention was written first and reported **27 of 43 suites violating it**,
+which is false: five suites were observed exiting nonzero on that very run. A
+measurement that contradicts a direct observation is the measurement that is
+wrong, so it is not reported here as a finding, and the honest consequence is
+that whether every *other* suite obeys the convention is **unmeasured** and
+goes on the list below as such.
+
+The census now reads **34 passed, 2 failed, exit 1**, and the exit code agrees
+with the transcript for the first time. The two standing `FAIL`s are the real
+ones.
+
+### 4. `revivals()` erasing its own history, and the wording that is now safe
+
+11-05's second-ranked item, created the same day and the reason that entry had
+to word its own chapters-2-and-3 bullet to match neither regex.
+
+The rule was "a trig entry strictly later than the **last** antitrig entry is
+a revival". `a[-1]` is the last corrected entry in the whole file, so the
+verdict was a property of the file's **end** rather than of the entry being
+judged: any future session writing *chapters 2 and 3 are drafted* — the true
+and correct wording — would have retroactively erased every earlier revival
+and flipped `V2`/`V3` red.
+
+Now a trig entry is a revival iff some antitrig entry **precedes** it, i.e. iff
+the item had already been corrected when that entry was written. The comparison
+is against the last corrected entry before the entry being judged, which is
+also the date the revival is a revival *of* — something the old rule could not
+name, holding as it did one date for the whole file. Section 3 prints the
+pairing, and all five revivals turn out to revive the **2026-10-06**
+correction. `revivals_pre_1106` is kept, uncalled by the audit, as the
+control's reference.
+
+`P9a`–`P9f`: `P9b`/`P9c` are the divergence on a four-entry plant whose answer
+is known by inspection (`[]` against `['2026-01-03']`); `P9d` is the hazard
+**on the real log** — append one correctly-worded entry and the superseded rule
+drops all five revivals; `P9e` is the new rule unmoved by that same append;
+`P9f` is the zero case, no correction anywhere so nothing to revive, both rules
+empty. `P9a` is discussed in §5: its first draft asserted the wrong thing.
+
+The first draft of these numbered them `P6a`–`P6f` and **collided with the
+existing `P6b`/`P6c`**, shipping a transcript with duplicate labels. Caught by
+listing the labels and checking for duplicates, which is now part of the
+pre-commit pass for this module.
+
+### 5. Two of today's own checks asserted coincidences, and this entry breaks both
+
+`V3` was amended to the entry-local invariant. Its old form,
+`min(revived) > max(a)`, **is the superseded rule's own statement**, and the
+first draft kept it as a `check()` — in the same commit whose docstring calls
+it a coincidence. Asserting a coincidence makes the suite go red the first time
+the coincidence breaks, for no finding, against this repository's standing rule
+that a permanently red check is one nobody reads.
+
+It breaks on the very next entry, and not hypothetically. **This entry words
+the chapters-2-and-3 item correctly** — which §4's repair is precisely what
+makes safe — so 2026-11-06 joins the corrected list, `max(a)` becomes
+2026-11-06, `min(revival)` stays 2026-10-17, and the old form reads `False`
+while all five revivals remain correctly recorded. A correct log entry would
+have turned a check red. `V3b` now prints its value and its reason and nothing
+is gated on it. **32/0.**
+
+**And then the same error turned up again, in `P9a`.** It asserted that
+`revivals()` and `revivals_pre_1106()` return the **same list** on the real
+log. That holds only while no corrected entry follows a revival — so this
+entry breaks it too: the superseded rule drops all five revivals, the current
+rule keeps them, and the suite read **31/1**.
+
+What is actually invariant is **containment**, and provably rather than
+empirically: `a` is built in entry order and the dates are ISO, so `a[-1]` is
+`max(a)`, and `d > max(a)` implies some element of `a` precedes `d`. So the
+current rule's result contains the superseded one's **for any log whatsoever**,
+and the repair can only ever *add* revivals, never drop one — which is the
+entire defect being repaired, and therefore the property worth gating on.
+Equality never was. `P9a2` splits out the rule-independent half (both rules
+read the same dates), because folding it into `P9a` was part of what made the
+old check look like an invariant. The live comparison is now printed with both
+counts and a divergence marker. **33/0.**
+
+Two instances of one error in one session, and the second was written *after*
+the first had been diagnosed. The shared shape: **a check whose expected answer
+is read off the current state of the file it audits.** Both were caught the
+same way — by running the suite against this entry before committing it, which
+is the one thing that distinguishes a prediction from a hope. Neither was
+visible in the diff.
+
+That is also the whole point of §4: for the first time since 10-18, this entry
+did not have to be worded around its own instrument. It is worded correctly,
+and the instrument was made to survive that rather than the wording bent to
+survive the instrument.
+
+### 6. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G) for the **eleventh** consecutive
+session, and `mkdir $HOME/work` failed at 0 bytes free before anything else
+ran. `du` accounts for 28 M of it; the rest is sibling session directories this
+uid cannot read. All work was done on `/dev/sda1` (3.6 G free) under
+`/tmp/gwork`, and 11-05's lesson about uid-qualified scratch paths was not
+needed because this session's uid differs from 11-04's and the old directory
+was not in the way — which is luck, not a fix, so the lesson stands.
+
+`scipy` 1.15.3 installed with `--no-cache-dir --target`, but it took **72 s**,
+not the ~4 s 11-05 measured. `numpy` 2.2.6, `matplotlib` 3.10.9,
+`MPLCONFIGDIR` set before first import. **§2 is the reason this matters**: the
+11-05 census ran its pristine-clone suites without scipy reaching them, and
+that is what the crash was. A session that skips the install does not get a
+quieter census; it gets a census that misreports.
+
+**Two new wrinkles, both in the harness rather than the repository:**
+
+1. **The device bridge dropped mid-session**, between the C8b repair and its
+   re-run, and did not return on the immediate retry. The session was parked
+   with a ten-minute self-check rather than abandoned, and `/tmp/gwork`
+   survived intact, as did the installed scipy — so a drop costs the current
+   call and nothing else, provided the work is on disk and not only in flight.
+   The uncommitted C8b edit was the one thing lost, and it was re-applied from
+   the session's own record of it.
+2. **While the bridge was degraded the per-call timeout cap fell from 180 s to
+   45 s.** The census is ~90 s and does not fit in 45 s, and 11-05 had already
+   recorded that a `nohup ... &` background job does not survive the end of a
+   call — so there is no way to run it at all under that cap. The cap returned
+   to 180 s when the bridge recovered and the run proceeded, but a session that
+   begins in the degraded state cannot run the census and should do the cheap
+   mechanical items instead of discovering this halfway through.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-RUN `graphene_standing_list_audit.py` AND THE CENSUS AFTER THIS ENTRY
+  LANDS** — **ranked first**, cheap, mechanical, blocked on nothing, and it
+  carries three predictions to falsify. (i) Section 3 should report **seven**
+  corrected entries — 2026-10-01..10-06, which is six, and **2026-11-06** —
+  still exactly **five** revivals, each paired against 2026-10-06, `V3` green,
+  `V3b` reading **`False`**, and the rule-comparison line reading *superseded
+  0 revivals, current 5* with the divergence marker. The count is written out
+  because the first draft of this bullet said six, having added 2026-11-06 to
+  a six-entry range and not re-counted. If the revival count moves off five, §4's repair is not
+  what `P9e` says it is. (ii) `A1` should read `RETIRED`: this entry asserts
+  the chapters are **drafted**, which is the anti-trigger, not the trigger.
+  (iii) The census should go back to **`STALE 9`**, not stay at 8 — today's
+  8 is an artefact of refreshing the standing-list transcript and this entry
+  re-stales it by one entry date. **Reading 8 would mean the self-reading
+  structure has changed.**
+- **CENSUS EVERY CHECK WHOSE EXPECTED ANSWER COMES FROM THE LIVE LOG** —
+  created today, and §5 is two instances of it in one session (`V3b`, `P9a`).
+  The shape is a `check()` whose truth depends on the current contents of the
+  artefact being audited, which makes a correct future edit indistinguishable
+  from a defect. Both repairs took the same form: gate on an invariant, print
+  the contingent value. Mechanical to census — every `check()` in this module
+  and in `graphene_pristine_transcript_audit.py` whose condition reads
+  `logtext`, `seen`, or anything derived from them — and ranked above the
+  exit-code census below because it has two worked instances rather than none.
+- **DOES EVERY OTHER SUITE OBEY THE EXIT-CODE CONVENTION?** — created today,
+  **unmeasured**, and §3 is explicit that the one attempt to measure it was
+  wrong. The instrument is an AST census over `SUITES` of the form `C9` uses
+  on itself, not a source regex. Five suites were *observed* exiting nonzero,
+  so the answer is not "16 of 43"; it is unknown.
+- **THE EXIT-CODE CHECK STILL READS THE WORKING TREE** — created today. The
+  11-04 amendment moved the staleness comparison to the object store to remove
+  a circularity, but Section 5's consistency check still opens the transcript
+  from the pristine clone's working tree. For a registered suite that writes
+  its own transcript that read is circular in exactly the way 11-04 described,
+  and the fix is the one-line `pre_blob` read the staleness path already uses.
+- **IS `n_c` BRANCH-DEPENDENT?** — carried from 11-03, 11-04 and 11-05, still
+  the first-ranked *physics* item and still the only open item that can
+  overturn a **qualitative** conclusion. Blocked on reading the ELECTRON
+  branch's transition density off Zion Fig. 5 — the same figure the *lower
+  bound on ℓ*, the *`Δ_c` form for the chemisorbed metals* and the
+  1.4362-vs-1.5 item need, so **one figure read discharges four items**. Still
+  the cheapest high-value action available to a human reader, and now
+  **four** consecutive sessions have gone to the instrument layer instead.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and with the chapters-2-and-3 item retired as false this is the
+  **largest genuine writing gap in the repository**. §7.2 handles the retracted
+  form of the tension; the four-strand process synthesis is still unwritten.
+  Passed over again today, for the **second** consecutive session, and for the
+  same reason: all five commits were in the instrument layer. That is a choice
+  and is recorded as one. A session that wants to break the pattern should take
+  this before the list's first-ranked item.
+- **CHAPTERS 2 AND 3 ARE DRAFTED** — 09-28 and 09-29, 3811 and 3938 words, and
+  this is the **correct** wording, written deliberately to exercise §4's
+  repair. What is genuinely outstanding in them is named in their own follow-on
+  sections — a finite-temperature `n(E_F, T)` for §2.7, the angular `cos 3θ`
+  structure of trigonal warping, and whether `t'` can be *excluded*
+  quantitatively as Chapter 4's electron–hole asymmetry — not "drafting".
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  carried. If `V_NP` is really 20.9 V the bound tightens to exactly 2.000.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02,
+  blocked on a literature datum separating the two channels.
+- **GIVE `chapter_status_audit` A STABLE PROJECTION** and **THE CHAPTER-STATUS
+  CHECK IS NOT IN `SUITES`** — both carried from 11-04, same module, to be done
+  together or not at all.
+- **REGISTER THE THREE REMAINING `UNMEASURED` TRANSCRIPTS** — carried:
+  `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`. Each needs a stopwatch, not an argument.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29. Today is the **eighth**
+  instance and §2, §3 and §5 are all of it: the crash-as-staleness, the bare
+  `return 0`, and the two miscast assertions were none of them deducible from
+  the list, and nothing but running the thing found any of them. §5 sharpens
+  it: **the second miscast check was written after the first was diagnosed**,
+  so even a session holding the lesson in hand reproduced it one layer over.
+  Reading does not substitute for running, including for the reader who has
+  just finished writing the thing being read.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from 10-25,
+  **eleventh** argument, and §1 is a worked instance in its favour: membership
+  was identical to 11-05's and that is what made `STALE 9` a confirmation
+  rather than a coincidence of counts.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~68 PNGs, two
+  inspected. No figure was regenerated today, so nothing went in uninspected.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii). `INCOMPLETE` is a **tenth** worked precedent: a class that exists to
+  distinguish two things one word was covering.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** — carried
+  from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25; the module count has moved since, so the 67 is itself stale.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing. §2's `SUMMARY_RE` hoist is the same
+  operation on a different object and the second direct precedent in two days.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **fifteenth** instance: `C8a`–`C8h`, `C9`/`C9b` and `P9a`–`P9f`,
+  sixteen planted controls across two modules.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. Not exercised again:
+  today's new checks are byte comparisons, AST shapes and date orderings, none
+  of which has a tolerance.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **fifteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same figure.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17, and
+  §3 is a new key again: a module must not **exempt itself from the property it
+  censuses**. Same disease, one level further out.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **nineteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twentieth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-third**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-eighth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-sixth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-fifth**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-sixth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-sixth** session, same question as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+
+**Commits this run:** 6 before this entry — the clean-tree census at `94b019c`
+(§1, §2, §3), the refreshed standing-list transcript (§1), the census repair
+with `C8` and `C9` (§2, §3), the `revivals()` repair with `P9` (§4), V3b's
+demotion from check to report (§5), and `P9a`'s replacement by the containment
+invariant (§5) — and this `AUTOMATION_LOG.md` entry makes **7**.
