@@ -69,6 +69,102 @@ transcript in the tree, and 28 commits later it describes a repository with
 71 modules where this one has 76.  Under the old read that row could never
 have been registered, and had it been, it would have reported IDENTICAL.
 
+AMENDED 2026-11-06 -- A CRASHED SUITE WAS BEING REPORTED AS A STALE TRANSCRIPT
+-----------------------------------------------------------------------------
+The 2026-11-05 census reported
+
+    graphene_mixed_capture_repair_audit.py   STALE   0.0s  exit 1
+          line count 153 -> 5
+
+and the standing requirement "no suite fails to complete in a pristine clone"
+passed on that same run.  Both readings were wrong about the same event.  That
+suite did not run and produce a five-line transcript: it printed its four
+banner lines and died on
+
+    ModuleNotFoundError: No module named 'scipy'
+
+raised from graphene_contact_doping_model.py, an import three modules deep.
+Reproduced 2026-11-06 in a pristine clone at 94b019c with scipy absent from
+the path: stdout is exactly the four banner lines, FIVE by `split("\n")`,
+which is the "-> 5" the census printed, and the exit code is 1.  The literal
+bytes are kept below as CRASH_STDOUT_NO_SCIPY so the reproduction is a control
+and not a memory.
+
+THE CAUSE IS IN `run_suite`, AND IT IS THE 2026-10-16 AMENDMENT'S BLIND SIDE.
+That amendment stopped discarding stdout on a nonzero exit, because every
+suite here ends `return 0 if failed == 0 else 1` and a red guard is a nonzero
+exit by design -- correct, and C7 is its control.  But the test it left behind
+for "did this run work at all" is `if not p.stdout`, i.e. EMPTINESS.  A suite
+that crashes before its first print is ERROR; a suite that crashes one line
+after it has stdout, so it is compared, and whatever the comparison says
+becomes a statement about the TRANSCRIPT.  The verdict then names the wrong
+object entirely: the transcript was fine, the run never happened.
+
+Worse, the two readings disagree in a way nothing could see.  STALE feeds the
+"no committed transcript is STALE" check, which went red for nine rows and so
+carried this one invisibly among eight real ones; the completion check reads
+only the ERROR bucket, which was empty, and went green.  A crash was therefore
+reported as a documentation defect and as a clean bill of health at once.
+
+THE REPAIR IS A MECHANISM-GATED VERDICT, WHICH IS THE 2026-10-16 RULE ITSELF.
+A suite here announces its own completion: it prints `TOTAL: n passed, m
+failed` as its last act.  So "ran to completion" is checkable, and the
+expectation is per-suite and self-calibrating -- it comes from the suite's OWN
+COMMITTED TRANSCRIPT rather than from a hard-coded list of which modules print
+a summary.  A run whose committed transcript carries a summary line and whose
+stdout does not did not reach its own end: class INCOMPLETE, a fault, counted
+by the completion check and not by the staleness one.  A suite whose
+transcript never had a summary line makes no completion claim and is compared
+exactly as before, so the new class cannot mis-fire on it.
+
+The regex for that summary line already existed inline in Section 5's
+exit-code consistency check.  It is now ONE module-level constant read by
+both, because two spellings of one predicate is a fault this repository has
+been bitten by twice (the A1 trigger, 2026-11-05; the v_F names, 2026-10-25).
+
+WHAT THIS DOES NOT CLAIM.  With scipy on the path today no suite is
+INCOMPLETE, so the new rule and the superseded one return the SAME verdict for
+all 43 registered suites.  The overlap is reported in Section 4 rather than
+asserted, and the divergence is shown by the controls instead.
+
+AMENDED 2026-11-06 -- THIS MODULE WAS THE ONE SUITE ITS OWN CHECK EXEMPTED
+--------------------------------------------------------------------------
+Section 5 asks, of every registered suite, whether the transcript's own
+pass/fail summary agrees with the suite's exit code, on the grounds that "a
+transcript saying '0 failed' beside code that exits nonzero is the exact state
+this repository shipped from 2026-10-04 to 2026-10-15".  `main()` ended with a
+bare `return 0`.
+
+So this module exited 0 on every run, whatever it found, and its committed
+transcript has read
+
+    TOTAL: 24 passed, 2 failed
+
+beside an exit code of 0 since at least 2026-11-04 -- the mirror image of the
+state the check exists to catch, in the file that does the checking.  Measured
+2026-11-06, not inferred: the run printed two FAILs and `$?` was 0.
+
+NOTHING COULD SEE IT, AND THE REASON IS A GOOD EXCLUSION OVERREACHING.  This
+module is deliberately absent from SUITES, because auditing itself inside its
+own pristine clone would make its transcript a claim only it can check -- that
+is the 09-30 self-certification rule and it is still right.  But it was being
+read as an exemption from EVERY property, and the exit-code property is not
+like the byte comparison: it needs no pristine clone, no second run, and no
+self-certification.  It is a fact about one function's last statement.  An
+exclusion justified for one check had silently acquired the authority of all
+of them.
+
+So the repair is not to register the module.  It is a control, C9, that asks
+the question directly of the source: every `return` in `main()` must be the
+convention's conditional, and none may be a bare constant.  Checked by AST
+rather than by grepping for the text, because a source-level regex for this
+convention was tried first and reported 27 of 43 suites violating it, which is
+false -- five suites were observed exiting nonzero on this very run.  A
+measurement that disagrees with a direct observation is the measurement that
+is wrong, and it is not reported here as a finding.  Whether every OTHER suite
+really obeys the convention is therefore UNMEASURED, and says so on the
+standing list.
+
 Run:  python3 graphene_pristine_transcript_audit.py
 """
 
@@ -87,6 +183,27 @@ NUMERIC_RTOL = 1e-9       # relative agreement required to call a diff numeric
 NUMERIC_ATOL = 1e-30      # absolute floor, for tokens that are legitimately 0
 SUITE_TIMEOUT_S = 900     # per-suite wall clock in the pristine clone
 GIT_POINTER_RELPATH = ".git/HEAD"   # a FILE path, not a revision -- see above
+
+# THE SUITE SUMMARY LINE.  ONE CONSTANT, TWO READERS -- added 2026-11-06.
+# Section 5's exit-code consistency check carried this regex inline, and the
+# completion test added today needs the identical predicate.  Two spellings of
+# one predicate have now cost this repository two sessions, so this is a
+# constant from the start rather than after they drift.
+SUMMARY_RE = re.compile(r"TOTAL:?\s+(\d+)\s+passed,\s+(\d+)\s+failed")
+
+# Classes that mean THE RUN DID NOT HAPPEN, as distinct from the run happening
+# and its transcript being wrong.  Named once so the census bucket and the
+# standing check cannot disagree about what counts as a failure to complete --
+# which is exactly how 2026-11-05's crash came to be green in one place and red
+# in another.
+COMPLETION_FAULTS = ("ERROR", "NO_FILE", "MISSING", "INCOMPLETE")
+
+# VERBATIM stdout of graphene_mixed_capture_repair_audit.py in a pristine clone
+# at 94b019c with scipy absent -- the 2026-11-05 census row, reproduced
+# 2026-11-06.  Four banner lines; FIVE by split("\n"), which is the census's
+# "line count 153 -> 5".  Kept as a literal so the reproduction cannot decay
+# into a claim about a run nobody can repeat.
+CRASH_STDOUT_NO_SCIPY = '==============================================================================\nMIXED-CAPTURE REPAIR AUDIT -- 2026-10-27\nthe 2026-10-26 ranked-first item, measured against the pinned pre-repair blobs\n==============================================================================\n'
 
 # (module, committed transcript).  A suite with no committed transcript is
 # listed with None: it is still RUN, so a crash is caught, but there is no
@@ -510,6 +627,34 @@ def close_enough(a, b):
     return abs(a - b) / denom <= NUMERIC_RTOL
 
 
+def has_summary(text):
+    """Does `text` carry a suite's own end-of-run summary line?"""
+    return bool(text) and bool(SUMMARY_RE.search(text))
+
+
+def completion_verdict(stdout, committed_text):
+    """COMPLETE / INCOMPLETE / ERROR -- did the RUN happen?
+
+    Pure, so the controls in Section 3 can drive every branch without running
+    a suite.  Deliberately separate from `classify`: that function answers
+    "is the committed transcript still true", and conflating the two is the
+    2026-11-05 defect this amendment repairs.
+
+      ERROR       no stdout at all -- the historical test, unchanged.
+      INCOMPLETE  the committed transcript announces a summary line and this
+                  run's stdout has none.  The suite is known to print one, so
+                  its absence means the run did not reach the end.
+      COMPLETE    otherwise -- including a suite whose transcript never had a
+                  summary line, which makes no completion claim and must be
+                  compared exactly as before.
+    """
+    if not stdout:
+        return "ERROR"
+    if has_summary(committed_text) and not has_summary(stdout):
+        return "INCOMPLETE"
+    return "COMPLETE"
+
+
 def classify(committed, produced):
     """IDENTICAL / NUMERIC_DRIFT / STALE, plus evidence."""
     if committed == produced:
@@ -651,6 +796,19 @@ def main():
                 print("  %-44s NO_FILE  %6.1fs" % (module, dt))
                 continue
             committed_text = blob.decode("utf-8", "replace")
+            # DID THE RUN HAPPEN, before asking whether the transcript is
+            # true.  See the 2026-11-06 amendment: the answers are about
+            # different objects and the old code could only give the second.
+            if completion_verdict(out, committed_text) == "INCOMPLETE":
+                ev = ("exit %d; the committed transcript ends in a summary "
+                      "line and this run's stdout has none, so the suite did "
+                      "not reach its own end -- this is a failed RUN, not a "
+                      "stale transcript" % rc)
+                results[module] = ("INCOMPLETE", dt, [ev])
+                print("  %-44s %-14s %6.1fs  exit %d (did NOT reach its own "
+                      "summary line)" % (module, "INCOMPLETE", dt, rc))
+                print("        " + ev)
+                continue
             verdict, evidence = classify(committed_text, out)
             results[module] = (verdict, dt, evidence)
             tag = "" if rc == 0 else "  exit %d (guard red, transcript still checked)" % rc
@@ -995,26 +1153,119 @@ def main():
                   "independent properties and this audit asks only about the "
                   "second.  got %s" % v7)
 
+        # C8 -- THE 2026-11-06 AMENDMENT, AGAINST EXACTLY KNOWN ANSWERS.
+        # Every answer below is known before the code runs, and none of them
+        # is read off the live tree: the crash stdout is a literal, and the
+        # committed transcript it is compared against is a string written
+        # here.  C8b is the load-bearing one -- it is the measured reason the
+        # 11-05 census called a crash a stale transcript.
+        # C8b's FIRST DRAFT FAILED, AND THE CONTROL WAS WRONG, NOT THE CODE.
+        # It built this fixture with three body lines, which makes it FIVE by
+        # split("\n") -- the same count as the crash stdout.  `classify` then
+        # never reached its line-count branch and reported "line 1 is not a
+        # numeric difference" instead of "line count N -> 5", so the control
+        # went red against correct code.  The real 11-05 pair was 153 against
+        # 5; a control for it has to DIFFER IN LENGTH, which is the property
+        # the first draft forgot to give it.  The FAIL is recorded here rather
+        # than quietly corrected, as 2026-11-05's P5 was.
+        #
+        # AND THE SECOND DRAFT MISCOUNTED TOO, which is why the line below is
+        # a runtime assert and not a comment: ten lines each ending in "\n"
+        # are ELEVEN by split("\n"), the trailing empty included.  The assert
+        # caught it before the control could go red for a third reason that
+        # had nothing to do with the code under test.
+        c8_committed = ("HEADER\n" + "".join("body line %d\n" % i
+                                             for i in range(1, 9))
+                        + "TOTAL: 12 passed, 0 failed\n")
+        assert len(c8_committed.split("\n")) == 11, "C8's committed fixture"
+        check("C8a the reproduced crash stdout is 5 lines -- the census's "
+              "'-> 5', from the literal and not from a memory",
+              len(CRASH_STDOUT_NO_SCIPY.split("\n")) == 5,
+              "got %d" % len(CRASH_STDOUT_NO_SCIPY.split("\n")))
+        _v8, _e8 = classify(c8_committed, CRASH_STDOUT_NO_SCIPY)
+        check("C8b the SUPERSEDED reading: a crash classifies STALE, with a "
+              "line-count evidence line ending in '-> 5'",
+              _v8 == "STALE" and bool(_e8)
+              and _e8[0] == "line count 11 -> 5",
+              "got %s %r -- this is what 2026-11-05 printed about a suite "
+              "that had not run" % (_v8, _e8[:1]))
+        check("C8c and the NEW reading calls the same pair INCOMPLETE",
+              completion_verdict(CRASH_STDOUT_NO_SCIPY, c8_committed)
+              == "INCOMPLETE",
+              "got %s"
+              % completion_verdict(CRASH_STDOUT_NO_SCIPY, c8_committed))
+        check("C8d a run that DID reach its summary line is COMPLETE even "
+              "when its output differs -- real staleness is not swallowed",
+              completion_verdict("HEADER\nchanged\nTOTAL: 1 passed, 0 failed\n",
+                                 c8_committed) == "COMPLETE",
+              "a completion test that hid staleness would be a worse fault "
+              "than the one it repairs")
+        check("C8e a committed transcript with NO summary line makes no "
+              "completion claim, so a truncated run stays COMPLETE",
+              completion_verdict("HEADER\n", "HEADER\nline two\n")
+              == "COMPLETE",
+              "self-calibration: the expectation comes from the suite's own "
+              "transcript, not from a hard-coded list of which modules print "
+              "a summary")
+        check("C8f empty stdout is still ERROR -- the historical branch is "
+              "unchanged", completion_verdict("", c8_committed) == "ERROR",
+              "got %s" % completion_verdict("", c8_committed))
+        check("C8g INCOMPLETE is in COMPLETION_FAULTS, so a crash cannot be "
+              "green in the completion check while red in the staleness one "
+              "-- the 2026-11-05 state",
+              "INCOMPLETE" in COMPLETION_FAULTS and "STALE" not in COMPLETION_FAULTS,
+              "COMPLETION_FAULTS = %r" % (COMPLETION_FAULTS,))
+        check("C8h the summary regex is ONE constant: Section 5 reads "
+              "SUMMARY_RE and no second spelling survives in the source",
+              len(re.findall(r"TOTAL:\?\\s\+", open(os.path.join(repo, SELF)).read())) == 1,
+              "a second inline copy of the pattern is the drift this "
+              "constant exists to prevent")
+
         # ------------------------------------------------------------------
         print("\n" + "-" * 74)
         print("SECTION 4 -- the standing requirement")
         print("-" * 74)
         stale = sorted(m for m, (v, _, _) in results.items() if v == "STALE")
         drift = sorted(m for m, (v, _, _) in results.items() if v == "NUMERIC_DRIFT")
-        errored = sorted(m for m, (v, _, _) in results.items() if v in ("ERROR", "NO_FILE", "MISSING"))
+        # COMPLETION_FAULTS, not a second spelling of the list.  INCOMPLETE
+        # joined it 2026-11-06 and the check below picked it up with no edit,
+        # which is the whole point of naming the set once.
+        errored = sorted(m for m, (v, _, _) in results.items() if v in COMPLETION_FAULTS)
+        incomplete = sorted(m for m, (v, _, _) in results.items() if v == "INCOMPLETE")
         ident = sorted(m for m, (v, _, _) in results.items() if v == "IDENTICAL")
 
         red = sorted(m for m, rc in exits.items() if rc not in (0, None))
         print("  IDENTICAL      %2d   %s" % (len(ident), ", ".join(s[:34] for s in ident)))
         print("  NUMERIC_DRIFT  %2d   %s" % (len(drift), ", ".join(drift)))
         print("  STALE          %2d   %s" % (len(stale), ", ".join(stale)))
-        print("  ERROR/MISSING  %2d   %s" % (len(errored), ", ".join(errored)))
+        print("  DID NOT COMPLETE %d   %s" % (len(errored), ", ".join(errored)))
+        print("    of which INCOMPLETE (crashed after printing) %d   %s"
+              % (len(incomplete), ", ".join(incomplete)))
         print("  exited nonzero %2d   %s" % (len(red), ", ".join(red)))
         print("    (a red guard is not a stale transcript -- reported, and")
         print("     checked for CONSISTENCY with the transcript below)")
 
         check("no suite fails to complete in a pristine clone", not errored,
               "\n".join("%s: %s" % (m, results[m][2][0]) for m in errored))
+
+        # THE OVERLAPPING LIMIT, REPORTED AND NOT ASSERTED.  The superseded
+        # rule called a run completed iff its stdout was non-empty.  Where
+        # nothing is INCOMPLETE the two rules agree by construction, so the
+        # number below is the measurement of how much today's change moved --
+        # and on a day with every dependency present the honest answer is
+        # nothing.  A day on which it moves is a day a suite crashed.
+        _old_rule_completed = [m for m, (v, _, _) in results.items()
+                               if v not in ("ERROR", "NO_FILE", "MISSING")]
+        _new_rule_completed = [m for m, (v, _, _) in results.items()
+                               if v not in COMPLETION_FAULTS]
+        print()
+        print("  the 2026-11-06 rule against the one it replaces:")
+        print("    suites the EMPTINESS rule called completed   : %d"
+              % len(_old_rule_completed))
+        print("    suites the SUMMARY-LINE rule calls completed : %d"
+              % len(_new_rule_completed))
+        print("    verdicts moved                               : %d   %s"
+              % (len(incomplete), ", ".join(incomplete) or "none"))
 
         # A committed transcript and its suite's exit code are two claims
         # about the same run, and they can contradict each other.  This is
@@ -1030,7 +1281,7 @@ def main():
                 continue
             with open(tpath) as fh:
                 ttext = fh.read()
-            m = re.search(r"TOTAL:?\s+(\d+)\s+passed,\s+(\d+)\s+failed", ttext)
+            m = SUMMARY_RE.search(ttext)   # the constant, not a second spelling
             if not m:
                 continue
             claimed_failed = int(m.group(2))
@@ -1192,6 +1443,36 @@ def main():
               "graphene_default_flip.py line ~745 opens it 'w', and is now a "
               "registered suite as well -- the predicate does not care")
 
+        # C9 -- THIS MODULE'S OWN EXIT CODE, ASKED OF THE SOURCE BY AST.
+        # Added 2026-11-06.  Section 5 checks this property for every suite
+        # but this one, and the SELF exclusion is why.  The question needs no
+        # clone and no second run: it is the shape of main()'s returns.  AST
+        # and not a regex -- see the amendment; the regex attempt was wrong.
+        import ast as _ast
+        _self_src = open(os.path.join(repo, SELF)).read()
+        _main = next(n for n in _ast.walk(_ast.parse(_self_src))
+                     if isinstance(n, _ast.FunctionDef) and n.name == "main")
+        _rets = [n for n in _ast.walk(_main) if isinstance(n, _ast.Return)
+                 and n.value is not None]
+        _consts = [r for r in _rets if isinstance(r.value, _ast.Constant)]
+        _ifexps = [r for r in _rets if isinstance(r.value, _ast.IfExp)]
+        check("C9 main() returns a FAILURE-CONDITIONAL exit code, not a "
+              "constant -- the convention this module checks for in every "
+              "other suite",
+              not _consts and len(_ifexps) == 1,
+              "%d constant return(s), %d conditional: a bare `return 0` here "
+              "is a transcript reading 'N failed' beside an exit code of 0, "
+              "which is the 2026-10-04..10-15 state this audit exists to "
+              "catch" % (len(_consts), len(_ifexps)))
+        check("C9b and the conditional is on the FAIL list this run actually "
+              "appends to, not on some other name",
+              bool(_ifexps) and any(
+                  isinstance(nn, _ast.Name) and nn.id == "_FAIL"
+                  for nn in _ast.walk(_ifexps[0])),
+              "a conditional on the wrong name would exit 0 while red and "
+              "pass this control -- the verdict must be gated on the "
+              "mechanism it reports (2026-10-16)")
+
         print("\n" + "=" * 74)
         print("SUMMARY")
         print("=" * 74)
@@ -1201,7 +1482,10 @@ def main():
         for lab in _FAIL:
             print("  FAIL  %s" % lab)
         print("\nTOTAL: %d passed, %d failed" % (len(_PASS), len(_FAIL)))
-        return 0
+        # FIXED 2026-11-06.  This was a bare `return 0`: see the amendment in
+        # the module docstring.  The convention this module's own Section 5
+        # checks for in every other suite now holds for this one too.
+        return 1 if _FAIL else 0
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
