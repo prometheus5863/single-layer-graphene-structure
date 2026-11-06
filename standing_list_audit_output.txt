@@ -32,6 +32,18 @@ wording this list had already retired.
          a broadening that stopped matching the old wording would be a replacement, not a broadening
   [PASS] P5g end to end: the reworded plant classifies A1 REVIVED
          through the real row machinery, not just the regex
+  [PASS] P9a on the real log the new rule and the superseded one agree exactly
+         old ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04'] vs new ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
+  [PASS] P9b the superseded rule ERASES the planted revival when a later entry corrects the wording again
+         old rule returns [] on a log whose 01-03 entry is a revival by inspection
+  [PASS] P9c and the new rule keeps it, and only it
+         new rule returns ['2026-01-03'] -- 01-01 is correctly NOT a revival, having no corrected entry before it
+  [PASS] P9d one future corrected entry would have erased all 5 recorded revivals under the superseded rule
+         old rule after appending: [] (was ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04'])
+  [PASS] P9e and under the new rule the record is unchanged -- the verdict is a property of the entry, not of the file end
+         new rule after appending: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
+  [PASS] P9f with no corrected entry anywhere, both rules return no revivals
+         old [] new []
   [PASS] P6 VACUITY, rows LIVE: no list found -> every row ABSENT, none CONFIRMED
          bullets=0 classes=['ABSENT']
   [PASS] P6b ABSENT is a fault class, so an unparseable list cannot read as a clean run
@@ -84,7 +96,12 @@ wording this list had already retired.
 ------------------------------------------------------------------------------
   entries asserting UNDRAFTED : 2026-09-17, 2026-09-18, 2026-09-19, 2026-09-20, 2026-09-21, 2026-09-22, 2026-09-22, 2026-09-23, 2026-09-24, 2026-09-25, 2026-09-26, 2026-09-27, 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28, 2026-11-04
   entries asserting DRAFTED   : 2026-10-01, 2026-10-02, 2026-10-03, 2026-10-04, 2026-10-05, 2026-10-06
-  revived (undrafted AFTER the last drafted) : 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28, 2026-11-04
+  revived (undrafted AFTER a corrected entry) : 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28, 2026-11-04
+      2026-10-17 revives the wording corrected on 2026-10-06
+      2026-10-26 revives the wording corrected on 2026-10-06
+      2026-10-27 revives the wording corrected on 2026-10-06
+      2026-10-28 revives the wording corrected on 2026-10-06
+      2026-11-04 revives the wording corrected on 2026-10-06
 
   entries between the last corrected one and the revival : 10 (2026-10-07..2026-10-16)
 
@@ -98,8 +115,10 @@ wording this list had already retired.
          entries: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06']
   [PASS]   V2 at least one entry revived the retired wording
          revived: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
-  [PASS]   V3 the revival is strictly later than the last corrected entry
-         first revival 2026-10-17 vs last corrected 2026-10-06
+  [PASS]   V3 every revival is strictly later than the corrected entry it revives against
+         pairs: 2026-10-17>2026-10-06, 2026-10-26>2026-10-06, 2026-10-27>2026-10-06, 2026-10-28>2026-10-06, 2026-11-04>2026-10-06
+  [PASS]   V3b and the superseded global form still coincides on this log
+         min revival 2026-10-17 vs last corrected 2026-10-06 -- a COINCIDENCE of where the file currently ends, not an invariant.  P9d is the measurement of what breaks it.
 
 ------------------------------------------------------------------------------
 4.  A2 CORROBORATED FROM THE HISTORY, NOT ONLY FROM THE FILE
@@ -111,5 +130,5 @@ wording this list had already retired.
          7604c05 2026-10-13 thesis: Section 4.6.12, and the two sentences in Sections 4.7 and 4.10 that the measurement makes false, annotated in place
 
 ==============================================================================
-TOTAL: 26 passed, 0 failed
+TOTAL: 33 passed, 0 failed
 ==============================================================================

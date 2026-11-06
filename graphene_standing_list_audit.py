@@ -360,10 +360,8 @@ def _rows_against(logtext, baseline):
     return rows
 
 
-def revivals(logtext, trig, antitrig):
-    """Entries whose bullet matches `trig`, and entries whose bullet matches
-    `antitrig` (the retired/corrected wording).  A trig entry strictly LATER
-    than the last antitrig entry is a REVIVAL."""
+def _trig_anti_dates(logtext, trig, antitrig):
+    """([dates asserting trig], [dates asserting antitrig]), oldest first."""
     t, a = [], []
     for d, body in entries(logtext):
         bs = bullets(body)
@@ -371,8 +369,63 @@ def revivals(logtext, trig, antitrig):
             t.append(d)
         if any(antitrig.search(b) for b in bs):
             a.append(d)
+    return t, a
+
+
+def revivals_pre_1106(logtext, trig, antitrig):
+    """THE SUPERSEDED RULE, KEPT AS THE CONTROL'S REFERENCE.  Not called by
+    the audit.
+
+    "A trig entry strictly LATER than the LAST antitrig entry is a revival."
+    `a[-1]` is the last corrected entry IN THE WHOLE FILE, so this verdict is
+    a property of the file's END rather than of the entry being judged: one
+    later entry carrying the corrected wording retroactively erases EVERY
+    earlier revival from the record.  See the 2026-11-06 amendment below.
+    """
+    t, a = _trig_anti_dates(logtext, trig, antitrig)
     revived = [d for d in t if a and d > a[-1]]
     return t, a, revived
+
+
+def revivals(logtext, trig, antitrig):
+    """Entries whose bullet matches `trig`, entries whose bullet matches
+    `antitrig` (the retired/corrected wording), and the REVIVALS.
+
+    AMENDED 2026-11-06, and the superseded form is kept above.
+
+    A trig entry is a revival iff the item HAD ALREADY BEEN CORRECTED WHEN
+    THAT ENTRY WAS WRITTEN -- i.e. iff some antitrig entry precedes it.  The
+    comparison is against the last antitrig entry BEFORE the entry being
+    judged, not the last one overall, which makes the verdict a property of
+    the entry rather than of the file's end.
+
+    WHY THIS MATTERED ENOUGH TO CHANGE.  Under the old rule a single later
+    entry wording the item correctly would have erased all five recorded
+    revivals and flipped V2/V3 red.  The 2026-11-05 entry knew this and had
+    to word its own chapters-2-and-3 bullet to match NEITHER regex to avoid
+    it -- an instrument constraining how the log may be written, which that
+    entry recorded as the finding rather than patching in the session that
+    found it.  P6c measures exactly that hazard on the real log.
+
+    The two rules agree wherever no corrected entry follows a revival, which
+    is the whole of today's log: P9a measures the agreement rather than
+    asserting it, and P9b/P9c show where they diverge.
+    """
+    t, a = _trig_anti_dates(logtext, trig, antitrig)
+    revived = [d for d in t if any(x < d for x in a)]
+    return t, a, revived
+
+
+def revived_against(t, a):
+    """{revival date: the last corrected entry BEFORE it}.  The date the
+    revival is a revival *of* -- which the old rule could not name, because
+    it only ever compared against one date for the whole file."""
+    out = {}
+    for d in t:
+        prior = [x for x in a if x < d]
+        if prior:
+            out[d] = prior[-1]
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -420,6 +473,69 @@ PLANT_LOG_REWORDED = """\
 - **CHAPTERS 2 AND 3 ARE UNDRAFTED** - the largest block of pure writing in
   the repository, with their computational results complete.
 - **SOMETHING WITH NO TREE ASSERTION AT ALL** - carried.
+
+**Commits this run:** 0
+"""
+
+# THE ERASURE, AS A FOUR-ENTRY LOG WITH EVERY ANSWER KNOWN BY INSPECTION.
+# 01-01 asserts the wording with nothing corrected before it, so it is not a
+# revival under either rule.  01-02 corrects it.  01-03 asserts it again and
+# IS a revival.  01-04 corrects it again -- and under the superseded rule that
+# last entry erases 01-03 from the record, because the rule compares against
+# the last corrected entry in the file rather than the last one before the
+# entry being judged.  Added 2026-11-06.
+PLANT_LOG_ERASURE = """\
+## 2026-01-01 - asserts the wording, nothing corrected yet
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted.
+
+**Commits this run:** 0
+
+## 2026-01-02 - corrected
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE DRAFTED** - planted correction.
+
+**Commits this run:** 0
+
+## 2026-01-03 - the revival
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted revival.
+
+**Commits this run:** 0
+
+## 2026-01-04 - corrected again, which must NOT erase 01-03
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE DRAFTED** - planted second correction.
+
+**Commits this run:** 0
+"""
+
+# A log asserting the wording repeatedly with NO correction anywhere.  The
+# zero case: a revival requires something to revive, so both rules must
+# return the empty list.  An instrument that reports a revival here would be
+# reporting the item's mere presence.
+PLANT_LOG_NO_CORRECTION = """\
+## 2026-01-01 - asserts it
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted.
+
+**Commits this run:** 0
+
+## 2026-01-02 - asserts it again
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted.
 
 **Commits this run:** 0
 """
@@ -568,6 +684,75 @@ def main():
               {r[0]: r[1] for r in _rows_against(PLANT_LOG_REWORDED, retd)}))(),
           'through the real row machinery, not just the regex')
 
+    # P9a-P9f -- revivals() MADE A PROPERTY OF THE ENTRY.  Numbered P9
+    # because P6b/P6c already name the vacuity controls below.  The 2026-11-05
+    # entry's second-ranked item, and the reason that entry had to choose its
+    # own wording carefully.  Every answer below is known by inspection of a
+    # planted log or measured against the superseded rule on the real one.
+    _anti = re.compile(r'chapters? 2 and 3 are drafted', re.I)
+
+    # P6a THE OVERLAPPING LIMIT, measured and not asserted.  Nothing in
+    # today's log corrects the wording after a revival, so the two rules must
+    # return the SAME list.  If this ever fails, the change moved a live
+    # verdict and that is the finding, not the agreement.
+    _t_old, _a_old, _rev_old = revivals_pre_1106(logtext, A1_TRIG, _anti)
+    _t_new, _a_new, _rev_new = revivals(logtext, A1_TRIG, _anti)
+    check('P9a on the real log the new rule and the superseded one agree '
+          'exactly',
+          _rev_old == _rev_new and _t_old == _t_new and _a_old == _a_new,
+          'old %r vs new %r' % (_rev_old, _rev_new))
+
+    # P6b THE DIVERGENCE, on a four-entry plant.  Known by inspection: 01-03
+    # is a revival; the old rule erases it because 01-04 corrects the wording
+    # again.  Both halves asserted, because "the new rule finds it" without
+    # "the old rule lost it" would not identify the defect.
+    _, _, _e_old = revivals_pre_1106(PLANT_LOG_ERASURE, A1_TRIG, _anti)
+    _, _, _e_new = revivals(PLANT_LOG_ERASURE, A1_TRIG, _anti)
+    check('P9b the superseded rule ERASES the planted revival when a later '
+          'entry corrects the wording again',
+          _e_old == [],
+          'old rule returns %r on a log whose 01-03 entry is a revival by '
+          'inspection' % (_e_old,))
+    check('P9c and the new rule keeps it, and only it',
+          _e_new == ['2026-01-03'],
+          'new rule returns %r -- 01-01 is correctly NOT a revival, having '
+          'no corrected entry before it' % (_e_new,))
+
+    # P6d THE HAZARD, MEASURED ON THE REAL LOG.  Append one entry carrying
+    # the corrected wording -- which is what any future session writing
+    # "chapters 2 and 3 are drafted" would do -- and the old rule drops all
+    # five recorded revivals while the new rule is unmoved.  This is the
+    # constraint that forced the 2026-11-05 wording, and the measurement of
+    # its removal.
+    _appended = logtext + '''
+## 2026-12-31 - a future entry wording it correctly
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE DRAFTED** - as they have been since 09-29.
+
+**Commits this run:** 0
+'''
+    _, _, _ap_old = revivals_pre_1106(_appended, A1_TRIG, _anti)
+    _, _, _ap_new = revivals(_appended, A1_TRIG, _anti)
+    check('P9d one future corrected entry would have erased all %d recorded '
+          'revivals under the superseded rule' % len(_rev_new),
+          _ap_old == [] and len(_rev_new) == 5,
+          'old rule after appending: %r (was %r)' % (_ap_old, _rev_old))
+    check('P9e and under the new rule the record is unchanged -- the verdict '
+          'is a property of the entry, not of the file end',
+          _ap_new == _rev_new,
+          'new rule after appending: %r' % (_ap_new,))
+
+    # P6f THE ZERO CASE.  No correction anywhere, so there is nothing to
+    # revive and both rules must return empty.  A rule that reported a
+    # revival here would be reporting mere presence.
+    _, _, _nc_old = revivals_pre_1106(PLANT_LOG_NO_CORRECTION, A1_TRIG, _anti)
+    _, _, _nc_new = revivals(PLANT_LOG_NO_CORRECTION, A1_TRIG, _anti)
+    check('P9f with no corrected entry anywhere, both rules return no '
+          'revivals', _nc_old == [] and _nc_new == [],
+          'old %r new %r' % (_nc_old, _nc_new))
+
     # VACUITY.  A list the parser cannot find must not read as a clean bill of
     # health -- that is exactly how the inert-knob census came to be read as
     # one for five sessions (2026-10-17).  ABSENT is not CONFIRMED.
@@ -658,10 +843,13 @@ def main():
     trig = A1_TRIG
     anti = re.compile(r'chapters? 2 and 3 are drafted', re.I)
     t, a, revived = revivals(logtext, trig, anti)
+    against = revived_against(t, a)
     print('  entries asserting UNDRAFTED : %s' % ', '.join(t))
     print('  entries asserting DRAFTED   : %s' % ', '.join(a))
-    print('  revived (undrafted AFTER the last drafted) : %s'
+    print('  revived (undrafted AFTER a corrected entry) : %s'
           % (', '.join(revived) or 'none'))
+    for d in revived:
+        print('      %s revives the wording corrected on %s' % (d, against[d]))
     print()
     alldates = [d for d, _ in entries(logtext)]
     gap = [d for d in alldates if a and d > a[-1] and d < (revived[0] if revived else 'ZZ')]
@@ -680,9 +868,20 @@ def main():
           len(a) >= 1, 'entries: %r' % a)
     check('  V2 at least one entry revived the retired wording',
           len(revived) >= 1, 'revived: %r' % revived)
-    check('  V3 the revival is strictly later than the last corrected entry',
+    # V3 AMENDED 2026-11-06 to the entry-local invariant.  Its old form,
+    # min(revived) > max(a), encoded the rule this session replaced: it is a
+    # statement about the file's end and happens to hold today only because
+    # no corrected entry follows a revival.  Kept as V3b, reported as the
+    # coincidence it is.
+    check('  V3 every revival is strictly later than the corrected entry it '
+          'revives against',
+          bool(revived) and all(against[d] < d for d in revived),
+          'pairs: %s' % ', '.join('%s>%s' % (d, against[d]) for d in revived))
+    check('  V3b and the superseded global form still coincides on this log',
           bool(revived) and bool(a) and min(revived) > max(a),
-          'first revival %s vs last corrected %s'
+          'min revival %s vs last corrected %s -- a COINCIDENCE of where the '
+          'file currently ends, not an invariant.  P9d is the measurement of '
+          'what breaks it.'
           % (revived[0] if revived else '-', a[-1] if a else '-'))
 
     # -- Section 4: git corroboration for A2 --------------------------------
