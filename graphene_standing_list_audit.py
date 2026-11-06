@@ -407,9 +407,12 @@ def revivals(logtext, trig, antitrig):
     entry recorded as the finding rather than patching in the session that
     found it.  P6c measures exactly that hazard on the real log.
 
-    The two rules agree wherever no corrected entry follows a revival, which
-    is the whole of today's log: P9a measures the agreement rather than
-    asserting it, and P9b/P9c show where they diverge.
+    The two rules agree wherever no corrected entry follows a revival.  That
+    was the whole of this log until the 2026-11-06 entry, which words the item
+    correctly and so makes them diverge.  P9b/P9c show the divergence on a
+    plant, P9d measures it on the real log, and P9a gates on the CONTAINMENT
+    that holds either way: the current rule can only add revivals, never drop
+    one.
     """
     t, a = _trig_anti_dates(logtext, trig, antitrig)
     revived = [d for d in t if any(x < d for x in a)]
@@ -691,18 +694,38 @@ def main():
     # planted log or measured against the superseded rule on the real one.
     _anti = re.compile(r'chapters? 2 and 3 are drafted', re.I)
 
-    # P6a THE OVERLAPPING LIMIT, measured and not asserted.  Nothing in
-    # today's log corrects the wording after a revival, so the two rules must
-    # return the SAME list.  If this ever fails, the change moved a live
-    # verdict and that is the finding, not the agreement.
+    # P9a THE INVARIANT, AND NOT THE COINCIDENCE.  THE FIRST DRAFT MADE V3b's
+    # MISTAKE ONE LAYER OVER.  It asserted that the two rules return the SAME
+    # list on the real log -- true only while no corrected entry follows a
+    # revival, i.e. true until the 2026-11-06 entry, which words the item
+    # correctly because the repair above is what makes that safe.  Running the
+    # suite against that entry before committing it is what caught this; no
+    # amount of reading the diff would have.
+    #
+    # What IS invariant: the current rule's result CONTAINS the superseded
+    # one's, always, and provably rather than empirically.  `a` is built in
+    # entry order and the dates are ISO, so a[-1] is max(a); d > max(a)
+    # implies some element of `a` precedes d, which is the current rule's
+    # condition.  So the repair can only ever ADD revivals to the record and
+    # never drop one -- and dropping one is the entire defect being repaired.
+    # That containment is the property worth gating on.  Equality never was.
     _t_old, _a_old, _rev_old = revivals_pre_1106(logtext, A1_TRIG, _anti)
     _t_new, _a_new, _rev_new = revivals(logtext, A1_TRIG, _anti)
-    check('P9a on the real log the new rule and the superseded one agree '
-          'exactly',
-          _rev_old == _rev_new and _t_old == _t_new and _a_old == _a_new,
-          'old %r vs new %r' % (_rev_old, _rev_new))
+    check('P9a the current rule CONTAINS the superseded one on the real log, '
+          'so the repair can only add revivals and never drop one',
+          set(_rev_old) <= set(_rev_new),
+          'superseded %r, current %r' % (_rev_old, _rev_new))
+    check('P9a2 and the two rules read the SAME dates -- they differ in the '
+          'verdict, not in what they parse',
+          _t_old == _t_new and _a_old == _a_new,
+          'trig lists equal=%s, antitrig lists equal=%s'
+          % (_t_old == _t_new, _a_old == _a_new))
+    print('  rule comparison on this log: superseded %d revivals, current %d'
+          '%s' % (len(_rev_old), len(_rev_new),
+                  '  -- THEY DIVERGE HERE; see P9d'
+                  if _rev_old != _rev_new else '  (equal, for now)'))
 
-    # P6b THE DIVERGENCE, on a four-entry plant.  Known by inspection: 01-03
+    # P9b THE DIVERGENCE, on a four-entry plant.  Known by inspection: 01-03
     # is a revival; the old rule erases it because 01-04 corrects the wording
     # again.  Both halves asserted, because "the new rule finds it" without
     # "the old rule lost it" would not identify the defect.
@@ -718,7 +741,7 @@ def main():
           'new rule returns %r -- 01-01 is correctly NOT a revival, having '
           'no corrected entry before it' % (_e_new,))
 
-    # P6d THE HAZARD, MEASURED ON THE REAL LOG.  Append one entry carrying
+    # P9d THE HAZARD, MEASURED ON THE REAL LOG.  Append one entry carrying
     # the corrected wording -- which is what any future session writing
     # "chapters 2 and 3 are drafted" would do -- and the old rule drops all
     # five recorded revivals while the new rule is unmoved.  This is the
@@ -744,7 +767,7 @@ def main():
           _ap_new == _rev_new,
           'new rule after appending: %r' % (_ap_new,))
 
-    # P6f THE ZERO CASE.  No correction anywhere, so there is nothing to
+    # P9f THE ZERO CASE.  No correction anywhere, so there is nothing to
     # revive and both rules must return empty.  A rule that reported a
     # revival here would be reporting mere presence.
     _, _, _nc_old = revivals_pre_1106(PLANT_LOG_NO_CORRECTION, A1_TRIG, _anti)
