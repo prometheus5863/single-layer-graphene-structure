@@ -877,12 +877,31 @@ def main():
           'revives against',
           bool(revived) and all(against[d] < d for d in revived),
           'pairs: %s' % ', '.join('%s>%s' % (d, against[d]) for d in revived))
-    check('  V3b and the superseded global form still coincides on this log',
-          bool(revived) and bool(a) and min(revived) > max(a),
-          'min revival %s vs last corrected %s -- a COINCIDENCE of where the '
-          'file currently ends, not an invariant.  P9d is the measurement of '
-          'what breaks it.'
+    # V3b IS A REPORT AND NOT A CHECK, AND THE FIRST DRAFT GOT THIS WRONG.
+    # It was committed earlier today as a check() asserting min(revived) >
+    # max(a).  That is the superseded rule's own statement -- a property of
+    # where the file ENDS -- and the docstring two screens up calls it a
+    # coincidence.  Asserting a coincidence makes the suite go red the first
+    # time the coincidence breaks, for no finding, and this repository has a
+    # standing rule that a permanently red check is one nobody reads.
+    #
+    # It breaks on the very next entry.  Today's AUTOMATION_LOG entry words
+    # the chapters-2-and-3 item CORRECTLY -- which the revivals() repair is
+    # what makes safe -- so 2026-11-06 joins the corrected list, max(a)
+    # becomes 2026-11-06, and the old form reads False while every one of the
+    # five revivals is still correctly recorded.  So it is printed with its
+    # value and its reason, and nothing is gated on it.
+    _coincides = bool(revived) and bool(a) and min(revived) > max(a)
+    print()
+    print('  V3b the superseded global form, min(revival) > max(corrected),')
+    print('      reads %s on this log.  It is a REPORT, not a check: it is'
+          % _coincides)
+    print('      the replaced rule\'s own statement about where the file ends,')
+    print('      and it goes False as soon as any entry after a revival words')
+    print('      the item correctly -- which is a correct log entry, not a')
+    print('      fault.  min revival %s, last corrected %s.'
           % (revived[0] if revived else '-', a[-1] if a else '-'))
+    print('      P9d is the measurement of what breaks it.')
 
     # -- Section 4: git corroboration for A2 --------------------------------
     print('\n' + '-' * 78)

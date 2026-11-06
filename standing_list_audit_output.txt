@@ -117,8 +117,14 @@ wording this list had already retired.
          revived: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
   [PASS]   V3 every revival is strictly later than the corrected entry it revives against
          pairs: 2026-10-17>2026-10-06, 2026-10-26>2026-10-06, 2026-10-27>2026-10-06, 2026-10-28>2026-10-06, 2026-11-04>2026-10-06
-  [PASS]   V3b and the superseded global form still coincides on this log
-         min revival 2026-10-17 vs last corrected 2026-10-06 -- a COINCIDENCE of where the file currently ends, not an invariant.  P9d is the measurement of what breaks it.
+
+  V3b the superseded global form, min(revival) > max(corrected),
+      reads True on this log.  It is a REPORT, not a check: it is
+      the replaced rule's own statement about where the file ends,
+      and it goes False as soon as any entry after a revival words
+      the item correctly -- which is a correct log entry, not a
+      fault.  min revival 2026-10-17, last corrected 2026-10-06.
+      P9d is the measurement of what breaks it.
 
 ------------------------------------------------------------------------------
 4.  A2 CORROBORATED FROM THE HISTORY, NOT ONLY FROM THE FILE
@@ -130,5 +136,5 @@ wording this list had already retired.
          7604c05 2026-10-13 thesis: Section 4.6.12, and the two sentences in Sections 4.7 and 4.10 that the measurement makes false, annotated in place
 
 ==============================================================================
-TOTAL: 33 passed, 0 failed
+TOTAL: 32 passed, 0 failed
 ==============================================================================
