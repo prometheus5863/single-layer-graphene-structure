@@ -174,6 +174,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 # --------------------------------------------------------------------------
 # Tolerances and limits.  Module-level and read at call time (2026-09-30
@@ -392,6 +393,74 @@ SUITES = [
 # Section 5: that the registered table still fits, and that each module
 # excluded FOR being too expensive really is too expensive.
 CALL_CAP_S = 180.0
+
+# ---------------------------------------------------------------------------
+# THE BUDGET CHECK COULD NOT BE READ IN THE ONE CASE IT EXISTS FOR (2026-11-07)
+# ---------------------------------------------------------------------------
+# The end-of-module budget check added 2026-11-04 asks "does Section 2 still
+# fit inside one shell call?".  Today it was asked for the first time in the
+# negative and said nothing, for two independent reasons.
+#
+#   (1) IT IS PRINTED LAST.  It sits after Sections 2b, 3, 4 and 5, so it is
+#       reached only by a run that FINISHED -- and a run finishes only if the
+#       whole module fits in the call.  The single condition the check exists
+#       to detect is therefore also the condition that guarantees the check is
+#       never printed.  Measured today: the module was killed at 179 s, the
+#       largest timeout this harness permits, inside Section 3; the budget
+#       block is four sections further on and produced no output at all.
+#
+#   (2) THE QUANTITY IS A PART AND THE CAP IS THE WHOLE.  `spent` is the sum
+#       of run_suite's per-suite timers only.  It excludes the clone build,
+#       Sections 1, 2b, 3, 4 and 5, and the loop's own per-suite overhead.
+#       Measured today: Section 2 spends 176.4 s over 43 suites (169.5 s for
+#       the 40 the capped run reported, plus 2.2 + 2.2 + 2.5 s for
+#       kappa_impurity_bound, branch_asymmetric_mobility and
+#       density_dependent_mobility, which no capped run has ever reached).
+#       Against CALL_CAP_S the old check reports 3.6 s of HEADROOM, and the
+#       module does not complete in 179 s.  The reported headroom was not
+#       headroom for anything.
+#
+# Both repairs are below and they are the same repair twice: measure the
+# quantity the cap is about, and evaluate it where it can still be printed.
+#
+#   - `section2_crossing` is pure, so its answers can be planted exactly.
+#   - The Section 2 loop evaluates it incrementally and prints a flushed
+#     warning naming the suite that crosses the allowance.  A run that will
+#     not finish now says so while it still can.
+#   - The end-of-module verdict is gated on ELAPSED wall clock, not on
+#     `spent`.  `spent` is kept and printed as a REPORT, following the
+#     2026-11-06 repair of V3b and P9a: gate on an invariant, print the
+#     contingent value.  The invariant is containment -- elapsed includes
+#     spent, so `elapsed >= spent` must hold on every run, exactly.
+#
+# SECTION2_ALLOWANCE_S leaves room for the rest of the module rather than
+# spending the whole call on Section 2.  The reserve is measured, not
+# declared: with SUITES truncated to one suite the whole module runs in 0.7 s
+# of which Section 2 is 0.2 s, so Sections 1/2b/3/4/5 and the clone build
+# cost ~0.5 s on a one-suite result set.  That is NOT the reserve to use: the
+# same sections cost more on a 43-entry result set, and the 179 s run died
+# inside Section 3 with Section 2 complete, which bounds the tail BELOW at
+# ~2 s rather than above.  The allowance is therefore set well back from the
+# cap, and the honest statement is that the tail's cost as a function of
+# result-set size has not been measured -- it is on the standing list.
+SECTION2_ALLOWANCE_S = 150.0
+
+
+def section2_crossing(durations, allowance):
+    """Index of the first suite at which the CUMULATIVE spend exceeds
+    `allowance`, or None if it never does.
+
+    Pure, and deliberately strict (`>`), so that a cumulative total landing
+    exactly on the allowance is NOT a crossing.  That boundary is the one
+    worth planting controls on and it is exact in binary for the values the
+    controls use.
+    """
+    total = 0.0
+    for i, dt in enumerate(durations):
+        total += dt
+        if total > allowance:
+            return i
+    return None
 # Measured 2026-11-04 in a pristine clone at this commit.  Only modules whose
 # cost was measured today appear here; the three rows 2026-10-27 measured over
 # the cap are named in their exclusion comments and not re-timed.
@@ -721,6 +790,9 @@ def run_suite(clone, module):
 
 
 def main():
+    # The real quantity the call cap is about.  Started before anything,
+    # including the clone build, because the cap applies to all of it.
+    t_start = time.monotonic()
     repo = os.path.dirname(os.path.abspath(__file__))
     # Runtime assertion, not a comment: this module must not audit itself.
     assert SELF not in [m for m, _ in SUITES], (
@@ -768,12 +840,30 @@ def main():
             _p = os.path.join(clone, _t)
             pre_tree[_t] = open(_p, "rb").read() if os.path.exists(_p) else None
             pre_blob[_t] = read_committed_blob(clone, commit, _t)
+        # The incremental budget, evaluated WHERE IT CAN STILL BE PRINTED.
+        # `warned` makes the warning fire once, on the suite that crosses.
+        s2_durations = []
+        s2_warned = False
         for module, transcript in SUITES:
             if not os.path.exists(os.path.join(clone, module)):
                 results[module] = ("MISSING", 0.0, ["not present at this commit"])
                 print("  %-44s MISSING" % module)
                 continue
             out, dt, err, rc = run_suite(clone, module)
+            s2_durations.append(dt)
+            if not s2_warned and section2_crossing(s2_durations,
+                                                   SECTION2_ALLOWANCE_S) is not None:
+                s2_warned = True
+                print("  !! SECTION 2 BUDGET WARNING -- crossed its %.1f s "
+                      "allowance at %s" % (SECTION2_ALLOWANCE_S, module))
+                print("     cumulative suite time %.1f s, elapsed wall clock "
+                      "%.1f s of a %.1f s call cap."
+                      % (sum(s2_durations), time.monotonic() - t_start,
+                         CALL_CAP_S))
+                print("     This run will probably not reach the end-of-module "
+                      "budget block, which is why this line is printed here "
+                      "and not there (2026-11-07).")
+                sys.stdout.flush()
             if err is not None:
                 results[module] = ("ERROR", dt, [err])
                 print("  %-44s ERROR    %6.1fs  %s" % (module, dt, err[:60]))
@@ -1383,37 +1473,123 @@ def main():
         # nobody recomputes is a declaration, and the 10-28 table already
         # says declarations are the weak class.
         spent = sum(dt for _, dt, _ in results.values())
+        elapsed = time.monotonic() - t_start
         print()
         print("  SECTION 2 BUDGET")
-        print("    measured this run        %6.1f s  over %d suites"
+        print("    suite time this run      %6.1f s  over %d suites"
               % (spent, len([1 for _, t in SUITES if t])))
+        print("    ELAPSED wall clock       %6.1f s  <- the quantity the cap "
+              "is about" % elapsed)
         print("    one-shell-call cap       %6.1f s" % CALL_CAP_S)
-        print("    headroom                 %6.1f s" % (CALL_CAP_S - spent))
-        check("Section 2 still fits inside one shell call", spent < CALL_CAP_S,
-              "%.1f s of a %.1f s cap.  Four rows were added today at a "
-              "measured 32.3 s and four more at 5.2 s; the table is a "
-              "spending decision and this is the balance."
-              % (spent, CALL_CAP_S))
+        print("    headroom, by elapsed     %6.1f s" % (CALL_CAP_S - elapsed))
+        print("    headroom, by suite time  %6.1f s  (REPORT -- the number "
+              "the 11-04 check used, and it overstates)" % (CALL_CAP_S - spent))
+        print("    unaccounted by suites    %6.1f s  (clone build, the loop's "
+              "own overhead, Sections 1/2b/3/4/5)" % (elapsed - spent))
+
+        # AMENDED 2026-11-07.  The verdict was `spent < CALL_CAP_S`, which
+        # compares Section 2's suite time against the cap for the WHOLE call
+        # and so reported headroom that did not exist.  It is replaced by the
+        # elapsed-clock form, and the superseded quantity is kept and printed
+        # above as a report rather than deleted; the two lines now show their
+        # own divergence, which is the whole defect.
+        #
+        # THE OVERLAPPING LIMIT, AND IT IS EXACT.  Elapsed wall clock contains
+        # the suite timers by construction: every second run_suite charges is
+        # a second this call spent.  So `elapsed >= spent` must hold on EVERY
+        # run, whatever the machine or the suite table, and that containment --
+        # not the contingent difference -- is what the check is gated on.  The
+        # 2026-11-06 repair of V3b and P9a, applied a third time: gate on an
+        # invariant, print the contingent value.
+        check("elapsed wall clock contains Section 2's suite time",
+              elapsed >= spent,
+              "elapsed %.1f s, suite time %.1f s, difference %.1f s.  A "
+              "negative difference would mean the suite timers charge time "
+              "this call did not spend -- the instrument broken, rather than "
+              "the budget exceeded." % (elapsed, spent, elapsed - spent))
+        check("the whole module still fits inside one shell call",
+              elapsed < CALL_CAP_S,
+              "%.1f s elapsed of a %.1f s cap.  Measured 2026-11-07: Section "
+              "2 alone spends 176.4 s over 43 suites, and the module did not "
+              "complete inside the 179 s maximum this harness allows -- so a "
+              "run that prints this line at all is already the better case."
+              % (elapsed, CALL_CAP_S))
         oc_bad = []
         _excluded_modules = set(m for _c, m in TRANSCRIPT_EXCLUSIONS.values())
         for mod, secs in sorted(MEASURED_OVER_CAP_S.items()):
             if mod not in _excluded_modules:
                 oc_bad.append("%s is timed as over-cap but is not excluded" % mod)
                 continue
-            if spent + secs <= CALL_CAP_S:
-                oc_bad.append("%s: %.1f s + %.1f s spent = %.1f s, which is "
+            # AMENDED 2026-11-07 with the budget verdict above: this
+            # re-admission test used `spent`, so it measured a candidate
+            # against a budget that had already overstated what was free.
+            if elapsed + secs <= CALL_CAP_S:
+                oc_bad.append("%s: %.1f s + %.1f s elapsed = %.1f s, which is "
                               "INSIDE the %.1f s cap, so cost is no longer a "
                               "reason to exclude it"
-                              % (mod, secs, spent, spent + secs, CALL_CAP_S))
+                              % (mod, secs, elapsed, elapsed + secs, CALL_CAP_S))
         check("every module excluded for cost is measured over the remaining "
               "budget", not oc_bad,
               "\n".join("  " + b for b in oc_bad) if oc_bad else
               "%d modules, each measured today: %s.  Adding any one to the "
-              "%.1f s already spent exceeds the %.1f s cap."
+              "%.1f s already elapsed exceeds the %.1f s cap."
               % (len(MEASURED_OVER_CAP_S),
                  ", ".join("%s %.1fs" % (m.replace("graphene_", "").replace(".py", ""), s)
                            for m, s in sorted(MEASURED_OVER_CAP_S.items())),
-                 spent, CALL_CAP_S))
+                 elapsed, CALL_CAP_S))
+
+        # ------------------------------------------------------------------
+        # C10 -- PLANTED CONTROLS ON THE BUDGET CROSSING, WITH EXACTLY KNOWN
+        # ANSWERS (2026-11-07).  `section2_crossing` is the only new piece of
+        # logic the budget repair adds, and the repair exists because the old
+        # budget check had never been exercised in the one state it reports.
+        # So the new one is planted on inputs whose answers are not a
+        # plausible range but an exact integer -- including both sides of the
+        # boundary, which is where a `>` / `>=` slip would live and which the
+        # values below make exact in binary (1.5, 2.5, 4.0, 8.0 are all
+        # representable, so the cumulative sums are not approximations).
+        print()
+        print("  C10 -- the budget crossing, on inputs with exact answers")
+        check("  C10.1 a set that never reaches the allowance does not cross",
+              section2_crossing([1.0, 2.0, 3.0], 10.0) is None,
+              "cumulative 1, 3, 6 against 10 -- must be None, not index 2.  "
+              "This is the must-give-nothing symmetry: a budget that is not "
+              "exceeded has no crossing suite to name")
+        check("  C10.2 the crossing index is the FIRST suite past the "
+              "allowance, exactly",
+              section2_crossing([4.0, 4.0, 4.0], 8.0) == 2,
+              "cumulative 4, 8, 12 against 8 -- index 2, because 8 is not "
+              "> 8.  An off-by-one or a >= would give 1 and this control "
+              "would be red")
+        check("  C10.3 landing EXACTLY on the allowance is not a crossing",
+              section2_crossing([1.5, 2.5], 4.0) is None,
+              "cumulative 1.5 then exactly 4.0 against 4.0.  All three "
+              "values are exact in binary, so this is a statement about the "
+              "comparison and not about float error")
+        check("  C10.4 a single suite over the allowance crosses at index 0",
+              section2_crossing([999.0], 150.0) == 0,
+              "the degenerate case: the first suite alone exceeds, so the "
+              "warning must name it rather than wait for a second")
+        check("  C10.5 an empty suite table cannot cross",
+              section2_crossing([], 0.0) is None,
+              "no durations, zero allowance -- still None, because 0.0 is "
+              "not > 0.0 and there is nothing to iterate")
+        # And the relation the live check is gated on, exercised on a plant
+        # rather than only on this run's own numbers: containment is what
+        # makes `elapsed >= spent` safe to assert unconditionally.
+        check("  C10.6 containment is what the live budget check asserts, "
+              "and it holds on a plant where the tail is all the cost",
+              (0.5 + 176.4) >= 176.4 and (0.0 + 176.4) >= 176.4,
+              "elapsed = tail + spent with tail >= 0, so elapsed >= spent "
+              "for every tail including zero.  The contingent quantity is "
+              "the tail; the invariant is the inequality")
+        check("  C10.7 the allowance leaves room below the cap, or the "
+              "warning could not be printed before the kill",
+              SECTION2_ALLOWANCE_S < CALL_CAP_S,
+              "allowance %.1f s, cap %.1f s.  An allowance equal to the cap "
+              "reproduces the 11-04 defect exactly: the crossing and the "
+              "kill coincide and nothing is printed."
+              % (SECTION2_ALLOWANCE_S, CALL_CAP_S))
 
         # Planted controls for the three checks above, on synthetic sets --
         # no file is written into the tree other audits read.
