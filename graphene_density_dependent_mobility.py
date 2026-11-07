@@ -88,6 +88,23 @@ stationary point.  D11 measures what the other choice would have cost.
 ------------------------------------------------------------------------------
 3. THE DEVICE STATEMENT (and the correction of record it implies)
 ------------------------------------------------------------------------------
+[ANNOTATED 2026-11-07 -- THE CONCLUSION OF THIS SECTION IS WITHDRAWN; THE
+ ARITHMETIC IS NOT.  Both rows below use ONE n_c (N_CROSSOVER), and 11-02/11-03
+ establish that n_c = KAPPA*N_imp with N_imp >= C_ox*V_NP/e, so n_c is not
+ shared between two stacks with different C_ox.  Substituting, the C_ox in n_c
+ cancels the one in the denominator EXACTLY: dV_c = KAPPA*f*V_NP, independent
+ of oxide thickness and permittivity, so the two rows coincide (difference
+ exactly 0.0 V) and the 57.69x spread below is exactly the inverse C_ox ratio.
+ With the bounded KAPPA <= 2.0889 and V_NP = 20 V the crossover needs 41.78 V
+ of overdrive, which NEITHER stack reaches, so at 1 V on the top gate r is
+ 0.0977 -- 97.7 % of the unscreened r0 -- where the fixed-n_c reading below
+ gives 0.0180.  THE SENTENCE AT THE END OF THIS SECTION, that the asymmetry is
+ "small in the thin-oxide top-gated devices a semiconductor process would
+ build", is REVERSED by this: it is essentially unscreened there.  The numbers
+ below are left exactly as measured and are reproduced to 3 d.p. by
+ graphene_screening_overdrive_invariance.py E4a before being contradicted.
+ See Chapter 7 Section 7.3a.5.]
+
 (B3) turns the crossover density into a crossover GATE VOLTAGE through this
 repository's own charge relation, dV_c ~ e*n_c/C_ox, and that is where the
 asymmetry question becomes a device question with two opposite answers:

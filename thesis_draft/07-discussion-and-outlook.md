@@ -191,6 +191,210 @@ recorded here as a prediction rather than a result:
 
 ---
 
+## 7.3a The four strands are two process steps, and only one of the three couplings is a trade-off
+
+### 7.3a.1 Why this is one problem and not four
+
+The contact/photoresponse item has accumulated four strands since 2026-09-17,
+each logged as it arrived and none of them yet synthesised. They are:
+
+1. **Chapter 4 §4.7** — contact resistance is lowest for the high-work-function
+   metals Ni, Au and Pd, and `R_c` is computed for one interface at a time.
+2. **Chapter 6 §6.14** — the two-terminal zero-bias photoresponse `N` is
+   *exactly* odd in the differential work-function offset `s` and *exactly*
+   even in the common offset `m` (measured to 2.3×10⁻¹⁵), with a reversal
+   threshold `τ* = W_B − W_A` independent of λ, of `L` and of every transport
+   parameter.
+3. **§4.11 and the 2026-10-30 result** — the same contact-induced
+   work-function mismatch that pins the contact doping is the mechanism behind
+   the contact-origin branch asymmetry `r₀`, and whether `r₀` survives at the
+   operating density is a screening question governed by `x ≡ |n|/n_c`.
+4. **The 2026-11-02 and 2026-11-03 results** — `n_c` is not a material
+   constant but a charged-impurity density, `n_c = κ·N_imp`, with
+   `N_imp ≥ N_A^(S) = C_ox·V_NP/e`; the dielectric that provides a strong gate
+   also raises `N_imp` through the damage its deposition leaves behind.
+
+Listed that way they look like four separate facts about graphene. They are
+not. **Each is a consequence of one of exactly two process steps**, and the
+synthesis this chapter owes is the statement of which step sets what, and of
+which couplings between them are real constraints rather than apparent ones.
+
+### 7.3a.2 The two steps, and the quantities each one sets
+
+**Step A — contact metallisation.** Choosing the two contact metals fixes
+`W_A` and `W_B`, and therefore both coordinates of the pair:
+
+&nbsp;&nbsp;&nbsp;&nbsp;`m = ½(ΔW_A + ΔW_B)` — the common offset, which is what a
+single-junction contact-resistance figure of merit responds to (strand 1);
+
+&nbsp;&nbsp;&nbsp;&nbsp;`s = ½(ΔW_A − ΔW_B)` — the differential offset, which sets
+`sign(N)` and `τ*` (strand 2);
+
+and, through the contact-induced doping profile, the contact-origin component
+of `r₀` (strand 3's source term).
+
+**Step B — gate dielectric deposition.** Choosing thickness and permittivity
+fixes `C_ox`, and the deposition leaves behind a charged-impurity density
+whose *net* part is what the neutrality-point offset `V_NP` measures. Those
+two together fix
+
+&nbsp;&nbsp;&nbsp;&nbsp;`|n| = C_ox·ΔV/e` &nbsp;&nbsp;and&nbsp;&nbsp;
+`n_c = κ·N_imp ≥ κ·C_ox·V_NP/e`,
+
+and hence `x = |n|/n_c`, which is the only quantity that decides how much of
+`r₀` survives (strands 3 and 4).
+
+So there are two steps, four quantities of interest, and three couplings worth
+asking about. Two of the three turn out not to be trade-offs at all, and the
+third is a trade-off that cannot be resolved with the knob one would reach for.
+
+### 7.3a.3 Coupling 1 — contact resistance against photoresponse is not a trade-off, and the reason is a parity
+
+This is §7.2's result, read as a process statement. `m` and `s` are
+*independent coordinates* on the metallisation choice, and §7.2.2 establishes
+that `N` is exactly even in `m` and exactly odd in `s`. A process is therefore
+free to optimise `R_c` through `m` and the photoresponse through `s` at the
+same time: the two criteria are not competing for the same degree of freedom.
+
+**The 2026-09-17 contradiction was never a trade-off.** It was a
+single-junction criterion being applied to a quantity that depends on the
+difference between two junctions, and §7.2.1 has already retracted the metal
+list it produced. What the four strands add here is that the retraction is not
+merely a correction of a ranking: it removes the apparent conflict between
+strands 1 and 2 entirely.
+
+The cost is real but it is a cost in *process complexity*, not in device
+physics: `s ≠ 0` requires two metallisation steps where a symmetric device
+needs one.
+
+### 7.3a.4 Coupling 2 — the decoupling is bought with model risk, and the risk sits exactly where the model has no reach
+
+§7.2.4 records the anti-correlation; as a process statement it is sharper.
+Maximising `|s|` means choosing metals far apart in work function, and the
+pairs with the smallest reversal margins — Au/Pd at 0.020 eV, Ni/Au at 0.060
+eV, Ni/Pd at 0.080 eV, Cr/Cu at 0.150 eV — are **exactly the four pairs the
+per-metal crossover model of §6.12 refuses**, because Ti, Ni and Pd are
+chemisorbed and sit ~1.2 Å below the physisorbed anchor.
+
+So Coupling 1's freedom is not free: it is exercised in the region where this
+thesis's own model cannot predict the quantity that decides polarity. That is
+a statement about the state of the modelling, not about the device, and
+§7.2.4's wording — *the model's reach and the thesis's risk are
+anti-correlated by construction* — is the correct summary of it.
+
+### 7.3a.5 Coupling 3 — Step B cannot be used to fix Step A, because the obvious knob cancels exactly
+
+This is the coupling the four strands were accumulated for, and it is the one
+place a genuine constraint survives. It also **reverses the conclusion**
+strand 3 was logged with, so the reversal is stated before the synthesis.
+
+The 2026-10-30 result turned `n_c` into a crossover gate overdrive
+`ΔV_c = e·n_c/C_ox` and evaluated it for two stacks:
+
+| gate stack | `C_ox` (F m⁻²) | `ΔV_c`, one fixed `n_c` |
+|---|---|---|
+| 90 nm SiO₂ back gate | 3.84×10⁻⁴ | 12.53 V |
+| 10 nm HfO₂ top gate | 2.21×10⁻² | 0.217 V |
+
+and concluded that whether the asymmetry matters *"is a property of the gate
+stack, not of the graphene"*, being screened away in the thin-oxide stacks a
+semiconductor process would actually build. **That table uses one value of
+`n_c` for both rows, and strand 4 says `n_c` is not shared between them.**
+
+Substituting `N_imp = f·N_A^(S) = f·C_ox·V_NP/e` with `f ≥ 1`, the `C_ox` in
+`n_c` cancels the `C_ox` in the denominator:
+
+&nbsp;&nbsp;&nbsp;&nbsp;**`ΔV_c = κ·f·V_NP`** &nbsp;&nbsp;and&nbsp;&nbsp;
+**`x = ΔV / (κ·f·V_NP)`**
+
+The crossover overdrive is independent of oxide thickness and of oxide
+permittivity alike. Under this reading the two stacks need the *same*
+overdrive to reach `n_c`, and `graphene_screening_overdrive_invariance.py`
+measures that difference as exactly `0.0` V rather than as small; the 57.69×
+spread in the table above is exactly the inverse `C_ox` ratio, which is what
+identifies it as a statement about the oxide rather than about the graphene.
+
+**The device consequence is a reversal, not a rescaling.** With the bounded
+`κ ≤ 2.0889` of §4.11.5a and Zion's `V_NP = 20 V`, `κ·V_NP = 41.78 V` — more
+overdrive than *either* stack sees in operation. At 1 V of overdrive on the
+10 nm HfO₂ top gate the fixed-`n_c` reading gives `r = 0.0180`, a 5.6×
+screening; the scaled reading gives `r = 0.0977`, which is **97.7 % of the
+unscreened `r₀ = 0.10`**, a factor of 192 in `x`. The branch asymmetry is
+essentially *unscreened* in precisely the stack 10-30 said would screen it.
+
+The superseded numbers are left in place in their own section and annotated
+there, per the standing practice of this work; what is withdrawn is the
+conclusion, not the arithmetic, which reproduces exactly (12.527 V and
+0.2171 V) when the fixed-`n_c` premise is granted.
+
+**And the same shape as §7.2.** It is worth naming, because this is now the
+second time it has decided a device question in this thesis: in both cases the
+knob a process engineer would reach for enters the quantity of interest in a
+way that cancels. `m` enters `N` evenly, so contact quality cannot move the
+photoresponse at leading order. `C_ox` enters `x` through both the numerator
+and the denominator, so oxide scaling cannot move the screening at all. Two of
+this thesis's three sharpest device statements are of the form *the obvious
+lever is not a lever*, and both were found by asking what a quantity is
+**exactly** even or invariant in, rather than by surveying values.
+
+### 7.3a.6 The process statement, in the form a process engineer can act on
+
+| quantity | set by | the lever that works | the lever that does **not** |
+|---|---|---|---|
+| contact resistance `R_c` | Step A | the common offset `m` — high-work-function metals | `s`: the pairing is irrelevant to one junction |
+| `sign(N)`, margin `τ*` | Step A | the differential offset `s` — deliberately mismatch | `R_c` / `m`: exactly even, so no first-order effect |
+| contact-origin `r₀` | Step A | contact chemistry and geometry | the gate stack: `r₀` is a source term, not a screened one |
+| surviving asymmetry `r` | Step B | `V_NP` (how clean the deposition is) and the overdrive ratio `ΔV/V_NP` | `C_ox`: thickness and permittivity cancel exactly |
+
+The last row is the new one and it is the practically expensive one. A process
+that wants the electron/hole asymmetry screened away cannot buy that by
+thinning the dielectric or by moving to a higher-permittivity one — the two
+changes that a scaled device makes for every other reason. It can buy it only
+by leaving less net charge behind (smaller `V_NP`) or by gating harder relative
+to that charge. Those are deposition-quality and operating-point decisions, not
+stack-geometry decisions.
+
+### 7.3a.7 What this section does and does not claim
+
+**It does not claim that `C_ox` is irrelevant to the device.** `C_ox` sets the
+carrier density at a given gate voltage and therefore sets transconductance,
+`f_T` and everything Chapter 4 computes from them. The claim is narrower and
+exact: it does not appear in the *ratio* `x` that governs screening, because it
+appears identically in `|n|` and in the lower bound on `n_c`.
+
+**The cancellation rests on one identification, and it is named.** It holds
+under `N_imp = f·C_ox·V_NP/e` with `f` not systematically different between
+stacks — that is, under the assumption that the neutrality-point offset is a
+faithful proxy for the charged-impurity density up to a stack-independent
+factor. A dielectric whose deposition damage were uncorrelated with the net
+charge it leaves would break it. That assumption is a literature question and
+is logged as one; it is not established here.
+
+**The direction of the inequality is the safe one.** `N_A^(S)` is a net charge
+and therefore a lower bound on the impurity count, so `f ≥ 1`, so `x` is
+bounded *above* and the surviving `r` is bounded *below*. The bound cannot
+promise a device more screening than it gets. §7.3a.5's numbers are therefore
+conservative in the direction that matters.
+
+**`κ` is bounded, not known.** §4.11.5a excludes `κ = 2.4` and bounds
+`κ ≤ 2.0889` from Zion's own two numbers. The 41.78 V inherits that bound and
+would move with it. The *structural* result does not: the module checks that
+`ΔV_c/(κ·V_NP) = 1` to two ulp over four decades of `κ`, so the cancellation —
+and with it the withdrawal of the 57.69× spread — does not depend on resolving
+the `κ` dispute at all.
+
+**It does not resolve §4.11.5a's open question**, and that question cuts the
+same way. If the neutral-defect channel is branch-asymmetric rather than
+branch-symmetric, then at `s = 2r₀` the asymmetry does not screen at *any*
+density, exactly. That would strengthen this section's conclusion rather than
+weaken it, which is worth stating so that the open item is not read as a
+caveat pointing the other way.
+
+**It says nothing about Chapter 5.** §7.3's differential-interconnect
+prediction remains untested and is unaffected by any of this.
+
+---
+
 ## 7.4 Bounds and parities versus rankings over tabulated sets
 
 ### 7.4.1 The distinction

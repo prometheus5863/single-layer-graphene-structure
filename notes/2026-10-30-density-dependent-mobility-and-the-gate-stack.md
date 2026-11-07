@@ -93,6 +93,44 @@ negligible one is **a property of the gate stack, not of the graphene**. It is
 large in the thick-oxide back-gated devices most transport papers measure and
 small in the thin-oxide top-gated devices a semiconductor process would build.
 
+> **ANNOTATION (2026-11-07): the second half of that sentence is withdrawn,
+> and the open item at the foot of this note is what withdrew it.** The table
+> above uses one `n_c` for both rows. Strand 4 of the Chapter 7 synthesis —
+> `n_c = κ·N_imp` (11-02) with `N_imp ≥ N_A^(S) = C_ox·V_NP/e` (11-03) — makes
+> `n_c` scale with the same `C_ox` that sets `|n|`, and the two cancel
+> **exactly**: `ΔV_c = κ·f·V_NP`, independent of oxide thickness and
+> permittivity. The two stacks then need the *same* overdrive, measured as a
+> difference of exactly `0.0` V, and the 57.69× spread above is exactly the
+> inverse `C_ox` ratio — a statement about the oxide, not about the graphene.
+>
+> With `κ ≤ 2.0889` and `V_NP = 20 V`, `κ·V_NP = 41.78 V`, which **neither**
+> stack reaches. At 1 V of overdrive on the 10 nm HfO₂ top gate the surviving
+> asymmetry is `r = 0.0977` — 97.7 % of the unscreened `r₀ = 0.10` — against
+> the `0.0180` the fixed-`n_c` reading gives, a factor of 192 in `x`. So the
+> asymmetry is **large in both** stacks, not large in one and small in the
+> other. "A property of the gate stack" survives only in the sense that the
+> stack enters through `V_NP`, how much net charge its deposition leaves
+> behind, and not through `C_ox` at all.
+>
+> **What this does to the arXiv:1010.0913 corroboration below.** That paper's
+> HfO₂-topped devices show electron and hole mobilities differing by less than
+> 10 %, which was read here as independent support for screening in a
+> thin-oxide stack. Under the corrected reading that support is **withdrawn as
+> corroboration of this mechanism**: if `ΔV_c` is ~42 V regardless of stack,
+> those devices are not past their crossover either, so their small asymmetry
+> needs a different explanation — most plausibly a smaller `r₀`, i.e. a
+> contact or interface difference, rather than screening. The observation
+> stands; its attribution does not. This is logged as an open item rather than
+> resolved here.
+>
+> Source: `graphene_screening_overdrive_invariance.py`, 13/13 green, with the
+> cancellation checked bitwise over six decades of `C_ox` and four decades of
+> `κ`, the predecessor reproduced exactly in its own regime (E4a), the
+> overlapping limit bitwise at Zion's own `C_ox` (E5), and a mutation that
+> breaks the cancellation and turns both invariance checks red (E7).
+> Figure: `screening_overdrive_invariance.png`, rendered and inspected.
+> Synthesis: Chapter 7 §7.3a.
+
 The corroboration: looking for the mobility of HfO₂-topped graphene I found
 *Dielectric Thickness Dependence of Carrier Mobility in Graphene with HfO₂ Top
 Dielectric*, [arXiv:1010.0913](https://arxiv.org/pdf/1010.0913), and it reports,
