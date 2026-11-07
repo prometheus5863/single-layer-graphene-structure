@@ -33,16 +33,16 @@ wording this list had already retired.
   [PASS] P5g end to end: the reworded plant classifies A1 REVIVED
          through the real row machinery, not just the regex
   [PASS] P9a the current rule CONTAINS the superseded one on the real log, so the repair can only add revivals and never drop one
-         superseded ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04'], current ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
+         superseded [], current ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
   [PASS] P9a2 and the two rules read the SAME dates -- they differ in the verdict, not in what they parse
          trig lists equal=True, antitrig lists equal=True
-  rule comparison on this log: superseded 5 revivals, current 5  (equal, for now)
+  rule comparison on this log: superseded 0 revivals, current 5  -- THEY DIVERGE HERE; see P9d
   [PASS] P9b the superseded rule ERASES the planted revival when a later entry corrects the wording again
          old rule returns [] on a log whose 01-03 entry is a revival by inspection
   [PASS] P9c and the new rule keeps it, and only it
          new rule returns ['2026-01-03'] -- 01-01 is correctly NOT a revival, having no corrected entry before it
   [PASS] P9d one future corrected entry would have erased all 5 recorded revivals under the superseded rule
-         old rule after appending: [] (was ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04'])
+         old rule after appending: [] (was [])
   [PASS] P9e and under the new rule the record is unchanged -- the verdict is a property of the entry, not of the file end
          new rule after appending: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
   [PASS] P9f with no corrected entry anywhere, both rules return no revivals
@@ -60,8 +60,8 @@ wording this list had already retired.
 ------------------------------------------------------------------------------
 2.  THE REAL STANDING LIST, AS OF THE LATEST ENTRY
 ------------------------------------------------------------------------------
-  latest entry: 2026-11-05
-  top-level bullets in its Not-yet-covered list: 43
+  latest entry: 2026-11-07
+  top-level bullets in its Not-yet-covered list: 50
   baseline assertions checked: 2
 
   id   class          item says tree says
@@ -86,7 +86,7 @@ wording this list had already retired.
        re-verified before it ranks.
 
   [PASS] R1 the latest list parsed to at least 10 top-level bullets
-         got 43
+         got 50
   [PASS] R2 no baseline row is in a fault class ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
          faults: []
   [PASS] R3 every retired row is still justified by the tree
@@ -98,7 +98,7 @@ wording this list had already retired.
 3.  A1 IS NOT A STALE ITEM.  IT IS A RETIRED WORDING REVIVED
 ------------------------------------------------------------------------------
   entries asserting UNDRAFTED : 2026-09-17, 2026-09-18, 2026-09-19, 2026-09-20, 2026-09-21, 2026-09-22, 2026-09-22, 2026-09-23, 2026-09-24, 2026-09-25, 2026-09-26, 2026-09-27, 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28, 2026-11-04
-  entries asserting DRAFTED   : 2026-10-01, 2026-10-02, 2026-10-03, 2026-10-04, 2026-10-05, 2026-10-06
+  entries asserting DRAFTED   : 2026-10-01, 2026-10-02, 2026-10-03, 2026-10-04, 2026-10-05, 2026-10-06, 2026-11-06, 2026-11-07
   revived (undrafted AFTER a corrected entry) : 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28, 2026-11-04
       2026-10-17 revives the wording corrected on 2026-10-06
       2026-10-26 revives the wording corrected on 2026-10-06
@@ -106,27 +106,27 @@ wording this list had already retired.
       2026-10-28 revives the wording corrected on 2026-10-06
       2026-11-04 revives the wording corrected on 2026-10-06
 
-  entries between the last corrected one and the revival : 10 (2026-10-07..2026-10-16)
+  entries between the last corrected one and the revival : 0
 
   Chapter 2 was drafted 2026-09-28 and Chapter 3 2026-09-29, so
   every UNDRAFTED entry up to 09-27 was true when written.  The
-  list then tracked the drafting correctly for 6 entries
-  (2026-10-01..2026-10-06), carried nothing for 10, and the entry after those is
+  list then tracked the drafting correctly for 8 entries
+  (2026-10-01..2026-11-07), carried nothing for 0, and the entry after those is
   the revival.  An item absent long enough stops being remembered
   as retired and starts being available to be re-derived.
   [PASS]   V1 the list did at one point carry the corrected wording
-         entries: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06']
+         entries: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-11-06', '2026-11-07']
   [PASS]   V2 at least one entry revived the retired wording
          revived: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
   [PASS]   V3 every revival is strictly later than the corrected entry it revives against
          pairs: 2026-10-17>2026-10-06, 2026-10-26>2026-10-06, 2026-10-27>2026-10-06, 2026-10-28>2026-10-06, 2026-11-04>2026-10-06
 
   V3b the superseded global form, min(revival) > max(corrected),
-      reads True on this log.  It is a REPORT, not a check: it is
+      reads False on this log.  It is a REPORT, not a check: it is
       the replaced rule's own statement about where the file ends,
       and it goes False as soon as any entry after a revival words
       the item correctly -- which is a correct log entry, not a
-      fault.  min revival 2026-10-17, last corrected 2026-10-06.
+      fault.  min revival 2026-10-17, last corrected 2026-11-07.
       P9d is the measurement of what breaks it.
 
 ------------------------------------------------------------------------------
