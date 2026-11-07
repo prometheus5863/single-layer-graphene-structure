@@ -14507,3 +14507,391 @@ quieter census; it gets a census that misreports.
 with `C8` and `C9` (§2, §3), the `revivals()` repair with `P9` (§4), V3b's
 demotion from check to report (§5), and `P9a`'s replacement by the containment
 invariant (§5) — and this `AUTOMATION_LOG.md` entry makes **7**.
+
+---
+
+## 2026-11-07 — the ranked item discharged all three predictions, and running it found the census can no longer run at all; then the largest writing gap in the repository was closed
+
+Three commits before this entry. The ranked-first item was taken first, as the
+list asked; the writing item was taken second, which is what the 11-06 entry
+said a session wanting to break the three-session instrument-layer pattern
+should do.
+
+### 1. The ranked item: three predictions, three confirmations, no surprises
+
+The 11-06 entry ranked the re-run first and wrote out three falsifiable
+predictions. All three hold, and the first holds in the written-out form
+rather than the first-draft form the entry warned about:
+
+- **Section 3 reports seven corrected entries** — `2026-10-01..10-06`, which
+  is six, and `2026-11-06` — and **exactly five revivals**, `2026-10-17`,
+  `10-26`, `10-27`, `10-28`, `11-04`, each paired against `2026-10-06`. `V3`
+  green. `V3b` reads `False`. The rule-comparison line reads *superseded 0
+  revivals, current 5* with the divergence marker, against 11-05's *superseded
+  5, current 5 (equal, for now)* — so `P9d`'s prediction that one future
+  corrected entry would erase all five under the superseded rule is now a
+  measurement rather than a forecast. The 11-06 repair is what `P9e` says it
+  is.
+- **`A1` reads `RETIRED`**, with the tree still contradicting the retired
+  wording, so the retirement stands. The anti-trigger fired as designed.
+- **The census returns to `STALE 9`, not 8.** 11-06's 8 was the artefact it
+  was diagnosed as. Membership is the nine of 11-05 and the count is a
+  confirmation rather than a coincidence of counts — which is the eleventh
+  argument for the standing "pin membership, not count" item and the second
+  worked instance in its favour.
+
+`graphene_standing_list_audit.py`: **33 passed, 0 failed**.
+
+### 2. And the census cannot run. The budget check was silent, twice over
+
+The re-run did not complete. `graphene_pristine_transcript_audit.py` was
+killed at **179 s**, the largest timeout this harness permits, **inside
+Section 3** — four sections before the budget block.
+
+Measured rather than estimated:
+
+- Section 2 spends **176.4 s over 43 suites**: 169.5 s for the 40 a capped run
+  reports, plus 2.2 + 2.2 + 2.5 s for `kappa_impurity_bound`,
+  `branch_asymmetric_mobility` and `density_dependent_mobility` — the three no
+  capped run has ever reached. All three are `IDENTICAL`, so the `STALE 9`
+  above is the complete count and not a partial one.
+- With `SUITES` truncated to one suite the whole module runs in **0.7 s**, of
+  which Section 2 is 0.2 s. So the tail is ~0.5 s on a one-suite result set
+  and **more than that on a 43-entry one** — the 179 s run died inside Section
+  3 with Section 2 complete, which bounds the tail *below* at ~2 s rather than
+  above. That function has not been measured and is on the list.
+
+**The 11-04 budget check said nothing about any of this, for two independent
+reasons, and they are the finding rather than the slowness.**
+
+1. **It is printed last**, after Sections 2b/3/4/5. It is reached only by a
+   run that finished, and a run finishes only if the whole module fits in the
+   call. *The one condition the check exists to detect is also the condition
+   that guarantees the check is never printed.* Today was the first time the
+   answer was "no" and the output was empty.
+2. **The quantity is a part and the cap is the whole.** `spent` sums
+   `run_suite`'s timers only — not the clone build, not the loop's own
+   overhead, not Sections 1/2b/3/4/5. Against `CALL_CAP_S` it reports **3.6 s
+   of headroom** on a run that cannot finish. The same `spent` drove the
+   re-admission test for modules excluded for cost, so that test was deciding
+   against a budget which had already overstated what was free; it now uses
+   `elapsed`.
+
+The repair is the same repair twice — *measure the quantity the cap is about,
+and evaluate it where it can still be printed*:
+
+- `section2_crossing(durations, allowance)`, pure and strictly `>`, returning
+  the index of the first suite whose cumulative spend exceeds the allowance.
+- The Section 2 loop evaluates it after each suite and prints a **flushed**
+  warning naming the crossing suite. **Verified in the condition it was built
+  for**: a full run killed at 174 s prints *crossed its 150.0 s allowance at
+  `graphene_diffusion_current_model.py`, cumulative 168.2 s, elapsed 168.7 s*
+  at line 68 and dies 40 lines later. The old check printed nothing at all.
+- The end-of-module verdict is gated on `elapsed`. `spent` is kept and printed
+  beside it with both headroom figures and their difference, so the two
+  diverge **on the record** instead of one silently replacing the other. That
+  is the 11-06 repair of `V3b` and `P9a` applied a **third** time: gate on an
+  invariant, print the contingent value.
+
+The invariant is containment, and it is the exact overlapping limit between
+the new quantity and the old: `elapsed` includes every second `run_suite`
+charges, so **`elapsed >= spent` must hold on every run**, on any machine, for
+any suite table. That inequality is asserted; the difference between the two
+(2.8 s on a three-suite run) is reported.
+
+`C10.1`–`C10.7` plant the crossing on **exactly known integer answers** rather
+than plausible ranges, both sides of the boundary included: `[1,2,3]` against
+10 must give `None`; `[4,4,4]` against 8 must give exactly **2**, because 8 is
+not `> 8`, and a `>=` slip would give 1; `[1.5,2.5]` against 4.0 must give
+`None`, and all three values are exact in binary so this is a statement about
+the comparison and not about float error; `[999]` against 150 must give 0;
+`[]` against 0.0 must give `None`.
+
+`pristine_transcript_audit_output.txt` is **deliberately not refreshed**: no
+complete run exists today to refresh it from, and a transcript from a
+truncated suite table would be a claim no run supports.
+
+### 3. The four-strand synthesis, and it contains a reversal
+
+Chapter 7 §7.3a, **1,901 words**, taking the chapter from 21,179 to 23,080.
+Carried since 2026-09-17 and explicitly passed over on 11-04, 11-05 and 11-06.
+It was the largest genuine writing gap in the repository and it is closed.
+
+The content is that the four strands are **not** four facts about graphene —
+each follows from one of two process steps, and only one of the three
+couplings between them is a real trade-off:
+
+- **Coupling 1 is not a trade-off at all.** `m` and `s` are independent
+  coordinates on the metallisation choice and `N` is exactly even in `m` and
+  odd in `s`, so `R_c` and the photoresponse can be optimised at once. The
+  09-17 contradiction was a single-junction criterion applied to a
+  two-junction quantity; resolving it costs one extra metallisation step, not
+  a device-physics penalty.
+- **Coupling 2 is the price of that freedom**: maximising `|s|` drives toward
+  the chemisorbed metals, and the four smallest reversal margins are exactly
+  the four pairs §6.12 refuses.
+- **Coupling 3 is the one real constraint, and it reverses the conclusion
+  strand 3 was logged with.**
+
+**The reversal, which is a new result and not a restatement.**
+`graphene_screening_overdrive_invariance.py` (13/13) closes the open item
+logged at the foot of the 10-30 note. 10-30's Section 3 evaluated
+`ΔV_c = e·n_c/C_ox` for two gate stacks using **one** `n_c` for both rows —
+12.53 V for 90 nm SiO₂ against 0.217 V for 10 nm HfO₂ — and concluded the
+asymmetry is screened away in the thin-oxide stacks a process would build.
+Substituting the committed `n_c = κ·N_imp` (11-02) with
+`N_imp ≥ N_A^(S) = C_ox·V_NP/e` (11-03), **the `C_ox` in `n_c` cancels the one
+in the denominator exactly**:
+
+&nbsp;&nbsp;&nbsp;&nbsp;`ΔV_c = κ·f·V_NP`, independent of oxide thickness and
+permittivity alike.
+
+The two stacks then need the same overdrive — difference measured as exactly
+`0.0` V, not small — and the 57.69× spread is **exactly the inverse `C_ox`
+ratio**, which is what identifies it as a statement about the oxide rather
+than about the graphene. With the bounded `κ ≤ 2.0889` and `V_NP = 20 V`,
+`κ·V_NP = 41.78 V`, which **neither** stack reaches. At 1 V of overdrive on
+the top gate the fixed-`n_c` reading gives `r = 0.0180` and the scaled reading
+gives `r = 0.0977` — **97.7 % of the unscreened `r₀ = 0.10`**, a factor of 192
+in `x`. The asymmetry is essentially *unscreened* in exactly the stack 10-30
+said would screen it.
+
+The exact checks are exact rather than tolerant: bitwise `C_ox` invariance
+over six decades (`E1`, `E2`); bitwise `κ` invariance over four decades
+(`E2b`), so the conclusion does **not** inherit the unresolved κ dispute and
+only the 41.78 V does; `x = 0.0` exactly at the neutrality point and
+`r(0) = r₀` exactly through the committed `ddm.r_closed` rather than a local
+copy (`E3`); the predecessor reproduced in its own terms to 3 d.p. **before**
+being contradicted (`E4a`); **the overlapping limit bitwise** at
+`C_ox = 1.1505e-4 F/m²` — which is Zion's own 300 nm stack, as it must be,
+since κ was defined on that sample (`E5`); `f ≥ 1` strictly raising `dV_c`,
+lowering `x` and **raising** surviving `r`, so the bound is conservative in
+the safe direction (`E6`); and a mutation taking `N_A^(S) ∝ C_ox²` that breaks
+the cancellation and turns both invariance checks red (`E7`).
+
+**Annotated in place, not rewritten**, in both places the superseded claim
+lives — the module's Section 3 docstring and the 10-30 note. Every measured
+number is kept; what is withdrawn is the conclusion drawn from them. The
+module's own 17/17 transcript is unchanged, the docstring not being printed.
+
+**A cost the synthesis found that the module could not see.** The 10-30 note
+cited arXiv:1010.0913's HfO₂-topped devices, whose electron and hole
+mobilities differ by less than 10 %, as independent corroboration of screening
+in a thin-oxide stack. If `ΔV_c` is ~42 V whatever the stack, those devices
+are not past their crossover either, so **the observation stands and its
+attribution does not** — most plausibly a smaller `r₀` from a contact or
+interface difference. Withdrawn as corroboration and logged as an open item
+rather than resolved.
+
+§7.3a.5 also names a **shape** rather than only a result, because this is the
+second time it has decided a device question here: in both cases the knob a
+process engineer would reach for enters the quantity of interest in a way that
+cancels. `m` enters `N` evenly; `C_ox` enters `x` in both numerator and
+denominator. Both were found by asking what a quantity is **exactly** even or
+invariant in, rather than by surveying values.
+
+### 4. The figure was inspected, not merely written
+
+`screening_overdrive_invariance.png` was rendered, copied out and **looked
+at**. The first render clipped the `κ·V_NP` marker at the axis edge, because
+the x-range stopped at 40 V and the marker is at 41.78 V; the range now runs
+to `1.25·κ·V_NP` and both the marker and the `r₀` reference line are in-plot.
+That is a defect no check would have caught and only inspection did, which is
+the whole argument of the standing figure item. Two of ~69 committed figures
+had been inspected before today; three now.
+
+### 5. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, 0 bytes free) for the **twelfth**
+consecutive session, and `mkdir $HOME/work` failed before anything else ran.
+`du` accounts for 29 M; the rest is sibling session directories this uid
+cannot read. All work was done on `/dev/sda1` (3.2 G free) under `/tmp/work`.
+
+**`scipy` did not need installing.** `/tmp/pylibs1131` survived from an
+earlier session with `numpy` 2.2.6, `matplotlib` 3.10.9 and `scipy` 1.15.3
+already in it, so `PYTHONPATH=/tmp/pylibs1131` replaced the 72 s install
+11-06 measured. That is luck rather than a fix — the directory is uid-tagged
+and a session with a different uid will not find it — but it is worth
+recording that the install is *skippable when the directory is there*, which
+is not the same as 11-06's warning that skipping the install silently corrupts
+the census. The check is: confirm the three imports before trusting it.
+`MPLCONFIGDIR` had to be redirected twice, the first choice not being
+writable by this uid.
+
+The device bridge did **not** drop this session and the per-call cap stayed at
+180 s throughout.
+
+**One artefact left on the user's machine.** Inspecting a figure requires it
+to be inside a connected folder before it can be staged, so
+`screening_overdrive_invariance.png` was copied to
+`_figure_inspection/` under the connected folder. Deletion inside connected
+folders is blocked and requesting permission for it was refused by the safety
+classifier on 09-17, so **the folder is left there deliberately** rather than
+cleaned up. A future session inspecting a figure should reuse that folder
+rather than create a second one.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-RUN `graphene_standing_list_audit.py` AFTER THIS ENTRY LANDS** —
+  **ranked first**, cheap, mechanical, blocked on nothing, and it carries
+  three predictions to falsify. (i) Section 3 should report **eight**
+  corrected entries — the seven above plus **2026-11-07**, this entry wording
+  the chapters correctly — and still exactly **five** revivals, each paired
+  against 2026-10-06, since this entry revives nothing. (ii) `A1` should still
+  read `RETIRED`. (iii) The census's `STALE` count should **fall to 8**, not
+  stay at 9, because the standing-list transcript is refreshed in this
+  session's last commit and no other transcript is re-staled by this entry —
+  **and that is the opposite direction from 11-06's prediction**, which is
+  worth stating because the two are easily confused: 11-06 re-staled by
+  refreshing, this one de-stales by refreshing *after* the entry rather than
+  before it. If the count stays at 9 the ordering did not do what is claimed.
+- **THE CENSUS NO LONGER FITS IN ONE CALL, AND THE REPAIR ABOVE ONLY REPORTS
+  THAT** — created today, **ranked second**, and the honest statement is that
+  §2 fixed the *reporting* and not the *problem*. 176.4 s of suite time
+  against a 180 s cap leaves no room, and the next registered suite of any
+  size makes the module unrunnable rather than slow. The fix is a split:
+  Section 2 must run in parts across calls, with per-suite verdicts persisted
+  to a small JSON that Sections 2b–5 read, so that no single call has to hold
+  the whole table. That is a real change to the module's shape and should not
+  be started as a side errand.
+- **THE WARNING FIRES AFTER THE CROSSING SUITE, NOT BEFORE IT** — created
+  today, cheap. `section2_crossing` is evaluated once a suite's `dt` is known,
+  so a single expensive suite can carry the run from inside the allowance to
+  past the cap in one step: today it crossed at
+  `graphene_diffusion_current_model.py` with the cumulative jumping 150 → 168.2
+  s. A predictive form — refuse to *start* a suite whose last measured cost
+  would cross — needs a per-suite cost table, which `MEASURED_OVER_CAP_S`
+  already is for two modules and could be for all 43.
+- **THE TAIL'S COST AS A FUNCTION OF RESULT-SET SIZE** — created today, and
+  `SECTION2_ALLOWANCE_S = 150.0` is a guess until it is measured. The
+  one-suite measurement (0.5 s) and the 43-suite lower bound (~2 s) are the
+  only two points there are. Three truncations at 1, 10 and 25 suites would
+  settle it in one call.
+- **IS `f` STACK-DEPENDENT?** — created today, and it is the single assumption
+  §7.3a.5 rests on. The cancellation holds under
+  `N_imp = f·C_ox·V_NP/e` with `f` not systematically different between
+  stacks. A dielectric whose deposition damage were uncorrelated with the net
+  charge it leaves would break it. This is a literature question and it is now
+  **the highest-value literature item**, having replaced the κ dispute, which
+  `E2b` showed the result does not inherit.
+- **WHAT EXPLAINS arXiv:1010.0913's <10 % ASYMMETRY, IF NOT SCREENING?** —
+  created today by §3's withdrawal. The observation stands; the attribution
+  does not. A smaller `r₀` from a contact or interface difference is the
+  plausible candidate and it is checkable against that paper's contact stack.
+- **IS `n_c` BRANCH-DEPENDENT?** — carried from 11-03 through 11-06, still the
+  first-ranked *physics* item and still the only open item that can overturn a
+  **qualitative** conclusion. Blocked on reading the ELECTRON branch's
+  transition density off Zion Fig. 5 — the same figure the *lower bound on ℓ*,
+  the *`Δ_c` form for the chemisorbed metals* and the 1.4362-vs-1.5 item need,
+  so **one figure read discharges four items**. **Five** consecutive sessions
+  have now gone elsewhere. §3 raises its stakes: if it resolves toward a
+  branch-asymmetric neutral channel the asymmetry does not screen at *any*
+  density, which would make §7.3a.5's conclusion stronger, not weaker.
+- **THE POTENTIAL CENSUS TRANSCRIPT HAS GROWN FROM 135 NAMES / 36 MODULES TO
+  200 / 40** — carried from 10-27 as "eleven new unadjudicated `V_dirac` rows"
+  and **it is much larger than that wording now**: `DUAL_ROLE_TERMINAL` 16→20,
+  `DETERMINED` 16→42, `COLLECTED_NO_ROLE` 101→136. The item's own name is
+  stale, which is the fault the standing-list audit exists to catch, in the
+  list the audit reads.
+- **CENSUS EVERY CHECK WHOSE EXPECTED ANSWER COMES FROM THE LIVE LOG** —
+  carried from 11-06, two worked instances, still not mechanised.
+- **DOES EVERY OTHER SUITE OBEY THE EXIT-CODE CONVENTION?** — carried from
+  11-06, still **unmeasured**; the instrument is an AST census over `SUITES`,
+  not a source regex.
+- **THE EXIT-CODE CHECK STILL READS THE WORKING TREE** — carried from 11-06,
+  one-line fix, the `pre_blob` read the staleness path already uses.
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  carried. If `V_NP` is really 20.9 V the bound tightens to exactly 2.000 —
+  and §3 makes this *more* interesting than it was, since `V_NP` now appears
+  directly in `ΔV_c = κ·V_NP` rather than only inside κ.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02,
+  blocked on a literature datum separating the two channels, and joined to the
+  `f` item above: both ask what the deposition leaves behind.
+- **GIVE `chapter_status_audit` A STABLE PROJECTION** and **THE CHAPTER-STATUS
+  CHECK IS NOT IN `SUITES`** — both carried from 11-04, same module, together
+  or not at all.
+- **REGISTER THE THREE REMAINING `UNMEASURED` TRANSCRIPTS** — carried:
+  `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`. Each needs a stopwatch, not an argument — **and the
+  census budget item above now says a stopwatch is not free**, so these should
+  be measured and then deliberately *excluded* if they do not fit.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29, **ninth** instance, and
+  §2 is the strongest one yet: that the census could not run was not deducible
+  from the list, from the module, or from 11-06's own measurement of it. Only
+  running it found it. Reading does not substitute for running.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, **twelfth** argument, and §1 is a second worked instance in its
+  favour.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~69 PNGs, **three**
+  inspected, one defect found by inspection today. The cost is now known:
+  a copy into the connected folder plus a stage plus a read, about three calls
+  per figure.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii).
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25; the 67 is itself stale and the census item above says by how much.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **sixteenth** instance: `C10.1`–`C10.7` and `E1`–`E8b`.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. Today's new checks are
+  ulp counts, exact equalities and strict orderings, so again not exercised —
+  though `E4a`'s `< 0.3 V` and `< 0.02 V` against 10-30's quoted figures **are**
+  tolerances, and are the first in some days that belong to this item.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **sixteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same figure.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twentieth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-first** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-fourth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-ninth** session untouched, and §3 is an argument for it: `x` is a
+  ratio and its whole content today was what cancels inside it.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-seventh** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-sixth**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-seventh**
+  session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-seventh** session, same question as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched, and
+  subsumed by the grown-census item above.
+
+**Retired from the list this session:**
+
+- **RETIRED:** CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE
+  CONTRADICTION — written as §7.3a, 1,901 words. Carried since 09-17 and
+  passed over on 11-04, 11-05 and 11-06. What remains of Chapter 7 is §7.9's
+  numbered items, which are their own bullets.
+- **RETIRED:** CHAPTERS 2 AND 3 ARE DRAFTED — the correct wording, kept on the
+  list since 10-18 only to exercise the standing-list audit's anti-trigger.
+  §1 confirms the anti-trigger works and `A1` reads `RETIRED`, so the bullet
+  has discharged its purpose and carrying it further would be carrying a
+  decoy. **Removing it is itself a test**: if `A1` changes class next session,
+  the trigger was reading this bullet rather than the tree.
+
+**Commits this run:** 3 before this entry — the census budget repair with
+`C10`; `graphene_screening_overdrive_invariance.py` with its inspected figure
+and transcript; Chapter 7 §7.3a with the two in-place annotations — and this
+`AUTOMATION_LOG.md` entry makes **4**, with the refreshed standing-list
+transcript making **5**.
