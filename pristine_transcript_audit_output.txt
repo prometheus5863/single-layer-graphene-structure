@@ -7,67 +7,73 @@ Does the COMMITTED code still produce the COMMITTED transcripts?
 SECTION 1 -- the committed state, resolved to a content-addressed id
 --------------------------------------------------------------------------
   pointer file      : .git/HEAD
-  resolved commit   : df84b5a23039fe5c63e540346c22a21763aa8af0
+  resolved commit   : 99a8b08c03f4b747d11dbf7e97a071cf34234a9a
   tracked files modified in the WORKING TREE : 2
     (they are excluded by construction -- that is the point)
-      M  graphene_pristine_transcript_audit.py
-      UU pristine_transcript_audit_output.txt
+      M graphene_pristine_transcript_audit.py
+       M pristine_transcript_audit_output.txt
   pristine clone    : built and detached at the id above
 
 --------------------------------------------------------------------------
 SECTION 2 -- every suite, run from the pristine clone
 --------------------------------------------------------------------------
-  graphene_mutation_arrival_probe.py           STALE             2.2s  exit 1 (guard red, transcript still checked)
-        line count 176 -> 201
-  graphene_dead_name_sweep.py                  STALE             1.9s  exit 1 (guard red, transcript still checked)
-        line count 159 -> 168
-  graphene_band_structure_audit.py             IDENTICAL         0.9s
-  graphene_default_scale_audit.py              IDENTICAL         2.8s
-  graphene_figure_provenance_audit.py          STALE            10.5s
-        line count 196 -> 197
-  graphene_gds_quadrature_audit.py             IDENTICAL         4.3s
-  graphene_log_sensitivity_step_audit.py       STALE             1.7s
+  ASSEMBLED from 4 parts at commit 99a8b08c03f4b747d11dbf7e97a071cf34234a9a
+    part 1 of 4: 11 suites, suite time   33.8 s, elapsed   34.4 s
+    part 2 of 4: 11 suites, suite time   46.2 s, elapsed   46.7 s
+    part 3 of 4: 11 suites, suite time   24.5 s, elapsed   25.0 s
+    part 4 of 4: 11 suites, suite time   43.4 s, elapsed   43.9 s
+  graphene_mutation_arrival_probe.py           STALE             2.5s
+        line 130: 73.0 vs 78.0 exceeds rtol 1e-09
+  graphene_dead_name_sweep.py                  STALE             2.1s
+        line count 159 -> 175
+  graphene_band_structure_audit.py             IDENTICAL         1.0s
+  graphene_default_scale_audit.py              IDENTICAL         2.9s
+  graphene_figure_provenance_audit.py          STALE            11.9s
+        line 161: 71.0 vs 78.0 exceeds rtol 1e-09
+  graphene_gds_quadrature_audit.py             IDENTICAL         4.8s
+  graphene_log_sensitivity_step_audit.py       STALE             1.9s
         line count 363 -> 364
-  graphene_rootfinder_audit.py                 IDENTICAL         0.6s
-  graphene_transport_optical_audit.py          IDENTICAL         0.6s
+  graphene_rootfinder_audit.py                 IDENTICAL         0.7s
+  graphene_transport_optical_audit.py          IDENTICAL         0.7s
   graphene_covariance_probe_audit.py           IDENTICAL         0.7s
-  graphene_differential_crossover_model.py     IDENTICAL         4.4s
-  graphene_cross_module_delivery_audit.py      IDENTICAL         3.4s
-  rf_small_signal_model.py                     IDENTICAL         3.2s
-  graphene_fmax_shortfall_decomposition.py     IDENTICAL        24.8s
-  graphene_attribute_default_capture.py        STALE             1.8s  exit 1 (guard red, transcript still checked)
-        line 91: 67.0 vs 72.0 exceeds rtol 1e-09
-  graphene_standing_list_audit.py              IDENTICAL         0.1s
-  graphene_installed_surface_audit.py          IDENTICAL         4.5s
-  graphene_mixed_capture_repair_audit.py       STALE             1.1s  exit 1 (guard red, transcript still checked)
-        line count 153 -> 158
-  graphene_potential_declaration.py            IDENTICAL         0.7s
-  graphene_capture_leverage_figure.py          IDENTICAL         0.9s
+  graphene_differential_crossover_model.py     IDENTICAL         4.6s
+  graphene_cross_module_delivery_audit.py      IDENTICAL         3.9s
+  rf_small_signal_model.py                     IDENTICAL         3.3s
+  graphene_fmax_shortfall_decomposition.py     IDENTICAL        26.6s
+  graphene_attribute_default_capture.py        STALE             2.1s
+        line 91: 67.0 vs 74.0 exceeds rtol 1e-09
+  graphene_standing_list_audit.py              IDENTICAL         0.2s
+  graphene_installed_surface_audit.py          IDENTICAL         5.2s
+  graphene_mixed_capture_repair_audit.py       IDENTICAL         1.1s
+  graphene_potential_declaration.py            IDENTICAL         0.8s
+  graphene_capture_leverage_figure.py          IDENTICAL         1.0s
   graphene_replacement_read_audit.py           IDENTICAL         1.0s
   graphene_capture_surface_guard.py            IDENTICAL         1.1s
-  graphene_write_read_guard.py                 IDENTICAL         1.0s
+  graphene_write_read_guard.py                 IDENTICAL         1.1s
   graphene_second_anchor_bound.py              IDENTICAL         1.0s
-  graphene_contact_consistent_argument.py      IDENTICAL         1.0s
-  graphene_double_regularisation.py            IDENTICAL         1.3s
-  graphene_chord_decay_length.py               IDENTICAL         1.2s
-  graphene_value_read_surface.py               IDENTICAL         1.5s
-  graphene_quantum_capacitance_overflow.py     IDENTICAL         1.2s
-  graphene_frozen_default_semantics.py         STALE             1.6s
-        line count 172 -> 169
-  graphene_fet_signed_carrier_model.py         IDENTICAL         1.5s
-  graphene_exact_charge_rederivation.py        IDENTICAL         3.7s
-  graphene_quantum_capacitance_argument.py     IDENTICAL         8.0s
-  graphene_potential_census_audit.py           STALE             2.3s  exit 1 (guard red, transcript still checked)
+  graphene_contact_consistent_argument.py      IDENTICAL         1.1s
+  graphene_double_regularisation.py            IDENTICAL         1.4s
+  graphene_chord_decay_length.py               IDENTICAL         1.3s
+  graphene_value_read_surface.py               IDENTICAL         1.4s
+  graphene_quantum_capacitance_overflow.py     IDENTICAL         1.4s
+  graphene_frozen_default_semantics.py         STALE             1.7s
+        line 65: 71.0 vs 78.0 exceeds rtol 1e-09
+  graphene_fet_signed_carrier_model.py         IDENTICAL         1.7s
+  graphene_exact_charge_rederivation.py        IDENTICAL         4.0s
+  graphene_quantum_capacitance_argument.py     IDENTICAL         8.6s
+  graphene_potential_census_audit.py           STALE             2.6s
         line count 166 -> 170
   graphene_sensitivity_audit.py                IDENTICAL         1.0s
-  graphene_default_flip.py                     IDENTICAL         1.0s
+  graphene_screening_overdrive_invariance.py   IDENTICAL         1.2s
+  graphene_default_flip.py                     IDENTICAL         1.1s
   graphene_contact_argument_blast_radius.py    IDENTICAL         1.2s
-  graphene_import_binding_sweep.py             IDENTICAL         9.0s
-  graphene_diffusion_current_model.py          IDENTICAL        16.8s
-  graphene_impurity_limited_crossover.py       IDENTICAL         1.3s
-  graphene_kappa_impurity_bound.py             IDENTICAL         1.2s
-  graphene_branch_asymmetric_mobility.py       IDENTICAL         1.3s
-  graphene_density_dependent_mobility.py       IDENTICAL         1.7s
+  graphene_import_binding_sweep.py             STALE            10.2s
+        line 6: 76.0 vs 78.0 exceeds rtol 1e-09
+  graphene_diffusion_current_model.py          IDENTICAL        20.1s
+  graphene_impurity_limited_crossover.py       IDENTICAL         1.4s
+  graphene_kappa_impurity_bound.py             IDENTICAL         1.4s
+  graphene_branch_asymmetric_mobility.py       IDENTICAL         1.4s
+  graphene_density_dependent_mobility.py       IDENTICAL         1.8s
 
 --------------------------------------------------------------------------
 SECTION 2b -- the two reads, measured against each other
@@ -77,17 +83,19 @@ the old read everywhere the old read was sound, and that it
 disagrees somewhere -- or it changed nothing.
 --------------------------------------------------------------------------
   [PASS] E1 for every suite that does NOT write its own transcript, the object-store read is byte-identical to the old working-tree read
-        39 transcripts, 0 differing bytes.  An EXACT agreement, not a tolerance: a pristine checkout of a commit and that commit's blobs are the same bytes, so any difference here would mean the clone is not pristine.
+        40 transcripts, 0 differing bytes.  An EXACT agreement, not a tolerance: a pristine checkout of a commit and that commit's blobs are the same bytes, so any difference here would mean the clone is not pristine.
   [PASS] E2c1 the circularity predicate is TRUE when the run rewrote the transcript differently (planted)
         planted post-run bytes differ from the planted committed blob by one word, so a working-tree read would have been circular
   [PASS] E2c2 and FALSE when the run rewrote it byte-identically (planted)
         planted post-run bytes equal the planted committed blob, so the old read would have seen exactly what the new read sees.  This is the state the live tree was in on 2026-11-05, and it is not a fault
   [PASS] E2 the circularity predicate is total over the registered self-writing suites
         4 registered self-writing suite(s), every one left its transcript behind for the predicate to read
-  [NOT_EXERCISED] E2r no registered self-writing suite rewrote its transcript differently on this run
-        4 suite(s) rewrote byte-identically.  The circularity is still real -- E2c1/E2c2 above plant both of its branches -- it simply did not occur today, which is what a healthy tree looks like.
+  [CONFIRMED] E2r the circularity was exercised on this run
+        import_binding_sweep_output.txt: the old read would have compared this against a file the run had just written
+        (and 3 were rewritten identically, which the old read could not have distinguished)
   [PASS] E3 where the two reads disagree, the object-store verdict is the stricter one
-        no verdict changed: the self-writing suites all rewrote their transcripts to the committed bytes, so this run has no disagreement to adjudicate
+        1 verdict(s) changed, every one in the strict direction:
+          import_binding_sweep_output.txt: working-tree read IDENTICAL -> object-store read STALE
 
 --------------------------------------------------------------------------
 SECTION 3 -- positive controls on the detector itself
@@ -127,42 +135,40 @@ no evidence that it can.  These run against REAL captured output.
   [PASS] C8f empty stdout is still ERROR -- the historical branch is unchanged
         got ERROR
   [PASS] C8g INCOMPLETE is in COMPLETION_FAULTS, so a crash cannot be green in the completion check while red in the staleness one -- the 2026-11-05 state
-        COMPLETION_FAULTS = ('ERROR', 'NO_FILE', 'MISSING', 'INCOMPLETE')
+        COMPLETION_FAULTS = ('ERROR', 'NO_FILE', 'MISSING', 'INCOMPLETE', 'ENVIRONMENT')
   [PASS] C8h the summary regex is ONE constant: Section 5 reads SUMMARY_RE and no second spelling survives in the source
         a second inline copy of the pattern is the drift this constant exists to prevent
 
 --------------------------------------------------------------------------
 SECTION 4 -- the standing requirement
 --------------------------------------------------------------------------
-  IDENTICAL      35   graphene_band_structure_audit.py, graphene_branch_asymmetric_mobilit, graphene_capture_leverage_figure.p, graphene_capture_surface_guard.py, graphene_chord_decay_length.py, graphene_contact_argument_blast_ra, graphene_contact_consistent_argume, graphene_covariance_probe_audit.py, graphene_cross_module_delivery_aud, graphene_default_flip.py, graphene_default_scale_audit.py, graphene_density_dependent_mobilit, graphene_differential_crossover_mo, graphene_diffusion_current_model.p, graphene_double_regularisation.py, graphene_exact_charge_rederivation, graphene_fet_signed_carrier_model., graphene_fmax_shortfall_decomposit, graphene_gds_quadrature_audit.py, graphene_import_binding_sweep.py, graphene_impurity_limited_crossove, graphene_installed_surface_audit.p, graphene_kappa_impurity_bound.py, graphene_potential_declaration.py, graphene_quantum_capacitance_argum, graphene_quantum_capacitance_overf, graphene_replacement_read_audit.py, graphene_rootfinder_audit.py, graphene_second_anchor_bound.py, graphene_sensitivity_audit.py, graphene_standing_list_audit.py, graphene_transport_optical_audit.p, graphene_value_read_surface.py, graphene_write_read_guard.py, rf_small_signal_model.py
+  IDENTICAL      36   graphene_band_structure_audit.py, graphene_branch_asymmetric_mobilit, graphene_capture_leverage_figure.p, graphene_capture_surface_guard.py, graphene_chord_decay_length.py, graphene_contact_argument_blast_ra, graphene_contact_consistent_argume, graphene_covariance_probe_audit.py, graphene_cross_module_delivery_aud, graphene_default_flip.py, graphene_default_scale_audit.py, graphene_density_dependent_mobilit, graphene_differential_crossover_mo, graphene_diffusion_current_model.p, graphene_double_regularisation.py, graphene_exact_charge_rederivation, graphene_fet_signed_carrier_model., graphene_fmax_shortfall_decomposit, graphene_gds_quadrature_audit.py, graphene_impurity_limited_crossove, graphene_installed_surface_audit.p, graphene_kappa_impurity_bound.py, graphene_mixed_capture_repair_audi, graphene_potential_declaration.py, graphene_quantum_capacitance_argum, graphene_quantum_capacitance_overf, graphene_replacement_read_audit.py, graphene_rootfinder_audit.py, graphene_screening_overdrive_invar, graphene_second_anchor_bound.py, graphene_sensitivity_audit.py, graphene_standing_list_audit.py, graphene_transport_optical_audit.p, graphene_value_read_surface.py, graphene_write_read_guard.py, rf_small_signal_model.py
   NUMERIC_DRIFT   0   
-  STALE           8   graphene_attribute_default_capture.py, graphene_dead_name_sweep.py, graphene_figure_provenance_audit.py, graphene_frozen_default_semantics.py, graphene_log_sensitivity_step_audit.py, graphene_mixed_capture_repair_audit.py, graphene_mutation_arrival_probe.py, graphene_potential_census_audit.py
+  STALE           8   graphene_attribute_default_capture.py, graphene_dead_name_sweep.py, graphene_figure_provenance_audit.py, graphene_frozen_default_semantics.py, graphene_import_binding_sweep.py, graphene_log_sensitivity_step_audit.py, graphene_mutation_arrival_probe.py, graphene_potential_census_audit.py
   DID NOT COMPLETE 0   
     of which INCOMPLETE (crashed after printing) 0   
-  exited nonzero  5   graphene_attribute_default_capture.py, graphene_dead_name_sweep.py, graphene_mixed_capture_repair_audit.py, graphene_mutation_arrival_probe.py, graphene_potential_census_audit.py
+  exited nonzero  3   graphene_attribute_default_capture.py, graphene_dead_name_sweep.py, graphene_potential_census_audit.py
     (a red guard is not a stale transcript -- reported, and
      checked for CONSISTENCY with the transcript below)
   [PASS] no suite fails to complete in a pristine clone
 
   the 2026-11-06 rule against the one it replaces:
-    suites the EMPTINESS rule called completed   : 43
-    suites the SUMMARY-LINE rule calls completed : 43
+    suites the EMPTINESS rule called completed   : 44
+    suites the SUMMARY-LINE rule calls completed : 44
     verdicts moved                               : 0   none
-  [FAIL] every transcript's own pass/fail summary agrees with its suite's exit code
+  [PASS] every transcript's own pass/fail summary agrees with its suite's exit code
         a transcript saying '0 failed' beside code that exits nonzero is the exact state this repository shipped from 2026-10-04 to 2026-10-15, and no check here could see it:
-          graphene_mutation_arrival_probe.py: transcript claims 0 failed, suite exits 1
-          graphene_mixed_capture_repair_audit.py: transcript claims 0 failed, suite exits 1
   [FAIL] no committed transcript is STALE
         a STALE transcript is a claim about code that is no longer here;
         it cannot be seen by `git status`, because the transcript is
         unmodified and it is the CODE that moved:
-          graphene_attribute_default_capture.py -> line 91: 67.0 vs 72.0 exceeds rtol 1e-09
-          graphene_dead_name_sweep.py -> line count 159 -> 168
-          graphene_figure_provenance_audit.py -> line count 196 -> 197
-          graphene_frozen_default_semantics.py -> line count 172 -> 169
+          graphene_attribute_default_capture.py -> line 91: 67.0 vs 74.0 exceeds rtol 1e-09
+          graphene_dead_name_sweep.py -> line count 159 -> 175
+          graphene_figure_provenance_audit.py -> line 161: 71.0 vs 78.0 exceeds rtol 1e-09
+          graphene_frozen_default_semantics.py -> line 65: 71.0 vs 78.0 exceeds rtol 1e-09
+          graphene_import_binding_sweep.py -> line 6: 76.0 vs 78.0 exceeds rtol 1e-09
           graphene_log_sensitivity_step_audit.py -> line count 363 -> 364
-          graphene_mixed_capture_repair_audit.py -> line count 153 -> 158
-          graphene_mutation_arrival_probe.py -> line count 176 -> 201
+          graphene_mutation_arrival_probe.py -> line 130: 73.0 vs 78.0 exceeds rtol 1e-09
           graphene_potential_census_audit.py -> line count 166 -> 170
   [PASS] every transcript is exactly reproducible (no numeric drift)
         NUMERIC_DRIFT means the numbers agree to 1e-09 but the bytes differ,
@@ -177,30 +183,146 @@ asserted a repaired defect for nineteen days.  What was
 missing was not rows -- it was a count nobody had to make.
 --------------------------------------------------------------------------
   committed *_output.txt    56
-  registered in SUITES      43
-  excluded with a reason    11
+  registered in SUITES      44
+  excluded with a reason    12
       DRIFTS_BY_MEASUREMENT  1   chapter_status_audit
       NOT_A_STDOUT    1   sensitivity_converged
       OVER_CAP        2   diffusion_mutation, perfect_contact_counterfactual
-      SELF            1   pristine_transcript_audit
+      SELF            2   census_split_equivalence, pristine_transcript_audit
       SELF_WRITING    3   perfect_contact_mutation, velocity_saturation_mutation, velocity_saturation
       UNMEASURED      3   capture_surface_mutation, installed_surface_mutation, value_read_mutation
   UNACCOUNTED                0
   [PASS] every committed transcript is either registered in SUITES or excluded with a reason
-        56 transcripts: 43 compared, 11 excluded.  On 2026-10-27 the same tree was 49 / 17 / 0-with-a-reason, and the shortfall was invisible because nothing counted it.
+        56 transcripts: 44 compared, 12 excluded.  On 2026-10-27 the same tree was 49 / 17 / 0-with-a-reason, and the shortfall was invisible because nothing counted it.
   [PASS] every SELF_WRITING exclusion is TRUE of the source
         3 modules, each one confirmed to write the transcript it is excused from comparing
   [PASS] no exclusion names a transcript that is not committed, and none is excluded AND registered
-        11 exclusions, each naming a committed file, none of them also in SUITES
+        12 exclusions, each naming a committed file, none of them also in SUITES
 
-  SECTION 2 BUDGET
-    measured this run         132.8 s  over 43 suites
+  CENSUS BUDGET, SPLIT ACROSS 4 PARTS + THIS ASSEMBLE CALL
+    suite time, all parts     147.9 s  over 44 suites
+    largest part, elapsed      46.7 s  <- the quantity the cap is about
+    this assemble call          2.1 s
     one-shell-call cap        180.0 s
-    headroom                   47.2 s
-  [PASS] Section 2 still fits inside one shell call
-        132.8 s of a 180.0 s cap.  Four rows were added today at a measured 32.3 s and four more at 5.2 s; the table is a spending decision and this is the balance.
+    whole census, elapsed     152.0 s  (REPORT -- spans 5 calls and is not bounded by one cap)
+  [PASS] every part's recorded elapsed clock contains its own suite time
+        4 parts, each with elapsed >= spent in its own call.  Re-read from the part files rather than recomputed, so a part written by a call that mis-timed itself is caught here and not only there.
+  [PASS] every part fitted inside one shell call
+        largest part 46.7 s of a 180.0 s cap
+  [PASS] the assemble call fits inside one shell call
+        2.1 s elapsed of a 180.0 s cap.  Sections 2b-5 run here with no suite execution at all, so this is the tail's cost on a 44-entry result set -- the quantity 11-07 recorded as unmeasured.
+
+  MEASURED PER-SUITE COST, from the parts (2026-11-08).
+  The table a cost-packed partition would need.  Emitted
+  rather than used: see block_slice's docstring.
+    graphene_fmax_shortfall_decomposition.py           26.6 s
+    graphene_diffusion_current_model.py                20.1 s
+    graphene_figure_provenance_audit.py                11.9 s
+    graphene_import_binding_sweep.py                   10.2 s
+    graphene_quantum_capacitance_argument.py            8.6 s
+    graphene_installed_surface_audit.py                 5.2 s
+    graphene_gds_quadrature_audit.py                    4.8 s
+    graphene_differential_crossover_model.py            4.6 s
+    graphene_exact_charge_rederivation.py               4.0 s
+    graphene_cross_module_delivery_audit.py             3.9 s
+    rf_small_signal_model.py                            3.3 s
+    graphene_default_scale_audit.py                     2.9 s
+    graphene_potential_census_audit.py                  2.6 s
+    graphene_mutation_arrival_probe.py                  2.5 s
+    graphene_dead_name_sweep.py                         2.1 s
+    graphene_attribute_default_capture.py               2.1 s
+    graphene_log_sensitivity_step_audit.py              1.9 s
+    graphene_density_dependent_mobility.py              1.8 s
+    graphene_frozen_default_semantics.py                1.7 s
+    graphene_fet_signed_carrier_model.py                1.7 s
+    graphene_impurity_limited_crossover.py              1.4 s
+    graphene_branch_asymmetric_mobility.py              1.4 s
+    graphene_value_read_surface.py                      1.4 s
+    graphene_kappa_impurity_bound.py                    1.4 s
+    graphene_double_regularisation.py                   1.4 s
+    graphene_quantum_capacitance_overflow.py            1.4 s
+    graphene_chord_decay_length.py                      1.3 s
+    graphene_contact_argument_blast_radius.py           1.2 s
+    graphene_screening_overdrive_invariance.py          1.2 s
+    graphene_mixed_capture_repair_audit.py              1.1 s
+    graphene_capture_surface_guard.py                   1.1 s
+    graphene_write_read_guard.py                        1.1 s
+    graphene_contact_consistent_argument.py             1.1 s
+    graphene_default_flip.py                            1.1 s
+    graphene_second_anchor_bound.py                     1.0 s
+    graphene_sensitivity_audit.py                       1.0 s
+    graphene_band_structure_audit.py                    1.0 s
+    graphene_replacement_read_audit.py                  1.0 s
+    graphene_capture_leverage_figure.py                 1.0 s
+    graphene_potential_declaration.py                   0.8 s
+    graphene_rootfinder_audit.py                        0.7 s
+    graphene_covariance_probe_audit.py                  0.7 s
+    graphene_transport_optical_audit.py                 0.7 s
+    graphene_standing_list_audit.py                     0.2 s
+    NOTE graphene_diffusion_mutation.py: 80.0 s fits inside the 150.0 s per-part allowance, so COST is no longer a reason to exclude it once the census is split.  Not re-admitted here.
+    NOTE graphene_perfect_contact_counterfactual.py: 119.7 s fits inside the 150.0 s per-part allowance, so COST is no longer a reason to exclude it once the census is split.  Not re-admitted here.
   [PASS] every module excluded for cost is measured over the remaining budget
-        2 modules, each measured today: diffusion_mutation 80.0s, perfect_contact_counterfactual 119.7s.  Adding any one to the 132.8 s already spent exceeds the 180.0 s cap.
+        2 modules, each measured: diffusion_mutation 80.0s, perfect_contact_counterfactual 119.7s.  Under the split the cost exclusion is no longer sound for either of them -- see the NOTE lines above.  This check passes because nothing is MIS-registered, not because the exclusions are still justified, and re-admitting them is a registry decision left on the standing list.
+
+  C10 -- the budget crossing, on inputs with exact answers
+  [PASS]   C10.1 a set that never reaches the allowance does not cross
+        cumulative 1, 3, 6 against 10 -- must be None, not index 2.  This is the must-give-nothing symmetry: a budget that is not exceeded has no crossing suite to name
+  [PASS]   C10.2 the crossing index is the FIRST suite past the allowance, exactly
+        cumulative 4, 8, 12 against 8 -- index 2, because 8 is not > 8.  An off-by-one or a >= would give 1 and this control would be red
+  [PASS]   C10.3 landing EXACTLY on the allowance is not a crossing
+        cumulative 1.5 then exactly 4.0 against 4.0.  All three values are exact in binary, so this is a statement about the comparison and not about float error
+  [PASS]   C10.4 a single suite over the allowance crosses at index 0
+        the degenerate case: the first suite alone exceeds, so the warning must name it rather than wait for a second
+  [PASS]   C10.5 an empty suite table cannot cross
+        no durations, zero allowance -- still None, because 0.0 is not > 0.0 and there is nothing to iterate
+  [PASS]   C10.6 containment is what the live budget check asserts, and it holds on a plant where the tail is all the cost
+        elapsed = tail + spent with tail >= 0, so elapsed >= spent for every tail including zero.  The contingent quantity is the tail; the invariant is the inequality
+  [PASS]   C10.7 the allowance leaves room below the cap, or the warning could not be printed before the kill
+        allowance 150.0 s, cap 180.0 s.  An allowance equal to the cap reproduces the 11-04 defect exactly: the crossing and the kill coincide and nothing is printed.
+
+  C14 -- the environment/code distinction, on exact inputs
+  [PASS]   C14.1 an ENOSPC traceback is an ENVIRONMENT fault
+        the exact text this VM produced today, and the matched mark is returned rather than a bare True so the verdict can name what it saw
+  [PASS]   C14.2 a suite that merely failed its own checks is NOT an environment fault
+        the must-give-nothing direction, and the one that matters: classifying a real defect as ENVIRONMENT would hide it.  This is the actual stdout of the suite whose INCOMPLETE verdict masked a STALE one for five sessions -- once it had room to run, its output carries no environment mark at all
+  [PASS]   C14.3 an empty run is not an environment fault either
+        None and empty string both, because run_suite returns None for stdout on the no-output path and a classifier that threw there would turn an ERROR into a crash
+  [PASS]   C14.4 ENVIRONMENT is a COMPLETION FAULT, so it cannot be counted as a clean run
+        Section 5's `no suite fails to complete` check reads this tuple; a new verdict outside it would be invisible to every aggregate in the module
+
+  C11 -- the partition, on inputs with exact answers
+  [PASS]   C11.1 the blocks of a 43-into-4 split have exactly the sizes 11, 11, 11, 10
+        43 = 4*10 + 3, so the first three blocks take the remainder one each.  An exact integer answer, not a balance criterion
+  [PASS]   C11.2 and they partition range(43) EXACTLY -- nothing dropped, nothing twice
+        the concatenation in order is [0..42].  This is the invariant the census depends on; the sizes above are a consequence of it plus contiguity
+  [PASS]   C11.3 more parts than suites gives empty blocks rather than an error, and still partitions
+        3 suites into 5 parts: three blocks of one and two empty.  An empty part is a call that runs nothing and writes an empty part file, which --assemble must accept
+  [PASS]   C11.4 zero suites gives every block empty
+        the degenerate case, and the one a filter can produce
+  [PASS]   C11.5 the partition identity holds over a 30x7 grid of (suites, parts)
+        210 cases, 0 failures
+  [PASS]   C11.6 an out-of-range part index or a zero part count RAISES rather than returning a silently empty block
+        block_slice(5,0,0), (5,2,2) and (5,2,-1) all raise ValueError. A silently empty block is the failure mode that would make a census miss a third of its suites and still print a summary
+
+  C12 -- the part fingerprint, which is what refuses a mismatched assembly
+  [PASS]   C12.1 the same table gives the same fingerprint
+        a content-addressed id, so equality is the requirement
+  [PASS]   C12.2 a different table gives a different one
+        one suite swapped out of two
+  [PASS]   C12.3 and so does the SAME suites in a different ORDER
+        order matters because block_slice is positional: two parts run against differently-ordered tables would cover the same suites under the single-call reading and different ones under the split.  This is the case a set-based fingerprint would have missed
+  [PASS]   C12.4 a transcript-less suite is distinguished from one whose transcript is the empty string
+        None is encoded as a sentinel rather than as '', so a registry change from unregistered to registered-as-empty moves the fingerprint.  THIS CONTROL FAILED ON ITS FIRST RUN: the fingerprint's first form used `t or ""` and mapped both to the same bytes
+
+  C13 -- --part argument parsing, on answers known by inspection
+  [PASS]   C13.1 --part 2/4 is part index 1 of 4
+        1-based for the operator, 0-based inside.  C13.2 is why the translation is checked rather than assumed
+  [PASS]   C13.2 --part 0/4 and --part 5/4 are REFUSED
+        an operator typing 0/4 has made an error, and running part 1 instead would produce a part file that covers the wrong block under the right name
+  [PASS]   C13.3 no arguments is the single-call mode, unchanged
+        the committed transcript is a claim about this path, so the default must not move
+  [PASS]   C13.4 --assemble --parts=4 parses to an assemble of 4
+        and the order of the two flags does not matter: ('assemble', 4, None)
 
   C5 -- the coverage predicates, on PLANTED inputs
   [PASS]   C5.1 a transcript in neither table is reported UNACCOUNTED
@@ -209,15 +331,17 @@ missing was not rows -- it was a count nobody had to make.
         the arrival probe's transcript is captured by redirection, not written by the module, so the predicate must say no
   [PASS]   C5.3 and CONFIRMED for one that does
         graphene_default_flip.py line ~745 opens it 'w', and is now a registered suite as well -- the predicate does not care
-  [PASS] C9 main() returns a FAILURE-CONDITIONAL exit code, not a constant -- the convention this module checks for in every other suite
-        0 constant return(s), 1 conditional: a bare `return 0` here is a transcript reading 'N failed' beside an exit code of 0, which is the 2026-10-04..10-15 state this audit exists to catch
-  [PASS] C9b and the conditional is on the FAIL list this run actually appends to, not on some other name
-        a conditional on the wrong name would exit 0 while red and pass this control -- the verdict must be gated on the mechanism it reports (2026-10-16)
+  [PASS] C9 no path out of main() reports success unconditionally
+        2 conditional exit(s) and 2 constant exit(s), of which 0 return 0 or None.  A bare `return 0` here is a transcript reading 'N failed' beside an exit code of 0, which is the 2026-10-04..10-15 state this audit exists to catch
+  [PASS] C9b every failure-conditional exit is gated on the FAIL list this run actually appends to, not on some other name
+        2 conditional exit(s), all of them naming _FAIL.  The old form of this check inspected only the FIRST conditional return, so the part-mode exit added today would have been unchecked by it -- a conditional on the wrong name exits 0 while red and passes a control that only reads its sibling (2026-10-16)
+  [PASS] C9c and every constant exit is NONZERO -- a refusal to run is not a clean run
+        2 constant exit(s): [2, 2].  These are the cannot-assemble paths, which report that the census did not happen.  Returning 0 there would make a missing part file indistinguishable from a green census, which is exactly the conflation C9 exists for
 
 ==========================================================================
 SUMMARY
 ==========================================================================
-  commit audited : df84b5a23039fe5c63e540346c22a21763aa8af0
+  commit audited : 99a8b08c03f4b747d11dbf7e97a071cf34234a9a
   PASS  E1 for every suite that does NOT write its own transcript, the object-store read is byte-identical to the old working-tree read
   PASS  E2c1 the circularity predicate is TRUE when the run rewrote the transcript differently (planted)
   PASS  E2c2 and FALSE when the run rewrote it byte-identically (planted)
@@ -241,18 +365,46 @@ SUMMARY
   PASS  C8g INCOMPLETE is in COMPLETION_FAULTS, so a crash cannot be green in the completion check while red in the staleness one -- the 2026-11-05 state
   PASS  C8h the summary regex is ONE constant: Section 5 reads SUMMARY_RE and no second spelling survives in the source
   PASS  no suite fails to complete in a pristine clone
+  PASS  every transcript's own pass/fail summary agrees with its suite's exit code
   PASS  every transcript is exactly reproducible (no numeric drift)
   PASS  every committed transcript is either registered in SUITES or excluded with a reason
   PASS  every SELF_WRITING exclusion is TRUE of the source
   PASS  no exclusion names a transcript that is not committed, and none is excluded AND registered
-  PASS  Section 2 still fits inside one shell call
+  PASS  every part's recorded elapsed clock contains its own suite time
+  PASS  every part fitted inside one shell call
+  PASS  the assemble call fits inside one shell call
   PASS  every module excluded for cost is measured over the remaining budget
+  PASS    C10.1 a set that never reaches the allowance does not cross
+  PASS    C10.2 the crossing index is the FIRST suite past the allowance, exactly
+  PASS    C10.3 landing EXACTLY on the allowance is not a crossing
+  PASS    C10.4 a single suite over the allowance crosses at index 0
+  PASS    C10.5 an empty suite table cannot cross
+  PASS    C10.6 containment is what the live budget check asserts, and it holds on a plant where the tail is all the cost
+  PASS    C10.7 the allowance leaves room below the cap, or the warning could not be printed before the kill
+  PASS    C14.1 an ENOSPC traceback is an ENVIRONMENT fault
+  PASS    C14.2 a suite that merely failed its own checks is NOT an environment fault
+  PASS    C14.3 an empty run is not an environment fault either
+  PASS    C14.4 ENVIRONMENT is a COMPLETION FAULT, so it cannot be counted as a clean run
+  PASS    C11.1 the blocks of a 43-into-4 split have exactly the sizes 11, 11, 11, 10
+  PASS    C11.2 and they partition range(43) EXACTLY -- nothing dropped, nothing twice
+  PASS    C11.3 more parts than suites gives empty blocks rather than an error, and still partitions
+  PASS    C11.4 zero suites gives every block empty
+  PASS    C11.5 the partition identity holds over a 30x7 grid of (suites, parts)
+  PASS    C11.6 an out-of-range part index or a zero part count RAISES rather than returning a silently empty block
+  PASS    C12.1 the same table gives the same fingerprint
+  PASS    C12.2 a different table gives a different one
+  PASS    C12.3 and so does the SAME suites in a different ORDER
+  PASS    C12.4 a transcript-less suite is distinguished from one whose transcript is the empty string
+  PASS    C13.1 --part 2/4 is part index 1 of 4
+  PASS    C13.2 --part 0/4 and --part 5/4 are REFUSED
+  PASS    C13.3 no arguments is the single-call mode, unchanged
+  PASS    C13.4 --assemble --parts=4 parses to an assemble of 4
   PASS    C5.1 a transcript in neither table is reported UNACCOUNTED
   PASS    C5.2 SELF_WRITING is refuted for a module that does not write the file
   PASS    C5.3 and CONFIRMED for one that does
-  PASS  C9 main() returns a FAILURE-CONDITIONAL exit code, not a constant -- the convention this module checks for in every other suite
-  PASS  C9b and the conditional is on the FAIL list this run actually appends to, not on some other name
-  FAIL  every transcript's own pass/fail summary agrees with its suite's exit code
+  PASS  C9 no path out of main() reports success unconditionally
+  PASS  C9b every failure-conditional exit is gated on the FAIL list this run actually appends to, not on some other name
+  PASS  C9c and every constant exit is NONZERO -- a refusal to run is not a clean run
   FAIL  no committed transcript is STALE
 
-TOTAL: 34 passed, 2 failed
+TOTAL: 63 passed, 1 failed

@@ -344,6 +344,14 @@ SUITES = [
     # false claim 10-27 found, and for the same reason -- nothing compared
     # it.  Regenerated in this commit and registered in it.
     ("graphene_sensitivity_audit.py",        "audit_output.txt"),                      # 1.0s
+    # REGISTERED 2026-11-08, AND THE CENSUS IS WHAT ASKED FOR IT.  Created
+    # 2026-11-07 and never registered, so it sat in the UNACCOUNTED column:
+    # neither compared nor excluded, which means nothing in this repository
+    # could tell whether it was stale.  The census could not report that
+    # either, because the census could not run -- which is the second thing
+    # the split bought today and the one nobody predicted.  Measured 1.2 s.
+    ("graphene_screening_overdrive_invariance.py",
+     "screening_overdrive_invariance_output.txt"),                                       # 1.2s
     # ---------------------------------------------------------------------
     # Added 2026-11-04: the standing "run_suite SHOULD READ THE OBJECT STORE"
     # item, worked -- and these rows are the whole point of it.
