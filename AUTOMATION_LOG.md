@@ -14895,3 +14895,429 @@ rather than create a second one.
 and transcript; Chapter 7 §7.3a with the two in-place annotations — and this
 `AUTOMATION_LOG.md` entry makes **4**, with the refreshed standing-list
 transcript making **5**.
+
+---
+
+## 2026-11-08 — the census was split and completed, and the first thing it found once it could run was a verdict that had been answering the wrong question for five sessions
+
+Three commits before this entry. The list's ranked-first item was taken first
+and cost nothing; the ranked-second item is the session.
+
+### 1. The ranked item was already discharged, and the transcript proves it
+
+11-07 ranked `graphene_standing_list_audit.py`'s re-run first and wrote three
+predictions. **All three hold, and the run produced no new content at all**:
+`md5sum` of today's output and of the committed
+`standing_list_audit_output.txt` are the same 16 bytes. That is not a
+coincidence — 11-07's own last commit refreshed the transcript *after* its
+entry landed, which is exactly what the item asked a later session to do. The
+item was discharged by the session that created it, one commit later, and
+today's run is a confirmation rather than work.
+
+- **Eight corrected entries**, `2026-10-01..10-06` plus `11-06` and `11-07`,
+  as predicted, against the predicted **five** revivals each paired to
+  `2026-10-06`. `V1`/`V2`/`V3` green, `V3b` reads `False`.
+- **`A1` reads `RETIRED`**, the tree still contradicting the retired wording.
+- **33 passed, 0 failed.**
+
+**One thing worth recording about how this was nearly misread.** The first
+attempt redirected to a path on the full `/sessions` filesystem, the redirect
+failed, and `tail` printed a **stale file left by an earlier session** — which
+reported **seven** corrected entries and so looked like a falsified prediction.
+The real run reports eight. A transcript read without checking that the run
+that wrote it succeeded is the same fault this repository has a whole module
+about, committed here by the session reading it rather than by the one writing
+it.
+
+### 2. The split: Section 2 no longer has to fit in one call
+
+11-07's honest statement was that its budget repair fixed the *reporting* and
+not the problem. The problem is fixed.
+
+`--part i/n` runs a contiguous block of the suite table and persists its
+per-suite verdicts, exit codes, stdout and **post-run transcript bytes** to a
+JSON part file outside the repository; `--assemble` reads every part, restores
+those bytes into its own pristine clone, and runs Sections 2b–5 **unchanged**.
+A plain invocation is untouched.
+
+**The post-run bytes are the one place the split could have silently hollowed
+out a check**, and they are why this is a change of shape rather than a loop
+refactor. Sections 2b/3 compare, for every self-writing suite, the bytes its
+own run left in the clone against the committed blob — bytes that exist only
+inside the call that ran the suite. An assemble phase rebuilding a fresh clone
+would find the *committed* bytes there, and every one of those comparisons
+would come back green: numerous, and about nothing. That is the 11-07 budget
+check's fault class exactly, which is why it was anticipated rather than
+discovered.
+
+So `graphene_census_split_equivalence.py` (**12/12**) compares **output**
+rather than arguing about code. It runs the census both ways on a three-suite
+table and requires Sections 2b/3/4, Section 5's coverage checks and every
+planted control to be **byte-identical** after masking elapsed times, while
+**declaring** the three regions that must differ — and checking that they do,
+so the declaration is not a blanket. Region B is additionally gated on
+**content** (29 check lines, 8348 bytes), because a region can be identical by
+being empty.
+
+**Three of today's controls failed, each before its claim could be believed.**
+This is the session's best argument for the standing "give every verdict a
+planted control" item, and the sixteenth and seventeenth instances of it.
+
+- **`C12.4` failed on its first run.** `table_fingerprint` used a
+  `t or ""` idiom, mapping `None` (no committed transcript) and `""`
+  (registered as empty) to the same bytes, so a registry change between those
+  states left the fingerprint unmoved. The control existed only because the
+  comment above it claimed the separator kept them apart. It did not.
+- **`C9` failed, and its *form* was the defect.** `not _consts and
+  len(_ifexps) == 1` reads as *main() has exactly one exit and it is
+  conditional* — a statement about **shape**. The property is narrower: **no
+  path out of `main()` reports success unconditionally.** Replaced by
+  `C9`/`C9b`/`C9c`, strictly stronger where it matters — the old form
+  inspected only `_ifexps[0]`, so today's part-mode exit would have been
+  unchecked by it — and weaker only in permitting a **nonzero** constant exit
+  for a refusal to run, which must be distinguishable from a clean run. A
+  check that encodes the shape of the code it guards goes red on a legitimate
+  change and teaches the operator to edit the check; this one did, and the
+  edit was the finding.
+- **`S0b` failed on the first run, and it is why `M2` moved.** The first suite
+  table was the three cheapest suites and **none of them writes its own
+  transcript**, so Region B's self-writing comparisons were empty and the `M2`
+  mutation was undetectable *by construction*. With `default_flip` swapped in,
+  `M2` was **still** not caught end to end — because every self-writing suite
+  in this tree rewrites its transcript byte-identically (the 11-05 state). If
+  post bytes equal the committed blob, restoring them and not restoring them
+  are the same operation and no healthy tree can tell them apart. `M2` is now
+  run against a divergence **planted into the part file**: restoration intact
+  gives `[CONFIRMED] E2r` naming the transcript, restoration removed gives
+  `[NOT_EXERCISED]`. **A control that requires the tree to be unhealthy is not
+  a control** — the ground 11-05 retired the old `E2` on, reached again from
+  the other direction.
+
+**The budget necessarily means something else once the census is split.**
+`elapsed >= spent` is a statement about **one** call; the assembled totals span
+several, and asserting it there would be the 11-07 fault inverted — a whole
+compared against a part. `--assemble` checks that **every call fits**: each
+part's recorded elapsed clock contains its own suite time (re-read from the
+part files, not recomputed, so a part written by a call that mis-timed itself
+is caught here too), each part fitted the cap, and the assemble call fits. The
+whole-census figure is a report and is deliberately not compared against one
+cap.
+
+The partition is by **count**, not cost: the only per-suite cost table that
+exists had two rows of 43, and a partition built on an estimate of the thing it
+bounds is the shape of fault the 11-07 check was. `--assemble` emits the
+measured table instead, so the next session can pack by cost and say what it is
+packing against. `C11.1`–`C11.6` plant the partition on exact integers —
+`43→4` giving `11,11,11,10`; the concatenation equal to `range(43)` exactly;
+three suites into five parts; zero suites; a 30×7 grid of 210 cases; and an
+out-of-range index **raising** rather than returning a silently empty block,
+which is the failure mode that would make a census miss a third of its suites
+and still print a summary.
+
+### 3. And then it ran, and found a verdict that had been about the wrong thing since 11-03
+
+`graphene_mixed_capture_repair_audit.py` came back `INCOMPLETE` at **0.0 s** —
+*"the suite did not reach its own end — this is a failed RUN, not a stale
+transcript"*. It had not failed. It died on
+
+&nbsp;&nbsp;&nbsp;&nbsp;`OSError: [Errno 28] No space left on device`
+
+building its scratch directory under `$TMPDIR`, which on this VM points into
+the `/sessions` filesystem that has been 100 % full for **thirteen consecutive
+sessions** and is logged as such in every one of them. Re-run with `TMPDIR` on
+a filesystem with room, the suite completes — **and its verdict is `STALE`**.
+
+**The staleness was real and it was five sessions old**, and today's own
+contribution is separated from it rather than mixed in. At the parent commit
+the suite reports **six** capture sites where `R1` requires exactly one, five
+of them introduced by `graphene_kappa_impurity_bound.py` on **2026-11-03**
+against a transcript last refreshed on **10-28**. So `R1` and `R2` have been
+**red in the tree since 11-03** and the census said `INCOMPLETE` instead, every
+session. (This session's first draft of the equivalence module added two more
+sites, eight in the working tree, and that same census caught them the day the
+module was written — the instrument working, once it could run.)
+
+`INCOMPLETE` is a verdict about the **code**. It is read as *this suite is
+broken*, and it **ends the chain**: the transcript is never compared, so what
+the transcript would have said is not merely unreported but unobtainable from
+it. A verdict that absorbs an environment fault into a code fault is the same
+shape as a budget check reporting headroom that does not exist — the instrument
+answers, and its answer is about something else.
+
+So **`ENVIRONMENT` is now its own verdict**, asked **before** `INCOMPLETE`,
+because an ENOSPC death also fails the completion test and asking the weaker
+question first is precisely what produced five sessions of the wrong answer.
+It is in `COMPLETION_FAULTS`, so it cannot read as a clean run, and it is kept
+distinct from `INCOMPLETE` because the two call for different actions: a defect
+to fix versus a machine to give room to. The classifier is a short list of
+**literal kernel messages**, not a pattern over `OSError` text — the risk is
+asymmetric and calling a real defect `ENVIRONMENT` would hide one.
+`C14.1`–`C14.4` plant both directions on exact inputs, including the
+must-give-nothing direction on the **actual stdout** of the suite whose
+`INCOMPLETE` masked the `STALE`.
+
+**And it is exercised in anger, not only planted.** Re-run with `TMPDIR`
+pointed back at the full filesystem, the census prints
+`graphene_mixed_capture_repair_audit.py  ENVIRONMENT  0.0s  exit 1 (No space
+left on device)`. The verbatim run and its command are in
+`census_environment_verdict_in_anger.txt`, which is deliberately **not** named
+`*_output.txt` because Section 5's coverage sweep globs that suffix. A check
+exercised in the condition it was built for, on the day it was built, is rare
+enough here to be worth naming.
+
+The five captured defaults are converted to the `None` sentinel the module
+already used at six other sites, and **validated bitwise**: the module's stdout
+is byte-identical before and after, and identical to its committed transcript,
+so this is a change of binding time and of nothing else. The one caller that
+passes `BRANCH_SPLIT_D9` by name is left explicit on purpose — it is the
+implicit capture in a *signature* the census objects to, not naming a constant
+at a call site.
+
+### 4. The first complete census since it outgrew the cap
+
+Four parts plus an assemble: **147.9 s of suite time over 44 suites**, largest
+part **46.7 s**, assemble **2.1 s**, whole census **152.0 s across five calls**.
+No call came within 130 s of the cap. **63 passed, 1 failed**, the one red
+being the standing `STALE` check.
+
+**11-07's third prediction, discharged.** It predicted the `STALE` count would
+**fall to 8** and not stay at 9, because the standing-list transcript was
+refreshed in its own last commit — the opposite direction from 11-06, which
+re-staled by refreshing *before* its entry. It reads **8**, and **membership is
+pinned rather than the count**: `attribute_default_capture`, `dead_name_sweep`,
+`figure_provenance_audit`, `frozen_default_semantics`, `import_binding_sweep`,
+`log_sensitivity_step_audit`, `mutation_arrival_probe`,
+`potential_census_audit`. That is 11-05's nine less
+`graphene_standing_list_audit.py`, now `IDENTICAL` — so the count fell **for the
+stated reason** and not for some other one arriving at the same number. Twelfth
+argument for the "pin membership, not count" item and its third worked instance.
+
+**`UNACCOUNTED` is now 0, and this is the finding nobody predicted.**
+`screening_overdrive_invariance_output.txt` was created on 11-07 and never
+registered: neither compared nor excluded, so nothing in this repository could
+say whether it was stale — and nothing reported *that*, because the census
+could not run. Registered (measured 1.2 s) and `IDENTICAL`. Registering a 44th
+suite is also the first time since 10-27 that adding one was not a budget
+decision. The split's stated goal was completion; this was sitting behind it.
+
+**The committed transcript is now an `--assemble` transcript, and that is said
+plainly rather than slipped in.** Every previous version was one call's output,
+and commit 1 was careful that the single-call path stays byte-identical so that
+claim would stand. But no single call can produce a complete transcript any
+more. What licenses reading the new file as the same claim is not an assertion:
+the equivalence module requires Regions B and D byte-identical and declares the
+three that differ, and those three — provenance header, budget block, summary's
+list of budget-check names — are exactly where this file now reads differently
+from its predecessors. They are differences about the **run**, not about the
+repository.
+
+One honest residual: the committed census transcript describes the tree
+**before** this entry, since the entry is written after the run. The same was
+true on 11-07 and it is why the standing-list transcript is refreshed in this
+session's last commit rather than this one.
+
+### 5. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, 0 bytes free) for the
+**thirteenth** consecutive session; `mkdir $HOME/work` failed before anything
+else ran and all work was done under `/tmp` on `/dev/sda1` (2.9 G free). §3 is
+the first session in which that fact stopped being a logistical nuisance and
+became a **measurement error** — it had been corrupting a verdict for five
+sessions, and the entries that recorded the full disk every time did not
+connect the two.
+
+`scipy` did not need installing: `/tmp/pylibs1131` survived again with numpy
+2.2.6, matplotlib 3.10.9 and scipy 1.15.3, and the three imports were confirmed
+before being trusted, per 11-07. `MPLCONFIGDIR` and `TMPDIR` both had to be
+redirected off `/sessions` — `TMPDIR` for the first time, and that redirection
+is §3.
+
+A second stale-read hazard worth naming beside §1's: `/tmp` on this VM is
+shared and sticky, so a redirect to a path an earlier session's uid owns fails
+with `Permission denied` while leaving that session's file in place to be read.
+Both of today's near-misreads were one filesystem being out of room and another
+being shared.
+
+The device bridge did not drop and the per-call cap stayed at 180 s.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-RUN `graphene_standing_list_audit.py` AFTER THIS ENTRY LANDS** —
+  **ranked first**, cheap, mechanical, blocked on nothing, and it carries the
+  test 11-07 set up deliberately. 11-07 removed the decoy `CHAPTERS 2 AND 3
+  ARE DRAFTED` bullet and recorded that **removing it is itself a test**: if
+  `A1` changes class next session, the trigger was reading that bullet rather
+  than the tree. **This entry carries no chapters-2-and-3 bullet in either
+  wording**, so the prediction is (i) `A1` still reads `RETIRED`; (ii)
+  corrected entries stay at **eight** and revivals at **five**, this entry
+  wording the item neither way; (iii) the `STALE` count stays at **8** with the
+  same membership, the standing-list transcript being refreshed after this
+  entry as 11-07's was.
+- **PACK THE PARTITION BY COST** — created today and now **unblocked by a
+  measurement rather than by an argument**: `--assemble` emits the full 44-row
+  per-suite cost table, so `MEASURED_OVER_CAP_S`'s two rows of 43 are no longer
+  the only data. A cost-packed `plan_parts(costs, allowance)` would (a) balance
+  the parts — today's four ran 34.4 / 46.7 / 25.0 / 43.9 s, a 1.9× spread from
+  partitioning by count — and (b) make the part count a consequence of the
+  allowance instead of an operator's guess. The control to plant first is the
+  one `block_slice` does not need: **a single suite more expensive than the
+  whole allowance must get a part of its own and not be dropped.**
+- **THE SPLIT HAS CHANGED THE EXCLUSION CRITERION AND NOTHING HAS RE-DECIDED
+  IT** — created today. Both `OVER_CAP` modules
+  (`graphene_diffusion_mutation.py` 80 s, `graphene_perfect_contact_
+  counterfactual.py` 119.7 s) fit inside a per-part allowance, so **cost is no
+  longer a sound reason to exclude either**. `--assemble` now says so in a
+  `NOTE` rather than silently re-admitting them, because re-admission is a
+  registry decision and this was not the session to make it. The three
+  `SELF_WRITING` and three `UNMEASURED` exclusions should be re-read in the
+  same light.
+- **THE TAIL'S COST IS NOW MEASURED AT ONE POINT AND THE ALLOWANCE IS STILL A
+  GUESS** — carried from 11-07 and **half discharged**. `--assemble` runs
+  Sections 2b–5 with no suite execution at all, and on a 44-entry result set it
+  costs **2.1 s** — against 11-07's lower bound of "~2 s" and its one-suite
+  measurement of 0.5 s. So the tail is nearly flat in result-set size, which
+  is the opposite of what the 11-07 reserve was set against:
+  `SECTION2_ALLOWANCE_S = 150.0` leaves 30 s for a 2.1 s tail. The three
+  truncations at 1, 10 and 25 suites would settle the shape, and the allowance
+  should then be derived rather than declared.
+- **`ENVIRONMENT` HAS NO MUTATION SUITE, ONLY PLANTS AND ONE ANGRY RUN** —
+  created today. `C14` plants the classifier and
+  `census_environment_verdict_in_anger.txt` records the verdict firing, but
+  nothing requires that the verdict **keeps** firing: deleting the
+  `ENVIRONMENT` branch would turn today's angry run back into `INCOMPLETE` and
+  no committed suite would go red. The equivalence module is the natural home
+  and the mutation is one line.
+- **WHAT ELSE HAS THE FULL `/sessions` FILESYSTEM BEEN CORRUPTING?** — created
+  today and the sharpest of the new items. §3 is one measured instance of an
+  environment fault read as a code fault, and the disk has been full for
+  thirteen sessions. Every other module that writes under `$TMPDIR` or
+  `$HOME` is a candidate, and the instrument is a census of scratch-path
+  construction across the tree — `tempfile.*`, `os.environ.get('TMPDIR')`,
+  literal `/tmp` — against which of them a run would notice.
+- **IS `f` STACK-DEPENDENT?** — carried from 11-07, still **the
+  highest-value literature item**, and still the single assumption §7.3a.5
+  rests on. Untouched today; today was instrument work.
+- **WHAT EXPLAINS arXiv:1010.0913's <10 % ASYMMETRY, IF NOT SCREENING?** —
+  carried from 11-07. The observation stands, the attribution does not.
+- **IS `n_c` BRANCH-DEPENDENT?** — carried from 11-03, still the first-ranked
+  *physics* item and still the only open item that can overturn a
+  **qualitative** conclusion. Blocked on reading the ELECTRON branch's
+  transition density off Zion Fig. 5 — the same figure the *lower bound on
+  ℓ*, the *`Δ_c` form for the chemisorbed metals* and the 1.4362-vs-1.5 item
+  need, so **one figure read discharges four items**. **Six** consecutive
+  sessions have now gone elsewhere, and the figure is now the oldest
+  cheap-and-unblocked item on this list.
+- **THE POTENTIAL CENSUS TRANSCRIPT HAS GROWN FROM 135 NAMES / 36 MODULES TO
+  200 / 40** — carried from 10-27, and `graphene_potential_census_audit.py` is
+  one of the eight pinned `STALE` members above, so the item now has a verdict
+  behind it rather than only a count.
+- **CENSUS EVERY CHECK WHOSE EXPECTED ANSWER COMES FROM THE LIVE LOG** —
+  carried from 11-06, two worked instances, still not mechanised.
+- **DOES EVERY OTHER SUITE OBEY THE EXIT-CODE CONVENTION?** — carried from
+  11-06, still **unmeasured**; the instrument is an AST census over `SUITES`,
+  not a source regex. `C9`'s amendment today is an argument for doing it: the
+  convention turned out to be three requirements and not one, so a census
+  asking the old question would have asked the wrong one.
+- **THE EXIT-CODE CHECK STILL READS THE WORKING TREE** — carried from 11-06,
+  one-line fix, the `pre_blob` read the staleness path already uses.
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  carried; joined to the branch item by the same figure.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02,
+  blocked on a literature datum separating the two channels, joined to the `f`
+  item.
+- **GIVE `chapter_status_audit` A STABLE PROJECTION** and **THE
+  CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — both carried from 11-04, same
+  module, together or not at all.
+- **REGISTER THE THREE REMAINING `UNMEASURED` TRANSCRIPTS** — carried:
+  `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`. 11-07 noted a stopwatch is not free; **the split is
+  what makes it free**, so this item has lost its blocker and should be read
+  with the exclusion-criterion item above.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29, **tenth** instance, and
+  §3 is the strongest yet: that a verdict had been answering the wrong question
+  for five sessions was not deducible from the list, from the module, or from
+  the thirteen entries that recorded the full disk. Only running it found it.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, **twelfth** argument and third worked instance (§4).
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~70 PNGs, **three**
+  inspected. Untouched today; no new figure was produced, which is the first
+  session in some days where that is true.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii).
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25; the 67 is stale and the census item above says by how much.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **seventeenth** instance and the strongest: three of today's
+  controls went red and each red was a real defect in the claim beside it
+  (`C12.4`, `C9`, `S0b`).
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. Today's new checks are
+  set identities, exact integers and literal substring matches, so again not
+  exercised.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **seventeenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same figure.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17,
+  and today is a near-instance from the other side: the equivalence module
+  added two capture sites to a population another module censuses, and was
+  caught by it.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-first** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-second** session, and §3 converted **five** sites of a
+  related population today, which is the first movement this item's
+  neighbourhood has seen.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-fifth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirtieth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-eighth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-seventh**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-eighth**
+  session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-eighth** session, same question as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, subsumed by the
+  grown-census item above.
+
+**Retired from the list this session:**
+
+- **RETIRED:** THE CENSUS NO LONGER FITS IN ONE CALL, AND THE 11-07 REPAIR
+  ONLY REPORTS THAT — created 11-07 and ranked second there. Split, run to
+  completion across five calls, and the equivalence licensed by output
+  comparison rather than by argument. What remains of it are the two successor
+  items above (pack by cost; re-decide the exclusions), both of which are new
+  questions rather than the same one carried.
+- **RETIRED:** THE WARNING FIRES AFTER THE CROSSING SUITE, NOT BEFORE IT —
+  created 11-07, and the split **removes its premise** rather than fixing it.
+  The warning existed so that a run which could not finish would say so before
+  being killed; with no call now running more than 47 s of a 180 s cap, there
+  is no kill to pre-empt. `section2_crossing` and its `C10` controls are kept
+  — the allowance is still a real bound inside a part — but *predicting* the
+  crossing is work with no beneficiary. Retiring an item because its problem
+  was dissolved rather than solved is worth distinguishing in writing from
+  retiring one because it was done.
+
+**Commits this run:** 3 before this entry — the split with its equivalence
+module; the `ENVIRONMENT` verdict with the five capture-site conversions and
+the refreshed `mixed_capture_repair_output.txt`; the first complete census
+transcript — and this `AUTOMATION_LOG.md` entry makes **4**, with the
+refreshed standing-list transcript making **5**.
