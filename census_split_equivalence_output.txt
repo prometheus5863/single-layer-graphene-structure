@@ -1,0 +1,79 @@
+==========================================================================
+CENSUS SPLIT EQUIVALENCE -- 2026-11-08
+Does --part/--assemble see what the single call saw?
+==========================================================================
+
+--------------------------------------------------------------------------
+SECTION 0 -- this test's preconditions, checked rather than assumed
+--------------------------------------------------------------------------
+  [PASS] S0a every suite this test names is registered in the census's own SUITES table
+        3 suites: graphene_potential_declaration.py, graphene_default_flip.py, graphene_write_read_guard.py
+  [PASS] S0b at least one of them WRITES ITS OWN TRANSCRIPT, or Region B's self-writing comparisons are empty and M2 is undetectable
+        self-writing: graphene_default_flip.py.  This is the precondition that makes the mutation in Section 3 a real test rather than a run of a vacuous one -- M2 breaks exactly the path these suites exercise.
+  [PASS] S0c the census still exposes the three pieces this test drives
+        block_slice, suite_table, parse_mode
+
+--------------------------------------------------------------------------
+SECTION 1 -- the baseline comparison
+--------------------------------------------------------------------------
+  single        4.8 s
+  part 1        2.6 s
+  part 2        1.8 s
+  assemble      1.9 s
+
+  region  verdict      single   assembled
+  A       DIFFERENT        943        1147
+  B       IDENTICAL       8347        8347
+  C       DIFFERENT       1436        2122
+  D       IDENTICAL       6400        6400
+  E       DIFFERENT       4815        4871
+  [PASS] E1 Regions B and D are BYTE-IDENTICAL between the two paths, after masking elapsed times
+        Region B is Sections 2b, 3, 4 and Section 5's coverage checks -- every claim the census makes about the repository.  Region D is the planted controls.  Masking is narrow by design: only a number followed by a seconds unit is replaced, so stale counts, byte counts and drift magnitudes are compared as written.
+  [PASS] E2 and Regions A, C and E DO differ -- the declaration is exercised, not vacuous
+        A is the provenance header, C is the budget block (which MUST differ: `elapsed >= spent` is a one-call statement and the assembled totals span four calls), E is the summary's list of budget-check names.  If any of the three came back identical, either the split is not doing what it claims or this test is comparing the wrong thing.  Differing: ['A', 'C', 'E']
+  [PASS] E3 every part, and the assemble call, fits the one-call cap
+        worst 2.6 s against a 180.0 s cap, on a 3-suite table.  This is not the claim that the REAL table fits -- that is measured by the census itself -- only that the mechanism's own overhead does not eat the budget it exists to free.
+
+--------------------------------------------------------------------------
+SECTION 2 -- Region B is not identical by being empty
+--------------------------------------------------------------------------
+  Region B: 8347 bytes, 29 check lines
+  [PASS] E4 Region B carries a non-trivial number of checks
+        29 check lines over 8347 bytes.  A split that hollowed out Sections 2b-5 would leave this region identical AND tiny, so E1 is gated on content as well as on equality.
+  [PASS] E5 and it contains the two-reads comparison by name
+        the E1 check of Section 2b, which is the one that would read as green on a clone nothing had run in
+
+--------------------------------------------------------------------------
+SECTION 3 -- MUTATION.  Two defects, both of which must be caught
+--------------------------------------------------------------------------
+  [PASS] M1 block_slice drops the last index of every block
+        the partition silently stops being one.  A census built from such parts covers fewer suites, reports a smaller STALE count, and reads as an improvement.
+                Regions B, D now differ
+
+--------------------------------------------------------------------------
+SECTION 4 -- M2, with the divergence planted into the part file
+--------------------------------------------------------------------------
+  [PASS] E6 the planted divergence could be written into a part file, so Section 4 is running on what it says it is
+        default_flip_output.txt found in part 2 of 2 and extended by one line
+  [PASS] E7 with the restoration intact, the planted divergence REACHES Section 2b and is reported
+        Section 2b prints [CONFIRMED] E2r and names default_flip_output.txt.  This is the path the split had to preserve: the bytes a part's own run left behind, carried across a call boundary and compared against the committed blob.
+  [PASS] M2 --assemble that does NOT restore the post-run bytes is CAUGHT by the same plant
+        intact: [CONFIRMED] E2r.  mutated: [NOT_EXERCISED] E2r.  The mutant compares the committed blob against itself, so every self-writing suite reads 'rewrote it byte-identically' -- green, numerous, and about nothing.  Run end-to-end on this tree the same mutation is INVISIBLE, because the tree's self-writing suites already rewrite identically; planting the divergence is what makes the control a control rather than a wait.
+
+==========================================================================
+SUMMARY
+==========================================================================
+  PASS  S0a every suite this test names is registered in the census's own SUITES table
+  PASS  S0b at least one of them WRITES ITS OWN TRANSCRIPT, or Region B's self-writing comparisons are empty and M2 is undetectable
+  PASS  S0c the census still exposes the three pieces this test drives
+  PASS  E1 Regions B and D are BYTE-IDENTICAL between the two paths, after masking elapsed times
+  PASS  E2 and Regions A, C and E DO differ -- the declaration is exercised, not vacuous
+  PASS  E3 every part, and the assemble call, fits the one-call cap
+  PASS  E4 Region B carries a non-trivial number of checks
+  PASS  E5 and it contains the two-reads comparison by name
+  PASS  M1 block_slice drops the last index of every block
+  PASS  E6 the planted divergence could be written into a part file, so Section 4 is running on what it says it is
+  PASS  E7 with the restoration intact, the planted divergence REACHES Section 2b and is reported
+  PASS  M2 --assemble that does NOT restore the post-run bytes is CAUGHT by the same plant
+
+TOTAL: 12 passed, 0 failed

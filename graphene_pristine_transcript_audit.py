@@ -168,6 +168,9 @@ standing list.
 Run:  python3 graphene_pristine_transcript_audit.py
 """
 
+import base64
+import hashlib
+import json
 import os
 import re
 import shutil
@@ -461,6 +464,277 @@ def section2_crossing(durations, allowance):
         if total > allowance:
             return i
     return None
+# ---------------------------------------------------------------------------
+# THE SPLIT (2026-11-08).  SECTION 2 NO LONGER HAS TO FIT IN ONE CALL
+# ---------------------------------------------------------------------------
+# 2026-11-07 measured Section 2 at 176.4 s over 43 suites against a 180 s cap
+# and recorded the honest statement that the repair that day fixed the
+# REPORTING and not the problem: the module cannot complete, and the next
+# registered suite of any size makes it unrunnable rather than slow.  This is
+# the problem.
+#
+# The shape is a two-phase run with the per-suite verdicts persisted between
+# calls:
+#
+#     python3 graphene_pristine_transcript_audit.py --part 1/4   (and 2,3,4)
+#     python3 graphene_pristine_transcript_audit.py --assemble
+#
+# WHAT IS DELIBERATELY NOT CHANGED.  A plain invocation with no arguments runs
+# exactly as before, down to the bytes of its transcript.  The split adds two
+# modes; it does not replace the single-call one.  That matters because the
+# committed transcript is a claim about the single-call path and re-pointing it
+# at a new path would withdraw that claim silently.
+#
+# WHY A PART WRITES THE POST-RUN TRANSCRIPT BYTES AND NOT JUST A VERDICT.
+# Sections 2b and 3 compare, for every SELF_WRITING suite, the bytes its own
+# run left in the clone against the committed blob.  Those bytes exist only
+# inside the call that ran the suite -- the clone is a tempdir and is deleted
+# with it.  An assemble phase that rebuilt a fresh clone would find the
+# committed bytes there instead and E2/E3 would quietly become vacuous: every
+# self-writing suite would read "rewrote it byte-identically" because nothing
+# had rewritten anything.  So a part carries them, and --assemble restores
+# them into its own clone before Section 2b runs.  THIS IS THE ONE PLACE THE
+# SPLIT COULD HAVE SILENTLY WEAKENED A CHECK, and it is why the equivalence
+# test beside this module compares the two paths' output rather than trusting
+# that they agree.
+#
+# WHY THE PARTITION IS BY COUNT AND NOT BY COST.  Cost-packing needs a
+# per-suite cost table, and the only one that exists (MEASURED_OVER_CAP_S) has
+# two rows out of 43.  A partition built on an estimate of the thing it is
+# supposed to be bounding is the shape of fault the 11-07 budget check was.
+# `block_slice` is therefore arithmetic on the table's LENGTH, which is known
+# exactly, and --assemble emits the measured per-suite table so that a session
+# with the measurement in hand can pack by cost and say what it is packing
+# against.  That is the next item, not this one.
+CACHE_ENV = "GRAPHENE_CENSUS_CACHE"
+ONLY_ENV = "GRAPHENE_CENSUS_ONLY"
+
+
+def cache_dir():
+    """Where part files live.  Outside the repository by default: a part file
+    is a measurement of one call and committing it would make the census's
+    own intermediate state part of the tree it censuses."""
+    d = os.environ.get(CACHE_ENV) or os.path.join(
+        tempfile.gettempdir(), "graphene_census_parts")
+    return d
+
+
+def suite_table():
+    """SUITES, optionally filtered by GRAPHENE_CENSUS_ONLY.
+
+    The filter exists for the equivalence test, which has to run the whole
+    module twice and cannot afford the real table.  It is read here rather
+    than in main() so that every mode -- single-call, part and assemble --
+    sees the same table, which is what makes a two-path comparison on a
+    truncated table a statement about the paths and not about the filter.
+    """
+    only = os.environ.get(ONLY_ENV, "").strip()
+    if not only:
+        return list(SUITES)
+    want = [s.strip() for s in only.split(",") if s.strip()]
+    return [(m, t) for m, t in SUITES if m in want]
+
+
+def block_slice(total, n_parts, index):
+    """The `index`-th of `n_parts` contiguous blocks of range(total).
+
+    Pure, and arithmetic on `total` alone -- no cost estimate anywhere in it.
+    The first `total % n_parts` blocks are one longer than the rest, which is
+    the only distribution that is both contiguous and balanced to within one.
+
+    THE PROPERTY WORTH PLANTING IS NOT THE SIZES.  It is that the blocks
+    PARTITION range(total) exactly: concatenating them in order must give
+    [0, 1, ..., total-1], with nothing dropped and nothing twice.  A census
+    that silently drops a suite would report a smaller STALE count and read
+    as an improvement, so the partition is the invariant and the sizes are a
+    consequence.  See C11.
+    """
+    if n_parts < 1:
+        raise ValueError("n_parts must be >= 1, got %r" % (n_parts,))
+    if not 0 <= index < n_parts:
+        raise ValueError("index %r out of range for %r parts" % (index, n_parts))
+    base, extra = divmod(total, n_parts)
+    start = index * base + min(index, extra)
+    size = base + (1 if index < extra else 0)
+    return list(range(start, start + size))
+
+
+def partition_of(total, n_parts):
+    """Every block, in order.  The object C11 asserts on."""
+    return [block_slice(total, n_parts, i) for i in range(n_parts)]
+
+
+def flatten(blocks):
+    out = []
+    for b in blocks:
+        out.extend(b)
+    return out
+
+
+def part_path(n_parts, index):
+    return os.path.join(cache_dir(),
+                        "part-%d-of-%d.json" % (index + 1, n_parts))
+
+
+def table_fingerprint(table):
+    """A content-addressed id for the suite table a part was run against.
+
+    Parts are only comparable if they were run against the SAME table at the
+    SAME commit.  Both go in the part file and --assemble refuses a mismatch
+    by exact string equality rather than by a warning -- an assembled census
+    built from two different tables would report a coverage figure that
+    describes neither.  See C12.
+    """
+    h = hashlib.sha256()
+    for m, t in table:
+        # FIXED BEFORE ITS FIRST USE, BY ITS OWN CONTROL (2026-11-08).  The
+        # first form was `t or ""`, which maps BOTH None (a suite with no
+        # committed transcript) and "" (a suite registered as having an empty
+        # one) to the same byte string, so a registry change between those
+        # two states left the fingerprint unmoved.  C12.4 was written to
+        # assert they differ and it FAILED on the first run of this module --
+        # which is the whole argument for planting a control on each claim a
+        # comment makes rather than on the claims that seem doubtful.
+        h.update(("%s\x00%s\x1f"
+                  % (m, "\x01<unregistered>" if t is None else t)
+                  ).encode("utf-8"))
+    return h.hexdigest()[:16]
+
+
+def write_part(n_parts, index, commit, table, results, cached, exits,
+               post_bytes, spent, elapsed):
+    os.makedirs(cache_dir(), exist_ok=True)
+    payload = {
+        "schema": 1,
+        "n_parts": n_parts,
+        "index": index,
+        "commit": commit,
+        "table_fingerprint": table_fingerprint(table),
+        "modules": [m for m, _ in table],
+        "spent_s": spent,
+        "elapsed_s": elapsed,
+        "results": {m: {"verdict": v, "dt": dt, "evidence": ev}
+                    for m, (v, dt, ev) in results.items()},
+        "cached": cached,
+        "exits": exits,
+        # base64 because these are bytes and a transcript may legitimately
+        # contain anything; the census must not re-encode what it compares.
+        "post_bytes": {t: base64.b64encode(b).decode("ascii")
+                       for t, b in post_bytes.items() if b is not None},
+    }
+    with open(part_path(n_parts, index), "w", encoding="utf-8") as fh:
+        json.dump(payload, fh)
+    return part_path(n_parts, index)
+
+
+def read_parts(n_parts, commit, table):
+    """Every part file for an `n_parts` split, or an explanation of what is
+    missing.  Returns (parts, problems)."""
+    parts, problems = [], []
+    want_fp = table_fingerprint(table)
+    for i in range(n_parts):
+        p = part_path(n_parts, i)
+        if not os.path.exists(p):
+            problems.append("part %d of %d has not been run (%s is absent)"
+                            % (i + 1, n_parts, p))
+            continue
+        try:
+            with open(p, encoding="utf-8") as fh:
+                d = json.load(fh)
+        except Exception as exc:                      # pragma: no cover
+            problems.append("part %d of %d is unreadable: %s" % (i + 1, n_parts, exc))
+            continue
+        if d.get("commit") != commit:
+            problems.append("part %d of %d was run at commit %s, not %s"
+                            % (i + 1, n_parts, d.get("commit"), commit))
+            continue
+        if d.get("table_fingerprint") != want_fp:
+            problems.append("part %d of %d was run against suite table %s, "
+                            "not %s" % (i + 1, n_parts,
+                                        d.get("table_fingerprint"), want_fp))
+            continue
+        parts.append(d)
+    return parts, problems
+
+
+def assemble(parts, table):
+    """Merge part payloads into the dicts Section 2 would have built.
+
+    Returns (results, cached, exits, post_bytes, spent, problems).  A module
+    present in two parts is a problem, not a last-writer-wins merge: it would
+    mean the partition is not one.
+    """
+    results, cached, exits, post_bytes, problems = {}, {}, {}, {}, []
+    spent = 0.0
+    for d in sorted(parts, key=lambda x: x["index"]):
+        for m, r in d["results"].items():
+            if m in results:
+                problems.append("%s appears in more than one part" % m)
+                continue
+            results[m] = (r["verdict"], r["dt"], r["evidence"])
+        for m, out in d["cached"].items():
+            cached[m] = out
+        for m, rc in d["exits"].items():
+            exits[m] = rc
+        for t, b64 in d["post_bytes"].items():
+            post_bytes[t] = base64.b64decode(b64)
+        spent += d["spent_s"]
+    missing = [m for m, _ in table if m not in results]
+    if missing:
+        problems.append("no part ran: %s" % ", ".join(missing))
+    return results, cached, exits, post_bytes, spent, problems
+
+
+def parse_mode(argv):
+    """(mode, n_parts, index).  mode is 'single', 'part' or 'assemble'.
+
+    `--part i/n` is 1-based for the operator and 0-based internally, because
+    an operator typing `--part 0/4` has made an error this should name rather
+    than silently run part 1.
+    """
+    mode, n_parts, index = "single", None, None
+    rest = [a for a in argv[1:] if a not in ("--",)]
+    i = 0
+    while i < len(rest):
+        a = rest[i]
+        if a == "--assemble":
+            mode = "assemble"
+        elif a == "--part":
+            i += 1
+            if i >= len(rest):
+                raise SystemExit("--part needs an argument like 2/4")
+            mode, n_parts, index = _parse_part_spec(rest[i])
+        elif a.startswith("--part="):
+            mode, n_parts, index = _parse_part_spec(a.split("=", 1)[1])
+        elif a.startswith("--parts="):
+            n_parts = int(a.split("=", 1)[1])
+        else:
+            raise SystemExit("unrecognised argument %r" % a)
+        i += 1
+    return mode, n_parts, index
+
+
+def _parse_part_spec(spec):
+    if "/" not in spec:
+        raise SystemExit("--part wants i/n, got %r" % spec)
+    a, b = spec.split("/", 1)
+    one_based, n = int(a), int(b)
+    if n < 1:
+        raise SystemExit("--part i/n needs n >= 1, got %r" % spec)
+    if not 1 <= one_based <= n:
+        raise SystemExit("--part %s is outside 1..%d" % (spec, n))
+    return "part", n, one_based - 1
+
+
+def _raises_systemexit(argv):
+    """True iff parse_mode(argv) refuses.  A named helper so C13.2 reads as a
+    requirement rather than as a try/except buried in a check call."""
+    try:
+        parse_mode(argv)
+    except SystemExit:
+        return True
+    return False
+
 # Measured 2026-11-04 in a pristine clone at this commit.  Only modules whose
 # cost was measured today appear here; the three rows 2026-10-27 measured over
 # the cap are named in their exclusion comments and not re-timed.
@@ -533,6 +807,15 @@ TRANSCRIPT_EXCLUSIONS = {
         ("SELF_WRITING", "graphene_velocity_saturation_mutation.py"),
     "pristine_transcript_audit_output.txt":
         ("SELF", "graphene_pristine_transcript_audit.py"),
+    # Added 2026-11-08 with the split.  The equivalence test RUNS THIS MODULE
+    # four times as a subprocess, so registering it in SUITES would have the
+    # census execute, inside its own pristine clone, a module that executes
+    # the census -- the self-certification 09-30 ruled out, nested one level
+    # deeper and costing ~30 s a round.  SELF is the right class for exactly
+    # that reason and not for cost: the exclusion would stand even if it were
+    # free.
+    "census_split_equivalence_output.txt":
+        ("SELF", "graphene_census_split_equivalence.py"),
     "sensitivity_converged_output.txt":
         ("NOT_A_STDOUT", "graphene_crossover_sensitivity_model.py"),
     "capture_surface_mutation_output.txt":
@@ -591,6 +874,13 @@ def committed_transcripts(repo):
 # above is the REASON this module is excluded; the assertion below is what
 # makes the exclusion checkable, which a comment is not.
 SELF = os.path.basename(__file__)
+
+# Set by __main__ from the command line.  Module-level rather than threaded
+# through main() because Section 2's loop, the part writer and the budget
+# block all need it and main() is one function.
+MODE = "single"
+N_PARTS = 1
+PART_INDEX = 0
 
 _PASS = []
 _FAIL = []
@@ -840,11 +1130,67 @@ def main():
             _p = os.path.join(clone, _t)
             pre_tree[_t] = open(_p, "rb").read() if os.path.exists(_p) else None
             pre_blob[_t] = read_committed_blob(clone, commit, _t)
+        # ------------------------------------------------------------------
+        # THE SPLIT, at the one point in main() where it matters (2026-11-08).
+        # In 'part' mode the loop below runs a contiguous block of the table
+        # and nothing else; in 'assemble' mode it runs NOTHING and the dicts
+        # come off disk, with the post-run transcript bytes restored into this
+        # call's clone so that Sections 2b and 3 see what the running call saw.
+        # ------------------------------------------------------------------
+        _table = suite_table()
+        _post_bytes = {}
+        _assembled_parts = []
+        if MODE == "part":
+            _idx = block_slice(len(_table), N_PARTS, PART_INDEX)
+            _s2_table = [_table[i] for i in _idx]
+            print("  PART %d of %d -- suites %s of %d, by block_slice"
+                  % (PART_INDEX + 1, N_PARTS,
+                     ("%d..%d" % (_idx[0], _idx[-1])) if _idx else "(none)",
+                     len(_table)))
+        elif MODE == "assemble":
+            _s2_table = []
+            _assembled_parts, _probs = read_parts(N_PARTS, commit, _table)
+            if _probs:
+                print("  CANNOT ASSEMBLE:")
+                for p in _probs:
+                    print("    " + p)
+                print("\n  Run the missing parts first:")
+                for i in range(N_PARTS):
+                    print("    python3 %s --part %d/%d" % (SELF, i + 1, N_PARTS))
+                return 2
+            (results, cached, exits, _post_bytes, _assembled_spent,
+             _probs) = assemble(_assembled_parts, _table)
+            if _probs:
+                print("  CANNOT ASSEMBLE:")
+                for p in _probs:
+                    print("    " + p)
+                return 2
+            # Restore the bytes each part's own run left behind.  Without this
+            # Sections 2b/3 would compare the committed blob against itself.
+            for _t, _b in _post_bytes.items():
+                _p = os.path.join(clone, _t)
+                if os.path.exists(os.path.dirname(_p)):
+                    with open(_p, "wb") as _fh:
+                        _fh.write(_b)
+            print("  ASSEMBLED from %d parts at commit %s"
+                  % (len(_assembled_parts), commit))
+            for _d in sorted(_assembled_parts, key=lambda x: x["index"]):
+                print("    part %d of %d: %2d suites, suite time %6.1f s, "
+                      "elapsed %6.1f s"
+                      % (_d["index"] + 1, _d["n_parts"], len(_d["results"]),
+                         _d["spent_s"], _d["elapsed_s"]))
+            for module, _tr in _table:
+                _v, _dt, _ev = results[module]
+                print("  %-44s %-14s %6.1fs" % (module, _v, _dt))
+                for _e in _ev[:6]:
+                    print("        " + _e)
+        else:
+            _s2_table = list(_table)
         # The incremental budget, evaluated WHERE IT CAN STILL BE PRINTED.
         # `warned` makes the warning fire once, on the suite that crosses.
         s2_durations = []
         s2_warned = False
-        for module, transcript in SUITES:
+        for module, transcript in _s2_table:
             if not os.path.exists(os.path.join(clone, module)):
                 results[module] = ("MISSING", 0.0, ["not present at this commit"])
                 print("  %-44s MISSING" % module)
@@ -906,6 +1252,68 @@ def main():
             for e in evidence[:6]:
                 print("        " + e)
 
+
+        # ------------------------------------------------------------------
+        # A PART STOPS HERE (2026-11-08).  Sections 2b-5 need the WHOLE
+        # result set -- E1 counts transcripts, Section 5 checks coverage of
+        # the registry -- so running them on a block would not be a partial
+        # answer but a wrong one.  The part writes what it measured and says
+        # what to run next.
+        # ------------------------------------------------------------------
+        if MODE == "part":
+            _post = {}
+            for _m, _t in _s2_table:
+                if not _t:
+                    continue
+                _p = os.path.join(clone, _t)
+                _post[_t] = open(_p, "rb").read() if os.path.exists(_p) else None
+            _spent = sum(dt for _, dt, _ in results.values())
+            _elapsed = time.monotonic() - t_start
+            _written = write_part(N_PARTS, PART_INDEX, commit, _table,
+                                  results, cached, exits, _post,
+                                  _spent, _elapsed)
+            print()
+            print("  PART %d of %d BUDGET" % (PART_INDEX + 1, N_PARTS))
+            print("    suite time this part     %6.1f s  over %d suites"
+                  % (_spent, len(_s2_table)))
+            print("    ELAPSED wall clock       %6.1f s" % _elapsed)
+            print("    one-shell-call cap       %6.1f s" % CALL_CAP_S)
+            print("    headroom, by elapsed     %6.1f s" % (CALL_CAP_S - _elapsed))
+            # The same containment invariant as the single-call path, and it
+            # is still exact: this call's elapsed clock contains the suite
+            # timers this call charged.  It is asserted PER CALL because that
+            # is the only scope in which it is true -- the assembled total
+            # spans several calls and cannot be compared against one cap,
+            # which is the thing --assemble has to say differently.
+            check("part %d/%d: elapsed wall clock contains its suite time"
+                  % (PART_INDEX + 1, N_PARTS),
+                  _elapsed >= _spent,
+                  "elapsed %.1f s, suite time %.1f s, difference %.1f s"
+                  % (_elapsed, _spent, _elapsed - _spent))
+            check("part %d/%d fits inside one shell call"
+                  % (PART_INDEX + 1, N_PARTS),
+                  _elapsed < CALL_CAP_S,
+                  "%.1f s elapsed of a %.1f s cap" % (_elapsed, CALL_CAP_S))
+            print()
+            print("  written: %s" % _written)
+            _left = [i for i in range(N_PARTS)
+                     if not os.path.exists(part_path(N_PARTS, i))]
+            if _left:
+                print("  still to run: %s"
+                      % ", ".join("--part %d/%d" % (i + 1, N_PARTS) for i in _left))
+            else:
+                print("  every part is on disk; next: python3 %s --assemble "
+                      "--parts=%d" % (SELF, N_PARTS))
+            print("\n" + "=" * 74)
+            print("PART SUMMARY")
+            print("=" * 74)
+            for lab in _PASS:
+                print("  PASS  %s" % lab)
+            for lab in _FAIL:
+                print("  FAIL  %s" % lab)
+            print("\nTOTAL: %d passed, %d failed" % (len(_PASS), len(_FAIL)))
+            return 1 if _FAIL else 0
+
         # ------------------------------------------------------------------
         print("\n" + "-" * 74)
         print("SECTION 2b -- the two reads, measured against each other")
@@ -921,7 +1329,7 @@ def main():
         # and the object-store bytes must be EQUAL -- not close, equal.  This
         # is the check that the new read is a read of the same thing.
         e1_bad, e1_n = [], 0
-        for module, transcript in SUITES:
+        for module, transcript in _table:
             if not transcript or transcript not in pre_tree:
                 continue
             if writes_own_transcript(clone, module, transcript):
@@ -996,7 +1404,7 @@ def main():
               "a fault")
 
         e2_same, e2_diff, e2_missing = [], [], []
-        for module, transcript in SUITES:
+        for module, transcript in _table:
             if not transcript or module not in cached:
                 continue
             if not writes_own_transcript(clone, module, transcript):
@@ -1051,7 +1459,7 @@ def main():
         # worse read, not a better one.
         _RANK = {"IDENTICAL": 0, "NUMERIC_DRIFT": 1, "STALE": 2}
         e3_flips, e3_wrong = [], []
-        for module, transcript in SUITES:
+        for module, transcript in _table:
             if not transcript or module not in cached:
                 continue
             if not writes_own_transcript(clone, module, transcript):
@@ -1087,7 +1495,7 @@ def main():
         print("no evidence that it can.  These run against REAL captured output.")
         print("-" * 74)
         donor = None
-        for module, transcript in SUITES:
+        for module, transcript in _table:
             if transcript and results.get(module, ("",))[0] == "IDENTICAL":
                 donor = (module, transcript)
                 break
@@ -1362,7 +1770,7 @@ def main():
         # the check that would have caught 2026-10-04 -> 2026-10-15 directly:
         # a transcript reading "0 failed" beside code that exits 1.
         contradictions = []
-        for module, transcript in SUITES:
+        for module, transcript in _table:
             rc = exits.get(module)
             if rc is None or transcript is None:
                 continue
@@ -1475,45 +1883,92 @@ def main():
         spent = sum(dt for _, dt, _ in results.values())
         elapsed = time.monotonic() - t_start
         print()
-        print("  SECTION 2 BUDGET")
-        print("    suite time this run      %6.1f s  over %d suites"
-              % (spent, len([1 for _, t in SUITES if t])))
-        print("    ELAPSED wall clock       %6.1f s  <- the quantity the cap "
-              "is about" % elapsed)
-        print("    one-shell-call cap       %6.1f s" % CALL_CAP_S)
-        print("    headroom, by elapsed     %6.1f s" % (CALL_CAP_S - elapsed))
-        print("    headroom, by suite time  %6.1f s  (REPORT -- the number "
-              "the 11-04 check used, and it overstates)" % (CALL_CAP_S - spent))
-        print("    unaccounted by suites    %6.1f s  (clone build, the loop's "
-              "own overhead, Sections 1/2b/3/4/5)" % (elapsed - spent))
-
-        # AMENDED 2026-11-07.  The verdict was `spent < CALL_CAP_S`, which
-        # compares Section 2's suite time against the cap for the WHOLE call
-        # and so reported headroom that did not exist.  It is replaced by the
-        # elapsed-clock form, and the superseded quantity is kept and printed
-        # above as a report rather than deleted; the two lines now show their
-        # own divergence, which is the whole defect.
-        #
-        # THE OVERLAPPING LIMIT, AND IT IS EXACT.  Elapsed wall clock contains
-        # the suite timers by construction: every second run_suite charges is
-        # a second this call spent.  So `elapsed >= spent` must hold on EVERY
-        # run, whatever the machine or the suite table, and that containment --
-        # not the contingent difference -- is what the check is gated on.  The
-        # 2026-11-06 repair of V3b and P9a, applied a third time: gate on an
-        # invariant, print the contingent value.
-        check("elapsed wall clock contains Section 2's suite time",
-              elapsed >= spent,
-              "elapsed %.1f s, suite time %.1f s, difference %.1f s.  A "
-              "negative difference would mean the suite timers charge time "
-              "this call did not spend -- the instrument broken, rather than "
-              "the budget exceeded." % (elapsed, spent, elapsed - spent))
-        check("the whole module still fits inside one shell call",
-              elapsed < CALL_CAP_S,
-              "%.1f s elapsed of a %.1f s cap.  Measured 2026-11-07: Section "
-              "2 alone spends 176.4 s over 43 suites, and the module did not "
-              "complete inside the 179 s maximum this harness allows -- so a "
-              "run that prints this line at all is already the better case."
-              % (elapsed, CALL_CAP_S))
+        if MODE == "assemble":
+            # THE BUDGET MEANS SOMETHING ELSE ONCE THE CENSUS IS SPLIT
+            # (2026-11-08).  `spent` here is the sum over every part, and
+            # `elapsed` is this call only, so the single-call containment
+            # `elapsed >= spent` is NOT a statement about anything -- it is
+            # false by construction on any real split, and asserting it would
+            # be the 11-07 fault inverted: comparing a whole against a part.
+            #
+            # What the split has to deliver is that EVERY CALL FITS.  That is
+            # three facts, each checked where it is true: each part's own
+            # elapsed clock contains its own suite time (asserted inside the
+            # part, and re-read here from the record so an assemble on stale
+            # parts cannot hide it); each part fits the cap; and this
+            # assemble call fits the cap.  The total is printed as the cost of
+            # the census and is deliberately NOT compared against one cap.
+            _p_elapsed = [(d["index"], d["elapsed_s"], d["spent_s"])
+                          for d in sorted(_assembled_parts,
+                                          key=lambda x: x["index"])]
+            _worst = max((e for _, e, _ in _p_elapsed), default=0.0)
+            print("  CENSUS BUDGET, SPLIT ACROSS %d PARTS + THIS ASSEMBLE CALL"
+                  % N_PARTS)
+            print("    suite time, all parts    %6.1f s  over %d suites"
+                  % (spent, len([1 for _, t in _table if t])))
+            print("    largest part, elapsed    %6.1f s  <- the quantity the "
+                  "cap is about" % _worst)
+            print("    this assemble call       %6.1f s" % elapsed)
+            print("    one-shell-call cap       %6.1f s" % CALL_CAP_S)
+            print("    whole census, elapsed    %6.1f s  (REPORT -- spans %d "
+                  "calls and is not bounded by one cap)"
+                  % (sum(e for _, e, _ in _p_elapsed) + elapsed, N_PARTS + 1))
+            _bad_cont = ["part %d: elapsed %.1f s < suite time %.1f s"
+                         % (i + 1, e, s) for i, e, s in _p_elapsed if e < s]
+            check("every part's recorded elapsed clock contains its own "
+                  "suite time",
+                  not _bad_cont,
+                  "\n".join(_bad_cont) if _bad_cont else
+                  "%d parts, each with elapsed >= spent in its own call.  "
+                  "Re-read from the part files rather than recomputed, so a "
+                  "part written by a call that mis-timed itself is caught "
+                  "here and not only there." % len(_p_elapsed))
+            _over = ["part %d: %.1f s" % (i + 1, e)
+                     for i, e, _ in _p_elapsed if e >= CALL_CAP_S]
+            check("every part fitted inside one shell call",
+                  not _over,
+                  ", ".join(_over) if _over else
+                  "largest part %.1f s of a %.1f s cap" % (_worst, CALL_CAP_S))
+            check("the assemble call fits inside one shell call",
+                  elapsed < CALL_CAP_S,
+                  "%.1f s elapsed of a %.1f s cap.  Sections 2b-5 run here "
+                  "with no suite execution at all, so this is the tail's cost "
+                  "on a %d-entry result set -- the quantity 11-07 recorded as "
+                  "unmeasured." % (elapsed, CALL_CAP_S, len(results)))
+            print()
+            print("  MEASURED PER-SUITE COST, from the parts (2026-11-08).")
+            print("  The table a cost-packed partition would need.  Emitted")
+            print("  rather than used: see block_slice's docstring.")
+            for _m, _dt, _ in sorted(
+                    ((m, r[1], r[0]) for m, r in results.items()),
+                    key=lambda x: -x[1]):
+                print("    %-48s %6.1f s" % (_m, _dt))
+        else:
+            print("  SECTION 2 BUDGET")
+            print("    suite time this run      %6.1f s  over %d suites"
+                  % (spent, len([1 for _, t in _table if t])))
+            print("    ELAPSED wall clock       %6.1f s  <- the quantity the cap "
+                  "is about" % elapsed)
+            print("    one-shell-call cap       %6.1f s" % CALL_CAP_S)
+            print("    headroom, by elapsed     %6.1f s" % (CALL_CAP_S - elapsed))
+            print("    headroom, by suite time  %6.1f s  (REPORT -- the number "
+                  "the 11-04 check used, and it overstates)" % (CALL_CAP_S - spent))
+            print("    unaccounted by suites    %6.1f s  (clone build, the loop's "
+                  "own overhead, Sections 1/2b/3/4/5)" % (elapsed - spent))
+            check("elapsed wall clock contains Section 2's suite time",
+                  elapsed >= spent,
+                  "elapsed %.1f s, suite time %.1f s, difference %.1f s.  A "
+                  "negative difference would mean the suite timers charge time "
+                  "this call did not spend -- the instrument broken, rather than "
+                  "the budget exceeded." % (elapsed, spent, elapsed - spent))
+            check("the whole module still fits inside one shell call",
+                  elapsed < CALL_CAP_S,
+                  "%.1f s elapsed of a %.1f s cap.  Measured 2026-11-07: Section "
+                  "2 alone spends 176.4 s over 43 suites, and the module did not "
+                  "complete inside the 179 s maximum this harness allows -- so a "
+                  "run that prints this line at all is already the better case.  "
+                  "2026-11-08: --part/--assemble is the path that does not need "
+                  "this to be true." % (elapsed, CALL_CAP_S))
         oc_bad = []
         _excluded_modules = set(m for _c, m in TRANSCRIPT_EXCLUSIONS.values())
         for mod, secs in sorted(MEASURED_OVER_CAP_S.items()):
@@ -1523,20 +1978,51 @@ def main():
             # AMENDED 2026-11-07 with the budget verdict above: this
             # re-admission test used `spent`, so it measured a candidate
             # against a budget that had already overstated what was free.
-            if elapsed + secs <= CALL_CAP_S:
+            # AMENDED 2026-11-08.  Under --assemble the question is no
+            # longer "does it fit beside everything else in one call" but
+            # "does it fit in a part of its own", so the comparison is
+            # against the per-part allowance and the verdict is reported
+            # rather than scored: re-admitting a module is a decision about
+            # the registry and this is not the session that makes it.
+            _fits = (secs <= SECTION2_ALLOWANCE_S if MODE == "assemble"
+                     else elapsed + secs <= CALL_CAP_S)
+            if MODE == "assemble" and _fits:
+                print("    NOTE %s: %.1f s fits inside the %.1f s per-part "
+                      "allowance, so COST is no longer a reason to exclude "
+                      "it once the census is split.  Not re-admitted here."
+                      % (mod, secs, SECTION2_ALLOWANCE_S))
+                continue
+            if _fits:
                 oc_bad.append("%s: %.1f s + %.1f s elapsed = %.1f s, which is "
                               "INSIDE the %.1f s cap, so cost is no longer a "
                               "reason to exclude it"
                               % (mod, secs, elapsed, elapsed + secs, CALL_CAP_S))
+        _oc_names = ", ".join(
+            "%s %.1fs" % (m.replace("graphene_", "").replace(".py", ""), s)
+            for m, s in sorted(MEASURED_OVER_CAP_S.items()))
+        # The detail string has to say which question was asked, because
+        # 2026-11-08 the answer stopped being the same question.  Under
+        # --assemble the NOTE lines above record that both excluded modules
+        # WOULD fit in a part of their own, so a detail claiming they exceed
+        # the cap would contradict the lines directly above it.
+        if MODE == "assemble":
+            _oc_detail = ("%d modules, each measured: %s.  Under the split "
+                          "the cost exclusion is no longer sound for either "
+                          "of them -- see the NOTE lines above.  This check "
+                          "passes because nothing is MIS-registered, not "
+                          "because the exclusions are still justified, and "
+                          "re-admitting them is a registry decision left on "
+                          "the standing list."
+                          % (len(MEASURED_OVER_CAP_S), _oc_names))
+        else:
+            _oc_detail = ("%d modules, each measured today: %s.  Adding any "
+                          "one to the %.1f s already elapsed exceeds the "
+                          "%.1f s cap."
+                          % (len(MEASURED_OVER_CAP_S), _oc_names,
+                             elapsed, CALL_CAP_S))
         check("every module excluded for cost is measured over the remaining "
               "budget", not oc_bad,
-              "\n".join("  " + b for b in oc_bad) if oc_bad else
-              "%d modules, each measured today: %s.  Adding any one to the "
-              "%.1f s already elapsed exceeds the %.1f s cap."
-              % (len(MEASURED_OVER_CAP_S),
-                 ", ".join("%s %.1fs" % (m.replace("graphene_", "").replace(".py", ""), s)
-                           for m, s in sorted(MEASURED_OVER_CAP_S.items())),
-                 elapsed, CALL_CAP_S))
+              "\n".join("  " + b for b in oc_bad) if oc_bad else _oc_detail)
 
         # ------------------------------------------------------------------
         # C10 -- PLANTED CONTROLS ON THE BUDGET CROSSING, WITH EXACTLY KNOWN
@@ -1591,6 +2077,116 @@ def main():
               "kill coincide and nothing is printed."
               % (SECTION2_ALLOWANCE_S, CALL_CAP_S))
 
+        # ------------------------------------------------------------------
+        # C11-C13 -- THE SPLIT, ON EXACTLY KNOWN ANSWERS (2026-11-08)
+        #
+        # The split's one job is that the suites a split run covers are the
+        # suites a single-call run would have covered.  The partition is
+        # therefore planted on exact integer answers, both at the boundary
+        # cases (fewer suites than parts, zero suites) and as a set identity
+        # over a grid, because a partition that dropped a suite would make
+        # the census report a SMALLER stale count and read as an improvement.
+        # ------------------------------------------------------------------
+        print()
+        print("  C11 -- the partition, on inputs with exact answers")
+        check("  C11.1 the blocks of a 43-into-4 split have exactly the "
+              "sizes 11, 11, 11, 10",
+              [len(b) for b in partition_of(43, 4)] == [11, 11, 11, 10],
+              "43 = 4*10 + 3, so the first three blocks take the remainder "
+              "one each.  An exact integer answer, not a balance criterion")
+        check("  C11.2 and they partition range(43) EXACTLY -- nothing "
+              "dropped, nothing twice",
+              flatten(partition_of(43, 4)) == list(range(43)),
+              "the concatenation in order is [0..42].  This is the invariant "
+              "the census depends on; the sizes above are a consequence of it "
+              "plus contiguity")
+        check("  C11.3 more parts than suites gives empty blocks rather than "
+              "an error, and still partitions",
+              ([len(b) for b in partition_of(3, 5)] == [1, 1, 1, 0, 0]
+               and flatten(partition_of(3, 5)) == [0, 1, 2]),
+              "3 suites into 5 parts: three blocks of one and two empty.  An "
+              "empty part is a call that runs nothing and writes an empty "
+              "part file, which --assemble must accept")
+        check("  C11.4 zero suites gives every block empty",
+              flatten(partition_of(0, 3)) == [] and
+              [len(b) for b in partition_of(0, 3)] == [0, 0, 0],
+              "the degenerate case, and the one a filter can produce")
+        _grid_bad = []
+        for _tot in range(0, 30):
+            for _np in range(1, 8):
+                if flatten(partition_of(_tot, _np)) != list(range(_tot)):
+                    _grid_bad.append("(%d, %d)" % (_tot, _np))
+        check("  C11.5 the partition identity holds over a 30x7 grid of "
+              "(suites, parts)",
+              not _grid_bad,
+              "210 cases, 0 failures" if not _grid_bad else
+              "failed at " + ", ".join(_grid_bad))
+        _err = []
+        for _bad in ((5, 0, 0), (5, 2, 2), (5, 2, -1)):
+            try:
+                block_slice(*_bad)
+            except ValueError:
+                continue
+            _err.append(repr(_bad))
+        check("  C11.6 an out-of-range part index or a zero part count "
+              "RAISES rather than returning a silently empty block",
+              not _err,
+              "block_slice(5,0,0), (5,2,2) and (5,2,-1) all raise ValueError. "
+              "A silently empty block is the failure mode that would make a "
+              "census miss a third of its suites and still print a summary"
+              if not _err else "did not raise for " + ", ".join(_err))
+
+        print()
+        print("  C12 -- the part fingerprint, which is what refuses a "
+              "mismatched assembly")
+        _t1 = [("a.py", "a_output.txt"), ("b.py", "b_output.txt")]
+        _t2 = [("a.py", "a_output.txt"), ("c.py", "c_output.txt")]
+        _t3 = [("b.py", "b_output.txt"), ("a.py", "a_output.txt")]
+        check("  C12.1 the same table gives the same fingerprint",
+              table_fingerprint(_t1) == table_fingerprint(list(_t1)),
+              "a content-addressed id, so equality is the requirement")
+        check("  C12.2 a different table gives a different one",
+              table_fingerprint(_t1) != table_fingerprint(_t2),
+              "one suite swapped out of two")
+        check("  C12.3 and so does the SAME suites in a different ORDER",
+              table_fingerprint(_t1) != table_fingerprint(_t3),
+              "order matters because block_slice is positional: two parts "
+              "run against differently-ordered tables would cover the same "
+              "suites under the single-call reading and different ones under "
+              "the split.  This is the case a set-based fingerprint would "
+              "have missed")
+        check("  C12.4 a transcript-less suite is distinguished from one "
+              "whose transcript is the empty string",
+              table_fingerprint([("a.py", None)])
+              != table_fingerprint([("a.py", "")]),
+              "None is encoded as a sentinel rather than as '', so a "
+              "registry change from unregistered to registered-as-empty "
+              "moves the fingerprint.  THIS CONTROL FAILED ON ITS FIRST RUN: "
+              "the fingerprint's first form used `t or \"\"` and mapped both "
+              "to the same bytes")
+
+        print()
+        print("  C13 -- --part argument parsing, on answers known by "
+              "inspection")
+        check("  C13.1 --part 2/4 is part index 1 of 4",
+              parse_mode(["x", "--part", "2/4"]) == ("part", 4, 1),
+              "1-based for the operator, 0-based inside.  C13.2 is why the "
+              "translation is checked rather than assumed")
+        check("  C13.2 --part 0/4 and --part 5/4 are REFUSED",
+              all(_raises_systemexit(["x", "--part", s])
+                  for s in ("0/4", "5/4", "2", "2/0")),
+              "an operator typing 0/4 has made an error, and running part 1 "
+              "instead would produce a part file that covers the wrong block "
+              "under the right name")
+        check("  C13.3 no arguments is the single-call mode, unchanged",
+              parse_mode(["x"]) == ("single", None, None),
+              "the committed transcript is a claim about this path, so the "
+              "default must not move")
+        check("  C13.4 --assemble --parts=4 parses to an assemble of 4",
+              parse_mode(["x", "--assemble", "--parts=4"]) == ("assemble", 4, None),
+              "and the order of the two flags does not matter: %r"
+              % (parse_mode(["x", "--parts=4", "--assemble"]),))
+
         # Planted controls for the three checks above, on synthetic sets --
         # no file is written into the tree other audits read.
         print()
@@ -1632,22 +2228,59 @@ def main():
                  and n.value is not None]
         _consts = [r for r in _rets if isinstance(r.value, _ast.Constant)]
         _ifexps = [r for r in _rets if isinstance(r.value, _ast.IfExp)]
-        check("C9 main() returns a FAILURE-CONDITIONAL exit code, not a "
-              "constant -- the convention this module checks for in every "
-              "other suite",
-              not _consts and len(_ifexps) == 1,
-              "%d constant return(s), %d conditional: a bare `return 0` here "
-              "is a transcript reading 'N failed' beside an exit code of 0, "
-              "which is the 2026-10-04..10-15 state this audit exists to "
-              "catch" % (len(_consts), len(_ifexps)))
-        check("C9b and the conditional is on the FAIL list this run actually "
-              "appends to, not on some other name",
-              bool(_ifexps) and any(
-                  isinstance(nn, _ast.Name) and nn.id == "_FAIL"
-                  for nn in _ast.walk(_ifexps[0])),
-              "a conditional on the wrong name would exit 0 while red and "
-              "pass this control -- the verdict must be gated on the "
-              "mechanism it reports (2026-10-16)")
+        # AMENDED 2026-11-08, AND THE SPLIT IS WHAT FOUND IT.
+        #
+        # SUPERSEDED FORM, kept so the change is legible:
+        #
+        #     not _consts and len(_ifexps) == 1
+        #
+        # It failed the moment --part/--assemble were added, because those
+        # give main() three more exits: `return 2` twice on the
+        # cannot-assemble path and a second failure-conditional return at the
+        # end of a part.  Read literally the old form says "main() has
+        # exactly one exit and it is conditional", which is a statement about
+        # main()'s SHAPE.  The property it was protecting is narrower and
+        # does not mention the number of exits at all:
+        #
+        #     NO PATH OUT OF main() REPORTS SUCCESS UNCONDITIONALLY.
+        #
+        # So the three requirements below replace the two above, and they are
+        # strictly stronger in the direction that matters: the old form
+        # permitted a second conditional gated on the wrong name (it only
+        # ever inspected `_ifexps[0]`), and permitted no constant exit at all
+        # even for a refusal to run, which is a different thing from a clean
+        # run and must be distinguishable from one.
+        _zero_consts = [r for r in _consts if r.value.value in (0, None)]
+        _bad_ifexp = [r for r in _ifexps
+                      if not any(isinstance(nn, _ast.Name) and nn.id == "_FAIL"
+                                 for nn in _ast.walk(r))]
+        check("C9 no path out of main() reports success unconditionally",
+              not _zero_consts,
+              "%d conditional exit(s) and %d constant exit(s), of which %d "
+              "return 0 or None.  A bare `return 0` here is a transcript "
+              "reading 'N failed' beside an exit code of 0, which is the "
+              "2026-10-04..10-15 state this audit exists to catch"
+              % (len(_ifexps), len(_consts), len(_zero_consts)))
+        check("C9b every failure-conditional exit is gated on the FAIL list "
+              "this run actually appends to, not on some other name",
+              bool(_ifexps) and not _bad_ifexp,
+              "%d conditional exit(s), all of them naming _FAIL.  The old "
+              "form of this check inspected only the FIRST conditional "
+              "return, so the part-mode exit added today would have been "
+              "unchecked by it -- a conditional on the wrong name exits 0 "
+              "while red and passes a control that only reads its sibling "
+              "(2026-10-16)" % len(_ifexps)
+              if not _bad_ifexp else
+              "%d conditional exit(s) do not mention _FAIL" % len(_bad_ifexp))
+        check("C9c and every constant exit is NONZERO -- a refusal to run is "
+              "not a clean run",
+              all(isinstance(r.value.value, int) and r.value.value != 0
+                  for r in _consts),
+              "%d constant exit(s): %s.  These are the cannot-assemble paths, "
+              "which report that the census did not happen.  Returning 0 "
+              "there would make a missing part file indistinguishable from a "
+              "green census, which is exactly the conflation C9 exists for"
+              % (len(_consts), [r.value.value for r in _consts]))
 
         print("\n" + "=" * 74)
         print("SUMMARY")
@@ -1667,4 +2300,10 @@ def main():
 
 
 if __name__ == "__main__":
+    MODE, _n, _i = parse_mode(sys.argv)
+    if MODE == "part":
+        N_PARTS, PART_INDEX = _n, _i
+    elif MODE == "assemble":
+        N_PARTS = _n or int(os.environ.get("GRAPHENE_CENSUS_PARTS", "4"))
+        PART_INDEX = 0
     sys.exit(main())
