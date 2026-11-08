@@ -15321,3 +15321,101 @@ module; the `ENVIRONMENT` verdict with the five capture-site conversions and
 the refreshed `mixed_capture_repair_output.txt`; the first complete census
 transcript — and this `AUTOMATION_LOG.md` entry makes **4**, with the
 refreshed standing-list transcript making **5**.
+
+### 6. Addendum, written after the entry above landed: the ranked item ran, and prediction (ii) is FALSIFIED BY THIS ENTRY ITSELF
+
+The standing-list audit was re-run against the committed 11-08 entry, as the
+ranked-first item asks. **33 passed, 0 failed.** Of the three predictions
+written four paragraphs up:
+
+- **(i) HOLDS, and it is the one that was a deliberate test.** `A1` reads
+  `RETIRED` with the tree still contradicting the retired wording. 11-07
+  removed the decoy bullet and recorded that if `A1` changed class the trigger
+  was reading the bullet rather than the tree. It did not change class. **The
+  trigger reads the tree.**
+- **(iii) HOLDS.** The `STALE` membership is unchanged at the same eight.
+  Checked cheaply rather than by re-running the whole census: the only
+  transcripts an `AUTOMATION_LOG.md` edit can move are those of suites that
+  read it, which is **eight** of the 44 registered. Three of them
+  (`figure_provenance_audit`, `attribute_default_capture`,
+  `frozen_default_semantics`) are already in the stale eight and stay there;
+  `standing_list_audit` is refreshed in this commit; the remaining four were
+  re-run and are byte-identical. One of those four,
+  `contact_argument_blast_radius`, *appeared* to differ by four lines until the
+  capture was fixed — they are `RuntimeWarning`s on **stderr**, which
+  `run_suite` does not capture. A stderr/stdout confusion in the checker, not
+  a drift in the tree, and the second stale-read near-miss of the day.
+- **(ii) IS FALSIFIED, AND THIS ENTRY IS WHAT FALSIFIED IT.** The prediction
+  was that corrected entries would stay at **eight**, "this entry wording the
+  item neither way". They read **nine**: `2026-11-08` is now counted among the
+  entries asserting the item is DRAFTED.
+
+**The cause is worth the whole addendum, because it is not a typo.** The entry
+above contains no chapters-2-and-3 bullet. What it contains, inside the
+ranked-first item, is a **quotation** of the decoy wording while describing its
+removal — and the quotation is **line-wrapped across two source lines**:
+
+&nbsp;&nbsp;&nbsp;&nbsp;`11-07 removed the decoy ` + "`CHAPTERS 2 AND 3`"
+&nbsp;&nbsp;&nbsp;&nbsp;`  ARE DRAFTED` + "` bullet and recorded that ...`"
+
+So the phrase the anti-trigger matches **exists on no line of the file**.
+`grep -n 'CHAPTERS 2 AND 3 ARE DRAFTED' AUTOMATION_LOG.md` returns two hits,
+both in the 11-07 entry, and none in this one. The phrase comes into existence
+only inside `bullets()`, which flattens each top-level bullet with
+`' '.join(cur.split())` before the regexes see it.
+
+Two distinct faults, and they compose:
+
+1. **A MENTION IS A USE, to this instrument.** The audit cannot distinguish
+   *asserting* a wording from *quoting* it in order to discuss it. This is the
+   same loophole 10-01 found in `graphene_dead_name_sweep.py` and fixed only
+   the mention-vs-use half of, and the module's own `SELF` comment records
+   walking into the same-spelling half of it. Third occurrence, in the third
+   module.
+2. **THE AUDIT READS A NORMALISED FORM THE FILE DOES NOT CONTAIN.** A session
+   checking its own entry with `grep` — the obvious check, and the one a human
+   reviewer would run — gets the right answer about the file and the wrong
+   answer about what the audit sees. The flattening is correct and necessary;
+   what is missing is that nothing reports it, so the two readings can diverge
+   silently. This is the shape of 11-07's `elapsed` vs `spent`: two quantities,
+   one printed, the other gating, and the divergence invisible until it
+   mattered.
+
+**Not patched today, deliberately.** The prediction is left falsified and the
+entry is left as written, for the reason 11-05 recorded when it hit the same
+constraint from the other side: an instrument that dictates how the log may be
+written is a finding, and a session that quietly rewords its own entry to make
+its prediction come true has destroyed the measurement. The repair belongs in
+the next session with a control, and it is on the list below.
+
+What this does change in the record: 11-05 reported that it had to word its
+chapters bullet to match **neither** regex to avoid tripping the superseded
+revival rule, and treated that as the instrument constraining the log. Today
+shows the constraint is **stronger than 11-05 stated** — it is not enough to
+avoid asserting the wording, one must avoid *quoting* it, and one cannot verify
+that by reading the file.
+
+**Added to the list by this addendum:**
+
+- **THE ANTI-TRIGGER CANNOT TELL A QUOTATION FROM AN ASSERTION** — created
+  today by this entry falsifying its own prediction. **Ranked first for the
+  next session**, cheap, blocked on nothing, with its evidence already on
+  disk. The fix is not a better regex: it is that `bullets()` should strip
+  inline-code spans before the triggers see them, or that a bullet whose match
+  falls inside backticks should be classified `QUOTED` rather than counted.
+  The control to plant is exact and both-sided — a planted bullet asserting
+  the wording must count, and a planted bullet quoting it inside backticks
+  must not — and the live log has **three** real instances to check against
+  (11-06 asserts it plainly; 11-07 asserts it inside a `RETIRED:` bullet,
+  which is arguably a third class; 11-08 only quotes it).
+- **AND `bullets()` SHOULD SAY WHAT IT NORMALISED** — the sibling, and the
+  more general of the two. Today's phrase exists only after flattening, so
+  `grep` and the audit disagree about the file and neither says so. A
+  `--show-normalised` mode, or the matched **flattened** bullet printed beside
+  each counted date, would have made this a one-line read instead of a
+  falsified prediction.
+
+**Commits this run:** 5, as the entry above predicted — but the fifth now
+carries this addendum as well as the refreshed transcript, which the entry did
+not predict and which is the honest reason the count is right for the wrong
+reason.
