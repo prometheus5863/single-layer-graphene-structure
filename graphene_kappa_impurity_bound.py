@@ -363,15 +363,33 @@ def ulp_distance(a, b):
 # Section 1: Zion's own arithmetic, reproduced
 # ---------------------------------------------------------------------------
 
-def c_ox_zion(eps0=EPS0_ZION, eps=EPS_SIO2_ZION, t=T_OX_ZION):
-    """C_ox = eps_0 * eps / t, Zion Section III a."""
+def c_ox_zion(eps0=None, eps=None, t=None):
+    """C_ox = eps_0 * eps / t, Zion Section III a.
+
+    DEFAULTS READ AT CALL TIME, NOT CAPTURED AT DEF TIME (2026-11-08).  The
+    three constants used to be default ARGUMENTS, which binds the value this
+    module held when its def statement executed.  That is the capture pattern
+    graphene_mixed_capture_repair_audit.py censuses and
+    graphene_frozen_default_semantics.py demonstrates: a session that rebinds
+    EPS0_ZION -- or a test that monkeypatches it -- changes the constant and
+    not the function.  Converted to the None sentinel this module already
+    uses at six other sites; bitwise identical output, verified against the
+    pre-conversion transcript.
+    """
+    eps0 = EPS0_ZION if eps0 is None else eps0
+    eps = EPS_SIO2_ZION if eps is None else eps
+    t = T_OX_ZION if t is None else t
     return eps0 * eps / t
 
 
-def n_a_s_zion(c_ox=None, v_np=V_NP_ZION):
-    """N_A^(S) = (1/e) * C_ox * V_NP, Zion Section III a."""
+def n_a_s_zion(c_ox=None, v_np=None):
+    """N_A^(S) = (1/e) * C_ox * V_NP, Zion Section III a.
+
+    v_np converted from a captured default 2026-11-08 -- see c_ox_zion.
+    """
     if c_ox is None:
         c_ox = c_ox_zion()
+    v_np = V_NP_ZION if v_np is None else v_np
     return c_ox * v_np / ddm.E_CHARGE
 
 
@@ -440,12 +458,19 @@ def max_tolerable_impurity(C_ox, V_over, kappa=None):
     return C_ox * V_over / (ddm.E_CHARGE * float(kappa))
 
 
-def r_branch_split(n_abs, n_imp, r0, split=BRANCH_SPLIT_D9, kappa=None):
+def r_branch_split(n_abs, n_imp, r0, split=None, kappa=None):
     """
     Section 7 / D9.  (B1) with a DIFFERENT n_c on each branch:
     n_c,e = n_c*(1+split/2), n_c,h = n_c*(1-split/2).  At split = 0 this must
     reduce to the single-n_c construction bitwise.
+
+    split converted from a captured default 2026-11-08 -- see c_ox_zion.  The
+    one caller that passes BRANCH_SPLIT_D9 explicitly (Section 7's headline
+    number) is unaffected and deliberately left explicit: passing the
+    constant by name at the call site is the readable form, and it is the
+    IMPLICIT capture in the signature that the census objects to.
     """
+    split = BRANCH_SPLIT_D9 if split is None else split
     mu_L_bar = ilc.C_CHEN / float(n_imp)
     mu_L_e = mu_L_bar * (1.0 + r0)
     mu_L_h = mu_L_bar * (1.0 - r0)

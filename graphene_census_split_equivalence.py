@@ -164,7 +164,16 @@ def regions(text):
     return out
 
 
-def run(args, cache, census=CENSUS, extra_env=None):
+def run(args, cache, census=None, extra_env=None):
+    """One census invocation.
+
+    `census` defaults at CALL time and not at def time: a default ARGUMENT
+    would capture the module-level constant when this def executes, which is
+    the pattern graphene_mixed_capture_repair_audit.py censuses repo-wide and
+    which this module's first draft added two new instances of -- caught by
+    that census on the day it was written.
+    """
+    census = CENSUS if census is None else census
     env = dict(os.environ)
     env["GRAPHENE_CENSUS_ONLY"] = ",".join(ONLY)
     env["GRAPHENE_CENSUS_CACHE"] = cache
@@ -176,8 +185,12 @@ def run(args, cache, census=CENSUS, extra_env=None):
     return p.stdout, p.returncode, time.time() - t0
 
 
-def both_paths(cache_root, census=CENSUS):
-    """(single_output, assembled_output, per-call seconds)."""
+def both_paths(cache_root, census=None):
+    """(single_output, assembled_output, per-call seconds).
+
+    census defaults at call time -- see run().
+    """
+    census = CENSUS if census is None else census
     shutil.rmtree(cache_root, ignore_errors=True)
     os.makedirs(cache_root, exist_ok=True)
     single, _rc, t_single = run([], cache_root, census)

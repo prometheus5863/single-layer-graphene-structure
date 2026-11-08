@@ -16,30 +16,30 @@ SECTION 0 -- this test's preconditions, checked rather than assumed
 --------------------------------------------------------------------------
 SECTION 1 -- the baseline comparison
 --------------------------------------------------------------------------
-  single        4.8 s
-  part 1        2.6 s
-  part 2        1.8 s
-  assemble      1.9 s
+  single        4.6 s
+  part 1        2.4 s
+  part 2        1.6 s
+  assemble      1.7 s
 
   region  verdict      single   assembled
-  A       DIFFERENT        943        1147
-  B       IDENTICAL       8347        8347
+  A       DIFFERENT       1076        1280
+  B       IDENTICAL       8379        8379
   C       DIFFERENT       1436        2122
-  D       IDENTICAL       6400        6400
-  E       DIFFERENT       4815        4871
+  D       IDENTICAL       7520        7520
+  E       DIFFERENT       5115        5171
   [PASS] E1 Regions B and D are BYTE-IDENTICAL between the two paths, after masking elapsed times
         Region B is Sections 2b, 3, 4 and Section 5's coverage checks -- every claim the census makes about the repository.  Region D is the planted controls.  Masking is narrow by design: only a number followed by a seconds unit is replaced, so stale counts, byte counts and drift magnitudes are compared as written.
   [PASS] E2 and Regions A, C and E DO differ -- the declaration is exercised, not vacuous
         A is the provenance header, C is the budget block (which MUST differ: `elapsed >= spent` is a one-call statement and the assembled totals span four calls), E is the summary's list of budget-check names.  If any of the three came back identical, either the split is not doing what it claims or this test is comparing the wrong thing.  Differing: ['A', 'C', 'E']
   [PASS] E3 every part, and the assemble call, fits the one-call cap
-        worst 2.6 s against a 180.0 s cap, on a 3-suite table.  This is not the claim that the REAL table fits -- that is measured by the census itself -- only that the mechanism's own overhead does not eat the budget it exists to free.
+        worst 2.4 s against a 180.0 s cap, on a 3-suite table.  This is not the claim that the REAL table fits -- that is measured by the census itself -- only that the mechanism's own overhead does not eat the budget it exists to free.
 
 --------------------------------------------------------------------------
 SECTION 2 -- Region B is not identical by being empty
 --------------------------------------------------------------------------
-  Region B: 8347 bytes, 29 check lines
+  Region B: 8379 bytes, 29 check lines
   [PASS] E4 Region B carries a non-trivial number of checks
-        29 check lines over 8347 bytes.  A split that hollowed out Sections 2b-5 would leave this region identical AND tiny, so E1 is gated on content as well as on equality.
+        29 check lines over 8379 bytes.  A split that hollowed out Sections 2b-5 would leave this region identical AND tiny, so E1 is gated on content as well as on equality.
   [PASS] E5 and it contains the two-reads comparison by name
         the E1 check of Section 2b, which is the one that would read as green on a clone nothing had run in
 

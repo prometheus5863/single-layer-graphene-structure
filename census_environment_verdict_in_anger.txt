@@ -1,0 +1,64 @@
+ENVIRONMENT VERDICT, EXERCISED IN THE CONDITION IT WAS BUILT FOR -- 2026-11-08
+
+Deliberately NOT named *_output.txt: it is not the stdout of a registered
+suite and Section 5's coverage sweep globs that suffix, so a file with that
+name here would read as an UNACCOUNTED transcript.
+
+Command, run with TMPDIR pointed at the FULL /sessions filesystem that this
+VM defaults to (9.3 G of 9.8 G used, 0 bytes free) rather than at the
+/dev/sda1 scratch this session used for everything else:
+
+    TMPDIR=$HOME/tmp GRAPHENE_CENSUS_ONLY=graphene_mixed_capture_repair_audit.py \
+        python3 graphene_pristine_transcript_audit.py --part 1/1
+
+The suite dies on OSError: [Errno 28] building its scratch directory.  Before
+today the census called that INCOMPLETE -- 'a failed RUN, not a stale
+transcript' -- which is a verdict about the CODE, and it ended the chain: the
+transcript was never compared.  That had been true every session since
+2026-11-03, while the transcript was in fact STALE.
+
+============================== VERBATIM ==============================
+==========================================================================
+PRISTINE TRANSCRIPT AUDIT -- 2026-10-02
+Does the COMMITTED code still produce the COMMITTED transcripts?
+==========================================================================
+
+--------------------------------------------------------------------------
+SECTION 1 -- the committed state, resolved to a content-addressed id
+--------------------------------------------------------------------------
+  pointer file      : .git/HEAD
+  resolved commit   : e00056e875c3758ced06211615cb1561d4fe0e48
+  tracked files modified in the WORKING TREE : 3
+    (they are excluded by construction -- that is the point)
+      M graphene_census_split_equivalence.py
+       M graphene_kappa_impurity_bound.py
+       M graphene_pristine_transcript_audit.py
+  pristine clone    : built and detached at the id above
+
+--------------------------------------------------------------------------
+SECTION 2 -- every suite, run from the pristine clone
+--------------------------------------------------------------------------
+  PART 1 of 1 -- suites 0..0 of 1, by block_slice
+  graphene_mixed_capture_repair_audit.py       ENVIRONMENT       0.0s  exit 1 (No space left on device)
+        exit 1; the run died on 'No space left on device' -- a failure of the MACHINE, not of the suite.  The transcript was NOT compared, so this says nothing about whether it is stale.  Re-run with room on the filesystem $TMPDIR points at.
+
+  PART 1 of 1 BUDGET
+    suite time this part        0.0 s  over 1 suites
+    ELAPSED wall clock          0.5 s
+    one-shell-call cap        180.0 s
+    headroom, by elapsed      179.5 s
+  [PASS] part 1/1: elapsed wall clock contains its suite time
+        elapsed 0.5 s, suite time 0.0 s, difference 0.5 s
+  [PASS] part 1/1 fits inside one shell call
+        0.5 s elapsed of a 180.0 s cap
+
+  written: /tmp/harshwork/census_envtest/part-1-of-1.json
+  every part is on disk; next: python3 graphene_pristine_transcript_audit.py --assemble --parts=1
+
+==========================================================================
+PART SUMMARY
+==========================================================================
+  PASS  part 1/1: elapsed wall clock contains its suite time
+  PASS  part 1/1 fits inside one shell call
+
+TOTAL: 2 passed, 0 failed

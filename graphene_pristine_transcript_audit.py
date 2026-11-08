@@ -200,7 +200,12 @@ SUMMARY_RE = re.compile(r"TOTAL:?\s+(\d+)\s+passed,\s+(\d+)\s+failed")
 # standing check cannot disagree about what counts as a failure to complete --
 # which is exactly how 2026-11-05's crash came to be green in one place and red
 # in another.
-COMPLETION_FAULTS = ("ERROR", "NO_FILE", "MISSING", "INCOMPLETE")
+# ENVIRONMENT added 2026-11-08.  It belongs here because it must NOT read as
+# a clean run -- the transcript was not compared and the census has no verdict
+# on it -- and it is kept distinct from INCOMPLETE because the two call for
+# different actions: INCOMPLETE is a defect to fix, ENVIRONMENT is a machine
+# to give room to.  See environment_fault.
+COMPLETION_FAULTS = ("ERROR", "NO_FILE", "MISSING", "INCOMPLETE", "ENVIRONMENT")
 
 # VERBATIM stdout of graphene_mixed_capture_repair_audit.py in a pristine clone
 # at 94b019c with scipy absent -- the 2026-11-05 census row, reproduced
@@ -1049,6 +1054,63 @@ def classify(committed, produced):
 # --------------------------------------------------------------------------
 # Section 3 -- run a suite in the pristine clone
 # --------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# A FAILURE OF THE MACHINE IS NOT A FAILURE OF THE CODE (2026-11-08)
+# ---------------------------------------------------------------------------
+# MEASURED TODAY, AND IT HAD BEEN MASKING A REAL RESULT FOR FIVE SESSIONS.
+# graphene_mixed_capture_repair_audit.py came back INCOMPLETE -- "the suite
+# did not reach its own end -- this is a failed RUN, not a stale transcript"
+# -- at 0.0 s.  It had not failed.  It had died on
+#
+#     OSError: [Errno 28] No space left on device
+#
+# building its scratch directory under $TMPDIR, which on this VM points into
+# the /sessions filesystem that has been 100 % full for thirteen consecutive
+# sessions.  Re-run with TMPDIR on a filesystem with room, the suite completes
+# and its verdict is STALE: five capture sites that graphene_kappa_impurity_
+# bound.py introduced on 2026-11-03 are absent from a transcript last
+# refreshed on 10-28, so its R1/R2 have been RED in the tree since 11-03 and
+# the census said INCOMPLETE instead -- every session since.
+#
+# INCOMPLETE is a verdict ABOUT THE CODE.  It says the suite did not reach its
+# own summary line, which is true, and it is read as "this suite is broken".
+# It ends the chain: the transcript is never compared, so whatever the
+# transcript would have said is not merely unreported but unobtainable from
+# the transcript.  A verdict that absorbs an environment fault into a code
+# fault is the same shape as the 11-07 budget check reporting headroom that
+# did not exist: the instrument answers, and its answer is about something
+# else.
+#
+# ENVIRONMENT is therefore its own class, and it is a COMPLETION FAULT like
+# the others -- it must not read as a clean run -- but it names the machine.
+ENVIRONMENT_MARKS = (
+    "No space left on device",
+    "Disk quota exceeded",
+    "[Errno 28]",
+    "[Errno 122]",
+    "Cannot allocate memory",
+    "[Errno 12]",
+)
+
+
+def environment_fault(stdout, stderr):
+    """The mark of a machine failure in a suite's output, or None.
+
+    Deliberately a fixed list of exact substrings rather than a pattern over
+    OSError text: a regex here would start classifying the repository's own
+    error messages, and the one thing this must not do is take a code fault
+    for an environment one.  The direction of the risk is asymmetric --
+    calling a real defect ENVIRONMENT would hide it -- so the list is short,
+    literal, and each entry is a message the kernel produced, not one this
+    repository writes.
+    """
+    blob = (stdout or "") + "\n" + (stderr or "")
+    for mark in ENVIRONMENT_MARKS:
+        if mark in blob:
+            return mark
+    return None
+
+
 def run_suite(clone, module):
     env = dict(os.environ)
     env["MPLBACKEND"] = "Agg"          # no display, no blocking show()
@@ -1075,8 +1137,8 @@ def run_suite(clone, module):
     # as always and the exit code is carried alongside the verdict.
     if not p.stdout:
         return None, dt, "exit %d (no stdout): %s" % (
-            p.returncode, p.stderr.strip()[-300:]), p.returncode
-    return p.stdout, dt, None, p.returncode
+            p.returncode, p.stderr.strip()[-300:]), p.returncode, p.stderr
+    return p.stdout, dt, None, p.returncode, p.stderr
 
 
 def main():
@@ -1195,7 +1257,7 @@ def main():
                 results[module] = ("MISSING", 0.0, ["not present at this commit"])
                 print("  %-44s MISSING" % module)
                 continue
-            out, dt, err, rc = run_suite(clone, module)
+            out, dt, err, rc, serr = run_suite(clone, module)
             s2_durations.append(dt)
             if not s2_warned and section2_crossing(s2_durations,
                                                    SECTION2_ALLOWANCE_S) is not None:
@@ -1235,6 +1297,23 @@ def main():
             # DID THE RUN HAPPEN, before asking whether the transcript is
             # true.  See the 2026-11-06 amendment: the answers are about
             # different objects and the old code could only give the second.
+            # ENVIRONMENT BEFORE INCOMPLETE, and the order is the point: an
+            # ENOSPC death also fails completion_verdict, so asking the
+            # weaker question first is what produced five sessions of
+            # INCOMPLETE on a suite that was never broken.
+            _envmark = environment_fault(out, serr)
+            if (_envmark is not None
+                    and completion_verdict(out, committed_text) == "INCOMPLETE"):
+                ev = ("exit %d; the run died on %r -- a failure of the "
+                      "MACHINE, not of the suite.  The transcript was NOT "
+                      "compared, so this says nothing about whether it is "
+                      "stale.  Re-run with room on the filesystem $TMPDIR "
+                      "points at." % (rc, _envmark))
+                results[module] = ("ENVIRONMENT", dt, [ev])
+                print("  %-44s %-14s %6.1fs  exit %d (%s)"
+                      % (module, "ENVIRONMENT", dt, rc, _envmark))
+                print("        " + ev)
+                continue
             if completion_verdict(out, committed_text) == "INCOMPLETE":
                 ev = ("exit %d; the committed transcript ends in a summary "
                       "line and this run's stdout has none, so the suite did "
@@ -1609,7 +1688,7 @@ def main():
                            "    builtins.print('INJECTED-DEFECT')\n") + mutated
                 with open(src_path, "w") as fh:
                     fh.write(mutated)
-                out2, _, err2, _rc2 = run_suite(scratch, dmod)
+                out2, _, err2, _rc2, _se2 = run_suite(scratch, dmod)
                 if err2 is not None:
                     check("C6 the mutated donor still runs", False, err2[:200])
                 else:
@@ -1635,7 +1714,7 @@ def main():
             fh.write("import sys\n"
                      "sys.stdout.write(%r)\n"
                      "raise SystemExit(1)\n" % c7text)
-        out7, _dt7, err7, rc7 = run_suite(c7dir, c7mod)
+        out7, _dt7, err7, rc7, _se7 = run_suite(c7dir, c7mod)
         check("C7 a suite that exits nonzero still yields its stdout",
               err7 is None and out7 == c7text and rc7 == 1,
               "exit %r, stdout kept: %s -- a red guard is a nonzero exit BY "
@@ -2087,6 +2166,38 @@ def main():
         # over a grid, because a partition that dropped a suite would make
         # the census report a SMALLER stale count and read as an improvement.
         # ------------------------------------------------------------------
+        print()
+        print("  C14 -- the environment/code distinction, on exact inputs")
+        check("  C14.1 an ENOSPC traceback is an ENVIRONMENT fault",
+              environment_fault(
+                  "BANNER\n",
+                  "OSError: [Errno 28] No space left on device: '/x/y'\n")
+              == "No space left on device",
+              "the exact text this VM produced today, and the matched mark is "
+              "returned rather than a bare True so the verdict can name what "
+              "it saw")
+        check("  C14.2 a suite that merely failed its own checks is NOT an "
+              "environment fault",
+              environment_fault(
+                  "  [FAIL] R1 exactly ONE capture site remains\n"
+                  "TOTAL: 31 passed, 2 failed\n", "") is None,
+              "the must-give-nothing direction, and the one that matters: "
+              "classifying a real defect as ENVIRONMENT would hide it.  This "
+              "is the actual stdout of the suite whose INCOMPLETE verdict "
+              "masked a STALE one for five sessions -- once it had room to "
+              "run, its output carries no environment mark at all")
+        check("  C14.3 an empty run is not an environment fault either",
+              environment_fault("", "") is None and
+              environment_fault(None, None) is None,
+              "None and empty string both, because run_suite returns None "
+              "for stdout on the no-output path and a classifier that threw "
+              "there would turn an ERROR into a crash")
+        check("  C14.4 ENVIRONMENT is a COMPLETION FAULT, so it cannot be "
+              "counted as a clean run",
+              "ENVIRONMENT" in COMPLETION_FAULTS,
+              "Section 5's `no suite fails to complete` check reads this "
+              "tuple; a new verdict outside it would be invisible to every "
+              "aggregate in the module")
         print()
         print("  C11 -- the partition, on inputs with exact answers")
         check("  C11.1 the blocks of a 43-into-4 split have exactly the "
