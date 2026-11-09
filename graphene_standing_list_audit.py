@@ -121,10 +121,120 @@ def entries(text):
     return out
 
 
-def bullets(body):
+# INLINE-CODE SPANS.  ADDED 2026-11-09, and this is the repair the 2026-11-08
+# addendum ranked first.
+#
+# THE DEFECT.  The 11-08 entry's ranked-first bullet QUOTED the retired A1
+# wording in order to describe its removal:
+#
+#     - **RE-RUN `graphene_standing_list_audit.py` AFTER THIS ENTRY LANDS** -
+#       ... 11-07 removed the decoy `CHAPTERS 2 AND 3 ARE DRAFTED` bullet ...
+#
+# and the anti-trigger counted that entry among those ASSERTING the item was
+# corrected.  So the 11-08 entry falsified its own prediction (the corrected
+# count read 9, not 8) by discussing the instrument.
+#
+# WHY grep DISAGREED WITH THE AUDIT, WHICH IS THE WORSE HALF.  The quotation
+# is line-wrapped in the source, so the phrase exists on NO line of the file:
+# `grep -n 'CHAPTERS 2 AND 3 ARE DRAFTED'` returned two hits, both in the
+# 11-07 entry.  The phrase comes into existence only inside `bullets()`, which
+# flattens each bullet with `' '.join(cur.split())` before the regexes see it.
+# A session checking its own entry with grep -- the obvious check, and the one
+# a human reviewer would run -- got the right answer about the file and the
+# wrong answer about what the audit sees, and nothing reported the difference.
+# See `--show-normalised`, which is the sibling repair and exists so that the
+# two readings can never diverge silently again.
+#
+# THE RULE.  A code span is a run of N backticks, the shortest text that
+# follows, and the next run of N backticks.  Its CONTENT is replaced, not just
+# its delimiters -- removing the backticks alone would leave the phrase intact
+# and fix nothing.
+#
+# WHICH WAY IT FAILS, WHICH IS THE PROPERTY WORTH STATING.  An UNTERMINATED
+# backtick matches nothing and leaves the bullet unstripped, so a malformed
+# span is read as an ASSERTION.  That is the conservative direction: this
+# repair can only ever REMOVE dates from the anti-set, and removing an anti
+# date can only ever ADD revivals, never drop one -- the same containment the
+# 11-06 `revivals()` amendment argued for itself, one layer out.  P10f gates
+# on it.
+#
+# WHAT IT COSTS.  A trigger phrase written legitimately INSIDE backticks would
+# now be missed.  Every trigger in BASELINE is a prose phrase about tree state
+# and none is a code identifier, so the cost is theoretical today; it is
+# recorded here rather than discovered later.
+CODE_SPAN_RE = re.compile(r'(`+)(.+?)\1')
+
+CODE_PLACEHOLDER = '<code>'
+
+
+def strip_code_spans(s, placeholder=CODE_PLACEHOLDER):
+    """`s` with every inline-code span replaced by `placeholder`.
+
+    Backtick-free text is returned UNCHANGED -- exactly, not approximately.
+    P10a gates on that identity over all 1328 bullets of the real log, which
+    is the must-be-zero control for this function: a normalisation that
+    quietly rewrites text nobody marked as code would be a second instrument
+    constraining how the log may be written, which is the fault this repair
+    exists to remove rather than to relocate.
+    """
+    return CODE_SPAN_RE.sub(lambda m: placeholder, s)
+
+
+def bullets(body, raw=False):
     """Top-level '- ' bullets of an entry's Not-yet-covered list, each
-    flattened to one line.  Continuation lines are indented, so a top-level
-    bullet is '- ' at column 0."""
+    flattened to one line AND with inline-code spans stripped.
+
+    `raw=True` returns the flattened-but-unstripped form -- what the file
+    effectively contains once wrapping is undone, and what every caller saw
+    before 2026-11-09.  The audit reads the stripped form; `--show-normalised`
+    prints both beside the source lines, so a reader can see which of the
+    three forms a verdict came from.
+    """
+    out = _bullets_flat(body)
+    if raw:
+        return out
+    return [strip_code_spans(b) for b in out]
+
+
+def bullet_source_lines(body):
+    """[[source lines]] per top-level bullet, in the same order as
+    `bullets()`.  ADDED 2026-11-09 so that "grep would miss this" can be
+    asked at the granularity the claim is actually about -- THE BULLET -- and
+    not about the whole entry.
+
+    The first draft of `show_normalised` asked it of the entry body, and on
+    the real 11-08 entry that answered "grep finds it" -- because the 11-08
+    ADDENDUM quotes the grep command itself, several hundred lines below the
+    bullet.  True about the entry, and the wrong answer to the question.  The
+    coarse reading would have reported the opposite of the finding it exists
+    to display.
+    """
+    m = NYC_RE.search(body)
+    if not m:
+        return []
+    out, cur = [], None
+    for line in m.group(1).split('\n'):
+        if line.startswith('- '):
+            if cur is not None:
+                out.append(cur)
+            cur = [line]
+        elif cur is not None:
+            if line.strip() == '':
+                continue
+            if line.startswith(('  ', '\t')):
+                cur.append(line)
+            else:
+                out.append(cur)
+                cur = None
+    if cur is not None:
+        out.append(cur)
+    return out
+
+
+def _bullets_flat(body):
+    """The pre-2026-11-09 `bullets()`: top-level '- ' bullets, each flattened
+    to one line, code spans left intact.  Continuation lines are indented, so
+    a top-level bullet is '- ' at column 0."""
     m = NYC_RE.search(body)
     if not m:
         return []
@@ -550,6 +660,67 @@ Nothing here.
 """
 
 
+def show_normalised(logtext, date=None, pattern=None):
+    """THE SIBLING REPAIR, 2026-11-09.  `AND bullets() SHOULD SAY WHAT IT
+    NORMALISED` from the 2026-11-08 addendum's list.
+
+    The 11-08 entry's prediction was falsified because the phrase the
+    anti-trigger matched EXISTS ON NO LINE OF THE FILE: it is assembled by
+    `_bullets_flat`'s `' '.join(cur.split())` out of two wrapped source lines,
+    and it is then removed again by `strip_code_spans`.  So three readings of
+    one bullet were in play -- the source, the flattened form, the stripped
+    form -- and only the third gated anything while only the first was
+    greppable.  A session that checked its own entry with `grep` got a true
+    answer about the file and a false one about the audit, and nothing said so.
+
+    This prints all three, side by side, for the bullets that matter.  It is
+    deliberately a REPORT and gates nothing: its job is to make the divergence
+    cheap to see, not to add a verdict.
+    """
+    ents = entries(logtext)
+    if date:
+        ents = [(d, b) for d, b in ents if d == date]
+    else:
+        ents = ents[-1:]
+    rx = re.compile(pattern, re.I) if pattern else None
+    for d, body in ents:
+        raw = bullets(body, raw=True)
+        strp = bullets(body)
+        srcs = bullet_source_lines(body)
+        print('=' * 78)
+        print('NORMALISATION REPORT -- %s (%d top-level bullets)' % (d, len(raw)))
+        if rx:
+            print('filtered to bullets matching %r in EITHER reading' % pattern)
+        print('=' * 78)
+        shown = 0
+        for i, (r, s) in enumerate(zip(raw, strp)):
+            if rx and not (rx.search(r) or rx.search(s)):
+                continue
+            shown += 1
+            # PER BULLET, not per entry -- see bullet_source_lines.
+            greppable = (any(rx.search(ln) for ln in srcs[i])
+                         if rx and i < len(srcs) else None)
+            print('\n[%d] FLATTENED : %s' % (i, r))
+            if s != r:
+                print('    STRIPPED  : %s' % s)
+            else:
+                print('    STRIPPED  : (identical -- no code spans)')
+            if rx:
+                print('    MATCHES   : flattened=%s  stripped=%s  '
+                      'any single SOURCE LINE of this bullet=%s'
+                      % (bool(rx.search(r)), bool(rx.search(s)), greppable))
+                if bool(rx.search(r)) != bool(rx.search(s)):
+                    print('    *** THE TWO READINGS DISAGREE: the flattened form '
+                          'asserts the wording,')
+                    print('        the stripped form only QUOTES it.  The audit '
+                          'reads the stripped form.')
+                if rx.search(r) and not greppable:
+                    print('    *** grep WOULD MISS THIS: the phrase is assembled '
+                          'by flattening and')
+                    print('        exists on no single line of the source.')
+        print('\n(%d bullet(s) shown of %d)' % (shown, len(raw)))
+
+
 def main():
     global BASELINE
     passed = failed = 0
@@ -776,6 +947,117 @@ def main():
           'revivals', _nc_old == [] and _nc_new == [],
           'old %r new %r' % (_nc_old, _nc_new))
 
+    # P10a-P10h -- A MENTION IS NOT A USE.  The 2026-11-08 addendum's
+    # ranked-first item.  Every answer below is known by inspection of a
+    # planted bullet or is an exact count on the real log; none is a range.
+    #
+    # The control is BOTH-SIDED by construction, which is the whole point: a
+    # repair that stopped counting quotations by also stopping counting
+    # assertions would pass a one-sided test and destroy the instrument.
+    _P10_ASSERT = '**CHAPTERS 2 AND 3 ARE DRAFTED** - plainly asserted.'
+    _P10_QUOTED = ('**RE-RUN THE AUDIT** - 11-07 removed the decoy '
+                   '`CHAPTERS 2 AND 3 ARE DRAFTED` bullet and recorded why.')
+    _P10_QUOTED2 = ('**RE-RUN THE AUDIT** - the decoy '
+                    '``CHAPTERS 2 AND 3 ARE DRAFTED`` bullet, in a '
+                    'double-backtick span.')
+
+    check('P10a strip_code_spans is the IDENTITY on backtick-free text, '
+          'over every bullet of the real log',
+          (lambda bs: all(strip_code_spans(b) == b for b in bs if '`' not in b)
+           and sum(1 for b in bs if strip_code_spans(b) != b)
+               == sum(1 for b in bs if '`' in b))(
+              [b for _, bd in entries(logtext) for b in bullets(bd, raw=True)]),
+          'changed-set and backtick-set must coincide exactly')
+    check('P10b a bullet ASSERTING the retired wording still counts',
+          bool(_anti.search(strip_code_spans(_P10_ASSERT))),
+          'the side that must not break')
+    check('P10c a bullet QUOTING it inside backticks does NOT count',
+          not _anti.search(strip_code_spans(_P10_QUOTED)),
+          'stripped: %r' % strip_code_spans(_P10_QUOTED))
+    check('P10d nor inside a DOUBLE-backtick span',
+          not _anti.search(strip_code_spans(_P10_QUOTED2)),
+          'stripped: %r' % strip_code_spans(_P10_QUOTED2))
+    check('P10e and the unstripped forms of P10b and P10c are '
+          'INDISTINGUISHABLE to the old reader -- which is why it was wrong',
+          bool(_anti.search(_P10_ASSERT)) and bool(_anti.search(_P10_QUOTED)),
+          'both matched before the repair; exactly one matches after')
+
+    # P10f THE DIRECTION OF FAILURE, on a plant whose answer is known: an
+    # unterminated backtick must leave the text alone, so a malformed span is
+    # read as an assertion.  Conservative, and provably so -- the repair can
+    # only remove anti dates, and removing an anti date can only add revivals.
+    _P10_BROKEN = '**A BULLET** - an unclosed `CHAPTERS 2 AND 3 ARE DRAFTED span.'
+    check('P10f an UNTERMINATED backtick leaves the bullet unstripped, so the '
+          'repair fails toward counting',
+          strip_code_spans(_P10_BROKEN) == _P10_BROKEN
+          and bool(_anti.search(strip_code_spans(_P10_BROKEN))),
+          'a malformed span must not silently un-count an assertion')
+
+    # P10g THE FLATTENING MUST SURVIVE.  The phrase in the 11-08 entry exists
+    # only AFTER flattening, so one tempting "fix" is to stop flattening and
+    # let grep and the audit agree by both missing it.  That would hide every
+    # wrapped assertion instead of one wrapped quotation.  A wrapped
+    # ASSERTION must still count.
+    _P10_WRAPPED = ('**Not yet covered (candidates for future runs):**\n'
+                    '- **CHAPTERS 2 AND 3 ARE\n  DRAFTED** - wrapped mid-phrase.\n')
+    check('P10g a wrapped ASSERTION still counts -- the repair strips code '
+          'spans, it does not abandon flattening',
+          any(_anti.search(b) for b in bullets(_P10_WRAPPED)),
+          'bullets: %r' % bullets(_P10_WRAPPED))
+
+    # P10h THE EXACT MEASUREMENT ON THE REAL LOG.  Known answers, not ranges:
+    # the anti-set loses exactly {2026-11-08} and the revival record is
+    # unchanged at the same five dates.  This is the 11-08 prediction, now
+    # true, and the reason it reads as a repair rather than as a rewording.
+    _a_raw = [d for d, bd in entries(logtext)
+              if any(_anti.search(b) for b in bullets(bd, raw=True))]
+    _t_s, _a_s, _rev_s = revivals(logtext, A1_TRIG, _anti)
+    check('P10h the repair removes exactly {2026-11-08} from the anti-set and '
+          'changes no revival',
+          set(_a_raw) - set(_a_s) == {'2026-11-08'}
+          and set(_a_s) - set(_a_raw) == set()
+          and _rev_s == ['2026-10-17', '2026-10-26', '2026-10-27',
+                         '2026-10-28', '2026-11-04'],
+          'raw %d dates, stripped %d, removed %r, revivals %r'
+          % (len(_a_raw), len(_a_s), sorted(set(_a_raw) - set(_a_s)), _rev_s))
+
+    # P10i THE WIRING, AND MUTATION TESTING IS WHAT ASKED FOR IT.  P10b-P10g
+    # all exercise `strip_code_spans` DIRECTLY, so a mutant in which
+    # `bullets()` simply stops calling it was caught by P10h alone -- 1 of 41
+    # checks, and P10h is a whole-log aggregate rather than a statement about
+    # the reader.  This is the control for the join itself: on the real 11-08
+    # entry, the two readings of the SAME bullet must disagree in the one way
+    # the repair intends.  Four mutants, four detections, and the fourth is
+    # why this check exists.
+    _e1108 = [bd for d, bd in entries(logtext) if d == '2026-11-08']
+    check('P10i the wiring: on the real 11-08 entry bullets() does NOT see '
+          'the wording and bullets(raw=True) DOES',
+          len(_e1108) == 1
+          and not any(_anti.search(b) for b in bullets(_e1108[0]))
+          and any(_anti.search(b) for b in bullets(_e1108[0], raw=True)),
+          'one bullet, two readings, exactly one match')
+
+    # P10j THE REPORT'S OWN ALIGNMENT, as an exact identity over the whole
+    # real log.  `bullet_source_lines` re-walks the list a second time, so it
+    # can drift out of step with `bullets()` and mislabel which bullet a
+    # verdict belongs to -- which is the 11-07 `elapsed`/`spent` shape again:
+    # two quantities, one displayed, the other meaning something else.  The
+    # identity that forbids it: flattening each bullet's own source lines must
+    # reproduce that bullet's raw reading, for every bullet of every entry.
+    _mis, _n = [], 0
+    for _d, _bd in entries(logtext):
+        _r, _s = bullets(_bd, raw=True), bullet_source_lines(_bd)
+        if len(_r) != len(_s):
+            _mis.append((_d, 'count %d vs %d' % (len(_r), len(_s))))
+            continue
+        for _i, (_rb, _sl) in enumerate(zip(_r, _s)):
+            _n += 1
+            if ' '.join(' '.join(_sl)[2:].split()) != _rb:
+                _mis.append((_d, 'bullet %d' % _i))
+    check('P10j bullet_source_lines stays in step with bullets() over all '
+          '%d bullets of the real log -- exact, not sampled' % _n,
+          _mis == [], 'mismatches: %r' % _mis[:6])
+
     # VACUITY.  A list the parser cannot find must not read as a clean bill of
     # health -- that is exactly how the inert-knob census came to be read as
     # one for five sessions (2026-10-17).  ABSENT is not CONFIRMED.
@@ -961,4 +1243,10 @@ def main():
 
 
 if __name__ == '__main__':
+    if '--show-normalised' in sys.argv:
+        _av = [a for a in sys.argv[1:] if a != '--show-normalised']
+        _date = next((a for a in _av if re.fullmatch(r'20\d\d-\d\d-\d\d', a)), None)
+        _pat = next((a for a in _av if a != _date), None)
+        show_normalised(open(LOG, encoding='utf-8').read(), _date, _pat)
+        sys.exit(0)
     sys.exit(main())
