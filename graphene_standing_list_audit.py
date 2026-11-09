@@ -703,6 +703,27 @@ Nothing here.
 
 ANTI_CLASSES = ('CARRIED', 'RETIRED', 'SUBORDINATE', 'INCIDENTAL', 'QUOTED')
 
+# THE WINDOW THE EXACT PARTITION IS GATED OVER, and the reason it exists.
+#
+# S5b and S5g were first written as exact statements about THE WHOLE LOG:
+# CARRIED == ['2026-11-06'], QUOTED == ['2026-11-08'].  Both were true when
+# written and both would have gone RED on the very next entry -- because this
+# session's own AUTOMATION_LOG entry describes the repair, and describing it
+# means quoting the wording inside backticks, which adds 2026-11-09 to QUOTED.
+#
+# A check that goes red because the log was written is the fault this module
+# exists to find, stated by its own 2026-10-17 rule: a baseline that goes
+# stale on an unrelated edit teaches the operator to ignore it.  Caught before
+# committing the entry, by asking what the entry would do to the suite -- the
+# question 11-08 did not ask and was falsified for not asking.
+#
+# So the exact partition is gated over the CLOSED historical window only, and
+# entries after it are REPORTED with their classes and gated on nothing.  The
+# window is a date in a constant rather than a bound computed from the file:
+# computing it from the file would make the check vacuous the moment the file
+# grows, which is the same defect one layer in.
+HISTORICAL_PARTITION_THROUGH = '2026-11-08'
+
 _RETIRED_HEAD = re.compile(r'^\s*\*{0,2}RETIRED:?\*{0,2}\s*', re.I)
 _LEAD_BOLD = re.compile(r'^\s*\*\*(.+?)\*\*')
 
@@ -1404,9 +1425,15 @@ def main():
           and sorted({d for d, _, _ in _cen})
               == sorted(set(anti_dates_by_class(logtext, anti, ANTI_CLASSES))),
           'classes %r' % sorted(_classes_seen))
-    check('S5b CARRIED has exactly one member, 2026-11-06',
-          _by.get('CARRIED') == ['2026-11-06'],
-          'got %r' % _by.get('CARRIED'))
+    _byh = {}
+    for _d, _c, _b in _cen:
+        if _d <= HISTORICAL_PARTITION_THROUGH:
+            _byh.setdefault(_c, []).append(_d)
+    _later = [(d, c) for d, c, _ in _cen if d > HISTORICAL_PARTITION_THROUGH]
+    check('S5b CARRIED has exactly one member through %s'
+          % HISTORICAL_PARTITION_THROUGH,
+          _byh.get('CARRIED') == ['2026-11-06'],
+          'got %r' % _byh.get('CARRIED'))
     check('S5c narrowing the anti-set to CARRIED (or CARRIED+RETIRED) EMPTIES '
           'the revival record -- all five lost',
           _narrow[('CARRIED',)][1] == []
@@ -1437,10 +1464,61 @@ def main():
         'INCIDENTAL':  ['2026-10-05', '2026-10-06'],
         'QUOTED':      ['2026-11-08'],
     }
-    check('S5g the full class -> dates partition matches the membership read '
-          'off the log by inspection',
-          {c: _by.get(c, []) for c in ANTI_CLASSES} == _EXPECTED,
-          'got %r' % ({c: _by.get(c, []) for c in ANTI_CLASSES},))
+    check('S5g the full class -> dates partition through %s matches the '
+          'membership read off the log by inspection'
+          % HISTORICAL_PARTITION_THROUGH,
+          {c: _byh.get(c, []) for c in ANTI_CLASSES} == _EXPECTED,
+          'got %r' % ({c: _byh.get(c, []) for c in ANTI_CLASSES},))
+    print()
+    print('  Entries after the gated window (%s): %s'
+          % (HISTORICAL_PARTITION_THROUGH,
+             ', '.join('%s=%s' % (d, c) for d, c in _later) or 'none'))
+    print('  These are REPORTED and gated on nothing -- see')
+    print('  HISTORICAL_PARTITION_THROUGH for why the exact partition stops')
+    print('  at a closed window instead of growing with the file.')
+
+    # S5h THE WINDOW ACTUALLY PROTECTS THE PARTITION -- planted, because the
+    # whole point of the window is what it does to a log that has GROWN, and
+    # the real log has not grown yet.  A future entry quoting the wording in
+    # backticks (which is what this session's own AUTOMATION_LOG entry does)
+    # must classify QUOTED, must appear in the after-window report, and must
+    # leave the gated partition untouched.  This is the check whose absence
+    # falsified the 11-08 prediction: asking what the entry will do to the
+    # suite BEFORE committing the entry.
+    _future = logtext + (
+        '\n## 2026-12-31 - a plant\n\n'
+        '**Not yet covered (candidates for future runs):**\n\n'
+        '- **A BULLET DESCRIBING THE REPAIR** - it removed the decoy\n'
+        '  `CHAPTERS 2 AND 3 ARE DRAFTED` bullet, quoted here on purpose.\n\n'
+        '**Commits this run:** 0\n')
+    _fcen = anti_census(_future, anti)
+    _fby_h, _fby_late = {}, []
+    for _d, _c, _ in _fcen:
+        if _d <= HISTORICAL_PARTITION_THROUGH:
+            _fby_h.setdefault(_c, []).append(_d)
+        else:
+            _fby_late.append((_d, _c))
+    check('S5h a future entry QUOTING the wording classifies QUOTED, is '
+          'reported after the window, and leaves the gated partition intact',
+          _fby_late == [('2026-12-31', 'QUOTED')]
+          and {c: _fby_h.get(c, []) for c in ANTI_CLASSES} == _EXPECTED,
+          'late %r' % (_fby_late,))
+
+    # S5i AND THE SAME ENTRY ASSERTING IT IS STILL CAUGHT.  The window must
+    # not become a blind spot: it suspends the EXACT-MEMBERSHIP claim, not the
+    # reading.  A future entry asserting the wording plainly must classify
+    # CARRIED and show up in the report, or the window would have turned a
+    # gate into an exemption.
+    _future2 = logtext + (
+        '\n## 2026-12-31 - a plant\n\n'
+        '**Not yet covered (candidates for future runs):**\n\n'
+        '- **CHAPTERS 2 AND 3 ARE DRAFTED** - asserted plainly in a plant.\n\n'
+        '**Commits this run:** 0\n')
+    _f2 = [(d, c) for d, c, _ in anti_census(_future2, anti)
+           if d > HISTORICAL_PARTITION_THROUGH]
+    check('S5i and a future entry ASSERTING it classifies CARRIED -- the '
+          'window suspends the membership claim, not the reading',
+          _f2 == [('2026-12-31', 'CARRIED')], 'late %r' % (_f2,))
 
     check('S5f every class is non-empty on the real log, so none of the five '
           'is a hypothetical the classifier invented',

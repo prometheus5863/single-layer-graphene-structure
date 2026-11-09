@@ -217,7 +217,7 @@ wording this list had already retired.
 
   [PASS] S5a the census partitions: every mention gets exactly one known class, and the dates reproduce the raw anti-set
          classes ['CARRIED', 'INCIDENTAL', 'QUOTED', 'RETIRED', 'SUBORDINATE']
-  [PASS] S5b CARRIED has exactly one member, 2026-11-06
+  [PASS] S5b CARRIED has exactly one member through 2026-11-08
          got ['2026-11-06']
   [PASS] S5c narrowing the anti-set to CARRIED (or CARRIED+RETIRED) EMPTIES the revival record -- all five lost
          the measurement this section exists for; it is a finding, not a fault, and nothing is narrowed
@@ -225,11 +225,20 @@ wording this list had already retired.
          got ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
   [PASS] S5e the anti-set the audit now reads is exactly "all classes but QUOTED" -- Section 1's repair, restated as a partition
          audit reads ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-11-06', '2026-11-07']
-  [PASS] S5g the full class -> dates partition matches the membership read off the log by inspection
+  [PASS] S5g the full class -> dates partition through 2026-11-08 matches the membership read off the log by inspection
          got {'CARRIED': ['2026-11-06'], 'RETIRED': ['2026-11-07'], 'SUBORDINATE': ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04'], 'INCIDENTAL': ['2026-10-05', '2026-10-06'], 'QUOTED': ['2026-11-08']}
+
+  Entries after the gated window (2026-11-08): none
+  These are REPORTED and gated on nothing -- see
+  HISTORICAL_PARTITION_THROUGH for why the exact partition stops
+  at a closed window instead of growing with the file.
+  [PASS] S5h a future entry QUOTING the wording classifies QUOTED, is reported after the window, and leaves the gated partition intact
+         late [('2026-12-31', 'QUOTED')]
+  [PASS] S5i and a future entry ASSERTING it classifies CARRIED -- the window suspends the membership claim, not the reading
+         late [('2026-12-31', 'CARRIED')]
   [PASS] S5f every class is non-empty on the real log, so none of the five is a hypothetical the classifier invented
          empty: []
 
 ==============================================================================
-TOTAL: 50 passed, 0 failed
+TOTAL: 52 passed, 0 failed
 ==============================================================================
