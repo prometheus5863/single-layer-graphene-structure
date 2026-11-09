@@ -1,0 +1,17 @@
+Produced by: python3 graphene_standing_list_audit.py --show-normalised 2026-11-08 'chapters? 2 and 3 are drafted'
+2026-11-09.  The bullet that falsified the 2026-11-08 prediction, in all three readings.
+
+==============================================================================
+NORMALISATION REPORT -- 2026-11-08 (52 top-level bullets)
+filtered to bullets matching 'chapters? 2 and 3 are drafted' in EITHER reading
+==============================================================================
+
+[0] FLATTENED : **RE-RUN `graphene_standing_list_audit.py` AFTER THIS ENTRY LANDS** — **ranked first**, cheap, mechanical, blocked on nothing, and it carries the test 11-07 set up deliberately. 11-07 removed the decoy `CHAPTERS 2 AND 3 ARE DRAFTED` bullet and recorded that **removing it is itself a test**: if `A1` changes class next session, the trigger was reading that bullet rather than the tree. **This entry carries no chapters-2-and-3 bullet in either wording**, so the prediction is (i) `A1` still reads `RETIRED`; (ii) corrected entries stay at **eight** and revivals at **five**, this entry wording the item neither way; (iii) the `STALE` count stays at **8** with the same membership, the standing-list transcript being refreshed after this entry as 11-07's was.
+    STRIPPED  : **RE-RUN <code> AFTER THIS ENTRY LANDS** — **ranked first**, cheap, mechanical, blocked on nothing, and it carries the test 11-07 set up deliberately. 11-07 removed the decoy <code> bullet and recorded that **removing it is itself a test**: if <code> changes class next session, the trigger was reading that bullet rather than the tree. **This entry carries no chapters-2-and-3 bullet in either wording**, so the prediction is (i) <code> still reads <code>; (ii) corrected entries stay at **eight** and revivals at **five**, this entry wording the item neither way; (iii) the <code> count stays at **8** with the same membership, the standing-list transcript being refreshed after this entry as 11-07's was.
+    MATCHES   : flattened=True  stripped=False  any single SOURCE LINE of this bullet=False
+    *** THE TWO READINGS DISAGREE: the flattened form asserts the wording,
+        the stripped form only QUOTES it.  The audit reads the stripped form.
+    *** grep WOULD MISS THIS: the phrase is assembled by flattening and
+        exists on no single line of the source.
+
+(1 bullet(s) shown of 52)
