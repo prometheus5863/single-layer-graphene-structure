@@ -15419,3 +15419,296 @@ that by reading the file.
 carries this addendum as well as the refreshed transcript, which the entry did
 not predict and which is the honest reason the count is right for the wrong
 reason.
+
+## 2026-11-09 — the ranked item was discharged and the quotation turned out to be the smallest of five ways to mention a wording, four of which carry the whole revival record; then the session's own new checks would have gone red on this entry
+
+Four commits before this one. The ranked-first item cost about what 11-08
+predicted; the session is what looking at it properly turned up.
+
+### 1. The ranked item: a MENTION is not a USE, repaired and measured
+
+11-08 ranked this first, left it deliberately unpatched so its own falsified
+prediction would survive as a measurement, and named the fix: strip inline-code
+spans before the triggers see a bullet. Done.
+
+`strip_code_spans` replaces each span's **content**, not merely its
+delimiters — removing the backticks alone leaves the phrase intact and fixes
+nothing, and `delims` is one of the four mutants below. `bullets()` applies it
+by default; `bullets(raw=True)` is the old flattened-only reading, which the
+controls compare against and the report needs.
+
+**The measurement, on the real log, as a set identity rather than a count.**
+The repair removes exactly `{2026-11-08}` from the anti-set — eight dates, not
+nine — and changes **no** revival: the same five, 10-17 / 10-26 / 10-27 /
+10-28 / 11-04. `P10h` gates that. 11-08's prediction (ii) is now true, and the
+honest framing is that it was made true by a repair rather than by a
+rewording, which is the distinction 11-05 asked future sessions to preserve.
+
+**The direction of failure is proved rather than hoped.** An unterminated
+backtick matches nothing and leaves the bullet unstripped, so a malformed span
+reads as an **assertion**. Therefore this repair can only ever *remove* anti
+dates, and removing an anti date can only ever *add* revivals, never drop one.
+That is the 11-06 `revivals()` containment argument one layer out, and `P10f`
+gates it.
+
+Ten controls, both-sided by construction, because a repair that stopped
+counting quotations by also stopping counting assertions would pass a
+one-sided test and destroy the instrument. `P10g` is the one worth naming: a
+**wrapped assertion must still count**, which forbids the tempting wrong fix
+of abandoning flattening so that grep and the audit agree by both missing it.
+
+**Mutation testing found a gap in my own controls, twice.** Four mutants on
+the strip, four detections — but the mutant in which `bullets()` simply stops
+*calling* `strip_code_spans` was caught by `P10h` alone, 1 of 41, because
+`P10b`–`P10g` all exercise the function directly and none tested the join.
+`P10i` was added for it. The same thing happened again in §2 below. A gap
+invisible to reading and visible to mutation, in a control set written by a
+session that knew to expect it.
+
+### 2. The sibling repair, and running it corrected its own first draft
+
+`--show-normalised` prints all three readings of a bullet — source, flattened,
+stripped — and says when they disagree. It gates nothing on purpose.
+
+**Its first draft reported the opposite of the finding it exists to display.**
+It asked "would `grep` miss this?" of the whole **entry body**, and on the
+real 11-08 entry that answers *grep finds it* — because the 11-08 addendum
+quotes the `grep` command itself, several hundred lines below the bullet. True
+about the entry, and the wrong question. `bullet_source_lines` asks it per
+**bullet**, which is the granularity the claim was always about, and the mode
+now reproduces the diagnosis in four lines: `flattened=True`,
+`stripped=False`, `any single SOURCE LINE of this bullet=False`. `P10j` gates
+the two walks staying in step by an exact identity over all 1328 bullets.
+
+Committed as `standing_list_normalisation_1108.txt`. A reader who had that file
+on 11-08 would have spent a minute on what cost a falsified prediction and a
+whole addendum.
+
+### 3. THE SESSION: the quotation is the smallest of five classes, and four of them carry the entire revival record
+
+Having built the classifier, I asked what else is in the anti-set. **The
+quotation was the least of it.**
+
+`_trig_anti_dates` asks *does any bullet of this entry contain this phrase
+anywhere*. `revivals()` — which drives `V2`, `V3` and `R4` — uses the answer
+to mean *did the list CARRY the corrected item when that entry was written*.
+On this log those questions have very different answers.
+
+| class | n | dates | what it is |
+|---|---|---|---|
+| `CARRIED` | 1 | 11-06 | the bullet's own title **is** the item |
+| `RETIRED` | 1 | 11-07 | a `**RETIRED:**` bullet — the item taken *off* the list |
+| `SUBORDINATE` | 4 | 10-01…04 | "Chapters 2 and 3 are drafted **but** §4.8.2's form of error is not audited for elsewhere" — the bullet's subject is §4.8.2 |
+| `INCIDENTAL` | 2 | 10-05, 10-06 | the phrase ~800 chars into a long roll-up bullet listing other items |
+| `QUOTED` | 1 | 11-08 | inside backticks — §1's defect |
+
+**The list carried the corrected item as its own bullet in exactly one entry.**
+
+The consequence, computed rather than feared:
+
+| anti-set restricted to | anti | revivals |
+|---|---|---|
+| `CARRIED` | 1 | **0** |
+| `CARRIED`+`RETIRED` | 2 | **0** |
+| +`SUBORDINATE` | 6 | 5 |
+| everything (today) | 9 | 5 |
+
+**The whole five-revival record rests on the `SUBORDINATE` class** — four
+bullets whose subject is a different item and which mention the chapters as a
+premise. Narrow the anti-set to the honest reading and `V2` goes red, `R4`
+stops meaning anything, and five revivals leave the record.
+
+**Not narrowed, deliberately.** Whether a subordinate assertion counts as the
+list carrying the item has two defensible answers, and the session that finds
+the question is the worst placed to settle it — 11-05's rule, and the reason
+11-08 left its own falsified prediction standing. Ranked below instead.
+
+**And it bounds the 11-06 containment argument, which is the part worth
+keeping.** That amendment proved the revival rule can only *add* revivals and
+never drop one. **The proof holds the anti-set fixed.** It says nothing about
+narrowing the anti-set, and narrowing it drops five. The reassurance does not
+cover this change — recorded now rather than rediscovered later by a session
+that trusted it. Stating the scope of a proof is cheaper than rediscovering
+its limit.
+
+`V1`'s gloss is **annotated in place with its number kept**: §3 printed "the
+list then tracked the drafting correctly for N entries", which is true of
+exactly one of the eight. The count stays as printed — it is what `a` contains
+and what `V1`/`V2`/`V3` are computed from — and the wording is corrected
+beside it rather than the number quietly changed.
+
+### 4. And then the new checks would have gone red on this very entry
+
+`S5b` and `S5g` were committed in §3 as exact statements about the **whole
+log**: `CARRIED == ['2026-11-06']`, `QUOTED == ['2026-11-08']`. Both true when
+written. **Both would have failed on the next entry** — because this entry
+describes the repair, describing it means quoting the retired wording inside
+backticks, and that adds 2026-11-09 to `QUOTED`.
+
+So I had written a check that goes red *because the log was written* — the
+exact fault this module exists to find, forbidden by its own 2026-10-17 rule
+sitting fifteen lines above the `BASELINE` table. This is the **third**
+instrument-constrains-the-log instance in five sessions (11-05 had to word a
+bullet matching neither regex; 11-08 was falsified for quoting one) and the
+**first caught before it bit**.
+
+`HISTORICAL_PARTITION_THROUGH = '2026-11-08'` gates the exact membership over
+a closed window; later entries are reported and gated on nothing. The window
+is a literal date, not a bound computed from the file — computing it from the
+file would make the check vacuous the moment the file grows, the same defect
+one layer in. And the window is itself controlled both-sidedly on plants,
+because a window that silently became an exemption would be worse than the
+landmine: `S5h` a future entry quoting the wording classifies `QUOTED` and
+leaves the gated partition intact; `S5i` a future entry *asserting* it still
+classifies `CARRIED`.
+
+`S5h` is precisely the check whose absence falsified 11-08: **asking what the
+entry will do to the suite before committing the entry.** It is now mechanical
+rather than something a session must remember.
+
+### 5. Count
+
+33 checks at the start of the session, **52** at the end, 0 failed. Eight
+mutants across two control sets, eight detections, two gaps found in controls
+written today.
+
+### 6. The prediction I first wrote was already false, and correcting it found a THIRD source of the grep/audit divergence
+
+The draft of this entry predicted that the census would classify
+**2026-11-09 as `QUOTED`**, on the reasoning that the entry quotes the retired
+wording while describing the repair. Running the suite against the entry
+before committing it — the discipline §4 had just mechanised — says otherwise:
+**`Entries after the gated window (2026-11-08): none`.**
+
+The phrase occurs **once** in this entry, in the `SUBORDINATE` row of §3's
+table, and it is neither inside backticks nor inside a bullet. So:
+
+- it is not `QUOTED`, because `strip_code_spans` never sees it;
+- it is not in the anti-set **at all**, because `bullets()` reads only the
+  `Not yet covered` list and the table is prose.
+
+**So the divergence between `grep` and the audit has a third source, and it is
+not normalisation.** 11-08 found the *flattening* source (the phrase exists
+only after joining wrapped lines). §1 today found the *code-span* source. This
+is **scope**: `grep -n 'CHAPTERS 2 AND 3 ARE DRAFTED' AUTOMATION_LOG.md` now
+reports a hit inside the 11-09 entry, and the audit's anti-set correctly does
+not. Both are right about their own question. Nothing says so, which is the
+same shape as the other two and the reason `--show-normalised` reports
+greppability **per bullet** — a choice that is correct for bullets and silent
+about prose.
+
+That is a real limit rather than a bug: the audit's question *is* whether the
+**list** carries the item, so reading only the list is right. What is missing
+is that a reader cannot tell which of the three reasons a `grep` hit failed to
+become an anti date. On the list below.
+
+**Predictions for the next session**, corrected to what the tree actually
+says, so this entry can be scored the way 11-08 was:
+
+1. The census assigns **2026-11-09 no class at all** and the after-window
+   report still reads `none` — the phrase in §3's table is prose, outside
+   every bullet.
+2. The anti-set stays at **eight** and revivals at **five**; `S5b`/`S5g` stay
+   green, their window being closed at 11-08.
+3. `A1` still reads `RETIRED`.
+4. `grep` finds the phrase in this entry while the audit does not, and
+   prediction 1 is what makes that consistent rather than alarming.
+
+The live instance of `S5h` therefore did **not** arrive today; `S5h` remains
+planted-only, and saying so is worth more than quietly rewording §4 to claim
+it did.
+
+**Not yet covered (candidates for future runs):**
+
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  created today by §3, **ranked first for the next session**, and it is a
+  decision rather than a repair. The measurement is already on disk: admitting
+  the class gives five revivals, excluding it gives zero. Both answers are
+  defensible and the consequence is large, so what is wanted is a recorded
+  judgement with its reason, not a quiet change to `_trig_anti_dates`. If the
+  answer is "no", `V2`/`V3`/`R4` need rewriting around a record of zero
+  revivals, and that rewrite is the work.
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** —
+  created today by §6, cheap, ranked second. A phrase can appear in the file
+  and not in the anti-set for three distinct reasons — it is inside a code
+  span, it is outside the `Not yet covered` list, or it is in a bullet whose
+  class is not counted — and all three are correct behaviour. A reader cannot
+  currently tell them apart, which is how 11-08 lost a prediction and how this
+  entry nearly lost another. `--show-normalised` should take a whole-file mode
+  that lists every `grep` hit with the reason it did or did not become an anti
+  date. The 11-09 entry is the worked example and the test fixture.
+- **`INCIDENTAL` IS NOT ONE CLASS** — created today, cheap, ranked third.
+  10-05 and 10-06 are roll-up bullets that list many prior items
+  semicolon-separated; a mention inside one is arguably not a mention by the
+  list at all but a mention by a *summary of the list*. Splitting it would not
+  move today's numbers (both dates are later than 10-01, so the revivals do
+  not depend on them) which is exactly why it is cheap to get right now rather
+  than when it does matter.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01 and now the **fourth** occurrence of the shape. `graphene_dead_name_sweep.py`
+  fixed only the mention-vs-use half in 10-01 and its own `SELF` comment
+  records walking into the same-spelling half; today repaired the third module
+  but touched neither of the others. `strip_code_spans` is now importable, so
+  this is mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **eighteenth** instance.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. Today's checks are set
+  identities, exact counts and literal matches, so again not exercised.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **eighteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same figure.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17,
+  and today is an instance from a third side: `S5h`/`S5i` plant entries
+  carrying the very wording the census counts, into a *copy* of the log text
+  rather than the file, which is why it is safe. That the safe form and the
+  unsafe form differ by one word in the call is worth a check of its own.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08, both successors of the retired split item.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-second** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-third** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01, and
+  today it acquires a second reason to be read: its bullet's wording is what
+  the entire revival record rests on.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-sixth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-first** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-ninth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-eighth**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-ninth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-ninth** session, same question as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, subsumed by the
+  grown-census item.
+
+**Retired from the list this session:**
+
+- **RETIRED:** THE ANTI-TRIGGER CANNOT TELL A QUOTATION FROM AN ASSERTION —
+  created 11-08 and ranked first there. Repaired, measured as a set identity,
+  ten both-sided controls, four mutants detected. Done rather than dissolved.
+- **RETIRED:** AND `bullets()` SHOULD SAY WHAT IT NORMALISED — created 11-08.
+  `--show-normalised`, plus the committed artefact for the 11-08 bullet. Its
+  first draft was wrong in the direction of reassurance, which is recorded in
+  §2 rather than smoothed over.
+
+**Commits this run:** 4 before this entry — the quotation repair with its ten
+controls; Section 5 with the partition and the annotated gloss; the two
+transcripts; the windowing of `S5b`/`S5g` with its two planted controls — and
+this `AUTOMATION_LOG.md` entry makes **5**.

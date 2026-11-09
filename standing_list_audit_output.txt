@@ -65,7 +65,7 @@ wording this list had already retired.
          raw 9 dates, stripped 8, removed ['2026-11-08'], revivals ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
   [PASS] P10i the wiring: on the real 11-08 entry bullets() does NOT see the wording and bullets(raw=True) DOES
          one bullet, two readings, exactly one match
-  [PASS] P10j bullet_source_lines stays in step with bullets() over all 1328 bullets of the real log -- exact, not sampled
+  [PASS] P10j bullet_source_lines stays in step with bullets() over all 1361 bullets of the real log -- exact, not sampled
          mismatches: []
   [PASS] P6 VACUITY, rows LIVE: no list found -> every row ABSENT, none CONFIRMED
          bullets=0 classes=['ABSENT']
@@ -80,8 +80,8 @@ wording this list had already retired.
 ------------------------------------------------------------------------------
 2.  THE REAL STANDING LIST, AS OF THE LATEST ENTRY
 ------------------------------------------------------------------------------
-  latest entry: 2026-11-08
-  top-level bullets in its Not-yet-covered list: 52
+  latest entry: 2026-11-09
+  top-level bullets in its Not-yet-covered list: 33
   baseline assertions checked: 2
 
   id   class          item says tree says
@@ -106,7 +106,7 @@ wording this list had already retired.
        re-verified before it ranks.
 
   [PASS] R1 the latest list parsed to at least 10 top-level bullets
-         got 52
+         got 33
   [PASS] R2 no baseline row is in a fault class ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
          faults: []
   [PASS] R3 every retired row is still justified by the tree
