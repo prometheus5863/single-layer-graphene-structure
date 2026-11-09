@@ -660,6 +660,100 @@ Nothing here.
 """
 
 
+# ---------------------------------------------------------------------------
+# WHAT THE ANTI-SET ACTUALLY CONTAINS.  ADDED 2026-11-09.
+# ---------------------------------------------------------------------------
+# This went looking for the quotation the 11-08 addendum named and found that
+# the quotation is the SMALLEST of four ways a bullet can mention the wording
+# without the list carrying the item.  `_trig_anti_dates` asks "does any
+# bullet of this entry contain this phrase anywhere", and the question it is
+# used to answer -- in `revivals()`, which drives V2/V3/R4 -- is "did the list
+# CARRY the corrected item when that entry was written".  Those are not the
+# same question, and on the real log they have very different answers.
+#
+# The classes, all four of them live on the real log:
+#
+#   CARRIED      the bullet's own title IS the corrected item.  The honest
+#                reading of "the list carried the corrected wording".
+#   RETIRED      a `**RETIRED:**` bullet -- the item being taken OFF the list.
+#                Arguably the opposite of carrying it, and the 11-08 addendum
+#                already flagged this as "arguably a third class".
+#   SUBORDINATE  the bullet's title opens with the fact as a PREMISE for a
+#                different item: "Chapters 2 and 3 are drafted BUT §4.8.2's
+#                form of error is not audited for elsewhere".  The subject of
+#                the bullet is §4.8.2, not the chapters.
+#   INCIDENTAL   the phrase appears hundreds of characters into a long
+#                roll-up bullet that lists other items semicolon-separated.
+#   QUOTED       inside backticks.  Removed by `strip_code_spans` before this
+#                census sees it; counted here from the raw reading so the
+#                partition is over everything the pre-2026-11-09 reader saw.
+#
+# NOTHING IS CHANGED BY THIS SECTION, DELIBERATELY.  Narrowing the anti-set to
+# CARRIED would EMPTY the revival record -- all five revivals, V2 red -- and
+# that is a finding to report, not a rewrite to perform in the session that
+# found it (the 11-05 rule, and the reason the 11-08 addendum left its own
+# falsified prediction standing).  Section 5 computes the consequence exactly
+# and the standing list ranks the decision.
+#
+# AND IT BOUNDS THE 11-06 CONTAINMENT ARGUMENT, which is the part worth
+# keeping.  That amendment proved the new revival rule can only ADD revivals
+# and never drop one.  The proof holds the ANTI-SET FIXED.  It says nothing
+# about narrowing the anti-set, and narrowing it drops revivals -- so the
+# reassurance does not cover the change this section is about.
+
+ANTI_CLASSES = ('CARRIED', 'RETIRED', 'SUBORDINATE', 'INCIDENTAL', 'QUOTED')
+
+_RETIRED_HEAD = re.compile(r'^\s*\*{0,2}RETIRED:?\*{0,2}\s*', re.I)
+_LEAD_BOLD = re.compile(r'^\s*\*\*(.+?)\*\*')
+
+
+def classify_anti_bullet(raw_bullet, rx):
+    """Which of ANTI_CLASSES describes how `raw_bullet` mentions `rx`, or None
+    if it does not mention it at all.  `raw_bullet` is the FLATTENED,
+    UNSTRIPPED reading -- the one the pre-2026-11-09 audit matched against."""
+    if not rx.search(raw_bullet):
+        return None
+    stripped = strip_code_spans(raw_bullet)
+    if not rx.search(stripped):
+        return 'QUOTED'
+    if _RETIRED_HEAD.match(stripped):
+        body = _RETIRED_HEAD.sub('', stripped)
+        if rx.match(body.lstrip(' *')):
+            return 'RETIRED'
+    m = _LEAD_BOLD.match(stripped)
+    title = m.group(1) if m else re.split(r' (?:—|–|--|-) ', stripped, 1)[0]
+    tm = rx.search(title)
+    if not tm:
+        return 'INCIDENTAL'
+    # The title mentions it.  Is the title THE ITEM, or a longer claim that
+    # merely opens with it?  Trailing punctuation is allowed; further words
+    # are not.
+    rest = title[tm.end():].strip().strip('*').strip()
+    return 'CARRIED' if rest == '' else 'SUBORDINATE'
+
+
+def anti_census(logtext, rx):
+    """[(date, class, bullet)] for every bullet of every entry that mentions
+    `rx` in its flattened reading, in entry order."""
+    out = []
+    for d, body in entries(logtext):
+        for b in bullets(body, raw=True):
+            cls = classify_anti_bullet(b, rx)
+            if cls:
+                out.append((d, cls, b))
+    return out
+
+
+def anti_dates_by_class(logtext, rx, keep):
+    """The anti-date list restricted to the classes in `keep`."""
+    seen, out = set(), []
+    for d, cls, _ in anti_census(logtext, rx):
+        if cls in keep and d not in seen:
+            seen.add(d)
+            out.append(d)
+    return out
+
+
 def show_normalised(logtext, date=None, pattern=None):
     """THE SIBLING REPAIR, 2026-11-09.  `AND bullets() SHOULD SAY WHAT IT
     NORMALISED` from the 2026-11-08 addendum's list.
@@ -1163,7 +1257,17 @@ def main():
     print()
     print('  Chapter 2 was drafted 2026-09-28 and Chapter 3 2026-09-29, so')
     print('  every UNDRAFTED entry up to 09-27 was true when written.  The')
-    print('  list then tracked the drafting correctly for %d entries' % len(a))
+    # ANNOTATED 2026-11-09, NUMBER KEPT.  "tracked the drafting correctly for
+    # N entries" is false as a description of the LIST: Section 5 shows the
+    # list carried the corrected item as its own bullet in exactly ONE entry
+    # (11-06) and retired it in one more (11-07).  The other N-2 are mentions
+    # of the fact inside a different item.  The count is kept as printed
+    # because it is what `a` contains and what V1/V2/V3 are computed from;
+    # the gloss is corrected beside it rather than the number quietly changed.
+    print('  list then MENTIONED the drafting in %d entries' % len(a))
+    print('  (the 10-18 gloss read "tracked the drafting correctly", which')
+    print('   Section 5 shows is true of exactly one of them -- annotated')
+    print('   2026-11-09, number unchanged)')
     print('  (%s..%s), carried nothing for %d, and the entry after those is'
           % (a[0], a[-1], len(gap)))
     print('  the revival.  An item absent long enough stops being remembered')
@@ -1235,6 +1339,113 @@ def main():
     else:
         print('  (no history available; the in-file evidence in Section 2')
         print('   stands on its own and is the stronger of the two)')
+
+    # -- Section 5: WHAT THE ANTI-SET ACTUALLY CONTAINS ---------------------
+    print('\n' + '-' * 78)
+    print('5.  THE ANTI-SET IS NOT WHAT V1 SAYS IT IS.  ADDED 2026-11-09,')
+    print('    MEASURED, AND DELIBERATELY NOT ACTED ON')
+    print('-' * 78)
+    _cen = anti_census(logtext, anti)
+    print('  Every bullet of every entry mentioning the corrected wording,')
+    print('  classified by HOW it mentions it:')
+    print()
+    for _d, _c, _b in _cen:
+        print('    %s  %-12s %s' % (_d, _c, _b[:58]))
+    _by = {}
+    for _d, _c, _b in _cen:
+        _by.setdefault(_c, []).append(_d)
+    print()
+    for _c in ANTI_CLASSES:
+        print('    %-12s %d  %s' % (_c, len(_by.get(_c, [])),
+                                    ', '.join(_by.get(_c, [])) or '-'))
+
+    print()
+    print('  THE LIST CARRIED THE CORRECTED ITEM AS ITS OWN BULLET IN EXACTLY')
+    print('  ONE ENTRY -- 2026-11-06 -- and retired it in one more (11-07).')
+    print('  The other six mention the fact inside a DIFFERENT item.')
+    print()
+    print('  Consequence for the revival record, by which classes count:')
+    print()
+    _t_all, _, _ = revivals(logtext, A1_TRIG, anti)
+    _narrow = {}
+    for _keep in (('CARRIED',), ('CARRIED', 'RETIRED'),
+                  ('CARRIED', 'RETIRED', 'SUBORDINATE'), ANTI_CLASSES):
+        _a = anti_dates_by_class(logtext, anti, _keep)
+        _r = [d for d in _t_all if any(x < d for x in _a)]
+        _narrow[_keep] = (_a, _r)
+        print('    keep %-38s anti=%d  revivals=%d'
+              % ('+'.join(_keep), len(_a), len(_r)))
+    print()
+    print('  THE WHOLE REVIVAL RECORD RESTS ON THE SUBORDINATE CLASS.  The')
+    print('  five recorded revivals survive only because of the four 10-01..')
+    print('  10-04 bullets whose SUBJECT IS §4.8.2 and which mention the')
+    print('  chapters as a premise: "Chapters 2 and 3 are drafted BUT §4.8.2\'s')
+    print('  form of error is not audited for elsewhere".  Drop that class and')
+    print('  all five revivals go, V2 goes red, and R4 stops meaning anything.')
+    print()
+    print('  WHY NOTHING IS CHANGED HERE.  Whether a subordinate assertion')
+    print('  counts as the list CARRYING the corrected item is a real')
+    print('  question with two defensible answers, and the session that found')
+    print('  it is the worst placed to decide it -- the 11-05 rule.  It is')
+    print('  ranked on the standing list instead.')
+    print()
+    print('  AND IT BOUNDS THE 11-06 CONTAINMENT ARGUMENT.  That amendment')
+    print('  proved the revival rule can only ADD revivals, never drop one.')
+    print('  The proof holds the ANTI-SET FIXED.  Narrowing the anti-set drops')
+    print('  revivals -- five of them -- so the reassurance does not cover')
+    print('  this change.  Stating the scope of a proof is cheaper than')
+    print('  rediscovering its limit.')
+    print()
+
+    _classes_seen = {c for _, c, _ in _cen}
+    check('S5a the census partitions: every mention gets exactly one known '
+          'class, and the dates reproduce the raw anti-set',
+          _classes_seen <= set(ANTI_CLASSES)
+          and sorted({d for d, _, _ in _cen})
+              == sorted(set(anti_dates_by_class(logtext, anti, ANTI_CLASSES))),
+          'classes %r' % sorted(_classes_seen))
+    check('S5b CARRIED has exactly one member, 2026-11-06',
+          _by.get('CARRIED') == ['2026-11-06'],
+          'got %r' % _by.get('CARRIED'))
+    check('S5c narrowing the anti-set to CARRIED (or CARRIED+RETIRED) EMPTIES '
+          'the revival record -- all five lost',
+          _narrow[('CARRIED',)][1] == []
+          and _narrow[('CARRIED', 'RETIRED')][1] == [],
+          'the measurement this section exists for; it is a finding, not a '
+          'fault, and nothing is narrowed')
+    check('S5d and the five come back exactly when SUBORDINATE is admitted, '
+          'so that class carries the entire record',
+          _narrow[('CARRIED', 'RETIRED', 'SUBORDINATE')][1]
+          == ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28',
+              '2026-11-04'],
+          'got %r' % (_narrow[('CARRIED', 'RETIRED', 'SUBORDINATE')][1],))
+    check('S5e the anti-set the audit now reads is exactly "all classes but '
+          'QUOTED" -- Section 1\'s repair, restated as a partition',
+          sorted(_a_s) == sorted(anti_dates_by_class(
+              logtext, anti, ('CARRIED', 'RETIRED', 'SUBORDINATE',
+                              'INCIDENTAL'))),
+          'audit reads %r' % (sorted(_a_s),))
+    # S5g THE WHOLE PARTITION AS ONE EXACTLY-KNOWN ANSWER.  Mutation testing
+    # asked for this: dropping the RETIRED class entirely was caught by S5f
+    # alone, 1 of 49, because every other S5 check names only CARRIED.  The
+    # map below is the full membership, read off the log by inspection, so any
+    # reclassification of any date goes red here with the diff in hand.
+    _EXPECTED = {
+        'CARRIED':     ['2026-11-06'],
+        'RETIRED':     ['2026-11-07'],
+        'SUBORDINATE': ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04'],
+        'INCIDENTAL':  ['2026-10-05', '2026-10-06'],
+        'QUOTED':      ['2026-11-08'],
+    }
+    check('S5g the full class -> dates partition matches the membership read '
+          'off the log by inspection',
+          {c: _by.get(c, []) for c in ANTI_CLASSES} == _EXPECTED,
+          'got %r' % ({c: _by.get(c, []) for c in ANTI_CLASSES},))
+
+    check('S5f every class is non-empty on the real log, so none of the five '
+          'is a hypothetical the classifier invented',
+          all(_by.get(c) for c in ANTI_CLASSES),
+          'empty: %r' % [c for c in ANTI_CLASSES if not _by.get(c)])
 
     print('\n' + '=' * 78)
     print('TOTAL: %d passed, %d failed' % (passed, failed))
