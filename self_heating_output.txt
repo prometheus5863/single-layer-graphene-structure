@@ -1,0 +1,175 @@
+/tmp/work/single-layer-graphene-structure/graphene_self_heating_model.py:188: RuntimeWarning: overflow encountered in expm1
+  N_OP = 1.0 / (np.expm1(hbar * w_OP / (k_B * T)))
+==========================================================================
+SELF-CONSISTENT ELECTRO-THERMAL MODEL -- graphene FET on SiO2
+Dorgan, Bae & Pop, APL 97, 082112 (2010) / arXiv:1005.2711
+==========================================================================
+
+BENCHMARK A -- the paper's OWN device (W=7um, L=4um, t_ox=300nm)
+  term          value (K/W)     share   paper
+  R_B                 357.1     3.60 %   4 %
+  R_ox               8377.3    84.49 %   84 %
+  R_Si               1181.1    11.91 %   12 %
+  TOTAL              9915.6              ~1e4 K/W
+  kappa_ox(300 K) = 1.278967 W/m.K   kappa_Si(300 K) = 80.000 W/m.K
+
+BENCHMARK B -- Eq. (7) branch cut n_min = (w_OP/v_F)^2/(2 pi)
+  hbar*w_OP = 160.0 meV  ->  n_min = 9.4043e+11 cm^-2   paper: 9.4e11
+  hbar*w_OP =  82.0 meV  ->  n_min = 2.4701e+11 cm^-2   paper: (not quoted)
+  hbar*w_OP =  55.0 meV  ->  n_min = 1.1113e+11 cm^-2   paper: 1.1e11
+
+THIS repository's device (W=1e-06 m, L=2e-07 m, t_ox=9e-08 m)
+  R_B      5.0000e+04 K/W  (12.02 %)
+  R_ox     3.5185e+05 K/W  (84.61 %)
+  R_Si     1.3975e+04 K/W  ( 3.36 %)
+  R_th     4.1582e+05 K/W   -- 41.9x Dorgan's device
+  A = 2.000e-13 m^2, 140.0x SMALLER in area than Dorgan's
+  CAVEAT: Eq. (5) assumes W, L >> t_ox; here L/t_ox = 2.22, so
+          lateral spreading is neglected and R_ox is an OVER-estimate.
+          R_th above is therefore an UPPER BOUND, and every dT below
+          is a WORST CASE, not a centred estimate.
+
+OVERLAP with the existing isothermal repo model (low field, 300 K)
+  G_new = 2.697760e-03 S   G_old = 2.326535e-03 S
+  mu(Dorgan, n=7.261e+15) = 0.4638  vs  gfet.mu = 0.4000  (ratio 1.1596)
+  residual once the mobility constant is matched: 4.585e-06
+  NOTE: the mobility ratio is NOT a defect -- Dorgan's Eq. (4)
+        at this density gives a different number from the repo's
+        hand-set mu, and that disagreement is itself a result.
+
+BIAS SWEEP at V_g = 3.0 V (self-consistent)
+  V_ds       Id(uA)    Id_iso     dT(K)     P(uW)       mu   v_sat iters
+  0.000       0.000     0.000     0.000     0.000   0.4638 4.583e+05     1
+  0.150     151.567   151.591     9.403    22.735   0.4638 4.576e+05    34
+  0.300     285.371   286.304    34.922    85.611   0.4631 4.532e+05    35
+  0.450     380.266   386.943    68.617   171.120   0.4584 4.468e+05    35
+  0.600     426.951   445.701   101.152   256.171   0.4468 4.408e+05    33
+  0.750     441.789   473.145   129.214   331.342   0.4296 4.360e+05    31
+  0.900     442.610   484.223   153.746   398.349   0.4090 4.321e+05    30
+  1.050     437.876   487.713   175.875   459.770   0.3862 4.288e+05    29
+  1.200     430.944   487.619   196.260   517.132   0.3626 4.258e+05    29
+  1.350     423.197   485.751   215.285   571.316   0.3389 4.231e+05    28  <-- PAST CEILING
+  1.500     415.259   482.987   233.199   622.889   0.3158 4.206e+05    27  <-- PAST CEILING
+
+THE RF CHAPTER'S OWN BIAS (V_ds = 50 mV), which is what the
+10-06 item was created to bound:
+  dT = 1.0675 K, P = 2.5687 uW, Id = 51.3734 uA (isothermal 51.3735 uA)
+  relative current loss from self-heating: 1.798e-06
+  lowest swept V_ds past Dorgan's ~200 K ceiling: 1.250 V
+
+UNSETTLED CHOICES, reported as a SPREAD rather than picked
+  hbar*w_OP =  55.0 meV: dT(V_ds=1V) =  113.971 K, Id =  290.310 uA
+  hbar*w_OP =  82.0 meV: dT(V_ds=1V) =  168.717 K, Id =  439.805 uA
+  hbar*w_OP = 160.0 meV: REFUSED -- n_min = 9.4043e+15 m^-2 at 160.0 meV, got min(n) = 6.8437e+15 m^-2
+           this is the Eq. (7) validity guard working, not a defect:
+           at V_g = 3.0 V this device's density is BELOW the branch cut,
+           so the graphene-OP branch cannot bracket v_sat(T) here at all.
+           V_g required to reach it: 4.128 V (see vg_for_branch_cut())
+  Eq. (4) product  reading: dT(V_ds=1V) =  168.717 K, Id =  439.805 uA
+  Eq. (4) sum      reading: dT(V_ds=1V) =  168.721 K, Id =  439.815 uA
+
+  V_g needed to reach the 160 meV branch cut on THIS device: 4.1277 V
+  (operating point is V_g = 3.0 V, so the graphene-OP branch is
+   out of reach and the v_sat(T) spread cannot be bracketed by
+   the paper's two endpoints at this bias.)
+
+WHERE THE CURRENT TURNS OVER -- and what self-heating does and does NOT do
+  isothermal      peak: V_ds = 1.1100 V, Id = 487.974 uA
+  self-consistent peak: V_ds = 0.8300 V, Id = 443.258 uA
+  CORRECTED CLAIM: self-heating does NOT create the turning
+  point -- the isothermal model turns over too (check N1), from
+  drain-induced density loss, the ordinary GFET kink.  What
+  self-heating does is move it 0.2800 V EARLIER and 9.16 % LOWER.
+  The first draft of check N1 asserted monotonicity and FAILED,
+  which is how the overclaim was caught before being committed;
+  see the comment at thermal_current_peak().
+
+==========================================================================
+CHECKS
+==========================================================================
+  [PASS] A1 kappa_ox(300K) == accepted thermal-SiO2 value 1.2794 W/m.K
+         kappa_ox(300) = 1.278967 W/m.K
+  [PASS] A2 Dorgan R_th total rounds to the paper's ~1e4 K/W
+         R_th = 9915.6 K/W (paper: ~1e4)
+  [PASS] A3 R_B share rounds to the paper's 4 %%
+         R_B = 357.1 K/W, 3.60 %
+  [PASS] A4 R_ox share rounds to the paper's 84 %%
+         R_ox = 8377.3 K/W, 84.49 %
+  [PASS] A5 R_Si share rounds to the paper's 12 %%
+         R_Si = 1181.1 K/W, 11.91 %
+  [PASS] A6 the three shares sum to exactly 100 %% (no fourth term hiding)
+         sum = 100.000000000000 %
+  [PASS] B1 n_min(160 meV) rounds to the paper's footnote-18 9.4e+11 cm^-2 at 2 s.f.
+         n_min = 9.4043e+11 cm^-2 -> 9.4e+11 at 2 s.f. (paper: 9.4e+11); relative difference 0.046 %
+  [PASS] B2 n_min(55 meV) rounds to the paper's footnote-18 1.1e+11 cm^-2 at 2 s.f.
+         n_min = 1.1113e+11 cm^-2 -> 1.1e+11 at 2 s.f. (paper: 1.1e+11); relative difference 1.023 %
+  [PASS] B3 n_min scales exactly as w_OP^2 between the two energies
+         ratio = 8.4628099174, (160/55)^2 = 8.4628099174
+  [PASS] O1 low-field conductance matches the existing repo model to <0.5 %% once the mobility CONSTANT is matched
+         G_new(mu-matched) = 2.326525e-03 S, G_old = 2.326535e-03 S, rel = 4.585e-06
+  [PASS] C1 160 meV branch is INADMISSIBLE at the operating point (this is a physics result, not a bug)
+         n(V_g=3.0) = 7.2605e+15 m^-2 < n_min(160 meV) = 9.4043e+15 m^-2
+  [PASS] C2 82 meV branch IS admissible at the operating point (so C1 is a statement about 160 meV, not about the guard)
+         n(V_g=3.0) = 7.2605e+15 m^-2 > n_min(82 meV) = 2.4701e+15 m^-2
+  [PASS] C3 above vg_for_branch_cut(160 meV) the SAME call succeeds (the guard is not a constant refusal)
+         V_g = 4.6277 V admits 160 meV; v_sat = 6.3219e+05 m/s
+  [PASS] C4 and it is refused just BELOW that gate voltage (two-sided, so C3 is not vacuous)
+         V_g = 3.6277 V refuses 160 meV as required
+  [PASS] N1 the ISOTHERMAL current ALSO has an interior maximum (self-heating does NOT create the turning point)
+         isothermal peak at V_ds = 1.1100 V, Id = 487.9740 uA; min diff(Id_iso) = -2.015e-07 A
+  [PASS] N2 self-heating moves the peak to STRICTLY LOWER V_ds
+         thermal peak 0.8300 V vs isothermal peak 1.1100 V (shift 0.2800 V earlier)
+  [PASS] N3 and to STRICTLY LOWER peak current
+         thermal peak 443.2580 uA vs isothermal peak 487.9740 uA (9.16 % lower)
+  [PASS] N4 the two peaks are DISTINGUISHABLE on this sweep grid (so N2/N3 are not reporting grid noise)
+         peak indices 83 vs 111 on an N=151 grid (dV_ds = 0.01000 V)
+  [PASS] Z1 V_ds = 0 gives Id EXACTLY 0.0
+         Id = 0.0
+  [PASS] Z2 V_ds = 0 gives P EXACTLY 0.0
+         P = 0.0
+  [PASS] Z3 V_ds = 0 gives dT EXACTLY 0.0 (not merely small)
+         dT = np.float64(0.0)
+  [PASS] Z4 V_ds = 0 gives T bitwise equal to T0
+         T = np.float64(300.0)
+  [PASS] R1 R_th=0 recovers isothermal T bitwise at (Vg=3.0,Vds=0.05)
+         T_hot0 = np.float64(300.0), T_iso = np.float64(300.0)
+  [PASS] R2 R_th=0 recovers isothermal Id bitwise at (Vg=3.0,Vds=0.05)
+         Id_hot0 = np.float64(5.1373532578349054e-05), Id_iso = np.float64(5.1373532578349054e-05)
+  [PASS] R1 R_th=0 recovers isothermal T bitwise at (Vg=3.0,Vds=0.50)
+         T_hot0 = np.float64(300.0), T_iso = np.float64(300.0)
+  [PASS] R2 R_th=0 recovers isothermal Id bitwise at (Vg=3.0,Vds=0.50)
+         Id_hot0 = np.float64(0.00041098076497112857), Id_iso = np.float64(0.00041098076497112857)
+  [PASS] R1 R_th=0 recovers isothermal T bitwise at (Vg=1.5,Vds=1.00)
+         T_hot0 = np.float64(300.0), T_iso = np.float64(300.0)
+  [PASS] R2 R_th=0 recovers isothermal Id bitwise at (Vg=1.5,Vds=1.00)
+         Id_hot0 = np.float64(0.00040844005318487077), Id_iso = np.float64(0.00040844005318487077)
+  [PASS] M1 the two Eq. (4) readings are BITWISE equal at T=T_REF (n=1.000e+15)
+         product = np.float64(0.4649849901958115), sum = np.float64(0.4649849901958115)
+  [PASS] M1 the two Eq. (4) readings are BITWISE equal at T=T_REF (n=1.100e+17)
+         product = np.float64(0.2325), sum = np.float64(0.2325)
+  [PASS] M1 the two Eq. (4) readings are BITWISE equal at T=T_REF (n=1.000e+17)
+         product = np.float64(0.25678665991704164), sum = np.float64(0.25678665991704164)
+  [PASS] M2 T_REF temperature factor is EXACTLY 1 (mu(n,T_REF) == mu0/(1+(n/n_ref)^a))
+         mu(n_ref,300) = np.float64(0.2325), mu0/2 = 0.2325
+  [PASS] M4 mu(2*n_ref, T_REF) == mu0/(1 + 2^2.2) exactly (this is what pins ALPHA; nothing else does)
+         mu = 8.311298828992e-02, mu0/(1+2^2.2) = 8.311298828992e-02
+  [PASS] M5 mu(n->0, 450 K) == mu0/1.125 exactly (this is what pins BETA; T = 2*T_REF would not, since 1^beta = 1 for any beta)
+         mu = 4.133333333333e-01, mu0/1.125 = 4.133333333333e-01
+  [PASS] M3 the two readings DIVERGE off T_REF (so M1 is not vacuous)
+         500K product = 1.793571e-01, sum = 2.025000e-01, ratio = 0.885714
+  [PASS] V1 v_sat REFUSES below the Eq. (7) branch cut rather than clamping
+         ValueError raised as required
+  [PASS] V2 the T->0 Bose limit N_OP->0 gives v_sat EXACTLY the unoccupied form
+         ratio = 1.0000000000000000
+  [PASS] V3 v_sat is monotonically DECREASING in T (Dorgan's ~20%% / ~2%% statement has this sign)
+         v_sat(300K) = 1.3473e+05, v_sat(500K) = 1.1966e+05 m/s
+  [PASS] V4 dT >= 0 at every bias swept (a cooling channel would be a sign error)
+         checked in sweep_vds(), see table
+  [PASS] D1 Eq. (6) -> mu*F exactly in the low-field limit
+         v/muF - 1 = -3.200e-13
+  [PASS] D2 Eq. (6) -> v_sat from below as F -> inf
+         v(F=1e12)/v_sat = 0.999999999999
+
+  41/41 passed, 0 failed
+
+Figure written: self_heating_electrothermal.png
