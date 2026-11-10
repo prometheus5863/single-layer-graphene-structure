@@ -660,6 +660,37 @@ that have been measured rather than assumed:
 | 470 (practical Ni flow) | 8.268 | 0.680047 | −13.9 % |
 | 4000 (typical literature) | 0.222 | 0.698615 | −32.8 % |
 
+> **ANNOTATION 2026-11-10 — every `f_max` in this table is an *isothermal*
+> number, and that is now quantified rather than merely admitted. No value
+> above is changed.**
+>
+> These are computed at `V_ds` = 50 mV. `graphene_self_heating_model.py`
+> solves the coupled electro-thermal problem for this device and finds a
+> self-consistent temperature rise of **1.0675 K** at that bias, costing
+> **1.8 × 10⁻⁶** in drain current. The isothermal assumption behind this
+> table is therefore sound *at this bias*, to far better than the precision
+> printed, and the six-decimal `f_max/f_T` column is not being flattered by
+> a neglected mechanism.
+>
+> This is the opposite of what the 2026-10-06 reading of Feijoo *et al.*
+> implied, and the reason is a bias difference rather than a disagreement:
+> their 65 → 40 GHz degradation is measured on a device driven at volts,
+> where the same network here gives Δ*T* = 168.7 K and the device leaves
+> the regime its transport parameters were fitted in (past the ~200 K
+> fit-exclusion ceiling of Dorgan, Bae and Pop at `V_ds` = 1.25 V). **So
+> the table is safe and the extrapolation from it is not**: a reader must
+> not carry these numbers to a bias where the channel is 170 K hot. See
+> §7.8.1c and `self_heating_output.txt`.
+>
+> One consequence for this table specifically. The `R_c` sweep above holds
+> the *channel* fixed and varies the contacts, and self-heating couples to
+> the total dissipation including the contacts — so at a bias where heating
+> matters, the low-`R_c` rows would heat *more* (they pass more current),
+> not less, partially eating the gain the table attributes to them. At
+> 50 mV that coupling is 1.8e-06 and ignorable. It is recorded because the
+> sign is counter-intuitive and the table invites exactly that
+> extrapolation.
+
 Two readings, and the second was not anticipated.
 
 First, **this model's contact is 1.8× worse than that of the devices its

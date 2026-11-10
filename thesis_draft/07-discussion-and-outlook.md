@@ -989,12 +989,68 @@ operating in the regime of velocity saturation results in the highest
    65 → 40 GHz in `f_max`. Today's ×4.0007 is a ratio between two runs of one
    model and is largely insulated from this; the absolute 56.687 GHz is not.
 
+   > **ANNOTATION 2026-11-10 — this worry is now MEASURED, and it is
+   > NARROWED rather than confirmed. No number above is changed.**
+   >
+   > `graphene_self_heating_model.py` builds the missing term from the
+   > thermal network that Dorgan, Bae and Pop (*APL* 97, 082112 (2010))
+   > carry alongside the mobility and saturation-velocity fits this chapter
+   > already uses, so `R_th` is checkable rather than asserted. The
+   > implementation reproduces that paper's own term shares
+   > (3.60 / 84.49 / 11.91 % against its stated 4 / 84 / 12 %, total
+   > 9915.6 K/W against its ~1e4 K/W) and its footnote-18 branch-cut
+   > densities (9.4043e11 and 1.1113e11 cm⁻² against 9.4e11 and 1.1e11).
+   >
+   > **At the bias this chapter's `f_max` is computed at — `V_ds` = 50 mV —
+   > the self-consistent temperature rise is 1.0675 K and the current loss
+   > is 1.8 × 10⁻⁶.** The absolute 56.687 GHz is therefore exposed *in
+   > principle* and negligibly exposed *in fact*, at this bias. The clause
+   > above — "the absolute 56.687 GHz is not" — stands as written, because
+   > it is true of the model's silence; what is now known is the size of
+   > what the silence was hiding, and it is small here.
+   >
+   > **Where it is not small is the bias a real RF GFET is driven at.** At
+   > `V_ds` = 1 V the same network gives Δ*T* = 168.7 K, and the sweep
+   > passes Dorgan's own ~200 K fit-exclusion ceiling at `V_ds` = 1.25 V —
+   > i.e. this device's thermal environment puts it outside the regime its
+   > own transport parameters were measured in before it reaches the bias
+   > where the literature's peak `f_max` is found. That, and not a
+   > correction factor, is the usable result.
+   >
+   > Three caveats that keep this an upper bound rather than an estimate.
+   > (i) Eq. (5) assumes `W, L >> t_ox`; this device has `L/t_ox` = 2.22,
+   > so lateral spreading in the oxide is neglected and `R_ox` is
+   > **over**-estimated — the error is directional, so every Δ*T* here is
+   > a worst case. (ii) The boundary conductance `h` = 1e8 W m⁻² K⁻¹ is a
+   > **secondary citation** (Chen *et al.* 2009 *via* Dorgan). (iii) The
+   > 65 → 40 GHz figure that created this item is Feijoo *et al.*'s
+   > measurement on *their* device, and nothing here reproduces it; what is
+   > reproduced is the thermal *model*, on the device this thesis actually
+   > models.
+   >
+   > **The 160 meV branch could not be used at all**, which is a result and
+   > not an omission: at `V_g` = 3 V this device's density is 7.26e15 m⁻²
+   > against a branch cut of 9.40e15 m⁻², so Dorgan's two phonon energies
+   > **cannot bracket** `v_sat(T)` here. `V_g` = 4.1277 V would be needed.
+   > The remaining admissible spread is 113.97 K (55 meV) to 168.72 K
+   > (82 meV) at `V_ds` = 1 V, so the phonon energy — not the mobility-fit
+   > ambiguity, which moves Δ*T* by 0.004 K — is the dominant uncertainty.
+
 So the RF verdict of §7.8.1a — *unaddressed*, not refuted — survives in a
 third form. The ratio is settled and contact-limited only mildly; `f_max`
 itself is contact-limited by a factor of four; and the reason this thesis
 still cannot speak to the RF case is no longer the absence of saturation, but
 the absence of diffusion and of self-heating in the model that was built to
 replace the resistor.
+
+**AMENDED 2026-11-10.** Self-heating is no longer absent; diffusion still is.
+The sentence above is kept as written because it records what the chapter
+could say on 2026-10-06, and the correction is that the RF thread's
+remaining blocker is now **diffusion alone** — see the annotation to item 2
+above, which is unchanged, and the annotation to item 3, which is the work
+that removed it from the list. The self-heating half of the verdict is
+discharged in the direction of *the model was conservative here*, which was
+not the expected direction.
 
 See `graphene_perfect_contact_counterfactual.py`,
 `perfect_contact_counterfactual_output.txt` and
@@ -1400,10 +1456,28 @@ Stated as falsifiable items, in order of how much they would move:
    transport model*, rewritten 2026-10-07 when the term turned out to be the
    difference between two readings of a variable — is kept because the shape of
    it recurs. **It is replaced, not succeeded, by item 12.**
-8. **A self-heating term.** The same paper measures 65 → 40 GHz in `f_max` from
-   self-heating alone. This bounds every absolute frequency in Chapter 4; the
-   *ratios* between model runs, which is what §7.8.1c reports, are much less
-   exposed.
+8. ~~**A self-heating term.**~~ The same paper measures 65 → 40 GHz in `f_max`
+   from self-heating alone. This bounds every absolute frequency in Chapter 4;
+   the *ratios* between model runs, which is what §7.8.1c reports, are much
+   less exposed. — **CLOSED 2026-11-10**,
+   `graphene_self_heating_model.py`, 41/41 checks, 10/10 mutants detected,
+   both of Dorgan's published benchmarks reproduced. The item stood for 34
+   sessions and the obstacle was never the physics: it was that a thermal
+   resistance with no provenance would have been a number that looked like a
+   measurement. It became answerable when the primary source for this
+   chapter's *transport* parameters turned out to carry its own *thermal*
+   budget, with the geometry and the per-term shares, making `R_th`
+   checkable. **The expected conclusion was wrong in a useful direction**:
+   the bound on Chapter 4's absolute frequencies is 1.8e-06 in current at
+   the bias those frequencies are computed at, not the large correction the
+   65 → 40 GHz figure suggested — because that figure belongs to a device
+   driven at volts, and this one is characterised at 50 mV. What the model
+   does find is a *regime boundary* at `V_ds` = 1.25 V, past Dorgan's own
+   fit-exclusion ceiling. Two of the session's own errors were caught by
+   the suite before commit (a tolerance that tested a precision the source
+   never claimed, and a monotonicity claim that was simply false — the
+   isothermal current turns over too, at 1.11 V), and both are recorded in
+   place rather than quietly fixed.
 9. ~~**A signed-carrier FET model**~~ (added 2026-10-07) — **CLOSED
    2026-10-09**, `graphene_fet_signed_carrier_model.py`, 19/19 checks, §4.6.7.
    The sharper statement of why it blocked item 12 than 10-08 gave: both terms
