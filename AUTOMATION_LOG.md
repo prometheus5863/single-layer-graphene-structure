@@ -15712,3 +15712,322 @@ it did.
 controls; Section 5 with the partition and the annotated gloss; the two
 transcripts; the windowing of `S5b`/`S5g` with its two planted controls — and
 this `AUTOMATION_LOG.md` entry makes **5**.
+
+---
+
+## 2026-11-10 — the 34-session item was a physics item all along, and closing it moved the conclusion the other way
+
+**Commits before this entry:** 4 — the research note with the two
+hand-computed benchmarks; the model with 41 checks; the mutation harness;
+the Chapter 4 / Chapter 7 annotations.
+
+### 0. A ranking judgement, recorded because it changed what this session did
+
+11-09 ranked **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING
+THE ITEM** first. This session did not take it. That is a deliberate
+departure and it gets stated rather than glossed.
+
+The reason: **A SELF-HEATING TERM** was created 2026-10-06 *with a measured
+number attached* — 65 → 40 GHz in `f_max` — and the entry that created it
+said the number "bounds every absolute frequency in Chapter 4". It then sat
+for **34 consecutive sessions** while items about the log's own bookkeeping
+were ranked above it. Eight of the last ten entries are about the audit
+instruments; the chapters they audit have not acquired a new physical
+mechanism since 10-30.
+
+That is a mis-ranking, and the test is cheap to state: the standing list
+exists to serve a thesis on the electronic properties and device
+applications of single-layer graphene. An item that changes what the thesis
+*claims about a device* outranks an item that changes how the list *talks
+about itself*, unless the second is blocking the first. The `SUBORDINATE`
+decision blocks nothing. It is kept on the list below, unretired and
+undecided, with its measurement intact — but it is no longer first.
+
+### 1. Why the item was answerable today and not on any of 34 earlier days
+
+The obstacle was never the physics. It was that `R_th` had to come from
+somewhere, and a thermal resistance with no provenance would have been the
+10-01 fault in a new costume: a number with no source, propagating into
+`f_T`/`f_max` and reading like a measurement.
+
+What unblocked it: **the primary source for this repository's *transport*
+parameters carries its own *thermal* budget.** Dorgan, Bae and Pop
+(*APL* 97, 082112 (2010), read as arXiv:1005.2711) is already the source of
+the mobility and saturation-velocity forms used in Chapter 4, and its
+supplement gives Eq. (5)'s three-term network, the geometry it was applied
+to, **and the share each term contributed.** That last part is what makes
+`R_th` checkable instead of asserted.
+
+So the generalisation, worth more than the item: **an item blocked on "a
+number with no provenance" may be unblocked by re-reading a source already
+cited for something else.** Nothing new had to be found. Thirty-four
+sessions of "no thermal model available" were thirty-four sessions of not
+re-reading a paper in the bibliography.
+
+### 2. Two exact external benchmarks, computed by hand before any code
+
+| benchmark | computed | the paper's own |
+|---|---|---|
+| `R_B` / `R_ox` / `R_Si` share, Dorgan's geometry | 3.60 / 84.49 / 11.91 % | **4 / 84 / 12 %** |
+| `R_th` total, same | 9915.6 K/W | **~1e4 K/W** |
+| `n_min` at 160 meV | 9.4043e11 cm⁻² | **9.4e11 cm⁻²** |
+| `n_min` at 55 meV | 1.1113e11 cm⁻² | **1.1e11 cm⁻²** |
+
+Benchmark A is agreement on **three independent ratios**, so no single
+fudged constant buys it. Benchmark B pins `v_F`, `hbar` and the factor
+`2*pi` jointly — a factor error in the `v_sat` prefactor survives A and
+dies here. These were computed in the note and committed **before** the
+model was written, which is the only ordering in which they are a test.
+
+`kappa_ox`'s extracted form `ln(T_ox^0.52) - 1.687` looked garbled and was
+**not**: it is identically `0.52*ln(T_ox) - 1.687`, gives 1.2794 W/m·K at
+300 K, and that is the value Benchmark A's 84 % share requires. Settled by
+arithmetic, with the arithmetic shown.
+
+### 3. THE SESSION'S OWN TWO ERRORS, both caught by the checks before commit
+
+**(i) A tolerance that tested a precision the source never claimed — and it
+is the first live instance of item 15.**
+
+`B2` first compared the computed `1.1113e11 cm^-2` against the paper's
+`1.1e11` with a **1 % relative tolerance**, and failed at 1.03 %. The model
+was right; the check was wrong. The paper quotes **two significant
+figures**, and `1.1113e11` rounds to `1.1e11` exactly as required. A
+relative tolerance is the wrong instrument for comparing against a rounded
+published number.
+
+**AUDIT EVERY TOLERANCE** was created 2026-10-09 and recorded as
+"not exercised" in **thirty-one** consecutive entries, including 11-09's.
+It is now exercised, and it arrived **from the direction the item did not
+anticipate**: not a tolerance too loose to catch a defect, but one too
+*tight* against a number quoted to fewer figures than the comparison
+assumed. The item's own wording — "audit every tolerance" — would have
+found it; the item's implied *motivation*, which was always looseness,
+would not have looked here.
+
+**(ii) A monotonicity claim that was simply false.**
+
+`N1` was first written as *"the isothermal current is monotone in `V_ds`,
+so the turning point is thermal in origin"*. It **failed**:
+`min diff(Id_iso) = -2.0e-07 A`. The isothermal model turns over too, near
+`V_ds` = 1.11 V, from drain-induced density loss — the ordinary GFET
+quasi-saturation kink, nothing to do with temperature.
+
+So the claim is narrowed to the true and smaller one: **self-heating does
+not create the turning point; it moves it 0.28 V earlier and 9.16 % lower**
+(1.11 V / 487.97 µA isothermal → 0.83 V / 443.26 µA self-consistent).
+`N4` additionally gates that the two peaks are separated by more than the
+sweep grid, so `N2`/`N3` are not reporting resolution. Had `N1` been
+written as the weaker "the self-consistent current has an interior maximum"
+— which is **true** — the overclaim would have shipped in the commit
+message and the thesis. The check that failed was the one phrased as the
+*interesting* claim rather than the safe one.
+
+### 4. The suite was blind to two parameters while green, and only mutation found it
+
+10/10 mutants detected, 0 survived. **`M-H` and `M-I` are the point.** The
+first draft of the suite — green at 39/39 — detected **neither** Eq. (4)
+exponent:
+
+- at `T = T_REF` the temperature factor is identically 1 **for any `beta`**;
+- at `n = N_REF` the density factor is identically 2 **for any `alpha`**.
+
+Every exact check was anchored exactly where the parameter it would test is
+invisible. `M4`/`M5` close it with **hand-computed literals**
+(`mu0/(1+2^2.2)` at `2*n_ref`; `mu0/1.125` at 450 K) rather than
+expressions in `ALPHA`/`BETA`, which would have been circular and passed
+for any value. Note `T = 2*T_REF` would **not** pin `beta`, since
+`1^beta = 1`: the anchor had to be chosen to make the parameter visible,
+which is a general lesson about where exact checks are placed.
+
+This is the **nineteenth** instance of *give every verdict a planted
+control*, and the first in which the gap was in the *anchor point* rather
+than the control.
+
+### 5. The physics, with 10-06's prediction scored
+
+| quantity | value |
+|---|---|
+| `R_th`, this device | 4.1582e5 K/W (41.9× Dorgan's, on 140× less area) |
+| term shares | `R_ox` 84.61 %, `R_B` 12.02 %, `R_Si` 3.36 % |
+| Δ*T* at `V_ds` = 50 mV (the RF bias) | **1.0675 K**, current loss 1.8e-06 |
+| Δ*T* at `V_ds` = 1 V | 168.7 K |
+| Dorgan's ~200 K ceiling crossed at | `V_ds` = **1.25 V** |
+
+**10-06 predicted the absolute 56.687 GHz was exposed. It is — in
+principle — and the exposure is 1.8e-06 at the bias it is computed at.**
+The prediction was right about the mechanism and wrong about the
+magnitude, and the reason is a bias difference rather than a disagreement:
+Feijoo's 65 → 40 GHz is measured on a device driven at **volts**. So
+Chapter 4's table is sound and **extrapolation from it is not**, which is
+the usable form of the result and is now written beside the numbers a
+reader would extrapolate.
+
+**A counter-intuitive coupling, recorded because Chapter 4's table invites
+getting it backwards:** self-heating responds to *total* dissipation
+including the contacts, so at a bias where heating matters the **low-`R_c`
+rows heat more** (they pass more current) and partially eat the gain the
+table credits them with. At 50 mV this is 1.8e-06 and ignorable. The sign
+is written down anyway.
+
+**The 160 meV branch is inadmissible here, and that is a result.** At
+`V_g` = 3 V this device's density is 7.26e15 m⁻² against a branch cut of
+9.40e15 m⁻², so **Dorgan's two phonon energies cannot bracket `v_sat(T)`
+at this bias at all**; `V_g` = 4.1277 V would be needed. `v_sat` **refuses**
+rather than clamping, and `C1`–`C4` gate the refusal two-sidedly so the
+guard is distinguishable from a function that always refuses.
+
+**And the ambiguity that looked contentious turned out not to matter.** The
+note deliberately refused to settle Eq. (4)'s product-vs-sum reading and
+implemented both. Measured: **168.717 vs 168.721 K** at `V_ds` = 1 V — 0.002 %
+— because this device sits far below `n_ref`, where the two readings
+coincide. The phonon energy is the real uncertainty (113.97 K at 55 meV vs
+168.72 K at 82 meV). **Refusing to settle it was still right**, and the
+reason is now sharper: the refusal cost nothing *and* the measurement is
+what shows which unsettled choice actually carries the error bar. Guessing
+would have been harmless here and the session would not have learned which
+knob mattered.
+
+### 6. Declared limitations, so no future session mistakes a bound for an estimate
+
+- Eq. (5) assumes `W, L >> t_ox`; this device has `L/t_ox` = **2.22**, so
+  lateral spreading in the oxide is neglected and `R_ox` is
+  **over**-estimated. The error is **directional**: every Δ*T* here is a
+  **worst case**, not a centred estimate of unknown sign.
+- `h` = 1e8 W m⁻² K⁻¹ is a **secondary citation** (Chen *et al.* 2009 *via*
+  Dorgan), labelled as one.
+- Contact dissipation is lumped onto the channel's thermal node. Dorgan
+  supp. 5 measures a probe thermal resistance ~1e6 K/W — two orders above
+  the network — on a **4 µm** device. That justification is **not**
+  re-derived for a 200 nm one.
+- Still **no diffusion current**, the RF thread's binding question since
+  10-06 and untouched today.
+
+**Fetch record.** arXiv preprint + supplement fetched successfully.
+`pubs.aip.org` **not attempted** (known-403 publisher for this repository
+since 10-06; the APL version sits behind it and the preprint carries the
+supplement, so nothing was lost). PubMed/PMC **not attempted** per the
+standing reCAPTCHA note. Chen *et al.* **not fetched**. Dorgan Figs. 2b and
+3c **not read as data** — and that is now the specific blocking step for
+the product-vs-sum question rather than a vague wish for better data.
+
+### 7. Count
+
+41 checks, 0 failed, 10/10 mutants detected. Two session errors caught
+before commit. One 34-session item closed; one 31-session item exercised
+for the first time.
+
+**Not yet covered (candidates for future runs):**
+
+- **CENSUS EVERY COMPARISON AGAINST A PUBLISHED NUMBER AND CHECK IT USES A
+  SIGNIFICANT-FIGURE TEST, NOT A RELATIVE TOLERANCE** — created today by
+  §3(i), **ranked first**, cheap, and the direct generalisation of the only
+  instance item 15 has ever had. Every literature-calibrated constant in
+  this repository was quoted to two or three figures by its source, and any
+  check comparing against one with a relative tolerance is either vacuous
+  or wrong depending on which side of the rounding it lands. `_rounds_to`
+  is now importable. This is item 15 with a handle on it.
+- **A SPREADING-CORRECTED `R_ox`** — created today by §6, ranked second,
+  and it is the one change that would turn today's worst-case bound into an
+  estimate. `L/t_ox` = 2.22 violates Eq. (5)'s own stated validity, the
+  error's sign is known, and its size is not. A closed-form spreading
+  correction would tighten Δ*T* downward by an unknown factor; until then
+  every number in §5 is an upper bound and is labelled one.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — created today, ranked third, and it is now a *joined* item
+  rather than two. Self-heating is negligible at 50 mV and large at 1 V;
+  diffusion is ~40 % of the current at the measured peak-`f_max` bias. Both
+  absences are harmless where Chapter 4 evaluates and both bite where the
+  literature's peak sits. Doing either alone at the higher bias would
+  produce a number wrong for a reason the model cannot see.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — created
+  today, explicitly *blocked on figure reading*, and explicitly **low
+  value** now that §5 measures the consequence at 0.002 %. Recorded so that
+  a future session does not mistake "unsettled" for "important".
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — created today from §5. The
+  160 meV branch cut sits at `V_g` = 4.1277 V on this device, which means
+  Chapter 4's whole gate sweep straddles a validity boundary of the
+  velocity model it uses. Which bias points in which existing figure are on
+  which side of it is not currently known or reported anywhere.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried from 11-09, where it was ranked first; **de-ranked today with the
+  reason recorded in §0**, not dropped. The measurement is still on disk:
+  admitting the class gives five revivals, excluding it gives zero. Still a
+  decision wanting a recorded judgement, still blocking nothing.
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** —
+  carried from 11-09, cheap.
+- **`INCIDENTAL` IS NOT ONE CLASS** — carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, **fifth** occurrence of the shape; `strip_code_spans` is
+  importable, so mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried,
+  **nineteenth** instance (today's was in the anchor point, §4).
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing, and today **adds a fourth name**:
+  `graphene_self_heating_model.V_F`, set independently to 1.0e6 because
+  Dorgan states `v_F ~ 1e8 cm/s` and Benchmark B pins it. A constant now
+  pinned by a published benchmark in one module and hand-set in three
+  others is a sharper version of the same defect.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from
+  10-24, and now ambiguous in a new way: this repository has acquired a
+  *second* thermal quantity, and the name no longer says which.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **nineteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12, and today it
+  acquires a second reason: `_mean_density` reads `carrier_density`, whose
+  puddle floor is added in quadrature, so the self-heating solve inherits
+  whatever that floor means at low density.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-third** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried
+  from 10-14, **twenty-fourth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15 and is now *second* in that item's queue
+  behind today's ranked-first census.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13, and
+  today adds the contacts' own *thermal* path to it (§6).
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-seventh**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-second** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **thirtieth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-ninth**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **thirtieth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **thirtieth** session.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08.
+
+**Retired from the list this session:**
+
+- **RETIRED:** A SELF-HEATING TERM — created 2026-10-06, carried **34
+  sessions**. `graphene_self_heating_model.py`, 41/41 checks, 10/10 mutants,
+  both of Dorgan's published benchmarks reproduced, Chapter 4 and Chapter 7
+  annotated in place with no number deleted. Closed in the direction of
+  *the model was conservative here*, which was not the expected direction.
+- **AUDIT EVERY TOLERANCE** is **not** retired — it has its first instance
+  and its generalisation is now ranked first. One instance is not a census.
+
+**Predictions for the next session**, so this entry can be scored the way
+11-08 and 11-09 were:
+
+1. The ranked-first tolerance census finds **at least one more** relative
+   tolerance compared against a two-or-three-significant-figure literature
+   number, and at least one of those is **vacuous** (tolerance so loose it
+   admits a wrong value) rather than over-tight like `B2`.
+2. The `v_F` item's count is now **four** names, not three, and a session
+   that fixes it without touching `graphene_self_heating_model.V_F` will
+   leave the defect in place while reporting it closed.
+3. `_rounds_to` will be the thing imported, and the first module to import
+   it will be `graphene_standing_list_audit.py`, not a physics module.
