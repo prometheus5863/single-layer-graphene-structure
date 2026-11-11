@@ -1,0 +1,109 @@
+==============================================================================
+graphene_tolerance_census_audit.py -- 2026-11-11
+==============================================================================
+
+[1] _sigfigs reads precision off the SPELLING, and refuses to guess
+  PASS  1a _sigfigs('1.0') == 2
+  PASS  1a _sigfigs('9.4e11') == 2
+  PASS  1a _sigfigs('1e4') == 1
+  PASS  1a _sigfigs('1.1113e11') == 5
+  PASS  1a _sigfigs('6.45') == 3
+  PASS  1a _sigfigs('0.0050') == 2
+  PASS  1a _sigfigs('12') == 2
+  PASS  1a _sigfigs('100') == None
+  PASS  1a _sigfigs('20') == None
+  PASS  1a _sigfigs('0') == None
+  PASS  1b a literal's spelling and a label's spelling can disagree: '1.0e4' reads 2 s.f., '1e4' reads 1 -- the A2 case
+
+[2] the licensed interval is an EXACT rational, not a range
+  PASS  2a Dorgan's 1.1e11 at 2 s.f. licenses h_rel EXACTLY 1/22
+  PASS  2b and h_abs EXACTLY 5e9 cm^-2
+  PASS  2c Dorgan's 9.4e11 at 2 s.f. licenses h_rel EXACTLY 1/188
+  PASS  2d both footnote-18 values share the SAME h_abs, because both are quoted at the same decade and the same figures
+  PASS  2e an ambiguous spelling licenses NOTHING -- half_width returns None rather than a default
+
+[3] the 2026-11-10 B2 defect, reproduced as an identity
+  PASS  3a the recorded failure is 1.027 %
+  PASS  3b the value DOES round to the quoted figure
+  PASS  3c the failure lies STRICTLY inside (old tolerance, licensed half-width) -- the whole window in which a correct value fails a check
+  PASS  3d so the old 1 %% tolerance is OVER_TIGHT by exactly 1/22/0.01 = 4.5454...
+  PASS  3e a tolerance SET to the licensed half-width is MATCHED, so the defect is the NUMBER, not the operator -- this corrects the commissioning item's own wording
+
+[4] an absolute tolerance is judged in its own units
+  PASS  4a effective_half_width routes ABS_TOL to h_abs
+  PASS  4b and REL_TOL to h_rel
+  PASS  4c the real 6.45 kOhm/sq row is vacuous by EXACTLY 2, not by the 12.9 the unscaled first version reported
+
+[5] zeros
+  PASS  5a a source with no comparison censuses to EXACTLY zero rows
+  PASS  5b a source whose only comparison has no residual censuses to EXACTLY zero rows (a bare `x < 1` is not a tolerance test)
+  PASS  5c but an UNLABELLED residual is still counted -- the literature filter is not what makes the census empty
+  PASS  5d a quoted token of 0 licenses nothing and raises nothing
+
+[6] planted control -- every verdict in the vocabulary
+  PASS  6a the plant yields exactly the twelve planted rows, in order, with the twelve intended verdicts
+  PASS  6b verdict OVER_TIGHT has a planted instance
+  PASS  6b verdict VACUOUS has a planted instance
+  PASS  6b verdict MATCHED has a planted instance
+  PASS  6b verdict AMBIGUOUS has a planted instance
+  PASS  6b verdict NO_QUOTE has a planted instance
+  PASS  6b verdict SIGFIG_TEST has a planted instance
+  PASS  6b verdict LIT_NO_TEST has a planted instance
+  PASS  6c P8 is reached ONLY through the local name `rel`
+  PASS  6d P1's over-tightness is the B2 factor to the last figure
+  PASS  6f the %g vocabulary of the significant-figure test is recognised as such, not scored LIT_NO_TEST
+  PASS  6g the phrase cue fires on 'accepted ... value' and NOT on this tree's adjudication sense of the same word
+  PASS  6e P7's '4-5 %' does NOT become the quoted value: the hyphen-welded number is not a quotation
+
+[7] mutation -- five defects in the verdict, all detected
+    detected: inequality flipped           -> [('P1', 'VACUOUS'), ('P2', 'OVER_TIGHT'), ('P3', 'MATCHED')]
+    detected: always MATCHED               -> [('P1', 'MATCHED'), ('P2', 'MATCHED'), ('P3', 'MATCHED')]
+    detected: ambiguity suppressed         -> [('P1', 'OVER_TIGHT'), ('P2', 'VACUOUS'), ('P3', 'VACUOUS')]
+    detected: equality band widened to 100 % -> [('P1', 'MATCHED'), ('P2', 'VACUOUS'), ('P3', 'MATCHED')]
+    detected: never MATCHED                -> [('P1', 'OVER_TIGHT'), ('P2', 'VACUOUS'), ('P3', 'VACUOUS')]
+  PASS  7a all five verdict mutants are detected by the planted control
+  PASS  7b a _sigfigs that GUESSES 2 instead of refusing is detected: P4 stops being AMBIGUOUS
+
+[8] the tree
+
+==============================================================================
+COMPARISONS AGAINST A PUBLISHED NUMBER
+==============================================================================
+module                               line  form      tol       quoted    s.f. licensed   verdict      licensed/tol
+------------------------------------------------------------------------------------------------------------------
+graphene_fet_signed_carrier_model.py 648   ABS_TOL   0.01      6.45      3    0.005      VACUOUS      x0.5
+graphene_kappa_impurity_bound.py     644   SIGFIG_FMT -         1.5e12    2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       327   ABS_TOL   0.0005    1.2794    5    5e-05      VACUOUS      x0.1
+graphene_self_heating_model.py       330   REL_TOL   0.05      ~1e4      1    0.5        OVER_TIGHT   x10
+graphene_self_heating_model.py       332   ROUND_EQ  -         4         1    -          SIGFIG_TEST  
+graphene_self_heating_model.py       335   ROUND_EQ  -         84        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       338   ROUND_EQ  -         12        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       461   NO_TEST   -         ~20       amb  -          LIT_NO_TEST  
+------------------------------------------------------------------------------------------------------------------
+8 rows printed; 102 tolerance comparisons in the tree in total, of which
+    OVER_TIGHT   1
+    VACUOUS      2
+    NO_QUOTE     99
+    SIGFIG_TEST  4
+    LIT_NO_TEST  1
+44 row(s) were reached only through a local name binding
+
+  PASS  8a the census is not empty on the real tree
+  PASS  8b name-bound residuals are a LARGE fraction of the tree, so the inline-only first version was missing most of it
+  PASS  8c every adjudicated row carries a quoted token and a verdict in the declared vocabulary
+  PASS  8d the tree still contains at least one OVER_TIGHT and one VACUOUS comparison against a published number
+  PASS  8e no row in the tree is adjudicated against a NEGATIVE OR ZERO quoted value -- the footnote-ordinal bug would show up here
+  PASS  8f A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES (standing item, 2026-10-17) has an instance HERE: censusing this module adds 3 adjudicated rows that are its own controls
+  PASS  8g and excluding it removes every one of them from the tree's figures
+
+[9] the vacuous tolerances, against the values they admit
+  PASS  9a kappa_ox(300K) = 1.2789670... does NOT round to the accepted 1.2794 at the five figures that value is quoted to
+  PASS  9b and A1 passes anyway, because |1.2789670 - 1.2794| = 4.33e-4 sits between the licensed 5e-5 and the coded 5e-4
+  PASS  9c a tolerance set to the licensed half-width would FAIL A1, which is the whole value of setting it there
+  PASS  9d the OTHER vacuous row is not masking anything today: 6.453202... does round to Chapter 3's 6.45 at 3 s.f.
+  PASS  9e and the OVER_TIGHT row is passing with room to spare, so its defect stays latent: 9915.6 K/W is inside both the 5 %% tested band and the 1-s.f. licensed band
+  PASS  9f so of the three defective tolerances the census found, exactly ONE is currently passing a value its own label calls equal to a published number it does not round to
+
+==============================================================================
+TOTAL: 56 passed, 0 failed
+==============================================================================
