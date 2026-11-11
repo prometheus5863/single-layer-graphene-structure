@@ -956,6 +956,16 @@ def main():
                                    (_rth, 1.0e4, 1))
               if not _rounds_to(got, q, sf)) == 1, "")
 
+    _a1 = [r for r in rows
+           if os.path.basename(r.path) == "graphene_self_heating_model.py"
+           and r.token == "1.2794"]
+    check("9g the annotated A1 row is STILL censused and still scored "
+          "VACUOUS -- an annotation must not blind the audit that found the "
+          "defect.  The first draft of the 2026-11-11 annotation reworded "
+          "A1's cue away and this row vanished from the table.",
+          len(_a1) == 1 and _a1[0].verdict == "VACUOUS",
+          "%r" % [(r.line, r.verdict, r.token) for r in _a1])
+
     print("\n" + "=" * 78)
     print("TOTAL: %d passed, %d failed" % (passed, failed))
     print("=" * 78)
