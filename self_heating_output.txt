@@ -87,10 +87,12 @@ WHERE THE CURRENT TURNS OVER -- and what self-heating does and does NOT do
 ==========================================================================
 CHECKS
 ==========================================================================
-  [PASS] A1 kappa_ox(300K) agrees with the accepted value 1.2794 W/m.K to 5e-4 W/m.K (0.034 %) -- NOT to the 5e-5 that five significant figures license; see the 2026-11-11 annotation
-         kappa_ox(300) = 1.2789668868 W/m.K, residual 4.3311e-04
-  [PASS] A1b and it does NOT round to 1.2794 at five figures: the transcribed formula gives 1.2790, so A1's old wording '== accepted value' was false while A1 was green
+  [PASS] A1 kappa_ox(300K) rounds to the 1.3 W/m.K Dorgan supp. Sec. 5 prints for the oxide at 300 K, at the 2 s.f. that value is printed to
+         kappa_ox(300) = 1.2789668868 -> np.float64(1.3) at 2 s.f. (paper: 1.3)
+  [PASS] A1b kappa_ox(300K) = 1.2789668868 does NOT round to 1.2794 at five figures (it gives 1.2790), so A1's pre-2026-11-11 wording '== accepted value 1.2794' was false while A1 was green
          1.2789668868 -> np.float64(1.279) at 5 s.f.
+  [PASS] A1c the 1.2794 of the old label is retained and still agrees to 5e-4 W/m.K, but it is NOT a value this paper prints at any precision and carries no citation -- provenance unresolved
+         residual 4.3311e-04 W/m.K; the paper prints only ~1.3 (supp. Sec. 5) and the fit ln(T^0.52) - 1.687 (supp. Sec. 6)
   [PASS] A2 Dorgan R_th total rounds to the paper's ~1e4 K/W
          R_th = 9915.6 K/W (paper: ~1e4)
   [PASS] A3 R_B share rounds to the paper's 4 %%
@@ -172,6 +174,6 @@ CHECKS
   [PASS] D2 Eq. (6) -> v_sat from below as F -> inf
          v(F=1e12)/v_sat = 0.999999999999
 
-  42/42 passed, 0 failed
+  43/43 passed, 0 failed
 
 Figure written: self_heating_electrothermal.png

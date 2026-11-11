@@ -323,59 +323,79 @@ def verify_benchmarks():
     t = thermal_resistances(W=7e-6, L=4e-6, t_ox=300e-9,
                             T=T_AMBIENT, T0=T_AMBIENT)
     shares = {k: 100.0 * t[k] / t["R_th"] for k in ("R_B", "R_ox", "R_Si")}
-    # VACUOUS-TOLERANCE DEFECT IN A1, FOUND 2026-11-11 BY
-    # graphene_tolerance_census_audit.py.  LEFT STANDING WITH THIS
-    # ANNOTATION, AND ITS NUMBER NOT DELETED.
+    # A1: TWICE CORRECTED ON 2026-11-11, AND THE SECOND CORRECTION RETRACTS
+    # PART OF THE FIRST.  Neither number is deleted.
     #
-    # A1's label asserts EQUALITY to a value quoted to five significant
-    # figures, 1.2794 W/m.K, and tests it with an absolute tolerance of 5e-4.
-    # Five figures license 5e-5.  The formula of Section 6, evaluated here,
-    # gives
+    # STEP 1, from graphene_tolerance_census_audit.py.  A1 read
+    # "kappa_ox(300K) == accepted thermal-SiO2 value 1.2794 W/m.K" and tested
+    # it with an absolute tolerance of 5e-4 where five quoted figures license
+    # 5e-5.  The transcribed formula gives
     #
     #     kappa_ox(300) = 0.52*ln(300) - 1.687 = 1.2789668868 W/m.K
     #
-    # which rounds to 1.2790 at five figures, NOT to 1.2794.  The residual is
-    # 4.3311e-4, i.e. 0.0339 %, and it sits BETWEEN the licensed half-width
-    # and the coded one.  So A1 has been passing since 2026-11-10 while the
-    # equality in its own label is false, and a tolerance set to what the
-    # quotation licenses would fail it.
+    # which rounds to 1.2790 at five figures, not 1.2794.  Residual 4.3311e-4,
+    # 0.0339 %, between the licensed half-width and the coded one -- so A1 was
+    # green while the equality in its own label was false.  That commit left
+    # the tolerance standing and called which of the two numbers was wrong an
+    # open question, listing an intercept of 1.686567 or a coefficient of
+    # 0.52007593 as candidate roundings of "either published coefficient".
     #
-    # WHICH SIDE IS WRONG IS NOT ESTABLISHED, and this annotation does not
-    # guess.  The provenance of 1.2794 is recorded nowhere in this module: the
-    # label calls it "accepted" without a citation, and it is not the value
-    # this module's own transcription of Dorgan supp. Sec. 6 produces.  An
-    # intercept of 1.686567 or a coefficient of 0.52007593 would reproduce it
-    # exactly, so a rounding of either published coefficient is a candidate --
-    # as is a transcription error in 1.2794 itself.  Both numbers are carried
-    # forward unchanged until the paper's own digits are read.
+    # STEP 2, from reading the paper.  THE QUESTION WAS WRONGLY POSED AND
+    # 1.2794 IS NOT A PUBLISHED NUMBER AT ALL.  Dorgan supp. Sec. 6 prints
     #
-    # A1 is therefore RELABELLED to state what it actually tests -- agreement
-    # to 3.4e-2 % -- rather than an equality it does not establish, and A1b
-    # records the disagreement as a fact so that a future session cannot read
-    # a green A1 as agreement at five figures.  The tolerance is NOT tightened
-    # in this commit: tightening it would turn a documented open question into
-    # a red suite, and the question is about which number is right, not about
-    # whether the model works.
-    # The label KEEPS the words "accepted value 1.2794", deliberately.  The
-    # first draft of this annotation reworded them away, and the census that
-    # found the defect then stopped seeing the row at all -- an annotation
-    # that blinds the instrument to the thing it is annotating.  A left-
-    # standing defect has to stay visible to the audit that reports it, so
-    # graphene_tolerance_census_audit check 9g asserts this row is still
-    # censused and still scored VACUOUS.
-    _check("A1 kappa_ox(300K) agrees with the accepted value 1.2794 W/m.K to "
-           "5e-4 W/m.K (0.034 %) -- NOT to the 5e-5 that five significant "
-           "figures license; see the 2026-11-11 annotation",
-           abs(kappa_ox(300.0) - 1.2794) < 5e-4,
-           "kappa_ox(300) = %.10f W/m.K, residual %.4e"
-           % (kappa_ox(300.0), abs(kappa_ox(300.0) - 1.2794)))
-    _check("A1b and it does NOT round to 1.2794 at five figures: the "
-           "transcribed formula gives 1.2790, so A1's old wording "
-           "'== accepted value' was false while A1 was green",
+    #     kappa_ox = ln(T_ox^0.52) - 1.687        (identically 0.52*ln T_ox
+    #                                              - 1.687; the module's
+    #                                              existing docstring is
+    #                                              right about this)
+    #
+    # with 0.52 and 1.687 as the only digits given, and the only numerical
+    # conductivity it prints is in supp. Sec. 5:
+    #
+    #     "kappa_ox ~ 1.3 Wm-1K-1 is the oxide thermal conductivity (at 300 K)"
+    #
+    # 1.2794 appears nowhere in the paper, to any precision.  So the candidate
+    # roundings offered in step 1 were roundings of coefficients the paper
+    # never quotes beyond the two digits this module already uses, and
+    # "accepted thermal-SiO2 value" named an authority that does not exist.
+    # The likeliest provenance of 1.2794 is an earlier evaluation of this
+    # module's OWN formula written down to five figures with a slip in the
+    # fourth decimal -- i.e. a self-comparison wearing a citation.
+    #
+    # This is the worse of the two defects the census could have found here.
+    # A vacuous tolerance passes a wrong value; a check mislabelled as
+    # external validation reports agreement with the literature that was never
+    # tested.  This repository's only check against the "accepted" SiO2
+    # conductivity had no external referent.
+    #
+    # WHAT THE CHECKS NOW DO.  A1 is the comparison the paper actually
+    # licenses, against the 1.3 it prints, by the significant-figure test --
+    # and it PASSES, so the transcription was never in doubt; only its
+    # warrant was.  A1b keeps the five-figure arithmetic that exposed the
+    # defect.  A1c keeps 1.2794 itself, with its tolerance untouched and its
+    # label no longer claiming publication, so the number survives for
+    # whoever wants to trace where it came from.  A1c is deliberately NOT
+    # worded as a literature comparison any more, which is why the tolerance
+    # census no longer lists it: that is the repair, not a blinding.
+    _check("A1 kappa_ox(300K) rounds to the 1.3 W/m.K Dorgan supp. Sec. 5 "
+           "prints for the oxide at 300 K, at the 2 s.f. that value is "
+           "printed to",
+           _rounds_to(kappa_ox(300.0), 1.3, 2),
+           "kappa_ox(300) = %.10f -> %r at 2 s.f. (paper: 1.3)"
+           % (kappa_ox(300.0), _round_sig(kappa_ox(300.0), 2)))
+    _check("A1b kappa_ox(300K) = 1.2789668868 does NOT round to 1.2794 at "
+           "five figures (it gives 1.2790), so A1's pre-2026-11-11 wording "
+           "'== accepted value 1.2794' was false while A1 was green",
            _round_sig(kappa_ox(300.0), 5) == 1.2790
            and not _rounds_to(kappa_ox(300.0), 1.2794, 5),
            "%.10f -> %r at 5 s.f." % (kappa_ox(300.0),
                                       _round_sig(kappa_ox(300.0), 5)))
+    _check("A1c the 1.2794 of the old label is retained and still agrees to "
+           "5e-4 W/m.K, but it is NOT a value this paper prints at any "
+           "precision and carries no citation -- provenance unresolved",
+           abs(kappa_ox(300.0) - 1.2794) < 5e-4,
+           "residual %.4e W/m.K; the paper prints only ~1.3 (supp. Sec. 5) "
+           "and the fit ln(T^0.52) - 1.687 (supp. Sec. 6)"
+           % abs(kappa_ox(300.0) - 1.2794))
     _check("A2 Dorgan R_th total rounds to the paper's ~1e4 K/W",
            abs(t["R_th"] - 1.0e4) / 1.0e4 < 0.05,
            "R_th = %.1f K/W (paper: ~1e4)" % t["R_th"])

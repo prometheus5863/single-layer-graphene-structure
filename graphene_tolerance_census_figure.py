@@ -16,6 +16,18 @@ admits values that round to a different published figure (VACUOUS); narrower
 and it can reject a value the source's own rounding allows (OVER_TIGHT), which
 is the defect found on 2026-11-10.
 
+PANEL (b) IS DRAWN AS THE CENSUS FOUND IT AND IS NOT THE FINAL STATE.  Reading
+Dorgan et al. afterwards showed that 1.2794 W/m.K is not a value the paper
+prints at any precision: supp. Sec. 6 gives the fit ln(T_ox^0.52) - 1.687, and
+the only numerical conductivity in the paper is supp. Sec. 5's "kappa_ox ~ 1.3
+Wm-1K-1 ... (at 300 K)".  Two significant figures license +/-0.05, a band 1000
+times wider than the +/-5e-5 the phantom five-figure value appeared to license
+and far too wide to draw on the same axis, so it is annotated instead.  The
+computed 1.2789669 rounds to 1.3, so the transcription was sound and only its
+warrant was not.  The panel is kept in the as-found state because the defect it
+shows -- a tolerance adjudicated against a precision no source ever claimed --
+is the finding.
+
 Run: python3 graphene_tolerance_census_figure.py
 """
 
@@ -40,8 +52,8 @@ ROWS = (
          module="graphene_fet_signed_carrier_model:648",
          token="6.45", quoted=6.45, got=R_sheet, tol=0.01, rel=False,
          unit=r"$R_{\rm sheet}$  (k$\Omega$/sq)", verdict="VACUOUS"),
-    dict(title="(b) thermal conductivity of the oxide",
-         module="graphene_self_heating_model:327",
+    dict(title="(b) oxide thermal conductivity vs a value with no source",
+         module="graphene_self_heating_model:A1, as found",
          token="1.2794", quoted=1.2794, got=kappa, tol=5e-4, rel=False,
          unit=r"$\kappa_{\rm ox}(300\,$K$)$  (W/m$\cdot$K)",
          verdict="VACUOUS"),
@@ -85,8 +97,14 @@ for ax, row in zip(axes, ROWS):
         va="center", ha="left", fontsize=8.6, color=C_TEST)
     ax.text(lic_hi, -0.31, "  licensed by %d s.f.:  $\\pm$%.3g"
             % (sf, h_abs), va="center", ha="left", fontsize=8.6, color=C_LIC)
-    ax.text(q, 1.08, "source prints %s" % row["token"], ha="center",
+    ax.text(q, 1.08, "label quotes %s" % row["token"], ha="center",
             fontsize=8.6, color="0.25")
+    if row["module"].startswith("graphene_self_heating_model:A1"):
+        ax.annotate("the paper prints only ~1.3 W/m$\\cdot$K (supp. Sec. 5):\n"
+                    "2 s.f. license $\\pm$0.05, a band 1000x wider, off scale.\n"
+                    "1.2794 is in no part of the paper at any precision.",
+                    xy=(0.015, 0.055), xycoords="axes fraction", ha="left",
+                    va="center", fontsize=8.2, color="#6a4c93")
 
     ratio = h_abs / t_abs
     ax.set_title("%s   --   %s, %s by %.3gx"

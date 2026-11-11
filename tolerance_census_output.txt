@@ -73,18 +73,19 @@ module                               line  form      tol       quoted    s.f. li
 ------------------------------------------------------------------------------------------------------------------
 graphene_fet_signed_carrier_model.py 648   ABS_TOL   0.01      6.45      3    0.005      VACUOUS      x0.5
 graphene_kappa_impurity_bound.py     644   SIGFIG_FMT -         1.5e12    2    -          SIGFIG_TEST  
-graphene_self_heating_model.py       369   ABS_TOL   0.0005    1.2794    5    5e-05      VACUOUS      x0.1
-graphene_self_heating_model.py       380   REL_TOL   0.05      ~1e4      1    0.5        OVER_TIGHT   x10
-graphene_self_heating_model.py       382   ROUND_EQ  -         4         1    -          SIGFIG_TEST  
-graphene_self_heating_model.py       385   ROUND_EQ  -         84        2    -          SIGFIG_TEST  
-graphene_self_heating_model.py       388   ROUND_EQ  -         12        2    -          SIGFIG_TEST  
-graphene_self_heating_model.py       511   NO_TEST   -         ~20       amb  -          LIT_NO_TEST  
+graphene_self_heating_model.py       379   SIGFIG    -         5         1    -          SIGFIG_TEST  
+graphene_self_heating_model.py       385   SIGFIG    -         1.2794    5    -          SIGFIG_TEST  
+graphene_self_heating_model.py       400   REL_TOL   0.05      ~1e4      1    0.5        OVER_TIGHT   x10
+graphene_self_heating_model.py       402   ROUND_EQ  -         4         1    -          SIGFIG_TEST  
+graphene_self_heating_model.py       405   ROUND_EQ  -         84        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       408   ROUND_EQ  -         12        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       531   NO_TEST   -         ~20       amb  -          LIT_NO_TEST  
 ------------------------------------------------------------------------------------------------------------------
-8 rows printed; 102 tolerance comparisons in the tree in total, of which
+9 rows printed; 102 tolerance comparisons in the tree in total, of which
     OVER_TIGHT   1
-    VACUOUS      2
-    NO_QUOTE     99
-    SIGFIG_TEST  4
+    VACUOUS      1
+    NO_QUOTE     100
+    SIGFIG_TEST  6
     LIT_NO_TEST  1
 44 row(s) were reached only through a local name binding
 
@@ -93,7 +94,7 @@ graphene_self_heating_model.py       511   NO_TEST   -         ~20       amb  - 
   PASS  8c every adjudicated row carries a quoted token and a verdict in the declared vocabulary
   PASS  8d the tree still contains at least one OVER_TIGHT and one VACUOUS comparison against a published number
   PASS  8e no row in the tree is adjudicated against a NEGATIVE OR ZERO quoted value -- the footnote-ordinal bug would show up here
-  PASS  8f A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES (standing item, 2026-10-17) has an instance HERE: censusing this module adds 3 adjudicated rows that are its own controls
+  PASS  8f A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES (standing item, 2026-10-17) has an instance HERE: censusing this module adds 6 adjudicated rows that are its own controls
   PASS  8g and excluding it removes every one of them from the tree's figures
 
 [9] the vacuous tolerances, against the values they admit
@@ -102,9 +103,12 @@ graphene_self_heating_model.py       511   NO_TEST   -         ~20       amb  - 
   PASS  9c a tolerance set to the licensed half-width would FAIL A1, which is the whole value of setting it there
   PASS  9d the OTHER vacuous row is not masking anything today: 6.453202... does round to Chapter 3's 6.45 at 3 s.f.
   PASS  9e and the OVER_TIGHT row is passing with room to spare, so its defect stays latent: 9915.6 K/W is inside both the 5 %% tested band and the 1-s.f. licensed band
-  PASS  9f so of the three defective tolerances the census found, exactly ONE is currently passing a value its own label calls equal to a published number it does not round to
-  PASS  9g the annotated A1 row is STILL censused and still scored VACUOUS -- an annotation must not blind the audit that found the defect.  The first draft of the 2026-11-11 annotation reworded A1's cue away and this row vanished from the table.
+  PASS  9f of the three defective tolerances the census found, exactly ONE was passing a value its own label called equal to a published number it does not round to
+  PASS  9h the paper's actual printed value, 1.3 at 2 s.f., licenses +/-0.05 -- a band 1000x the 5e-5 the phantom 1.2794 appeared to license
+  PASS  9i and the computed value DOES round to it, so the transcription of the fit was never in question -- only its warrant was
+  PASS  9j no row in the tree now puts a TOLERANCE against 1.2794 behind a publication cue: the surviving 1.2794 row is the significant-figure check that records the discrepancy
+  PASS  9k THE LIMIT OF THIS INSTRUMENT, stated as a check so it is not forgotten: the census reads quoted precision off a check's LABEL, so a label citing a value its source never printed is adjudicated as though the citation were real.  Detecting that needs the paper, not the AST.  5 s.f. on 1.2794 and 2 s.f. on 1.3 are both read correctly from their spellings, and only one of them has a source.
 
 ==============================================================================
-TOTAL: 57 passed, 0 failed
+TOTAL: 60 passed, 0 failed
 ==============================================================================

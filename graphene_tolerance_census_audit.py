@@ -949,22 +949,50 @@ def main():
           "band and the 1-s.f. licensed band",
           abs(_rth - 1.0e4) / 1.0e4 < 0.05 and _rounds_to(_rth, 1.0e4, 1),
           "R_th = %.1f, rel = %.4f" % (_rth, abs(_rth - 1.0e4) / 1.0e4))
-    check("9f so of the three defective tolerances the census found, exactly "
-          "ONE is currently passing a value its own label calls equal to a "
-          "published number it does not round to",
+    check("9f of the three defective tolerances the census found, exactly "
+          "ONE was passing a value its own label called equal to a published "
+          "number it does not round to",
           sum(1 for got, q, sf in ((_kappa, 1.2794, 5), (_rs, 6.45, 3),
                                    (_rth, 1.0e4, 1))
               if not _rounds_to(got, q, sf)) == 1, "")
 
-    _a1 = [r for r in rows
-           if os.path.basename(r.path) == "graphene_self_heating_model.py"
-           and r.token == "1.2794"]
-    check("9g the annotated A1 row is STILL censused and still scored "
-          "VACUOUS -- an annotation must not blind the audit that found the "
-          "defect.  The first draft of the 2026-11-11 annotation reworded "
-          "A1's cue away and this row vanished from the table.",
-          len(_a1) == 1 and _a1[0].verdict == "VACUOUS",
-          "%r" % [(r.line, r.verdict, r.token) for r in _a1])
+    # ---- 9h..9k: what reading the paper did to 9a-9c ---------------------
+    #
+    # 9a-9c are all still true and all mis-framed.  They adjudicate 1.2794 as
+    # a published number quoted to five figures.  Dorgan et al. print no such
+    # value at any precision: supp. Sec. 6 gives the fit ln(T_ox^0.52) - 1.687
+    # with 0.52 and 1.687 as its only digits, and supp. Sec. 5 gives the only
+    # numerical conductivity in the paper, "kappa_ox ~ 1.3 Wm-1K-1 ... (at
+    # 300 K)".  So the census was right that A1's tolerance did not match the
+    # precision its label claimed, and wrong -- because the label was wrong --
+    # about there being a source behind that precision at all.  A census that
+    # reads precision off a label inherits every false citation in the tree,
+    # and nothing in it can detect one.  That limit is now a check.
+    check("9h the paper's actual printed value, 1.3 at 2 s.f., licenses "
+          "+/-0.05 -- a band 1000x the 5e-5 the phantom 1.2794 appeared to "
+          "license", abs(half_width("1.3")[0] - 0.05) < 1e-15
+          and abs(half_width("1.3")[0] / half_width("1.2794")[0] - 1000.0)
+          < 1e-9,
+          "%r %r" % (half_width("1.3")[0], half_width("1.2794")[0]))
+    check("9i and the computed value DOES round to it, so the transcription "
+          "of the fit was never in question -- only its warrant was",
+          _rounds_to(_kappa, 1.3, 2) and _round_sig(_kappa, 2) == 1.3,
+          "%r -> %r" % (_kappa, _round_sig(_kappa, 2)))
+    _sh_rows = [r for r in rows
+                if os.path.basename(r.path) == "graphene_self_heating_model.py"
+                and r.token == "1.2794"]
+    check("9j no row in the tree now puts a TOLERANCE against 1.2794 behind a "
+          "publication cue: the surviving 1.2794 row is the "
+          "significant-figure check that records the discrepancy",
+          len(_sh_rows) == 1 and _sh_rows[0].verdict == "SIGFIG_TEST",
+          "%r" % [(r.line, r.form, r.verdict) for r in _sh_rows])
+    check("9k THE LIMIT OF THIS INSTRUMENT, stated as a check so it is not "
+          "forgotten: the census reads quoted precision off a check's LABEL, "
+          "so a label citing a value its source never printed is adjudicated "
+          "as though the citation were real.  Detecting that needs the paper, "
+          "not the AST.  5 s.f. on 1.2794 and 2 s.f. on 1.3 are both read "
+          "correctly from their spellings, and only one of them has a source.",
+          _sigfigs("1.2794") == 5 and _sigfigs("1.3") == 2, "")
 
     print("\n" + "=" * 78)
     print("TOTAL: %d passed, %d failed" % (passed, failed))
