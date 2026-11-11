@@ -16031,3 +16031,315 @@ for the first time.
    leave the defect in place while reporting it closed.
 3. `_rounds_to` will be the thing imported, and the first module to import
    it will be `graphene_standing_list_audit.py`, not a physics module.
+
+---
+
+## 2026-11-11 — the ranked-first item found a vacuous tolerance passing a false equality, and then reading the paper found there was no published number behind it at all
+
+**Commits before this entry:** 4 — the census module and its figure; the A1
+annotation; the retraction of that annotation after reading Dorgan; the
+research note with the 11-10 note annotated in place.
+
+### 0. What was taken, and why it was taken as ranked
+
+11-10 ranked **CENSUS EVERY COMPARISON AGAINST A PUBLISHED NUMBER AND CHECK
+IT USES A SIGNIFICANT-FIGURE TEST, NOT A RELATIVE TOLERANCE** first, called
+it cheap, and noted `_rounds_to` had just become importable. It was taken as
+ranked. No departure to record this session.
+
+### 1. The instrument
+
+`graphene_tolerance_census_audit.py` walks every module's AST, finds every
+tolerance comparison, decides from the enclosing check's **label** whether it
+is a claim about a publication, reads the quoted value's significant figures
+off **how it is spelled**, and adjudicates the coded tolerance against the
+interval those figures license. 60 checks, 0 failed; five verdict mutants and
+one `_sigfigs` mutant all detected.
+
+`graphene_tolerance_census_figure.py` draws the three adjudicated rows on
+their own axes: licensed interval, tested interval, computed value.
+
+### 2. Where the census corrects the item that commissioned it
+
+The item was written as *significant-figure test, **not** a relative
+tolerance*, i.e. as though the operator were the defect. It is not. For `q`
+quoted to `s` figures, `abs(got-q)/q < h_rel` with `h_rel = h_abs/|q|` **is**
+the round-to-`s`-figures test, up to the half-way tie-break. The defect is a
+tolerance whose *number* was not derived from the quoted precision — which is
+every hand-written tolerance in this tree, because none of them was.
+
+This is not pedantry about wording. A session that mechanically rewrote every
+relative tolerance as `_rounds_to()` would have fixed three instances by
+accident and left the class untouched. Verdicts are reported as the ratio
+`licensed/tested`, not as a pass/fail on which function was called.
+
+### 3. The tree: 102 tolerance comparisons, seven of them claims about a source
+
+| row | tolerance | quoted | s.f. | licensed | verdict |
+|---|---|---|---|---|---|
+| `fet_signed_carrier:648` | ±0.01 abs | 6.45 kΩ/sq | 3 | ±0.005 | VACUOUS ×2 |
+| `self_heating:A1` | ±5e-4 abs | 1.2794 W/m·K | 5 | ±5e-5 | VACUOUS ×10 |
+| `self_heating:A2` | ±5 % rel | ~1e4 K/W | 1 | ±50 % | OVER_TIGHT ×10 |
+| `self_heating:A3,A4,A5` | — | 4/84/12 % | — | — | sound (`round(x)==n`) |
+| `kappa_impurity_bound:D2` | — | 1.5e12 cm^-2 | 2 | — | sound (`float('%.2g'%x)`) |
+| `self_heating:V3` | *sign only* | ~20 % | amb. | — | no numeric test |
+
+`A2` is over-tight by exactly ten and currently latent — 9915.6 K/W passes
+both bands with room to spare, but a model change moving `R_th` to 1.1e4
+would fail a check against a paper that would still agree with it. `V3` names
+Dorgan's ~20 % / ~2 % statement and tests only its sign.
+
+### 4. The finding, and the better finding underneath it
+
+A1 read `"kappa_ox(300K) == accepted thermal-SiO2 value 1.2794 W/m.K"`,
+tested to ±5e-4 where five figures license ±5e-5. The formula gives
+`0.52*ln(300) - 1.687 = 1.2789668868`, which rounds to **1.2790**, not
+1.2794. The residual 4.3311e-4 sits between the licensed half-width and the
+coded one — so **A1 was green while the equality in its own label was false**,
+and a tolerance set to what the quotation licenses would have failed it. That
+is 11-10's prediction (1) confirmed in its strong form: vacuous, not merely
+over-tight, and already admitting a wrong value.
+
+The first commit of the day stopped there, annotated A1 in place, and called
+*which of the two numbers is wrong* an open question — offering an intercept
+of 1.686567 or a coefficient of 0.52007593 as candidate roundings of "either
+published coefficient".
+
+**Both branches were wrong, because 1.2794 is not a published number.**
+Dorgan supp. Sec. 6 prints the fit as `κox = ln(Tox^0.52) − 1.687` with 0.52
+and 1.687 its only digits; supp. Sec. 5 prints the only numerical
+conductivity in the paper, `κox ≈ 1.3 Wm-1K-1 ... (at 300 K)`. There is no
+1.2794 anywhere in it at any precision. "Accepted thermal-SiO2 value" named
+an authority that does not exist.
+
+**Provenance, traced.** `notes/2026-11-10-...md` §4 states
+`0.52*ln(300) - 1.687 = 1.2794` — an arithmetic slip in the fourth decimal —
+and calls the result "the accepted value for thermal SiO2". The next day the
+slip was copied into A1's label, where the words *the accepted value* turned
+it into a citation. An arithmetic error in a note became a citation in a test
+in one step, and nothing in the tree could have caught it.
+
+That note also claimed 1.2794 was "the value needed to reproduce the paper's
+84 % share". It was not: 1.2789668868 gives 84.49 %, the same 84 %. The share
+was never evidence for the fourth decimal.
+
+**What survives.** The `ln(x^0.52) ≡ 0.52·ln(x)` identity was resolved
+correctly and the transcription was never in doubt. 1.2789668868 **does**
+round to the 1.3 the paper prints, at the two figures it prints it to — a
+band a thousand times wider than the phantom five-figure value appeared to
+license. A1 is now that comparison and it passes. A1b keeps the five-figure
+arithmetic; A1c keeps 1.2794 with its tolerance untouched and no claim of
+publication. Nothing is deleted. The physics never moved: the 0.0339 %
+propagates to `R_ox` and is far below every margin in Chapter 4, and the
+11-10 note's `R_ox = 3.52e5 K/W` recomputes to 3.5185e5, the same at three
+figures.
+
+### 5. The limit of this instrument, now a check rather than a sentence
+
+The census decides whether a comparison is a literature claim, and to what
+precision, **by reading the label**. It therefore inherits every false
+citation in the tree and cannot detect one. `1.2794` reads as five figures and
+`1.3` as two; both readings are correct and only one of the two has a source.
+This is check 9k, so a clean census is not mistaken for verified citations.
+
+### 6. Five defects the census found in itself
+
+1. Every tolerance compared against the **relative** half-width — wrong for
+   `abs(a-b) < tol`. The 6.45 row was reported vacuous by 12.9 when the true
+   factor is 2. Over-stating a defect is the same error as understating it.
+2. Only **inline** residuals matched, so `rel = abs(a-b)/b` bound to a name
+   was invisible — **44 of 102 rows, 43 %** of the tree.
+3. The cue list included "reported": **16 of 29** cued labels, **55 %**, were
+   cued by that word alone, which here means reported *by an instrument in
+   this tree*. "accepted" needed the phrase "accepted … value" for the same
+   reason — bare, 33 % precision — and requiring the phrase is what brought
+   A1 into the census at all.
+4. "footnote" preceded "footnote-18" in the alternation, so on check B2 the
+   census read the **ordinal of the footnote**, −18, as the published value.
+5. **The mutation harness tested nothing.** `import
+   graphene_tolerance_census_audit as self_mod` loads a *second copy* when the
+   file is run as a script; every monkeypatch landed on a module nothing was
+   using, and all five mutants were "detected" only because the planted
+   expectation for P8 was itself wrong. A mutation suite reporting 5/5 while
+   testing nothing is the 2026-09-17 failure again, inside the tool written to
+   prevent it.
+
+And one non-defect: **P8 was planted VACUOUS and is MATCHED.** 2.5e3 at two
+figures licenses exactly 2 %. The planted expectation was wrong and the
+instrument was right. Left at 0.02 with the arithmetic recorded rather than
+nudged to make the plant look prescient.
+
+### 7. An error this session made in the course of fixing one
+
+The first draft of the A1 annotation reworded "accepted value 1.2794" out of
+the label while making it honest — and the census, which detects a literature
+comparison from the label's words, **immediately stopped seeing the row**. The
+table went from one VACUOUS finding to zero while the defect sat four lines
+below the annotation describing it. An annotation that blinds the instrument
+to the thing it annotates is worse than none, because the absence reads as a
+repair. Caught by re-running the census after editing, not by reading.
+
+(The eventual repair removed the cue *legitimately* — once the citation is
+known to be false, the row is correctly no longer a literature comparison —
+so check 9g, which asserted the row stays censused, was itself retracted
+within the day and replaced by 9h–9k.)
+
+### 8. Two standing items picked up instances, both by running rather than reading
+
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** (10-17): the first full
+  run reported three OVER_TIGHT tolerances and two LIT_NO_TEST rows existing
+  only inside this module's own controls, one quoting a "published" value of
+  `0` lifted from the label of a check asserting that 0 licenses nothing. Now
+  excluded by default, with 8f/8g *asserting* the self-plant.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** (nineteenth
+  instance), arriving from the **vocabulary** side: three spellings of the
+  significant-figure test, two senses each of "accepted" and "reported".
+
+### 9. Scoring the 11-10 predictions
+
+1. **Right on substance, wrong on form.** Two further defective tolerances;
+   one vacuous and already admitting a wrong value — the strong form. But
+   neither is a *relative* tolerance against a *two-or-three*-figure number:
+   the vacuous one is **absolute** against a **five**-figure value, the
+   over-tight one **relative** against a **one**-figure value. The prediction
+   generalised the shape of the defect from its single instance.
+2. **Not exercised.** The `v_F` item was untouched; carried at four names.
+3. **Half right.** `_rounds_to`/`_round_sig` were indeed the imports, but the
+   first importer is `graphene_tolerance_census_audit.py` — which did not
+   exist when the prediction was made. An audit module, not a physics one, so
+   the reasoning holds and the named target does not.
+
+### 10. Count
+
+60 checks in the new module, 0 failed, 6 mutants detected; `self_heating` 41
+→ 43 checks, 0 failed. Five defects caught in the new instrument before
+commit, one error made and caught within the session, one same-day retraction
+of one of this session's own commits. One ranked-first item closed.
+
+**Not yet covered (candidates for future runs):**
+
+- **CHECK `R_th` PER UNIT AREA AGAINST THE PAPER'S `~2.8e-7 m^2.K/W`** —
+  created today, **ranked first**, cheap, and the one item today's literature
+  read put on the table with a number already in hand. One significant figure
+  licenses ±1.8 %. It is an *independent* constraint: A2 tests `R_th` alone
+  and therefore tests the area and the conductivity only through their
+  product, while this tests the ratio. Of the two it is the one that can fail
+  for a reason A2 cannot see.
+- **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN** — created today, ranked
+  second. Dorgan's "~20 % / ~2 %" temperature statement is in V3's label and
+  only the sign of the dependence has ever been compared to it. The census
+  classes this `LIT_NO_TEST`, its own worst category, and this is the only
+  instance of that class left in the tree.
+- **REPAIR A2's OVER-TIGHT TOLERANCE, OR DECIDE NOT TO** — created today,
+  ranked third and genuinely a *decision*: ±5 % against a value the paper
+  prints to one figure is a tighter claim than the source supports, but it is
+  also the only thing currently pinning `R_th` to its decade. Widening it to
+  the licensed ±50 % would make it nearly vacuous. The right answer may be a
+  check against the per-unit-area number above *instead*, which is why the
+  two are ranked adjacently.
+- **RUN THE TOLERANCE CENSUS OVER `Design-Verification-Roadmap`** — created
+  today. `census_repo()` takes a `root`, that repository has its own
+  self-checking suites with hand-written tolerances, and nothing has ever
+  audited them. Cheap, and the first cross-repository instrument either side
+  has had.
+- **A CENSUS OF CITATIONS, NOT TOLERANCES** — created today by §5, and the
+  direct generalisation of the day's real finding. Today's defect was a label
+  naming a value its source never printed, and §5 proves no AST-level
+  instrument can catch that class. What *could*: a census of every number in
+  every check label that claims a source, emitted as a worklist for checking
+  against the papers. The tree has 13 such labels. This is item 15's successor
+  in the way item 15 was AUDIT EVERY TOLERANCE's.
+- **FIX `v_F`: FOUR NAMES MOVED TOGETHER** — carried from 10-25, mechanical,
+  blocked on nothing, **untouched again today**, and the count stays four.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried, de-ranked 11-10 with its reason recorded, measurement still on disk.
+- **A SPREADING-CORRECTED `R_ox`** — carried from 11-10, where it was ranked
+  second. `L/t_ox` = 2.22 violates Eq. (5)'s stated validity; the error's sign
+  is known and its size is not, so every number in that entry's §5 is an upper
+  bound and is labelled one.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried from 11-10, still a *joined* item.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — carried from 11-10. The 160 meV
+  branch cut at `V_g` = 4.1277 V means Chapter 4's gate sweep straddles a
+  validity boundary of its own velocity model.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — carried,
+  blocked on figure reading, explicitly low value (consequence measured at
+  0.002 %). Note that today's session *did* reach this paper's text
+  successfully, so the block is specifically on reading a **figure**, not on
+  reaching the source.
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** and
+  **`INCIDENTAL` IS NOT ONE CLASS** — both carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, fifth occurrence, mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried,
+  **twentieth** instance (today's was §8).
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **twentieth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08.
+- **WHAT `n_puddle` ACTUALLY MEANS** and **WHETHER THE FLOOR BELONGS INSIDE
+  `C_q`'s ARGUMENT** — both carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-fourth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-fifth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13, including
+  the contacts' own thermal path.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-eighth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-third** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **thirty-first** session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **thirtieth** session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **thirty-first** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **thirty-first** session.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08.
+- **CHAPTERS 2 AND 3 ARE DRAFTED; CHAPTER 7's CONTACT-METAL CONTRADICTION IS
+  STILL THE LARGEST ACTIONABLE WRITING ITEM** — carried. No thesis prose was
+  written today; the session went to the ranked item and then to the
+  literature read it opened.
+
+**Retired from the list this session:**
+
+- **RETIRED:** CENSUS EVERY COMPARISON AGAINST A PUBLISHED NUMBER — created
+  2026-11-10, ranked first, closed in one session.
+  `graphene_tolerance_census_audit.py`, 60/60, 6/6 mutants, three defective
+  tolerances found and one of them passing a false equality. It also retired
+  its own framing (§2) and produced the citation census item that supersedes
+  it (§10 list).
+- **AUDIT EVERY TOLERANCE** (item 15, created 2026-10-09) is **retired as a
+  census** and survives only as its successor above. It now has three
+  instances, a mechanical instrument, and a measured population; what it does
+  *not* have, and provably cannot, is any power over false citations.
+
+**Predictions for the next session**, so this entry can be scored the way
+11-08, 11-09 and 11-10 were:
+
+1. The `~2.8e-7 m^2.K/W` check **passes**, and the quantity is a
+   **product**: `R_th * A` = 9915.6 × 2.8e-11 = 2.776e-7 m^2·K/W, which
+   rounds to 2.8e-7 at the two figures the paper prints. The prediction is
+   about the trap, not the result: a session implementing this will first
+   compute `R_th / A` = 3.54e14, because "per unit area" reads as a division,
+   and will have a number seven decades off with no unit check in the tree to
+   catch it. Thermal resistance *times* area is the area-normalised figure of
+   merit precisely because `R_th` scales as 1/A.
+2. The citation census, when built, finds **at least one more** label naming a
+   number that its cited source does not print — and it will be in a module
+   written before 2026-10-20, because the three oldest literature-calibrated
+   modules predate every instrument in this tree.
+3. `graphene_tolerance_census_audit.census_repo(root=...)` run over
+   `Design-Verification-Roadmap` returns **more NO_QUOTE rows than this tree
+   has in total**, and **zero** adjudicated ones, because that repository's
+   suites check an RTL against a specification rather than against published
+   numbers.
