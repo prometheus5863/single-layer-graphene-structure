@@ -144,6 +144,35 @@ function, and it evaluates to 1.2794 W/m.K at 300 K — the accepted value for
 thermal SiO2, *and* the value needed to reproduce the paper's 84 % share in
 Benchmark A. Settled, with the arithmetic as the evidence.
 
+> **ANNOTATED 2026-11-11. The identity is right. The arithmetic and the
+> phrase "the accepted value" are both wrong, and this paragraph is where
+> both errors entered the repository.**
+>
+> `0.52*ln(300) - 1.687 = 1.2789668868`, not `1.2794`. The slip is in the
+> fourth decimal, 4.33e-4, and it was copied from here into the label of
+> `graphene_self_heating_model` check A1 as `"accepted thermal-SiO2 value
+> 1.2794 W/m.K"` — at which point an arithmetic slip in a note became a
+> citation in a test.
+>
+> There is no accepted value of 1.2794 to be the accepted value of. Dorgan
+> et al. print no numerical conductivity other than supp. Sec. 5's
+> `kappa_ox ~ 1.3 Wm-1K-1 ... (at 300 K)`, and supp. Sec. 6 gives the fit
+> with `0.52` and `1.687` as its only digits. The computed 1.2789668868
+> rounds to 1.3 at the two figures the paper prints, so **the identity this
+> paragraph settled was settled correctly** and nothing downstream of it is
+> wrong by more than the slip.
+>
+> Nor was 1.2794 "the value needed to reproduce the paper's 84 % share":
+> 1.2789668868 gives the same 84.5 %, which rounds to the same 84 %. The
+> share was never evidence for the fourth decimal.
+>
+> The numbers in this note are left as written. The `R_ox = 3.52e5 K/W` of
+> Section 5 below is unaffected — recomputing with 1.2789668868 gives
+> 3.5185e5, which is 3.52e5 at three significant figures — and so is every
+> number in the table above. See
+> `notes/2026-11-11-a-census-of-comparisons-against-published-numbers.md`
+> and `graphene_tolerance_census_audit.py`.
+
 **The mobility temperature factor is a genuine ambiguity and is carried as
 one.** The extracted Eq. (4) has the temperature factor *multiplying*:
 
