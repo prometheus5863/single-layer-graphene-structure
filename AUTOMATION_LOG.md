@@ -16343,3 +16343,305 @@ of one of this session's own commits. One ranked-first item closed.
    has in total**, and **zero** adjudicated ones, because that repository's
    suites check an RTL against a specification rather than against published
    numbers.
+
+## 2026-11-12 — the ranked-first item passed and its stated justification was false; the repair it licensed made the tolerance tighter, not looser; and the cross-repository census returned the empty set
+
+**Commits before this entry:** 4 — the new areal module; A2's repair in
+`graphene_self_heating_model.py`; the recursive census with its first false
+positive recorded; the research note.
+
+### 0. What was taken, and why it was taken as ranked
+
+11-11 ranked **CHECK `R_th` PER UNIT AREA AGAINST THE PAPER'S `~2.8e-7
+m^2.K/W`** first, called it cheap, and said the number was already in hand
+from that day's literature read. It was taken as ranked. Items 2 and 3 of the
+same list (`V3`'s magnitude; A2's tolerance) were adjacent to it by design,
+and item 3 **was decided as a consequence** rather than taken separately —
+see §4. No departure to record.
+
+### 1. The comparison passes
+
+`graphene_areal_thermal_resistance.py`, 20 checks, 20 passing, 7/7 mutants
+detected and all seven by the predicted check.
+
+    R_th * A = 2.776362e-07 m^2.K/W  ->  2.8e-7 at 2 s.f.,  residual -0.844 %
+    R_th / A = 3.541278e+14 m^-2.K/W ->  21.1 decades away
+
+### 2. And the reason it was ranked first was wrong
+
+The 11-11 entry ranked it first because it was *"an **independent** constraint
+... the one that can fail for a reason A2 cannot see"*. It is not independent
+of A2 in any degree. `A = L*W` is given by the stated geometry rather than
+fitted, so `2.8e-7/A` is the paper's own `1.0e4` to within one ulp, and the two
+relative residuals agree to fourteen significant figures:
+
+    R_th*A vs 2.8e-7 : -8.44209690618646577e-03
+    R_th   vs 1.0e4  : -8.44209690618627148e-03
+    difference       : -1.94e-16   (0.9 ulp of 1.0)
+
+Independent constraints would differ at the `8.4e-3` the residuals occupy.
+**The per-area check IS A2**, same centre, licensed width 2.8x tighter. Worth
+having; not what the item said it was. All three clauses of the stated reason
+fail and I1/I2/I2b assert so.
+
+### 3. The new result: the areal figure of merit is scale-free for a factor 1.765 in area
+
+Multiplying Eq. (5) by `A` gives an identity with residual exactly `0.0` (I3):
+
+    R_th*A == 1/h + t_ox/k_ox + sqrt(A)/(2 k_Si)
+              3.60 %   84.49 %      11.91 %        <- only the last is geometry
+
+Inverting it for the edges of the paper's own two-figure band:
+
+    A in [2.3714e-11, 4.1857e-11] m^2 = [0.847x, 1.495x] of Dorgan's area
+
+So "per unit of device area" is transferable within **a factor of about 1.8 in
+area** and no further. This repository's FET is **140x smaller**
+(`A = 2e-13 m^2`, areal value `2.47359e-07`, spreading only 1.13 % of it), and
+reusing `2.8e-7` there would **over-state `R_th` by 13.20 %** against a hard
+worst case of 14.49 % set by the `A -> 0` floor. A bound of known sign and
+finite size, which is the shape this tree prefers.
+
+### 4. The ranked-third item, decided against its own framing
+
+11-11 called A2's `±5 %` "a tighter claim than the source supports" and
+offered widening to `±50 %`. **The dilemma was false**: the paper prints the
+same fact to two figures in the same sentence, licensing `±1.7857 %` on the
+identical constraint. `±5 %` was **2.8x too LOOSE**. A2's defect was its
+citation, not its width — it quoted the one-figure half of a two-figure
+sentence and used a width neither half licenses. A2 is **tightened**, and
+passes with 0.94 % of the licensed width to spare. A2a keeps the old
+comparison (the repair changed the warrant, not the verdict); A2b is the
+per-area check; A2c asserts the two are one constraint, which is exactly the
+inference 11-11 got wrong. `self_heating` 46 -> 47 checks, mutation 10/10.
+
+Third time a census finding here has been about a check's **warrant** rather
+than its arithmetic.
+
+### 5. "One significant figure licenses ±1.8 %" — right width, wrong reason
+
+Said twice on 11-11, in the note and the log, of `2.8e-7`. It carries **two**
+figures. Two license `±1.7857 %`, which *is* the quoted width; one would
+license 16.7–17.9 %, nine to ten times wider, and would have made the check
+nearly vacuous. The number carried forward was right and the arithmetic
+offered for it was not. F1–F4 pin all three widths so it cannot drift back.
+
+### 6. The cross-repository census read zero files
+
+`census_repo(root=Design-Verification-Roadmap)` returned **0 rows from 0
+Python files**, because it was a flat `os.listdir` and all 47 of that tree's
+Python files are under `tools/` or `examples/`. **An empty census is
+indistinguishable from a clean one.** The assumption was invisible in the
+repository the instrument was written for; recursion is now the default,
+because the old default cannot be told from a correct answer by its output.
+R2 asserts this tree's census is identical field-for-field under both (115
+rows) — and R2b records that the comparison must be by *field*, since `Row`
+keeps object identity for equality and `census_repo() == census_repo()` is
+`False` over one unchanged tree.
+
+Recursively: **6 rows over 47 files, all `NO_QUOTE`, zero adjudicated.**
+
+### 7. Two instrument limitations, both found by repairing a check it flagged
+
+- **9l, the census's FIRST FALSE POSITIVE.** It assumes a check's centre and
+  its width come from the same printed number. Repaired A2 takes its centre
+  from the one-figure `~1e4` and its width from the two-figure `~2.8e-7`, so
+  the census licenses `±50 %`, sees `±1.7857 %`, and returns `OVER_TIGHT` at
+  ratio 28. Wrong verdict, right arithmetic. Second stated limit after 9k.
+- **9m, a measured blind spot.** Name-bound *residuals* resolve through
+  `bound_via` (40+ rows); name-bound *tolerances* do not, because `tol` is
+  read only from a literal comparator. **7 such comparisons in 7 modules.**
+  A2 was the eighth for the length of one edit today: binding its half-width
+  to `0.05/2.8` made it `LIT_NO_TEST`, the census's own worst category.
+  Repairing A2's warrant had briefly made it unauditable.
+
+Check **8d** is annotated in place, not restated. It still passes, but the
+genuine `OVER_TIGHT` row it was written to witness was repaired today, and
+the row it now counts is 9l's false positive. Panel (c) of the census figure
+is relabelled for the same reason.
+
+### 8. Five errors made and caught within the session, none by reading
+
+1. **I1 and I2 written as exact equalities, both FAILED on first run.**
+   `4e-6*7e-6` is one ulp below the literal `2.8e-11`, so the identity is
+   exact in algebra and 1-ulp in binary. The wrong claim and its correction
+   both stay in the module.
+2. **P1 was a tautology** (`A == 4e-6*7e-6`, where `A` is computed as `L*W`).
+   It now carries the representability fact that drives I1/I2.
+3. **P2/P3 did not call this module's own public function**, computing the
+   headline product inline instead. Mutant **M1 reported
+   DETECTED-ELSEWHERE**, which is how it was found: the headline check
+   validated an expression and not the path that ships. Same class as the
+   "installed surface" items. Now DETECTED-AS-PREDICTED.
+4. **A2's repaired tolerance was unauditable** (§7, 9m).
+5. **A2d caught a one-ulp error in the literal it guards, on its first run** —
+   `0.017857142857142856` against `0.01785714285714286`. The guard was added
+   in the same edit that introduced the error it caught.
+
+The three-valued mutation reporting (DETECTED-AS-PREDICTED /
+DETECTED-ELSEWHERE / UNDETECTED), borrowed from the sibling repository, is
+what made (3) visible; a two-valued harness would have reported 7/7 and said
+nothing.
+
+### 9. Scoring the 11-11 predictions
+
+1. **Right on the trap, wrong on its size.** The product *is* the right
+   quantity and the check *does* pass at two figures, as predicted. But the
+   predicted "seven decades off" for the quotient matches neither reference:
+   it is 21.1 decades from `2.8e-7` and 10.5 from `1e4`. The prediction had
+   compared the quotient against the wrong one of the paper's two numbers —
+   the same conflation the whole session is about.
+2. **Not exercised.** The citation census was not built; `V3`'s magnitude
+   untouched.
+3. **Half right, and unscorable as posed.** Zero adjudicated rows holds; "more
+   `NO_QUOTE` rows than this tree has in total" is wrong by 17x *in the
+   opposite direction* (6 vs 102). And as posed it named a population in a run
+   that returned the empty set, so it could not have been scored before §6.
+
+The sibling's own 11-11 prediction (2) has **both substantive halves right,
+reason included**; its meta-claim that this tree's prediction was "right in its
+first half and wrong in its second" is **inverted** — the first half was the
+count, which failed.
+
+### 10. Count
+
+New module 20/20 with 7/7 mutants; `self_heating` 46 -> 47, 0 failing, mutation
+10/10; census 66 -> 69, 0 failing. Two items closed (one ranked first, one
+cross-repository), one decided (ranked third), one false positive and one blind
+spot recorded, five self-caught errors. No source fetched: the session ran
+entirely on the datum yesterday's read had already brought back, which is what
+made a ranked-first item cheap.
+
+**Not yet covered (candidates for future runs):**
+
+- **A CENSUS OF CITATIONS, NOT TOLERANCES** — carried from 11-11, **now ranked
+  first**, and today strengthened its case twice. 9k already said no AST-level
+  instrument can catch a label naming a value its source never printed; 9l now
+  adds a second class the AST cannot see — a width whose warrant is a
+  *different* printed number from its centre. Both are citation facts, not
+  arithmetic facts. The tree has 13 labels claiming a source and the worklist
+  is mechanical to emit.
+- **TEACH THE CENSUS THAT CENTRE AND WIDTH CAN HAVE DIFFERENT WARRANTS** —
+  created today by 9l, **ranked second**, and the direct repair of the
+  instrument's first false positive. A2 is the worked instance and the repair
+  is probably a second optional token in the label vocabulary, so the census
+  can read "centre 1e4, width from 2.8e-7". Cheap, and it un-breaks 8d.
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS** — created today by 9m,
+  **ranked third**, mechanical, with a measured population of 7 comparisons in
+  7 modules and `_resolve` already written for the left-hand side. Until it is
+  done, any check whose width is a named constant is silently outside the
+  census, and today showed that is one edit away from happening by accident.
+- **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN** — carried from 11-11 where it
+  was ranked second, **untouched**. Still the only `LIT_NO_TEST` instance in
+  the tree that is a genuine defect rather than today's new false-positive
+  class.
+- **AN AREAL BAND AT THE REPO'S OWN `t_ox`** — created today. §3's factor-1.765
+  band is computed at Dorgan's 300 nm oxide; a different `t_ox` moves the
+  A-independent floor and therefore the band. The repo's own FET sits outside
+  the band at 300 nm, and whether it does at its own oxide thickness is
+  unmeasured. Cheap, and it is the form in which §3's result would enter
+  Chapter 4.
+- **THE 13.20 % BELONGS IN CHAPTER 4** — created today, and the first *writing*
+  item this thread has produced with a number already in hand. Chapter 4's
+  thermal discussion inherits `R_th` from a 4 um device; §3 says the areal
+  shortcut over-states it by 13.2 % at the chapter's own geometry.
+- **A SPREADING-CORRECTED `R_ox`** — carried from 11-10. `L/t_ox` = 2.22
+  violates Eq. (5)'s stated validity; today's identity makes the item sharper,
+  since `t_ox/k_ox` is 84.49 % of the areal value and is exactly the term the
+  violation attacks.
+- **FIX `v_F`: FOUR NAMES MOVED TOGETHER** — carried from 10-25, mechanical,
+  blocked on nothing, **untouched again**, count still four.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried, de-ranked 11-10 with its reason recorded.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried from 11-10, still a *joined* item.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — carried from 11-10.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — carried,
+  blocked on figure reading, explicitly low value (0.002 %).
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** and
+  **`INCIDENTAL` IS NOT ONE CLASS** — both carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, fifth occurrence, mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried,
+  **twenty-first** instance: today's new module plants the quotient form
+  (P4/P5) against its own product verdict.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **twenty-first** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08.
+- **WHAT `n_puddle` ACTUALLY MEANS** and **WHETHER THE FLOOR BELONGS INSIDE
+  `C_q`'s ARGUMENT** — both carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-fifth** session. Note
+  that today's module was written with a fifth (`sigfig_halfwidth`) and it was
+  deleted before commit rather than added to the count.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-sixth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, and today's I1/I2/A2d make it the third place this session where a
+  one-ulp fact mattered.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-ninth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-fourth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **thirty-second** session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **thirty-first**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **thirty-second** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **thirty-second** session.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08.
+- **CHAPTER 7's CONTACT-METAL CONTRADICTION IS STILL THE LARGEST ACTIONABLE
+  WRITING ITEM** — carried. No thesis prose was written today; the session went
+  to the ranked item, the repair it licensed, and the cross-repository run. Two
+  sessions now with a writing item at the top of the writing queue and no
+  writing done, which is worth saying plainly rather than re-listing.
+
+**Retired from the list this session:**
+
+- **RETIRED:** CHECK `R_th` PER UNIT AREA AGAINST THE PAPER'S `~2.8e-7
+  m^2.K/W` — created 2026-11-11, ranked first, closed in one session. It
+  passed, and it retired its own justification: §2.
+- **RETIRED:** REPAIR A2's OVER-TIGHT TOLERANCE, OR DECIDE NOT TO — created
+  2026-11-11, ranked third. **Decided, in the opposite direction to both
+  options the item offered**: tightened, not widened, because the tolerance was
+  too loose and not too tight.
+- **RETIRED:** RUN THE TOLERANCE CENSUS OVER `Design-Verification-Roadmap` —
+  created 2026-11-11. Closed, and it found a defect in the instrument rather
+  than in the other tree.
+
+**Predictions for the next session**, so this entry can be scored the way
+11-08 through 11-11 were:
+
+1. **The citation census, when built, will find its first finding in
+   `graphene_self_heating_model.py` and not in an older module.** 11-11
+   predicted the first false citation would be in a module written before
+   10-20, on the reasoning that the oldest literature-calibrated modules
+   predate every instrument. That reasoning is now weaker than it looks:
+   `self_heating` is three days old and has already produced *two* citation
+   defects (A1's non-existent 1.2794 source, and A2's width-warrant
+   mismatch), because it is the module with the most published numbers per
+   line. Volume of citation, not age, predicts where a citation census bites.
+2. **Teaching the census that centre and width can have different warrants
+   will turn `MATCHED`, not `OK`, on A2 — and will expose at least one row
+   currently adjudicated `MATCHED` as mis-adjudicated.** A2's width equals the
+   licensed half-width exactly, so the right verdict is the boundary case, and
+   any instrument that newly distinguishes two warrant tokens has to re-read
+   every row where the two coincided. The second half is the risky half.
+3. **The areal band at the repo's own `t_ox` will put this repository's FET
+   INSIDE a band that no longer contains Dorgan's device.** The floor is
+   `1/h + t_ox/k_ox` and the repo's oxide is thinner than 300 nm, which lowers
+   the floor and shifts the whole band down in value and therefore down in
+   area. The prediction is that the two devices are not simultaneously
+   describable by any single areal figure of merit at two figures — which, if
+   it holds, is the sharpest form of §3's result and the one that belongs in
+   Chapter 4.
