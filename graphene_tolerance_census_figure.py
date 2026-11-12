@@ -57,10 +57,21 @@ ROWS = (
          token="1.2794", quoted=1.2794, got=kappa, tol=5e-4, rel=False,
          unit=r"$\kappa_{\rm ox}(300\,$K$)$  (W/m$\cdot$K)",
          verdict="VACUOUS"),
-    dict(title="(c) Dorgan's total thermal resistance",
-         module="graphene_self_heating_model:330",
-         token="1e4", quoted=1.0e4, got=R_th, tol=0.05, rel=True,
-         unit=r"$R_{\rm th}$  (K/W)", verdict="OVER_TIGHT"),
+    # PANEL (c) UPDATED 2026-11-12.  A2's tolerance was +-5 % when this
+    # figure was drawn; it is now +-1.7857 %, tightened rather than widened,
+    # because the paper's SAME SENTENCE prints the fact to two figures as
+    # ~2.8e-7 m^2.K/W per unit area.  The panel is kept because the census
+    # still returns OVER_TIGHT on it -- but that verdict is now a FALSE
+    # POSITIVE (census check 9l): the instrument reads the one-figure centre
+    # token "1e4" and cannot see that the width's warrant is the two-figure
+    # areal number.  The panel therefore illustrates a limitation of the
+    # instrument, which is a different thing from what it illustrated
+    # yesterday, and its title says so.
+    dict(title="(c) Dorgan's total thermal resistance -- the tested band is "
+               "now the 2 s.f. areal one; OVER_TIGHT here is a FALSE POSITIVE",
+         module="graphene_self_heating_model:A2, repaired 2026-11-12",
+         token="1e4", quoted=1.0e4, got=R_th, tol=0.05 / 2.8, rel=True,
+         unit=r"$R_{\rm th}$  (K/W)", verdict="OVER_TIGHT (false positive)"),
 )
 
 C_LIC = "#1b6ca8"
@@ -130,5 +141,9 @@ print("  (a) R_sheet  computed %.6f, licensed [%.4f, %.4f], tested [%.4f, %.4f]"
       % (R_sheet, 6.45 - 0.005, 6.45 + 0.005, 6.44, 6.46))
 print("  (b) kappa_ox computed %.6f, licensed [%.5f, %.5f], tested [%.4f, %.4f]"
       % (kappa, 1.2794 - 5e-5, 1.2794 + 5e-5, 1.2794 - 5e-4, 1.2794 + 5e-4))
-print("  (c) R_th     computed %.1f, licensed [%.0f, %.0f], tested [%.0f, %.0f]"
-      % (R_th, 5e3, 1.5e4, 9.5e3, 1.05e4))
+print("  (c) R_th     computed %.1f, licensed [%.0f, %.0f] from the "
+      "one-figure ~1e4, tested [%.1f, %.1f] from the two-figure ~2.8e-7"
+      % (R_th, 5e3, 1.5e4, 1.0e4 * (1 - 0.05 / 2.8), 1.0e4 * (1 + 0.05 / 2.8)))
+print("      the OVER_TIGHT verdict on this row is a FALSE POSITIVE as of")
+print("      2026-11-12: centre and width come from different printed")
+print("      numbers in one sentence, which the census cannot represent.")

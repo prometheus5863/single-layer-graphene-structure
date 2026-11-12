@@ -71,28 +71,32 @@ COMPARISONS AGAINST A PUBLISHED NUMBER
 ==============================================================================
 module                               line  form      tol       quoted    s.f. licensed   verdict      licensed/tol
 ------------------------------------------------------------------------------------------------------------------
+graphene_areal_thermal_resistance.py 317   SIGFIG    -         2.8e-7    2    -          SIGFIG_TEST  
+graphene_areal_thermal_resistance.py 374   NO_TEST   -         1.0e4     2    -          LIT_NO_TEST  
+graphene_areal_thermal_resistance.py 479   NO_TEST   -         2.8e-11   2    -          LIT_NO_TEST  
 graphene_fet_signed_carrier_model.py 648   ABS_TOL   0.01      6.45      3    0.005      VACUOUS      x0.5
 graphene_kappa_impurity_bound.py     644   SIGFIG_FMT -         1.5e12    2    -          SIGFIG_TEST  
-graphene_self_heating_model.py       379   SIGFIG    -         5         1    -          SIGFIG_TEST  
-graphene_self_heating_model.py       385   SIGFIG    -         1.2794    5    -          SIGFIG_TEST  
-graphene_self_heating_model.py       400   REL_TOL   0.05      ~1e4      1    0.5        OVER_TIGHT   x10
-graphene_self_heating_model.py       402   ROUND_EQ  -         4         1    -          SIGFIG_TEST  
-graphene_self_heating_model.py       405   ROUND_EQ  -         84        2    -          SIGFIG_TEST  
-graphene_self_heating_model.py       408   ROUND_EQ  -         12        2    -          SIGFIG_TEST  
-graphene_self_heating_model.py       531   NO_TEST   -         ~20       amb  -          LIT_NO_TEST  
+graphene_self_heating_model.py       384   SIGFIG    -         5         1    -          SIGFIG_TEST  
+graphene_self_heating_model.py       390   SIGFIG    -         1.2794    5    -          SIGFIG_TEST  
+graphene_self_heating_model.py       452   REL_TOL   0.0178571 ~1e4      1    0.5        OVER_TIGHT   x28
+graphene_self_heating_model.py       471   SIGFIG    -         ~2.8e-7   2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       492   ROUND_EQ  -         4         1    -          SIGFIG_TEST  
+graphene_self_heating_model.py       495   ROUND_EQ  -         84        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       498   ROUND_EQ  -         12        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       621   NO_TEST   -         ~20       amb  -          LIT_NO_TEST  
 ------------------------------------------------------------------------------------------------------------------
-9 rows printed; 102 tolerance comparisons in the tree in total, of which
+13 rows printed; 104 tolerance comparisons in the tree in total, of which
     OVER_TIGHT   1
     VACUOUS      1
-    NO_QUOTE     100
-    SIGFIG_TEST  6
-    LIT_NO_TEST  1
+    NO_QUOTE     102
+    SIGFIG_TEST  8
+    LIT_NO_TEST  3
 44 row(s) were reached only through a local name binding
 
   PASS  8a the census is not empty on the real tree
   PASS  8b name-bound residuals are a LARGE fraction of the tree, so the inline-only first version was missing most of it
   PASS  8c every adjudicated row carries a quoted token and a verdict in the declared vocabulary
-  PASS  8d the tree still contains at least one OVER_TIGHT and one VACUOUS comparison against a published number
+  PASS  8d the tree still contains at least one OVER_TIGHT and one VACUOUS comparison against a published number -- STILL TRUE, but as of 2026-11-12 the OVER_TIGHT row is a false positive and not a defect (9l), so this check no longer witnesses what it was written to witness
   PASS  8e no row in the tree is adjudicated against a NEGATIVE OR ZERO quoted value -- the footnote-ordinal bug would show up here
   PASS  8f A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES (standing item, 2026-10-17) has an instance HERE: censusing this module adds 6 adjudicated rows that are its own controls
   PASS  8g and excluding it removes every one of them from the tree's figures
@@ -108,7 +112,18 @@ graphene_self_heating_model.py       531   NO_TEST   -         ~20       amb  - 
   PASS  9i and the computed value DOES round to it, so the transcription of the fit was never in question -- only its warrant was
   PASS  9j no row in the tree now puts a TOLERANCE against 1.2794 behind a publication cue: the surviving 1.2794 row is the significant-figure check that records the discrepancy
   PASS  9k THE LIMIT OF THIS INSTRUMENT, stated as a check so it is not forgotten: the census reads quoted precision off a check's LABEL, so a label citing a value its source never printed is adjudicated as though the citation were real.  Detecting that needs the paper, not the AST.  5 s.f. on 1.2794 and 2 s.f. on 1.3 are both read correctly from their spellings, and only one of them has a source.
+  PASS  9l THE CENSUS'S FIRST FALSE POSITIVE, and the second stated limit of the instrument after 9k: it assumes a check's CENTRE and its WIDTH are warranted by the SAME printed number.  The repaired A2 takes its centre from the paper's one-figure '~1e4' and its width from the two-figure '~2.8e-7 per unit of device area' in the same sentence -- which, since A = L*W is exact, is the same quantity. The census reads only the label's centre token, licenses +-50 %, sees +-1.7857 % and returns OVER_TIGHT at ratio 28.  The verdict is wrong and the arithmetic behind it is right
+  PASS  9m A BLIND SPOT MEASURED RATHER THAN ASSERTED: census_source resolves name-bound RESIDUALS (the left side, 44 rows via bound_via) but not name-bound TOLERANCES -- `tol` is taken only from a literal comparator, so a check whose width is a named constant is outside the census entirely.  There are 7 such comparisons in 7 modules, and A2 was one of them for the length of one edit on 2026-11-12, which is how this was found
+
+SECTION R.  The recursion the cross-repository run forced
+  PASS  R2 over THIS tree the recursive and flat censuses are identical field-for-field (115 rows each), because this tree is flat -- so making recursion the default cannot alter any existing finding
+  PASS  R2b and that comparison HAS to be by field: Row keeps object identity for equality, so census_repo() == census_repo() is False for two runs over one unchanged tree.  Recorded as a check because a regression test written the obvious way would fail for a reason that has nothing to do with the census
+  PASS  R1 THE FINDING ABOUT THE INSTRUMENT: run flat over the sibling repository the census reads 0 Python files and returns 0 rows, while recursively it reads 47 and returns 6.  An empty census is indistinguishable from a clean one, so this would have been reported as 'no tolerance defects'
+  PASS  X1 the sibling repository's actual census: 6 rows over 47 files, verdicts NO_QUOTE, and ZERO adjudicated -- its suites compare against exact expected values far more often than against tolerances
+  PASS  X2 SCORING THIS MODULE'S OWN 2026-11-11 PREDICTION (3): it said the run would return 'more NO_QUOTE rows than this tree has in total, and zero adjudicated ones'.  HALF RIGHT -- zero adjudicated is right, and 6 NO_QUOTE rows against this tree's 102 is wrong by a factor of 17, in the opposite direction
+  PASS  X3 SCORING THE SIBLING'S 2026-11-11 PREDICTION (2): it said zero adjudicated rows but NOT more NO_QUOTE rows than 102, because its suites check exact values.  BOTH SUBSTANTIVE HALVES RIGHT, including the reason.  Its meta-claim that this tree's prediction was 'right in its first half and wrong in its second' is INVERTED: the first half was the NO_QUOTE count, which failed, and the second was zero adjudicated, which held
+  PASS  X4 and BOTH predictions were unscorable as posed until today: each named a population in a run that, with the instrument as it then stood, returned the empty set.  The prediction pair is scored above against the recursive run, which is the only run either could have meant
 
 ==============================================================================
-TOTAL: 60 passed, 0 failed
+TOTAL: 69 passed, 0 failed
 ==============================================================================

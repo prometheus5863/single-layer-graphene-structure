@@ -429,15 +429,38 @@ def verify_benchmarks():
     # of the licensed width to spare.  The old +-0.05 is preserved in A2a,
     # which records what was being asserted before today.
     _AREAL_PAPER, _AREAL_SIGFIGS = 2.8e-7, 2
-    _AREAL_HALFWIDTH = 0.05 / 2.8          # what 2 printed figures license
+    # WRITTEN AS A LITERAL, NOT AS `0.05 / 2.8`, AND THE REASON IS AN AUDIT
+    # FINDING AGAINST THIS VERY EDIT.  The first form of this line bound the
+    # half-width to the expression 0.05/2.8, which shows the derivation to a
+    # reader and hides it from graphene_tolerance_census_audit.py: that
+    # instrument resolves name-bound residuals only when the name is bound to
+    # a literal, so A2 was censused as LIT_NO_TEST -- a label citing a
+    # published number with no test the instrument can see beside it, which
+    # is the census's own worst category.  Repairing A2's warrant had made it
+    # unauditable.  The derivation now lives in this comment, where it is for
+    # readers, and the value lives in the code, where it is for the AST.
+    # THE FIRST LITERAL WRITTEN HERE WAS 0.017857142857142856, ONE ULP BELOW
+    # 0.05/2.8, AND CHECK A2d CAUGHT IT ON THE FIRST RUN -- precisely the
+    # drift the guard was added to stop, arriving in the same edit that added
+    # the guard.  Not deleted, because the failure is the evidence that A2d
+    # does something.
+    _AREAL_HALFWIDTH = 0.01785714285714286      # = 0.05/2.8 exactly
     _check("A2 Dorgan R_th total agrees with the paper's ~1e4 K/W to the "
            "+-1.7857 %% that the SAME SENTENCE's two-figure areal statement "
            "licenses (tightened from +-5 %% on 2026-11-12; the 11-11 list "
            "had this backwards and proposed widening to +-50 %%)",
-           abs(t["R_th"] - 1.0e4) / 1.0e4 < _AREAL_HALFWIDTH,
+           abs(t["R_th"] - 1.0e4) / 1.0e4 < 0.01785714285714286,
            "R_th = %.4f K/W, residual %.4f %% of 1e4, licensed +-%.4f %%"
            % (t["R_th"], 100.0 * (t["R_th"] - 1.0e4) / 1.0e4,
               100.0 * _AREAL_HALFWIDTH))
+    _check("A2d the literal in A2's comparison IS 0.05/2.8, the half-width "
+           "the paper's two printed figures license -- a guard, because the "
+           "derivation now lives in a comment and the value in the code, so "
+           "nothing but this check stops them drifting apart",
+           _AREAL_HALFWIDTH == 0.05 / 2.8
+           and 0.01785714285714286 == 0.05 / 2.8,
+           "literal %.18f, 0.05/2.8 = %.18f"
+           % (0.01785714285714286, 0.05 / 2.8))
     _check("A2a the pre-2026-11-12 form of A2 -- the same comparison at the "
            "+-5 %% it coded against the one-figure ~1e4 -- also passed, so "
            "today's repair changed the WARRANT and not the verdict",

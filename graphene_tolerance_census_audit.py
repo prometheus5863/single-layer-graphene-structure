@@ -270,6 +270,20 @@ class Row(object):
             os.path.basename(self.path or "?"), self.line or 0,
             self.form, self.tol, self.verdict)
 
+    def fields(self):
+        """Every slot as a tuple, for comparing two censuses by VALUE.
+
+        Added 2026-11-12.  Row deliberately keeps object identity for
+        equality -- two runs of census_repo() over the same unchanged tree
+        compare UNEQUAL, because every Row is a fresh object.  Anyone
+        regression-testing the census against itself therefore needs this,
+        and check R2b records the trap rather than leaving it to be
+        rediscovered.  __eq__ is NOT added: rows are collected in lists that
+        are deduplicated nowhere, and giving them value equality would change
+        what `in` and `count` mean across the module.
+        """
+        return tuple(getattr(self, k) for k in self.__slots__)
+
 
 def _const_num(node):
     """The numeric value of a literal node, else None.  Handles the unary
@@ -524,8 +538,56 @@ def census_source(src, path="<src>"):
 
 SELF = os.path.basename(os.path.abspath(__file__))
 
+# The sibling repository, for the cross-repository run of 2026-11-12.  Looked
+# up beside this one rather than hard-coded, and its absence SKIPS the R1/X
+# checks rather than failing them -- a clone of one repository alone must
+# still pass its own suite.
+SIBLING = os.path.join(os.path.dirname(REPO), "Design-Verification-Roadmap")
 
-def census_repo(root=None, include_self=False):
+
+# ---------------------------------------------------------------------------
+# FILE DISCOVERY.  SPLIT OUT OF census_repo ON 2026-11-12 BECAUSE THE FIRST
+# CROSS-REPOSITORY USE OF THIS INSTRUMENT RETURNED AN EMPTY CENSUS.
+#
+# census_repo() was written as a flat `os.listdir(root)` over *.py.  That is
+# correct for THIS repository, which keeps every module at the top level, and
+# it is silently wrong for any repository that does not: run over
+# Design-Verification-Roadmap it returned ZERO rows, not because that tree has
+# no tolerances but because every one of its 40-odd Python files lives under
+# tools/ or examples/.  An empty census is indistinguishable from a clean one
+# unless something says how many files were read, so _python_files is now
+# reported alongside the row count everywhere the census is printed.
+#
+# The instrument's hidden assumption was invisible in the repository it was
+# written for.  That is the generalisable finding, and it is why `recursive`
+# defaults to True rather than preserving the old behaviour: the old default
+# cannot be distinguished from a correct answer by its output.  Check R2
+# asserts that the change leaves THIS tree's census bit-for-bit identical,
+# which it must, because this tree is flat.
+# ---------------------------------------------------------------------------
+_SKIP_DIRS = {".git", "__pycache__", ".venv", "venv", "node_modules",
+              ".pytest_cache", ".mypy_cache"}
+
+
+def _python_files(root, recursive=True):
+    """Every *.py under `root`, sorted, skipping VCS and cache directories.
+
+    With recursive=False this is the pre-2026-11-12 flat behaviour, retained
+    only so that check R1 can assert what it used to return.
+    """
+    if not recursive:
+        return [os.path.join(root, n) for n in sorted(os.listdir(root))
+                if n.endswith(".py")]
+    out = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = sorted(d for d in dirnames if d not in _SKIP_DIRS)
+        for n in sorted(filenames):
+            if n.endswith(".py"):
+                out.append(os.path.join(dirpath, n))
+    return sorted(out)
+
+
+def census_repo(root=None, include_self=False, recursive=True):
     """Every tolerance comparison in every module in the tree.
 
     THIS MODULE IS EXCLUDED BY DEFAULT, and the exclusion is the standing item
@@ -544,12 +606,9 @@ def census_repo(root=None, include_self=False):
     """
     root = root or REPO
     rows = []
-    for name in sorted(os.listdir(root)):
-        if not name.endswith(".py"):
+    for p in _python_files(root, recursive=recursive):
+        if os.path.basename(p) == SELF and not include_self:
             continue
-        if name == SELF and not include_self:
-            continue
-        p = os.path.join(root, name)
         try:
             src = open(p, encoding="utf-8").read()
         except OSError:
@@ -877,8 +936,21 @@ def main():
           "the declared vocabulary",
           all(r.token is not None and r.verdict in VERDICTS
               for r in rows if r.verdict != "NO_QUOTE"), "")
+    # 8d PASSES BUT NO LONGER MEANS WHAT IT MEANT WHEN IT WAS WRITTEN ON
+    # 2026-11-11, AND THE ORIGINAL ASSERTION IS KEPT RATHER THAN RESTATED.
+    # It was written to witness that the tree still carried live instances of
+    # the two defect classes.  The OVER_TIGHT instance it was counting was
+    # graphene_self_heating_model A2's +-5 % against the one-figure ~1e4.
+    # That was REPAIRED on 2026-11-12 -- tightened to the +-1.7857 % the same
+    # sentence's two-figure areal statement licenses -- so the defect 8d
+    # witnessed is gone.  8d goes on passing because the REPAIRED A2 is
+    # itself censused OVER_TIGHT, at ratio 28, which is a FALSE POSITIVE and
+    # the first this instrument has produced.  See 9l.
     check("8d the tree still contains at least one OVER_TIGHT and one "
-          "VACUOUS comparison against a published number",
+          "VACUOUS comparison against a published number -- STILL TRUE, but "
+          "as of 2026-11-12 the OVER_TIGHT row is a false positive and not a "
+          "defect (9l), so this check no longer witnesses what it was "
+          "written to witness",
           counts.get("OVER_TIGHT", 0) >= 1 and counts.get("VACUOUS", 0) >= 1,
           "%r" % counts)
     check("8e no row in the tree is adjudicated against a NEGATIVE OR ZERO "
@@ -993,6 +1065,149 @@ def main():
           "not the AST.  5 s.f. on 1.2794 and 2 s.f. on 1.3 are both read "
           "correctly from their spellings, and only one of them has a source.",
           _sigfigs("1.2794") == 5 and _sigfigs("1.3") == 2, "")
+
+    # -----------------------------------------------------------------
+    # R and X: THE FIRST CROSS-REPOSITORY RUN OF THIS INSTRUMENT, AND WHAT
+    # IT FOUND ABOUT THE INSTRUMENT RATHER THAN ABOUT THE OTHER TREE.
+    #
+    # Closes "RUN THE TOLERANCE CENSUS OVER Design-Verification-Roadmap",
+    # created 2026-11-11.  The headline result is not a count of that
+    # repository's tolerances: it is that census_repo() returned ZERO rows
+    # over it and would have been believed, because this repository is flat
+    # and so the flat-tree assumption had never been exercised.
+    # -----------------------------------------------------------------
+    # -----------------------------------------------------------------
+    # 9l and 9m: TWO LIMITATIONS OF THIS INSTRUMENT, BOTH FOUND ON
+    # 2026-11-12 BY REPAIRING A CHECK THAT THIS INSTRUMENT HAD FLAGGED.
+    # -----------------------------------------------------------------
+    _a2 = [r for r in rows
+           if os.path.basename(r.path) == "graphene_self_heating_model.py"
+           and (r.label or "").startswith("A2 ")]
+    check("9l THE CENSUS'S FIRST FALSE POSITIVE, and the second stated limit "
+          "of the instrument after 9k: it assumes a check's CENTRE and its "
+          "WIDTH are warranted by the SAME printed number.  The repaired A2 "
+          "takes its centre from the paper's one-figure '~1e4' and its width "
+          "from the two-figure '~2.8e-7 per unit of device area' in the same "
+          "sentence -- which, since A = L*W is exact, is the same quantity. "
+          "The census reads only the label's centre token, licenses +-50 %, "
+          "sees +-1.7857 % and returns OVER_TIGHT at ratio 28.  The verdict "
+          "is wrong and the arithmetic behind it is right",
+          len(_a2) == 1 and _a2[0].verdict == "OVER_TIGHT"
+          and abs(_a2[0].ratio - 28.0) < 0.01 and _a2[0].sigfigs == 1,
+          "%r" % [(r.line, r.verdict, r.token, r.sigfigs, r.tol, r.ratio)
+                  for r in _a2])
+    _name_tol, _name_files = 0, set()
+    for _p in _python_files(REPO):
+        try:
+            _t = ast.parse(open(_p, encoding="utf-8").read())
+        except (SyntaxError, OSError):
+            continue
+        for _n in ast.walk(_t):
+            if (isinstance(_n, ast.Compare) and len(_n.ops) == 1
+                    and isinstance(_n.ops[0], (ast.Lt, ast.LtE))
+                    and isinstance(_n.comparators[0], ast.Name)
+                    and _const_num(_n.comparators[0]) is None
+                    and classify_left(_n.left) is not None):
+                _name_tol += 1
+                _name_files.add(os.path.basename(_p))
+    check("9m A BLIND SPOT MEASURED RATHER THAN ASSERTED: census_source "
+          "resolves name-bound RESIDUALS (the left side, %d rows via "
+          "bound_via) but not name-bound TOLERANCES -- `tol` is taken only "
+          "from a literal comparator, so a check whose width is a named "
+          "constant is outside the census entirely.  There are %d such "
+          "comparisons in %d modules, and A2 was one of them for the length "
+          "of one edit on 2026-11-12, which is how this was found"
+          % (sum(1 for r in rows if r.bound_via), _name_tol,
+             len(_name_files)),
+          _name_tol >= 1 and len(_name_files) >= 1,
+          "%d comparisons in %r" % (_name_tol, sorted(_name_files)))
+
+    print("\nSECTION R.  The recursion the cross-repository run forced")
+    _flat_own = census_repo(recursive=False)
+    _rec_own = census_repo(recursive=True)
+    check("R2 over THIS tree the recursive and flat censuses are identical "
+          "field-for-field (%d rows each), because this tree is flat -- so "
+          "making recursion the default cannot alter any existing finding"
+          % len(_rec_own),
+          [r.fields() for r in _flat_own] == [r.fields() for r in _rec_own]
+          and len(_rec_own) == len(_flat_own),
+          "flat %d rows, recursive %d rows" % (len(_flat_own), len(_rec_own)))
+    check("R2b and that comparison HAS to be by field: Row keeps object "
+          "identity for equality, so census_repo() == census_repo() is False "
+          "for two runs over one unchanged tree.  Recorded as a check "
+          "because a regression test written the obvious way would fail for "
+          "a reason that has nothing to do with the census",
+          census_repo(recursive=True) != census_repo(recursive=True)
+          and ([r.fields() for r in census_repo(recursive=True)]
+               == [r.fields() for r in census_repo(recursive=True)]),
+          "object comparison False, field comparison True")
+
+    if not os.path.isdir(SIBLING):
+        print("  SKIP  R1/X1-X3: sibling repository not present at %s"
+              % SIBLING)
+    else:
+        _sib_flat = census_repo(root=SIBLING, recursive=False)
+        _sib_rec = census_repo(root=SIBLING, recursive=True)
+        _n_flat = len(_python_files(SIBLING, recursive=False))
+        _n_rec = len(_python_files(SIBLING, recursive=True))
+        _verdicts = sorted({r.verdict for r in _sib_rec})
+        _adjudicated = [r for r in _sib_rec
+                        if r.verdict in ("OVER_TIGHT", "VACUOUS", "MATCHED",
+                                         "AMBIGUOUS")]
+        _no_quote = [r for r in _sib_rec if r.verdict == "NO_QUOTE"]
+        _own_no_quote = [r for r in _rec_own if r.verdict == "NO_QUOTE"]
+
+        check("R1 THE FINDING ABOUT THE INSTRUMENT: run flat over the "
+              "sibling repository the census reads %d Python files and "
+              "returns %d rows, while recursively it reads %d and returns "
+              "%d.  An empty census is indistinguishable from a clean one, "
+              "so this would have been reported as 'no tolerance defects'"
+              % (_n_flat, len(_sib_flat), _n_rec, len(_sib_rec)),
+              _n_flat == 0 and len(_sib_flat) == 0 and _n_rec > 40
+              and len(_sib_rec) > 0,
+              "flat: %d files / %d rows; recursive: %d files / %d rows"
+              % (_n_flat, len(_sib_flat), _n_rec, len(_sib_rec)))
+        check("X1 the sibling repository's actual census: %d rows over %d "
+              "files, verdicts %s, and ZERO adjudicated -- its suites "
+              "compare against exact expected values far more often than "
+              "against tolerances"
+              % (len(_sib_rec), _n_rec, ",".join(_verdicts)),
+              len(_adjudicated) == 0 and _verdicts == ["NO_QUOTE"],
+              "%d rows, %d adjudicated, verdicts %r, files carrying rows: %r"
+              % (len(_sib_rec), len(_adjudicated), _verdicts,
+                 sorted({os.path.relpath(r.path, SIBLING)
+                         for r in _sib_rec})))
+        check("X2 SCORING THIS MODULE'S OWN 2026-11-11 PREDICTION (3): it "
+              "said the run would return 'more NO_QUOTE rows than this tree "
+              "has in total, and zero adjudicated ones'.  HALF RIGHT -- zero "
+              "adjudicated is right, and %d NO_QUOTE rows against this "
+              "tree's %d is wrong by a factor of %.0f, in the opposite "
+              "direction"
+              % (len(_no_quote), len(_own_no_quote),
+                 len(_own_no_quote) / max(1, len(_no_quote))),
+              len(_adjudicated) == 0 and len(_no_quote) < len(_own_no_quote),
+              "sibling NO_QUOTE %d, own NO_QUOTE %d"
+              % (len(_no_quote), len(_own_no_quote)))
+        check("X3 SCORING THE SIBLING'S 2026-11-11 PREDICTION (2): it said "
+              "zero adjudicated rows but NOT more NO_QUOTE rows than 102, "
+              "because its suites check exact values.  BOTH SUBSTANTIVE "
+              "HALVES RIGHT, including the reason.  Its meta-claim that this "
+              "tree's prediction was 'right in its first half and wrong in "
+              "its second' is INVERTED: the first half was the NO_QUOTE "
+              "count, which failed, and the second was zero adjudicated, "
+              "which held",
+              len(_adjudicated) == 0 and len(_no_quote) <= 102
+              and len(_own_no_quote) == 102,
+              "sibling: %d NO_QUOTE, %d adjudicated; own NO_QUOTE now %d"
+              % (len(_no_quote), len(_adjudicated), len(_own_no_quote)))
+        check("X4 and BOTH predictions were unscorable as posed until today: "
+              "each named a population in a run that, with the instrument as "
+              "it then stood, returned the empty set.  The prediction pair "
+              "is scored above against the recursive run, which is the only "
+              "run either could have meant",
+              len(_sib_flat) == 0 and len(_sib_rec) == 6,
+              "flat run returned %d rows; the scored run is the recursive "
+              "one, %d rows" % (len(_sib_flat), len(_sib_rec)))
 
     print("\n" + "=" * 78)
     print("TOTAL: %d passed, %d failed" % (passed, failed))
