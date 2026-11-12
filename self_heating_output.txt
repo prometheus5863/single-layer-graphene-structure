@@ -1,4 +1,4 @@
-/tmp/work/single-layer-graphene-structure/graphene_self_heating_model.py:188: RuntimeWarning: overflow encountered in expm1
+/tmp/wk1112/single-layer-graphene-structure/graphene_self_heating_model.py:193: RuntimeWarning: overflow encountered in expm1
   N_OP = 1.0 / (np.expm1(hbar * w_OP / (k_B * T)))
 ==========================================================================
 SELF-CONSISTENT ELECTRO-THERMAL MODEL -- graphene FET on SiO2
@@ -93,8 +93,14 @@ CHECKS
          1.2789668868 -> np.float64(1.279) at 5 s.f.
   [PASS] A1c the 1.2794 of the old label is retained and still agrees to 5e-4 W/m.K, but it is NOT a value this paper prints at any precision and carries no citation -- provenance unresolved
          residual 4.3311e-04 W/m.K; the paper prints only ~1.3 (supp. Sec. 5) and the fit ln(T^0.52) - 1.687 (supp. Sec. 6)
-  [PASS] A2 Dorgan R_th total rounds to the paper's ~1e4 K/W
-         R_th = 9915.6 K/W (paper: ~1e4)
+  [PASS] A2 Dorgan R_th total agrees with the paper's ~1e4 K/W to the +-1.7857 %% that the SAME SENTENCE's two-figure areal statement licenses (tightened from +-5 %% on 2026-11-12; the 11-11 list had this backwards and proposed widening to +-50 %%)
+         R_th = 9915.5790 K/W, residual -0.8442 % of 1e4, licensed +-1.7857 %
+  [PASS] A2a the pre-2026-11-12 form of A2 -- the same comparison at the +-5 %% it coded against the one-figure ~1e4 -- also passed, so today's repair changed the WARRANT and not the verdict
+         residual -0.8442 % against the old +-5 %; the one figure in ~1e4 would itself have licensed +-50 %
+  [PASS] A2b R_th * A rounds to the paper's ~2.8e-7 m^2.K/W at the 2 s.f. it is printed to -- the per-unit-area half of the sentence, which this module had never checked before 2026-11-12.  NOTE: the quantity is R_th TIMES area, not divided by it; the quotient is 21 decades away
+         R_th*A = 2.776362e-07 -> 2.8e-07 at 2 s.f. (paper: 2.8e-7); R_th/A = 3.541e+14
+  [PASS] A2c A2 and A2b are ONE constraint, not two: their relative residuals agree to within one ulp of 1.0, so neither can fail while the other passes at equal width.  A2b is kept because the paper prints it to more figures, NOT because it is independent
+         areal residual -8.44209690618647e-03 vs total residual -8.44209690618627e-03, difference -1.943e-16
   [PASS] A3 R_B share rounds to the paper's 4 %%
          R_B = 357.1 K/W, 3.60 %
   [PASS] A4 R_ox share rounds to the paper's 84 %%
@@ -174,6 +180,6 @@ CHECKS
   [PASS] D2 Eq. (6) -> v_sat from below as F -> inf
          v(F=1e12)/v_sat = 0.999999999999
 
-  43/43 passed, 0 failed
+  46/46 passed, 0 failed
 
 Figure written: self_heating_electrothermal.png

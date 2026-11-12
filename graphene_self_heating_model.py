@@ -34,8 +34,13 @@ is labelled as one, per the standing 10-01 rule.
 TWO EXACT EXTERNAL BENCHMARKS (verify_benchmarks(), run by __main__)
 -------------------------------------------------------------------
 A. On Dorgan's OWN geometry (W=7um, L=4um, t_ox=300nm) the network must
-   reproduce the paper's stated term shares 4 / 84 / 12 % and total
-   ~1e4 K/W.  That is agreement on three independent ratios, so no single
+   reproduce the paper's stated term shares 4 / 84 / 12 %, total ~1e4 K/W,
+   and -- added 2026-11-12 -- the ~2.8e-7 m^2.K/W per unit of device area
+   printed in the same sentence as the total.  The areal statement carries
+   two figures where the total carries one, so it is the tighter half of the
+   SAME constraint and not a further one; A2c asserts that rather than
+   leaving the reader to assume independence (which the 11-11 standing list
+   did assume, wrongly -- see graphene_areal_thermal_resistance.py).  That is agreement on three independent ratios, so no single
    fudged constant can buy it.
 B. The Eq. (7) branch-cut threshold n_min = (w_OP/v_F)^2/(2 pi) must
    reproduce the paper's footnote-18 values 9.4e11 cm^-2 at 160 meV and
@@ -396,9 +401,71 @@ def verify_benchmarks():
            "residual %.4e W/m.K; the paper prints only ~1.3 (supp. Sec. 5) "
            "and the fit ln(T^0.52) - 1.687 (supp. Sec. 6)"
            % abs(kappa_ox(300.0) - 1.2794))
-    _check("A2 Dorgan R_th total rounds to the paper's ~1e4 K/W",
+    # A2 REPAIRED ON 2026-11-12, AND THE REPAIR GOES THE OPPOSITE WAY TO THE
+    # ONE THE 11-11 LIST PROPOSED.  Neither number is deleted.
+    #
+    # The 11-11 standing list ranked third "REPAIR A2's OVER-TIGHT TOLERANCE,
+    # OR DECIDE NOT TO", on the reasoning that +-5 % against a value the paper
+    # prints to one figure ("~1e4 K/W") is a tighter claim than the source
+    # supports, with widening to the licensed +-50 % the alternative and
+    # "nearly vacuous" the objection to it.  THE DILEMMA WAS FALSE, because
+    # the paper states the same fact twice in the SAME SENTENCE:
+    #
+    #   "At 300 K for our geometry R_th ~ 10^4 K/W, or ~2.8x10^-7 m^2 K/W
+    #    per unit of device area"
+    #
+    # and the second half carries TWO figures.  Since A = L*W = 2.8e-11 m^2 is
+    # given by the stated geometry and not fitted, 2.8e-7/A is 1.0e4 to within
+    # one ulp, so the two halves are one constraint and the tighter half
+    # licenses +-0.05/2.8 = +-1.7857 % on it.  See
+    # graphene_areal_thermal_resistance.py, checks I1/I2/F4, which assert the
+    # two residuals agree to 14 significant figures.
+    #
+    # So +-5 % was never over-tight.  It was 2.8x LOOSER than the source
+    # supports, and A2's defect was its CITATION rather than its width: it
+    # quoted the one-figure half of a two-figure sentence and then used a
+    # width that neither half licenses.  A2 is therefore TIGHTENED to the
+    # licensed +-1.7857 % and NOT widened to +-50 %.  It passes with 0.94 %
+    # of the licensed width to spare.  The old +-0.05 is preserved in A2a,
+    # which records what was being asserted before today.
+    _AREAL_PAPER, _AREAL_SIGFIGS = 2.8e-7, 2
+    _AREAL_HALFWIDTH = 0.05 / 2.8          # what 2 printed figures license
+    _check("A2 Dorgan R_th total agrees with the paper's ~1e4 K/W to the "
+           "+-1.7857 %% that the SAME SENTENCE's two-figure areal statement "
+           "licenses (tightened from +-5 %% on 2026-11-12; the 11-11 list "
+           "had this backwards and proposed widening to +-50 %%)",
+           abs(t["R_th"] - 1.0e4) / 1.0e4 < _AREAL_HALFWIDTH,
+           "R_th = %.4f K/W, residual %.4f %% of 1e4, licensed +-%.4f %%"
+           % (t["R_th"], 100.0 * (t["R_th"] - 1.0e4) / 1.0e4,
+              100.0 * _AREAL_HALFWIDTH))
+    _check("A2a the pre-2026-11-12 form of A2 -- the same comparison at the "
+           "+-5 %% it coded against the one-figure ~1e4 -- also passed, so "
+           "today's repair changed the WARRANT and not the verdict",
            abs(t["R_th"] - 1.0e4) / 1.0e4 < 0.05,
-           "R_th = %.1f K/W (paper: ~1e4)" % t["R_th"])
+           "residual %.4f %% against the old +-5 %%; the one figure in ~1e4 "
+           "would itself have licensed +-50 %%"
+           % (100.0 * (t["R_th"] - 1.0e4) / 1.0e4))
+    _check("A2b R_th * A rounds to the paper's ~2.8e-7 m^2.K/W at the 2 s.f. "
+           "it is printed to -- the per-unit-area half of the sentence, "
+           "which this module had never checked before 2026-11-12.  NOTE: "
+           "the quantity is R_th TIMES area, not divided by it; the quotient "
+           "is 21 decades away",
+           _rounds_to(t["R_th"] * t["A"], _AREAL_PAPER, _AREAL_SIGFIGS),
+           "R_th*A = %.6e -> %.1e at 2 s.f. (paper: 2.8e-7); R_th/A = %.3e"
+           % (t["R_th"] * t["A"],
+              float(_round_sig(t["R_th"] * t["A"], _AREAL_SIGFIGS)),
+              t["R_th"] / t["A"]))
+    _check("A2c A2 and A2b are ONE constraint, not two: their relative "
+           "residuals agree to within one ulp of 1.0, so neither can fail "
+           "while the other passes at equal width.  A2b is kept because the "
+           "paper prints it to more figures, NOT because it is independent",
+           abs((t["R_th"] * t["A"] - _AREAL_PAPER) / _AREAL_PAPER
+               - (t["R_th"] - 1.0e4) / 1.0e4) <= 4.0 * np.spacing(1.0),
+           "areal residual %.14e vs total residual %.14e, difference %.3e"
+           % ((t["R_th"] * t["A"] - _AREAL_PAPER) / _AREAL_PAPER,
+              (t["R_th"] - 1.0e4) / 1.0e4,
+              (t["R_th"] * t["A"] - _AREAL_PAPER) / _AREAL_PAPER
+              - (t["R_th"] - 1.0e4) / 1.0e4))
     _check("A3 R_B share rounds to the paper's 4 %%",
            round(shares["R_B"]) == 4,
            "R_B = %.1f K/W, %.2f %%" % (t["R_B"], shares["R_B"]))

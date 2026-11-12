@@ -3,14 +3,15 @@ MUTATION TEST -- graphene_self_heating_model.py
 ==========================================================================
 
 BASELINE (unmutated): exit 0  [GREEN]
-  41/41 passed, 0 failed
+  [PASS] A2a the pre-2026-11-12 form of A2 -- the same comparison at the +-5 %% it coded against the one-figure ~1e4 -- also passed, so today's repair changed the WARRANT and not the verdict
+  46/46 passed, 0 failed
 
 mutant                                                         verdict
 --------------------------------------------------------------------------
 M-A 2*pi -> pi in the Eq. (7) branch cut                       DETECTED (2 check failures)
-M-B kappa_ox offset 1.687 -> 1.600                             DETECTED (3 check failures)
-M-C R_Si loses its factor of 2 (spreading prefactor)           DETECTED (4 check failures)
-M-D R_ox uses t_ox^2 (a plausible-looking typo)                DETECTED (4 check failures)
+M-B kappa_ox offset 1.687 -> 1.600                             DETECTED (7 check failures)
+M-C R_Si loses its factor of 2 (spreading prefactor)           DETECTED (6 check failures)
+M-D R_ox uses t_ox^2 (a plausible-looking typo)                DETECTED (6 check failures)
 M-E v_sat loses the 2/pi prefactor                             DETECTED (2 check failures)
 M-F the Bose occupation factor is dropped entirely             DETECTED (1 check failures)
 M-G self-heating gets the WRONG SIGN (channel cools)           DETECTED (0 check failures, hard failure)
