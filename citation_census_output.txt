@@ -1,0 +1,149 @@
+==============================================================================
+CITATION CENSUS -- DID THE NAMED SOURCE PRINT THE NAMED NUMBER?
+==============================================================================
+
+[1] the registry
+  codata   2 printed, 0 derived   read: continuous -- it is the constant set the tree imports
+  dorgan   17 printed, 1 derived   read: 2026-11-10, re-read independently 2026-11-13
+  zion     2 printed, 0 derived   read: 2026-10-29/30
+  PASS  1a every registered source carries a citation and a read date
+        3 sources, 21 printed values, 1 declared derivations
+  PASS  1b every printed token is a number as written, and its float is recoverable
+  PASS  1c every printed value carries WHERE in the document it is printed -- a registry entry with no location is not evidence
+  PASS  1d THE REGISTRY IS HONEST ABOUT NON-UNIQUE VALUES: Dorgan prints the bare token '4' twice (the R_B share in per cent and the channel length in um), so a label quoting '4' does not identify its own warrant
+        shared tokens: {'4': 2}
+
+[2] exactly-known validations
+  PASS  2a _sigfigs('1e4') is EXACTLY 1 and _sigfigs('1.0e4') is EXACTLY 2 -- INFLATED is an integer inequality between two spellings, with no tolerance anywhere in it
+        1e4 -> 1, 1.0e4 -> 2, 10^4 as the paper prints it -> 1
+  PASS  2b the half-widths of the registry's two-figure values are EXACT rationals: 1.1e11 -> 1/22, 9.4e11 -> 1/188, 2.8e-7 -> 1/56
+        1/22, 1/188, 1/56
+  PASS  2c and they agree with the float half-widths the tolerance census computes, to the last bit
+  PASS  2d a printed '300' has NO significant-figure count from its spelling, and the registry does not invent one
+  PASS  2e THE DECLARED DERIVATION, TO THE ULP: the printed geometry gives L*W = 2.79999999999999970e-11 against the 2.8e-11 the labels quote, a distance of 1 ulp -- so 'exact' is asserted at the only precision at which it is true
+        A = 2.79999999999999970e-11, quoted 2.8e-11, ulp distance 1
+  PASS  2f THE SYMMETRY THAT MUST GIVE ZERO: a population with no quoted label censuses to EXACTLY zero rows
+
+[3] the planted controls, and the mutants that must disturb them
+  PASS  3a all nine verdicts in the vocabulary have a planted control (the twenty-second instance of the standing item)
+        9 controls over 9 verdicts
+  PASS  3b every control returns its intended verdict
+        got [('P1', 'CITED'), ('P2', 'INFLATED'), ('P3', 'AMBIG_PREC'), ('P4', 'DERIVED'), ('P5', 'UNWARRANTED'), ('P6', 'ORDINAL'), ('P7', 'RETRACTED'), ('P8', 'UNREGISTERED'), ('P9', 'NO_SOURCE')]
+  PASS  3e THE ARRIVAL CHECK FOR THE HARNESS ITSELF: the mutants are applied to the RUNNING module object.  Imported by name under __main__ this file yields a DIFFERENT object (a distinct copy), and patching that one leaves the subject untouched and every mutant reporting NOT DETECTED
+        running module '__main__', imported-by-name module 'graphene_citation_census_audit'
+    ordinal detection off                  -> [('P6', 'UNWARRANTED', 'ORDINAL')]
+    retraction detection off               -> [('P7', 'NO_SOURCE', 'RETRACTED')]
+    inflation at >= not >                  -> [('P1', 'INFLATED', 'CITED')]
+    ambiguous spelling guessed as 2 s.f.   -> [('P3', 'CITED', 'AMBIG_PREC')]
+    a derived value scored as printed      -> [('P4', 'CITED', 'DERIVED')]
+  PASS  3c all five mutants are detected by the planted controls
+        5/5
+  PASS  3d and the mutant that GUESSES a significant-figure count instead of refusing is detected on P3 specifically -- the same defect the tolerance census's 7b plants, now in the warrant vocabulary
+
+[4] the detectors, measured on the real tree rather than asserted
+  PASS  4a the ordinal detector fires on EXACTLY one label in the tree, and it is A1's 'Dorgan supp. Sec. 5'
+        [('graphene_self_heating_model.py', 384, '5')]
+  PASS  4b the retraction detector fires on EXACTLY one label, and it is A1b -- it does NOT fire on D2, whose citation is live and whose REPRODUCTION is what fails
+        [('graphene_self_heating_model.py', '1.2794')]
+  PASS  4c and D2 is scored as the live citation it is
+        D2 -> CITED (zion)
+  PASS  4d THE ALIAS IS AN ASSUMPTION, SO IT IS MEASURED: 6 row(s) resolve to Dorgan through the generic alias 'the paper' rather than through the name, and every one of them is in a module whose own header names Dorgan
+        unwarranted generic resolutions: []
+
+[5] the overlapping limit: this instrument against the one it extends
+  PASS  5a the citation census's population IS the tolerance census's quoted rows, one for one
+        13 citation rows, 13 quoted tolerance rows
+  PASS  5b and the two agree label-for-label and token-for-token, which is the whole of what they are allowed to agree about
+  PASS  5c the two instruments DISAGREE where they are supposed to: every row the tolerance census adjudicated or reported, this one re-reads as a warrant question, and the verdicts are drawn from disjoint vocabularies
+  PASS  5d two runs of the citation census over one unchanged tree are equal FIELD-FOR-FIELD (and CiteRow, like Row, is not value-equal -- see the tolerance census's R2b)
+
+[6] the findings, one at a time
+  PASS  6a FINDING 1, AND IT IS A DEFECT IN THE OLDER INSTRUMENT: the tolerance census reads A1's published value as 5, the ORDINAL OF THE SUPPLEMENTARY SECTION, and has printed it in its table since 2026-11-11.  The value A1's label actually cites is the 1.3 W/m.K three words earlier
+        tolerance census row: token='5' s.f.=1 verdict=SIGFIG_TEST
+  PASS  6b and the older instrument's own guard cannot see it: 8e rejects a NEGATIVE quoted value, which is what the footnote-ordinal bug produced, and a section ordinal is positive
+  PASS  6c the citation it displaced IS in the registry, at the precision the label claims: Dorgan supp. Sec. 5 prints kappa_ox ~ 1.3 Wm-1K-1 at 300 K
+  PASS  6d and the check A1 actually performs is sound -- it tests against 1.3 at 2 s.f. in the code, so the misparse is in the CENSUS's reading of the label and not in the physics
+  PASS  6e FINDING 2, AND IT IS THE 9k CLASS THE ITEM WAS BUILT TO FIND: exactly one label in the tree names a source that does not print its number -- 'reproduces Section 3.3's quoted 6.45 kOhm/sq from CODATA'.  CODATA prints e and h.  6.45 kOhm/sq is 1/(4e^2/h) COMPUTED from them, by this repository, in Chapter 3
+        [('graphene_fet_signed_carrier_model.py', '6.45', 'codata')]
+  PASS  6f and the tolerance census ADJUDICATED that row -- VACUOUS by x0.5 against a three-figure publication interval that no publication licenses, because 6.45's spelling claims three figures and nothing printed them
+        tolerance verdict 'VACUOUS'; licensed half-width came from the spelling of a number this tree wrote itself
+  PASS  6g THE REPAIR IS A WORDING, NOT A NUMBER: the quantity is right, the arithmetic is right, and the warrant is Chapter 3's own Section 3.3, which is this thesis.  A citation to CODATA for a derived quantity is a category error and the fix is to say 'Chapter 3' and cite CODATA for e and h
+        not applied in this commit: changing the label changes the tolerance census's population, and the two instruments are cross-validated against each other in 5a-5b this session
+  PASS  6h FINDING 3: exactly one label spells a real citation to more figures than its source printed -- I1 writes Dorgan's R_th as '1.0e4' where the paper prints '10^4'.  Two figures claimed, one printed
+        [('graphene_areal_thermal_resistance.py', '1.0e4')]
+  PASS  6i and the inflation is exactly a factor of 10 in licensed width: 1 s.f. on 1e4 licenses +-50 %, 2 s.f. on 1.0e4 licenses +-5 %, both exactly
+        1e4 -> 1/2, 1.0e4 -> 1/20
+  PASS  6j I1 is a LIT_NO_TEST row, so the inflation licenses nothing today -- it is a latent defect of exactly the kind A2's literal was before 2026-11-12, one layer out in the label
+  PASS  6k FINDING 4, A WARRANT CLASS AND NOT A DEFECT: 'Dorgan's 2.8e-11 m^2' is not printed anywhere in Dorgan.  It is L*W from the printed geometry, and the possessive is doing work the paper did not do
+  PASS  6l and the distinction has teeth: the printed geometry is EXACT (stated, not fitted), so the derivation inherits no uncertainty -- which is precisely why 2026-11-12's I1 could show the paper's two numbers are one statement divided by a constant
+        if L and W had been fitted, 2.8e-11 would carry their intervals and the areal and absolute statements would be independent
+  PASS  6m FINDING 5: 1 row(s) quote a value whose spelling fixes no precision, so no precision verdict is available and none is given.  V3's '~20 %' is the instance, and Dorgan does print a '~20%' -- so the citation is real and only its precision is unscorable
+        [('graphene_self_heating_model.py', '20')]
+  PASS  6n FINDING 6, MEASURED: 1 row(s) match more than one printed value of their source and therefore do not identify their own warrant.  A3's 'the paper's 4 %' matches both the R_B share and the 4 um channel length, and only a reader can tell which
+        [('graphene_self_heating_model.py', '4', ['R_B share of R_th, per cent', 'channel length L, um'])]
+
+[7] what the independent re-read CONFIRMED, which is a result
+  PASS  7a the fit's ARGUMENT survived the re-read: Dorgan prints kappa_ox = ln(T_ox^0.52) - 1.687 with T_ox = (T_0+T)/2 the MEAN oxide temperature, and thermal_resistances already evaluates it at 0.5*(T0+T) rather than at T
+  PASS  7b at the 300 K benchmark the two readings coincide EXACTLY, because the mean of 300 and 300 is 300 with no rounding at all -- so every A-series number is independent of this distinction
+  PASS  7c and away from 300 K they do NOT coincide, which is why the distinction was worth re-reading for: at T = 500 K the mean-oxide reading gives 1.428562 W/m.K and the device-temperature reading 1.544596, a difference of 8.122 %
+        the tree takes the mean reading, which is the printed one
+  PASS  7d the ln-identity the module's docstring asserts is true to the last bit at the benchmark: ln(300^0.52) and 0.52*ln(300) agree to 0 ulp
+        printed form ln(T^0.52), coded form 0.52*ln(T)
+  PASS  7e every Dorgan value this tree cites was found in the independently fetched text, at the place the labels say: 2.8e-7, 1.3, 84, 12, 9.4e11, 1.1e11, 20
+  PASS  7f THE RESULT STATED AS A RESULT: the module with the most published numbers per line -- graphene_self_heating_model -- has ZERO unwarranted citations.  Its one bad label was already retracted in place on 2026-11-11 and the census finds the retraction, not the claim
+
+[8] limits, and the 2026-11-12 predictions this module can score
+  PASS  8a THE LIMIT OF THIS INSTRUMENT, stated as a check so it is not forgotten: the registry is hand-built from documents a session read, so a value absent from the registry is UNWARRANTED whether the source printed it or not.  The defence is 1c -- every entry names its location -- and the failure mode is a registry that is merely incomplete reporting a sound citation as a defect
+  PASS  8b A SECOND LIMIT: the census matches on VALUE and not on MEANING, so a label quoting a number the source prints for a DIFFERENT quantity scores CITED.  6n measures how often the ambiguity is live in this tree (1 row(s)) rather than leaving it to be discovered
+  PASS  8c SCORING THE 2026-11-12 PREDICTION (1): it said the citation census's first finding would be in graphene_self_heating_model and not in an older module, on the reasoning that volume of citation and not age predicts where a census bites.  WRONG, and wrong in the direction the prediction argued against: the one UNWARRANTED row is in graphene_fet_signed_carrier_model, and self_heating has none
+        the finding IS in self_heating if the ordinal misparse counts as a finding -- but that is a defect in the instrument's reading, not a false citation, so it is not what the prediction named
+  PASS  8d and the reasoning behind the prediction was half right: self_heating produced the only ORDINAL and the only RETRACTED row, i.e. both of the citation anomalies that are not false citations, which is what a high volume of citation per line actually predicts
+
+[9] the tree
+
+==============================================================================
+THE CITATION CENSUS: EVERY LABEL IN THIS TREE THAT CLAIMS A SOURCE
+==============================================================================
+module                                 line  token     s.f.    source       verdict
+--------------------------------------------------------------------------------------------------------------
+graphene_areal_thermal_resistance.py   317   2.8e-7    2       dorgan       CITED
+graphene_areal_thermal_resistance.py   374   1.0e4     2       dorgan       INFLATED
+        I1 2.8e-7 / A agrees with the paper's own 1.0e4 to within one ulp but is NOT exactly equal to it (%.17e), so the two published numbers are one stateme
+        warrant: R_th at 300 K for the paper's geometry, K/W printed as '1e4' (main text after Eq. (5), printed 'R_th ~ 10^4 K/W'; also supp. Sec. 5)
+graphene_areal_thermal_resistance.py   479   2.8e-11   2       dorgan       DERIVED
+        S3 the band in AREA over which R_th*A stays inside the paper's own two-figure band spans a factor %.3f, and it brackets Dorgan's 2.8e-11 m^2
+        warrant: device area A, m^2, A = L*W from the printed L = 4 um and W = 7 um; exact, because the geometry is stated and not fitted
+graphene_fet_signed_carrier_model.py   648   6.45      3       codata       UNWARRANTED
+        this module reproduces Section 3.3's quoted 6.45 kOhm/sq from CODATA
+graphene_kappa_impurity_bound.py       644   1.5e12    2       zion         CITED
+graphene_self_heating_model.py         384   5         1       dorgan       ORDINAL
+        A1 kappa_ox(300K) rounds to the 1.3 W/m.K Dorgan supp. Sec. 5 prints for the oxide at 300 K, at the 2 s.f. that value is printed to
+graphene_self_heating_model.py         390   1.2794    5       -            RETRACTED
+        A1b kappa_ox(300K) = 1.2789668868 does NOT round to 1.2794 at five figures (it gives 1.2790), so A1's pre-2026-11-11 wording '== accepted value 1.2794
+graphene_self_heating_model.py         452   1e4       1       dorgan       CITED
+graphene_self_heating_model.py         471   2.8e-7    2       dorgan       CITED
+graphene_self_heating_model.py         492   4         1       dorgan       CITED
+graphene_self_heating_model.py         495   84        2       dorgan       CITED
+graphene_self_heating_model.py         498   12        2       dorgan       CITED
+graphene_self_heating_model.py         621   20        amb     dorgan       AMBIG_PREC
+        V3 v_sat is monotonically DECREASING in T (Dorgan's ~20%% / ~2%% statement has this sign)
+        warrant: v_sat DECREASE between ~280 K and ~500 K, SiO2 OP dominant, per cent printed as '20' (main text after Eq. (7), printed '~20% decrease')
+--------------------------------------------------------------------------------------------------------------
+13 label(s) claiming a source
+    CITED         7
+    INFLATED      1
+    AMBIG_PREC    1
+    DERIVED       1
+    UNWARRANTED   1
+    ORDINAL       1
+    RETRACTED     1
+1 row(s) match MORE THAN ONE printed value and so do not identify their own warrant
+  PASS  9a the census is not empty on the real tree, and it reports how many labels it read so that an empty census could not be mistaken for a clean one
+        13 rows, {'CITED': 7, 'INFLATED': 1, 'DERIVED': 1, 'UNWARRANTED': 1, 'ORDINAL': 1, 'RETRACTED': 1, 'AMBIG_PREC': 1}
+  PASS  9b every row carries a verdict in the declared vocabulary
+  PASS  9c A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES (standing item, 2026-10-17): this module's own labels quote registry tokens, so the tolerance census is run with include_self=False and this module is OUTSIDE its own population
+  PASS  9d exactly three rows carry a verdict that is a defect (UNWARRANTED, INFLATED, ORDINAL); the other ten are sound citations, declared derivations, retractions or unscorable precisions
+
+==============================================================================
+TOTAL: 51 passed, 0 failed
+==============================================================================

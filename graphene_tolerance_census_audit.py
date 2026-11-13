@@ -538,6 +538,12 @@ def census_source(src, path="<src>"):
 
 SELF = os.path.basename(os.path.abspath(__file__))
 
+# Modules whose check labels quote published numbers AS CONTROLS rather than
+# as claims about a source.  Censusing one of these reports the instrument's
+# own planted material as findings about the tree.  See census_repo's
+# docstring for how the second entry arrived and what it cost.
+PLANTING_MODULES = (SELF, "graphene_citation_census_audit.py")
+
 # The sibling repository, for the cross-repository run of 2026-11-12.  Looked
 # up beside this one rather than hard-coded, and its absence SKIPS the R1/X
 # checks rather than failing them -- a clone of one repository alone must
@@ -603,11 +609,23 @@ def census_repo(root=None, include_self=False, recursive=True):
 
     Pass include_self=True to census this module too; the check suite does
     exactly that, to assert the self-plant is real rather than describing it.
+
+    GENERALISED FROM ONE FILENAME TO A DECLARED CLASS, 2026-11-13.  On that
+    day `graphene_citation_census_audit` was added -- a second instrument,
+    whose check labels necessarily quote published tokens because its subject
+    IS the quoting of published tokens.  Its arrival put 10 new quoted rows
+    into this census's table of THE TREE, including three ORDINAL controls and
+    two UNWARRANTED ones, i.e. the same defect this docstring was written
+    about, one module over.  A `SELF`-only exclusion cannot see that: the
+    excluded thing is not "this file", it is "a module that plants the pattern
+    it censuses", and there are now two of them.  `PLANTING_MODULES` is that
+    class, declared rather than inferred, and check 8h measures what
+    excluding it does instead of asserting that it is harmless.
     """
     root = root or REPO
     rows = []
     for p in _python_files(root, recursive=recursive):
-        if os.path.basename(p) == SELF and not include_self:
+        if os.path.basename(p) in PLANTING_MODULES and not include_self:
             continue
         try:
             src = open(p, encoding="utf-8").read()
@@ -971,6 +989,34 @@ def main():
           "figures", not any(os.path.basename(r.path) == SELF for r in rows),
           "%r" % [r.line for r in rows
                   if os.path.basename(r.path) == SELF])
+
+    # 8h added 2026-11-13.  The self-plant item generalised to a class the
+    # day a second instrument joined the tree, and the cost is MEASURED here
+    # rather than asserted away.
+    _with_cite = census_repo(include_self=True)
+    _cite_rows = [r for r in _with_cite
+                  if os.path.basename(r.path)
+                  == "graphene_citation_census_audit.py"]
+    _cite_quoted = [r for r in _cite_rows if r.token is not None]
+    check("8h THE SECOND PLANTING MODULE, AND WHAT IT WOULD HAVE COST: "
+          "graphene_citation_census_audit (2026-11-13) contributes %d quoted "
+          "row(s) of its own planted controls, which a SELF-only exclusion "
+          "would have reported as findings about the tree -- so the exclusion "
+          "is now the declared class PLANTING_MODULES"
+          % len(_cite_quoted),
+          len(_cite_quoted) >= 5
+          and not any(os.path.basename(r.path)
+                      == "graphene_citation_census_audit.py" for r in rows),
+          "quoted tokens it would have injected: %r"
+          % sorted(set(r.token for r in _cite_quoted)))
+    check("8i and the exclusion changes NO adjudicated verdict about the "
+          "tree, because every row it removes belongs to a file that was "
+          "not in the tree before today",
+          sorted((os.path.basename(r.path), r.line, r.verdict)
+                 for r in rows if r.token is not None)
+          == sorted((os.path.basename(r.path), r.line, r.verdict)
+                    for r in _with_cite if r.token is not None
+                    and os.path.basename(r.path) not in PLANTING_MODULES))
 
     # ---- 9. does the computed value actually round to the quoted one? ---
     #
