@@ -78,16 +78,16 @@ graphene_fet_signed_carrier_model.py 648   ABS_TOL   0.01      6.45      3    0.
 graphene_kappa_impurity_bound.py     644   SIGFIG_FMT -         1.5e12    2    -          SIGFIG_TEST  
 graphene_self_heating_model.py       384   SIGFIG    -         5         1    -          SIGFIG_TEST  
 graphene_self_heating_model.py       390   SIGFIG    -         1.2794    5    -          SIGFIG_TEST  
-graphene_self_heating_model.py       452   REL_TOL   0.0178571 ~1e4      1    0.5        OVER_TIGHT   x28
-graphene_self_heating_model.py       471   SIGFIG    -         ~2.8e-7   2    -          SIGFIG_TEST  
-graphene_self_heating_model.py       492   ROUND_EQ  -         4         1    -          SIGFIG_TEST  
-graphene_self_heating_model.py       495   ROUND_EQ  -         84        2    -          SIGFIG_TEST  
-graphene_self_heating_model.py       498   ROUND_EQ  -         12        2    -          SIGFIG_TEST  
-graphene_self_heating_model.py       621   NO_TEST   -         ~20       amb  -          LIT_NO_TEST  
+graphene_self_heating_model.py       453   REL_TOL   0.0178571 ~1e4      1    0.017857   MATCHED      x1
+graphene_self_heating_model.py       472   SIGFIG    -         ~2.8e-7   2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       493   ROUND_EQ  -         4         1    -          SIGFIG_TEST  
+graphene_self_heating_model.py       496   ROUND_EQ  -         84        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       499   ROUND_EQ  -         12        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       622   NO_TEST   -         ~20       amb  -          LIT_NO_TEST  
 ------------------------------------------------------------------------------------------------------------------
 13 rows printed; 104 tolerance comparisons in the tree in total, of which
-    OVER_TIGHT   1
     VACUOUS      1
+    MATCHED      1
     NO_QUOTE     102
     SIGFIG_TEST  8
     LIT_NO_TEST  3
@@ -96,9 +96,10 @@ graphene_self_heating_model.py       621   NO_TEST   -         ~20       amb  - 
   PASS  8a the census is not empty on the real tree
   PASS  8b name-bound residuals are a LARGE fraction of the tree, so the inline-only first version was missing most of it
   PASS  8c every adjudicated row carries a quoted token and a verdict in the declared vocabulary
-  PASS  8d the tree still contains at least one OVER_TIGHT and one VACUOUS comparison against a published number -- STILL TRUE, but as of 2026-11-12 the OVER_TIGHT row is a false positive and not a defect (9l), so this check no longer witnesses what it was written to witness
+  PASS  8d the tree contains at least one VACUOUS comparison against a published number, and it is a real defect: the 6.45 kOhm/sq row, whose THREE-figure licensed width comes from a number this repository wrote itself (the citation census calls it UNWARRANTED)
+  PASS  8d2 and the tree now contains ZERO OVER_TIGHT rows, where before 2026-11-13 it contained exactly one.  That one was A2, the false positive of 9l, and the split-warrant repair removed it WITHOUT touching the comparison -- only the warrant the census reads
   PASS  8e no row in the tree is adjudicated against a NEGATIVE OR ZERO quoted value -- the footnote-ordinal bug would show up here
-  PASS  8f A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES (standing item, 2026-10-17) has an instance HERE: censusing this module adds 6 adjudicated rows that are its own controls
+  PASS  8f A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES (standing item, 2026-10-17) has an instance HERE: censusing this module adds 7 adjudicated rows that are its own controls
   PASS  8g and excluding it removes every one of them from the tree's figures
   PASS  8h THE SECOND PLANTING MODULE, AND WHAT IT WOULD HAVE COST: graphene_citation_census_audit (2026-11-13) contributes 10 quoted row(s) of its own planted controls, which a SELF-only exclusion would have reported as findings about the tree -- so the exclusion is now the declared class PLANTING_MODULES
   PASS  8i and the exclusion changes NO adjudicated verdict about the tree, because every row it removes belongs to a file that was not in the tree before today
@@ -114,8 +115,20 @@ graphene_self_heating_model.py       621   NO_TEST   -         ~20       amb  - 
   PASS  9i and the computed value DOES round to it, so the transcription of the fit was never in question -- only its warrant was
   PASS  9j no row in the tree now puts a TOLERANCE against 1.2794 behind a publication cue: the surviving 1.2794 row is the significant-figure check that records the discrepancy
   PASS  9k THE LIMIT OF THIS INSTRUMENT, stated as a check so it is not forgotten: the census reads quoted precision off a check's LABEL, so a label citing a value its source never printed is adjudicated as though the citation were real.  Detecting that needs the paper, not the AST.  5 s.f. on 1.2794 and 2 s.f. on 1.3 are both read correctly from their spellings, and only one of them has a source.
-  PASS  9l THE CENSUS'S FIRST FALSE POSITIVE, and the second stated limit of the instrument after 9k: it assumes a check's CENTRE and its WIDTH are warranted by the SAME printed number.  The repaired A2 takes its centre from the paper's one-figure '~1e4' and its width from the two-figure '~2.8e-7 per unit of device area' in the same sentence -- which, since A = L*W is exact, is the same quantity. The census reads only the label's centre token, licenses +-50 %, sees +-1.7857 % and returns OVER_TIGHT at ratio 28.  The verdict is wrong and the arithmetic behind it is right
+  PASS  9l THE CENSUS'S FIRST FALSE POSITIVE, REPAIRED 2026-11-13 AND RECORDED HERE RATHER THAN DELETED.  Until today the census assumed a check's CENTRE and its WIDTH are warranted by the SAME printed number.  A2 takes its centre from Dorgan's one-figure '~1e4' and its width from the two-figure '~2.8e-7 per unit of device area' in the same sentence -- the same quantity, since A = L*W is exact -- so the census read only the centre, licensed +-50 %, saw +-1.7857 % and returned OVER_TIGHT AT RATIO 28: a wrong verdict reached by correct arithmetic.  Section 10 is the repair, and this check now asserts the row is no longer OVER_TIGHT while keeping the old numbers in place
   PASS  9m A BLIND SPOT MEASURED RATHER THAN ASSERTED: census_source resolves name-bound RESIDUALS (the left side, 44 rows via bound_via) but not name-bound TOLERANCES -- `tol` is taken only from a literal comparator, so a check whose width is a named constant is outside the census entirely.  There are 7 such comparisons in 7 modules, and A2 was one of them for the length of one edit on 2026-11-12, which is how this was found
+
+SECTION 10.  The second warrant: centre and width from different printed numbers
+  PASS  10a the tree now contains exactly one row with a DECLARED width warrant, and it is A2 -- centre from Dorgan's one-figure ~1e4, width from the two-figure ~2.8e-7 in the same sentence
+  PASS  10b and its verdict is MATCHED, where on 2026-11-11 and 2026-11-12 it was OVER_TIGHT at ratio x28.  THE COMPARISON IN THE CODE IS UNCHANGED: what changed is which printed number the census reads the licensed width off
+  PASS  10c the transfer is legitimate for exactly one reason, and it is an EXACT one: A = L*W is given by the stated geometry and not fitted, so 2.8e-7 / A = 1e4 to within one ulp (2026-11-12 I1) and a RELATIVE width on one is a relative width on the other
+  PASS  10d THE MATCHED VERDICT IS A STATEMENT ABOUT THE EQUALITY BAND, NOT ABOUT BITWISE EQUALITY: A2's coded 0.05/2.8 and the census's own 0.5e-8/2.8e-7 are two spellings of 1/56 that differ by EXACTLY 1 ulp, and at rel_eps=0 the verdict would be VACUOUS by that one ulp instead of MATCHED
+  PASS  10e THE RESTRICTION, CHECKED: a width warrant is honoured only on a relative form.  No ABS_TOL row in the tree carries one, so nothing is being silently transferred across units today
+  PASS  10f PLANTED CONTROLS FOR THE SECOND WARRANT (the twenty-third instance of the standing item): the SAME comparison at the SAME tolerance is MATCHED with the declared width warrant (W1) and OVER_TIGHT without it (W2) -- so the mechanism, and not the arithmetic, is what the verdict turns on
+  PASS  10g and a width warrant whose OWN spelling fixes no precision is refused, not guessed: W3 falls back to the centre's half-width and is OVER_TIGHT, exactly as if it had declared nothing
+  PASS  10h and the mutant that ignores the declared warrant is detected: W1 reverts to OVER_TIGHT
+  PASS  10i SCORING THE 2026-11-12 PREDICTION (2).  FIRST HALF RIGHT: it said teaching the census two warrants would turn MATCHED, not OK, on A2 -- because A2's width equals the licensed half-width exactly, so the boundary case is the right verdict.  It does, and 10d shows the equality holds to one ulp and not better
+  PASS  10j SECOND HALF WRONG, AND UNSCORABLE AS POSED -- the X4 class again.  It predicted the repair would expose at least one row currently adjudicated MATCHED as mis-adjudicated.  The tree contained ZERO MATCHED rows on 2026-11-12, so the population it named was empty before the repair ran and A2 is the FIRST MATCHED row this tree has ever had
 
 SECTION R.  The recursion the cross-repository run forced
   PASS  R2 over THIS tree the recursive and flat censuses are identical field-for-field (115 rows each), because this tree is flat -- so making recursion the default cannot alter any existing finding
@@ -127,5 +140,5 @@ SECTION R.  The recursion the cross-repository run forced
   PASS  X4 and BOTH predictions were unscorable as posed until today: each named a population in a run that, with the instrument as it then stood, returned the empty set.  The prediction pair is scored above against the recursive run, which is the only run either could have meant
 
 ==============================================================================
-TOTAL: 71 passed, 0 failed
+TOTAL: 82 passed, 0 failed
 ==============================================================================

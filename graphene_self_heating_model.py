@@ -448,7 +448,8 @@ def verify_benchmarks():
     _check("A2 Dorgan R_th total agrees with the paper's ~1e4 K/W to the "
            "+-1.7857 %% that the SAME SENTENCE's two-figure areal statement "
            "licenses (tightened from +-5 %% on 2026-11-12; the 11-11 list "
-           "had this backwards and proposed widening to +-50 %%)",
+           "had this backwards and proposed widening to +-50 %%) "
+           "[width-warrant: 2.8e-7]",
            abs(t["R_th"] - 1.0e4) / 1.0e4 < 0.01785714285714286,
            "R_th = %.4f K/W, residual %.4f %% of 1e4, licensed +-%.4f %%"
            % (t["R_th"], 100.0 * (t["R_th"] - 1.0e4) / 1.0e4,

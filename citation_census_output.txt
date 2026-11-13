@@ -120,12 +120,12 @@ graphene_self_heating_model.py         384   5         1       dorgan       ORDI
         A1 kappa_ox(300K) rounds to the 1.3 W/m.K Dorgan supp. Sec. 5 prints for the oxide at 300 K, at the 2 s.f. that value is printed to
 graphene_self_heating_model.py         390   1.2794    5       -            RETRACTED
         A1b kappa_ox(300K) = 1.2789668868 does NOT round to 1.2794 at five figures (it gives 1.2790), so A1's pre-2026-11-11 wording '== accepted value 1.2794
-graphene_self_heating_model.py         452   1e4       1       dorgan       CITED
-graphene_self_heating_model.py         471   2.8e-7    2       dorgan       CITED
-graphene_self_heating_model.py         492   4         1       dorgan       CITED
-graphene_self_heating_model.py         495   84        2       dorgan       CITED
-graphene_self_heating_model.py         498   12        2       dorgan       CITED
-graphene_self_heating_model.py         621   20        amb     dorgan       AMBIG_PREC
+graphene_self_heating_model.py         453   1e4       1       dorgan       CITED
+graphene_self_heating_model.py         472   2.8e-7    2       dorgan       CITED
+graphene_self_heating_model.py         493   4         1       dorgan       CITED
+graphene_self_heating_model.py         496   84        2       dorgan       CITED
+graphene_self_heating_model.py         499   12        2       dorgan       CITED
+graphene_self_heating_model.py         622   20        amb     dorgan       AMBIG_PREC
         V3 v_sat is monotonically DECREASING in T (Dorgan's ~20%% / ~2%% statement has this sign)
         warrant: v_sat DECREASE between ~280 K and ~500 K, SiO2 OP dominant, per cent printed as '20' (main text after Eq. (7), printed '~20% decrease')
 --------------------------------------------------------------------------------------------------------------

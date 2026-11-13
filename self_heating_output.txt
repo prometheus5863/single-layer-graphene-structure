@@ -1,4 +1,4 @@
-/tmp/wk1112/single-layer-graphene-structure/graphene_self_heating_model.py:193: RuntimeWarning: overflow encountered in expm1
+/tmp/work/single-layer-graphene-structure/graphene_self_heating_model.py:193: RuntimeWarning: overflow encountered in expm1
   N_OP = 1.0 / (np.expm1(hbar * w_OP / (k_B * T)))
 ==========================================================================
 SELF-CONSISTENT ELECTRO-THERMAL MODEL -- graphene FET on SiO2
@@ -93,7 +93,7 @@ CHECKS
          1.2789668868 -> np.float64(1.279) at 5 s.f.
   [PASS] A1c the 1.2794 of the old label is retained and still agrees to 5e-4 W/m.K, but it is NOT a value this paper prints at any precision and carries no citation -- provenance unresolved
          residual 4.3311e-04 W/m.K; the paper prints only ~1.3 (supp. Sec. 5) and the fit ln(T^0.52) - 1.687 (supp. Sec. 6)
-  [PASS] A2 Dorgan R_th total agrees with the paper's ~1e4 K/W to the +-1.7857 %% that the SAME SENTENCE's two-figure areal statement licenses (tightened from +-5 %% on 2026-11-12; the 11-11 list had this backwards and proposed widening to +-50 %%)
+  [PASS] A2 Dorgan R_th total agrees with the paper's ~1e4 K/W to the +-1.7857 %% that the SAME SENTENCE's two-figure areal statement licenses (tightened from +-5 %% on 2026-11-12; the 11-11 list had this backwards and proposed widening to +-50 %%) [width-warrant: 2.8e-7]
          R_th = 9915.5790 K/W, residual -0.8442 % of 1e4, licensed +-1.7857 %
   [PASS] A2d the literal in A2's comparison IS 0.05/2.8, the half-width the paper's two printed figures license -- a guard, because the derivation now lives in a comment and the value in the code, so nothing but this check stops them drifting apart
          literal 0.017857142857142860, 0.05/2.8 = 0.017857142857142860

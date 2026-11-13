@@ -156,6 +156,49 @@ _QUOTE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# ---------------------------------------------------------------------------
+# THE SECOND WARRANT: A LABEL MAY TAKE ITS CENTRE AND ITS WIDTH FROM
+# DIFFERENT PRINTED NUMBERS.
+#
+# Added 2026-11-13 as the RANKED-SECOND item of the 2026-11-12 entry, which
+# was created by this census's FIRST FALSE POSITIVE (check 9l).  The census
+# assumed a check's centre and its width are warranted by the same printed
+# number.  `graphene_self_heating_model` check A2 is the counterexample and it
+# was written deliberately: its centre is Dorgan's one-figure `~1e4 K/W` and
+# its width is the two-figure `~2.8e-7 m^2.K/W per unit of device area` from
+# THE SAME SENTENCE, which -- since A = L*W is given by the stated geometry
+# and not fitted -- is the same statement divided by an exact constant.  The
+# census read only the centre, licensed +-50 %, saw +-1.7857 % and returned
+# OVER_TIGHT at ratio 28: a wrong verdict reached by correct arithmetic.
+#
+# The repair is the one the item predicted: a SECOND OPTIONAL TOKEN in the
+# label vocabulary, so a label can say "centre 1e4, width from 2.8e-7".  It
+# is spelled machine-readably rather than in prose, because the whole defect
+# of the first version was reading a precision claim out of English.
+#
+#     ... [width-warrant: 2.8e-7]
+#
+# RESTRICTED TO RELATIVE TOLERANCES, AND THE RESTRICTION IS THE POINT.  A
+# relative width is dimensionless and therefore transferable between two
+# quantities related by an exact constant; an ABSOLUTE width lives in the
+# units of its own quantity and transferring it would require the label to
+# assert that the two quantities share units, which a label cannot be trusted
+# to do.  On an ABS_TOL row the warrant is parsed, recorded and NOT used, and
+# check 10e reports any such row rather than silently honouring it.
+_WIDTH_WARRANT_RE = re.compile(
+    r"\[\s*width-warrant\s*:\s*(~?)(" + _NUM + r")\s*\]", re.IGNORECASE)
+
+
+def extract_width_warrant(label):
+    """(token, approx) of a label's declared WIDTH warrant, if it has one."""
+    if not label:
+        return (None, False)
+    m = _WIDTH_WARRANT_RE.search(label)
+    if not m:
+        return (None, False)
+    return (m.group(2), m.group(1) == "~")
+
+
 # A test that compares to the quoted number's own rounding rather than to a
 # hand-written tolerance.  These are the CONTROL class of the census: the
 # instrument the commissioning item asked for, already in use.
@@ -259,7 +302,7 @@ class Row(object):
 
     __slots__ = ("path", "line", "form", "tol", "label", "token", "approx",
                  "sigfigs", "h_abs", "h_rel", "h_eff", "verdict", "ratio",
-                 "bound_via")
+                 "bound_via", "width_token")
 
     def __init__(self, **kw):
         for k in self.__slots__:
@@ -331,8 +374,16 @@ def classify_left(left):
 def _check_labels(tree):
     """[(start_line, end_line, label)] for every ...check(<str>, ...) call.
 
-    Any callable whose name ends in "check" counts: this tree uses `_check`,
-    `check` and `_c` interchangeably across modules.
+    Any callable whose name ends in "check" counts: this tree uses `_check`
+    and `check` interchangeably across modules.
+
+    CORRECTED 2026-11-13.  This docstring previously also listed `_c`, which
+    the code has never accepted -- "_c" does not end in "check".  Writing a
+    planted control with `_c` on 2026-11-13 produced a census with zero rows
+    and no error, which is how the mismatch was found.  No module in the tree
+    uses `_c` for a check (measured: the only occurrences are inside this
+    module's own planted source), so nothing was being missed; the docstring
+    was describing a tolerance the code does not have.
     """
     out = []
     for node in ast.walk(tree):
@@ -480,12 +531,19 @@ def census_source(src, path="<src>"):
             continue
         h_abs, h_rel, sf = half_width(token)
         h_eff = effective_half_width(form, h_abs, h_rel)
+        # the second warrant, 2026-11-13: a declared width token overrides
+        # the centre's own half-width, on relative forms only
+        w_token, _w_approx = extract_width_warrant(label)
+        if w_token is not None and form != "ABS_TOL":
+            w_abs, w_rel, _w_sf = half_width(w_token)
+            if w_rel is not None:
+                h_eff = w_rel
         v = verdict(tol, h_eff)
         rows.append(Row(path=path, line=node.lineno, form=form, tol=tol,
                         label=label, token=token, approx=approx, sigfigs=sf,
                         h_abs=h_abs, h_rel=h_rel, h_eff=h_eff, verdict=v,
                         ratio=(None if h_eff is None else h_eff / tol),
-                        bound_via=bound_via))
+                        bound_via=bound_via, width_token=w_token))
     # ---- the control class: comparisons against a published number that
     # ---- already use the quoted number's own rounding ---------------------
     tol_lines = set(r.line for r in rows)
@@ -964,13 +1022,28 @@ def main():
     # witnessed is gone.  8d goes on passing because the REPAIRED A2 is
     # itself censused OVER_TIGHT, at ratio 28, which is a FALSE POSITIVE and
     # the first this instrument has produced.  See 9l.
-    check("8d the tree still contains at least one OVER_TIGHT and one "
-          "VACUOUS comparison against a published number -- STILL TRUE, but "
-          "as of 2026-11-12 the OVER_TIGHT row is a false positive and not a "
-          "defect (9l), so this check no longer witnesses what it was "
-          "written to witness",
-          counts.get("OVER_TIGHT", 0) >= 1 and counts.get("VACUOUS", 0) >= 1,
-          "%r" % counts)
+    # 8d REWRITTEN 2026-11-13, AND ITS OLD NUMBERS ARE KEPT IN PLACE.
+    #
+    # As first written it asserted the tree still contains at least one
+    # OVER_TIGHT and one VACUOUS row.  On 2026-11-12 it was annotated: the
+    # OVER_TIGHT row (A2) had become a FALSE POSITIVE of this instrument
+    # rather than a defect of the tree, so the check was green while
+    # witnessing nothing.  Today the split-warrant repair (section 10) turns
+    # that row MATCHED, so the old form would be RED -- and red for the right
+    # reason, which an assertion cannot express.  The check is therefore split
+    # into what each half is now evidence for.
+    check("8d the tree contains at least one VACUOUS comparison against a "
+          "published number, and it is a real defect: the 6.45 kOhm/sq row, "
+          "whose THREE-figure licensed width comes from a number this "
+          "repository wrote itself (the citation census calls it UNWARRANTED)",
+          counts.get("VACUOUS", 0) >= 1, "%r" % counts)
+    check("8d2 and the tree now contains ZERO OVER_TIGHT rows, where before "
+          "2026-11-13 it contained exactly one.  That one was A2, the false "
+          "positive of 9l, and the split-warrant repair removed it WITHOUT "
+          "touching the comparison -- only the warrant the census reads",
+          counts.get("OVER_TIGHT", 0) == 0,
+          "OVER_TIGHT %d (was 1 on 2026-11-11 and 2026-11-12, at ratio x28)"
+          % counts.get("OVER_TIGHT", 0))
     check("8e no row in the tree is adjudicated against a NEGATIVE OR ZERO "
           "quoted value -- the footnote-ordinal bug would show up here",
           all(float(r.token) > 0 for r in rows if r.token is not None),
@@ -1129,19 +1202,22 @@ def main():
     _a2 = [r for r in rows
            if os.path.basename(r.path) == "graphene_self_heating_model.py"
            and (r.label or "").startswith("A2 ")]
-    check("9l THE CENSUS'S FIRST FALSE POSITIVE, and the second stated limit "
-          "of the instrument after 9k: it assumes a check's CENTRE and its "
-          "WIDTH are warranted by the SAME printed number.  The repaired A2 "
-          "takes its centre from the paper's one-figure '~1e4' and its width "
-          "from the two-figure '~2.8e-7 per unit of device area' in the same "
-          "sentence -- which, since A = L*W is exact, is the same quantity. "
-          "The census reads only the label's centre token, licenses +-50 %, "
-          "sees +-1.7857 % and returns OVER_TIGHT at ratio 28.  The verdict "
-          "is wrong and the arithmetic behind it is right",
-          len(_a2) == 1 and _a2[0].verdict == "OVER_TIGHT"
-          and abs(_a2[0].ratio - 28.0) < 0.01 and _a2[0].sigfigs == 1,
-          "%r" % [(r.line, r.verdict, r.token, r.sigfigs, r.tol, r.ratio)
-                  for r in _a2])
+    a2_now = [r for r in rows if r.width_token is not None]
+    check("9l THE CENSUS'S FIRST FALSE POSITIVE, REPAIRED 2026-11-13 AND "
+          "RECORDED HERE RATHER THAN DELETED.  Until today the census "
+          "assumed a check's CENTRE and its WIDTH are warranted by the SAME "
+          "printed number.  A2 takes its centre from Dorgan's one-figure "
+          "'~1e4' and its width from the two-figure '~2.8e-7 per unit of "
+          "device area' in the same sentence -- the same quantity, since "
+          "A = L*W is exact -- so the census read only the centre, licensed "
+          "+-50 %, saw +-1.7857 % and returned OVER_TIGHT AT RATIO 28: a "
+          "wrong verdict reached by correct arithmetic.  Section 10 is the "
+          "repair, and this check now asserts the row is no longer "
+          "OVER_TIGHT while keeping the old numbers in place",
+          len(a2_now) == 1 and a2_now[0].verdict != "OVER_TIGHT",
+          "A2 today: verdict %s, licensed width read from %r instead of from "
+          "the centre's own one figure"
+          % (a2_now[0].verdict, a2_now[0].width_token) if a2_now else "")
     _name_tol, _name_files = 0, set()
     for _p in _python_files(REPO):
         try:
@@ -1167,6 +1243,119 @@ def main():
              len(_name_files)),
           _name_tol >= 1 and len(_name_files) >= 1,
           "%d comparisons in %r" % (_name_tol, sorted(_name_files)))
+
+    # ======================================================================
+    print("\nSECTION 10.  The second warrant: centre and width from "
+          "different printed numbers")
+    # ======================================================================
+    a2 = [r for r in rows if r.width_token is not None]
+    check("10a the tree now contains exactly one row with a DECLARED width "
+          "warrant, and it is A2 -- centre from Dorgan's one-figure ~1e4, "
+          "width from the two-figure ~2.8e-7 in the same sentence",
+          len(a2) == 1 and a2[0].token == "1e4"
+          and a2[0].width_token == "2.8e-7",
+          "%r" % [(os.path.basename(r.path), r.line, r.token, r.width_token)
+                  for r in a2])
+    check("10b and its verdict is MATCHED, where on 2026-11-11 and "
+          "2026-11-12 it was OVER_TIGHT at ratio x28.  THE COMPARISON IN THE "
+          "CODE IS UNCHANGED: what changed is which printed number the census "
+          "reads the licensed width off",
+          a2 and a2[0].verdict == "MATCHED",
+          "verdict %s, ratio %s" % (a2[0].verdict, a2[0].ratio) if a2 else "")
+    check("10c the transfer is legitimate for exactly one reason, and it is "
+          "an EXACT one: A = L*W is given by the stated geometry and not "
+          "fitted, so 2.8e-7 / A = 1e4 to within one ulp (2026-11-12 I1) and "
+          "a RELATIVE width on one is a relative width on the other",
+          abs((2.8e-7 / 2.8e-11) - 1.0e4) / 1.0e4 < 1e-15,
+          "2.8e-7 / 2.8e-11 = %.17e against 1.0e4" % (2.8e-7 / 2.8e-11))
+    # the exact arithmetic of the new verdict, to the ulp
+    import struct as _struct
+
+    def _bits(x):
+        return _struct.unpack("<q", _struct.pack("<d", x))[0]
+
+    _coded = 0.05 / 2.8
+    _census = half_width("2.8e-7")[1]
+    _ulp = abs(_bits(_coded) - _bits(_census))
+    check("10d THE MATCHED VERDICT IS A STATEMENT ABOUT THE EQUALITY BAND, "
+          "NOT ABOUT BITWISE EQUALITY: A2's coded 0.05/2.8 and the census's "
+          "own 0.5e-8/2.8e-7 are two spellings of 1/56 that differ by "
+          "EXACTLY %d ulp, and at rel_eps=0 the verdict would be VACUOUS by "
+          "that one ulp instead of MATCHED" % _ulp,
+          _ulp == 1
+          and verdict(_coded, _census) == "MATCHED"
+          and verdict(_coded, _census, rel_eps=0.0) == "VACUOUS",
+          "coded %.20f, census %.20f, Fraction(1,56) %.20f"
+          % (_coded, _census, float(__import__("fractions").Fraction(1, 56))))
+    check("10e THE RESTRICTION, CHECKED: a width warrant is honoured only on "
+          "a relative form.  No ABS_TOL row in the tree carries one, so "
+          "nothing is being silently transferred across units today",
+          not any(r.width_token is not None and r.form == "ABS_TOL"
+                  for r in rows),
+          "%r" % [(os.path.basename(r.path), r.form) for r in rows
+                  if r.width_token is not None])
+    # planted controls for the new mechanism
+    _PW = """
+def planted_width():
+    _check("W1 agrees with the paper's ~1e4 to the width the two-figure 2.8e-7 "
+       "licenses [width-warrant: 2.8e-7]", abs(a - 1.0e4) / 1.0e4 < 0.01785714285714286)
+    _check("W2 agrees with the paper's ~1e4 and declares NO width warrant",
+       abs(a - 1.0e4) / 1.0e4 < 0.01785714285714286)
+    _check("W3 agrees with the paper's ~1e4 with a width warrant whose own "
+       "spelling is ambiguous [width-warrant: 300]", abs(a - 1.0e4) / 1.0e4 < 0.01785714285714286)
+"""
+    wrows = census_source(_PW, "<planted-width>")
+    wmap = dict((r.label.split()[0], r) for r in wrows if r.label)
+    check("10f PLANTED CONTROLS FOR THE SECOND WARRANT (the twenty-third "
+          "instance of the standing item): the SAME comparison at the SAME "
+          "tolerance is MATCHED with the declared width warrant (W1) and "
+          "OVER_TIGHT without it (W2) -- so the mechanism, and not the "
+          "arithmetic, is what the verdict turns on",
+          wmap.get("W1") is not None and wmap["W1"].verdict == "MATCHED"
+          and wmap.get("W2") is not None
+          and wmap["W2"].verdict == "OVER_TIGHT",
+          "W1 %s, W2 %s" % (wmap["W1"].verdict if "W1" in wmap else "-",
+                            wmap["W2"].verdict if "W2" in wmap else "-"))
+    check("10g and a width warrant whose OWN spelling fixes no precision is "
+          "refused, not guessed: W3 falls back to the centre's half-width "
+          "and is OVER_TIGHT, exactly as if it had declared nothing",
+          wmap.get("W3") is not None
+          and wmap["W3"].verdict == "OVER_TIGHT"
+          and wmap["W3"].width_token == "300",
+          "W3 %s with width_token %r"
+          % (wmap["W3"].verdict if "W3" in wmap else "-",
+             wmap["W3"].width_token if "W3" in wmap else None))
+    # the mutant
+    _real_eww = extract_width_warrant
+    try:
+        globals()["extract_width_warrant"] = lambda label: (None, False)
+        wrows_m = census_source(_PW, "<planted-width>")
+        wmap_m = dict((r.label.split()[0], r) for r in wrows_m if r.label)
+    finally:
+        globals()["extract_width_warrant"] = _real_eww
+    check("10h and the mutant that ignores the declared warrant is detected: "
+          "W1 reverts to OVER_TIGHT",
+          wmap_m.get("W1") is not None
+          and wmap_m["W1"].verdict == "OVER_TIGHT",
+          "mutated W1 -> %s" % (wmap_m["W1"].verdict
+                                if "W1" in wmap_m else "-"))
+    matched_rows = [r for r in rows if r.verdict == "MATCHED"]
+    check("10i SCORING THE 2026-11-12 PREDICTION (2).  FIRST HALF RIGHT: it "
+          "said teaching the census two warrants would turn MATCHED, not OK, "
+          "on A2 -- because A2's width equals the licensed half-width "
+          "exactly, so the boundary case is the right verdict.  It does, and "
+          "10d shows the equality holds to one ulp and not better",
+          len(matched_rows) == 1 and matched_rows[0].token == "1e4")
+    check("10j SECOND HALF WRONG, AND UNSCORABLE AS POSED -- the X4 class "
+          "again.  It predicted the repair would expose at least one row "
+          "currently adjudicated MATCHED as mis-adjudicated.  The tree "
+          "contained ZERO MATCHED rows on 2026-11-12, so the population it "
+          "named was empty before the repair ran and A2 is the FIRST MATCHED "
+          "row this tree has ever had",
+          len([r for r in rows if r.verdict == "MATCHED"
+               and r.width_token is None]) == 0,
+          "MATCHED rows today: %r; all of them created by today's repair"
+          % [(os.path.basename(r.path), r.token) for r in matched_rows])
 
     print("\nSECTION R.  The recursion the cross-repository run forced")
     _flat_own = census_repo(recursive=False)
