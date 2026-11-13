@@ -16645,3 +16645,376 @@ made a ranked-first item cheap.
    describable by any single areal figure of merit at two figures — which, if
    it holds, is the sharpest form of §3's result and the one that belongs in
    Chapter 4.
+
+---
+
+## 2026-11-13 — the published value was a section number, the only false citation credited CODATA for a number this thesis computed, and the module with the most citations per line had none
+
+**Commits before this entry:** 3 — the citation census with the
+`PLANTING_MODULES` generalisation it forced; the split-warrant repair of the
+tolerance census; the research note.
+
+### 0. What was taken, and why it was taken as ranked
+
+11-12 ranked **A CENSUS OF CITATIONS, NOT TOLERANCES** first and **TEACH THE
+CENSUS THAT CENTRE AND WIDTH CAN HAVE DIFFERENT WARRANTS** second, calling the
+second cheap and noting it "un-breaks 8d". Both were taken as ranked, in that
+order, and the order mattered: the first census's findings are what made the
+second's scope obvious, and the second changed 8d in a way the first could not
+have predicted — not by un-breaking it but by making its old form **red for
+the right reason**, which an assertion cannot express.
+
+A source was fetched, which 11-12 did not do. That was not a departure: a
+citation census whose registry rests on this repository's own notes is a
+census of its notes, not of its citations.
+
+### 1. The source, read a second time, independently
+
+[arXiv:1005.2711](https://arxiv.org/pdf/1005.2711) (Dorgan, Bae & Pop, *Appl.
+Phys. Lett.* **97**, 082112), SOM in the same file. The 11-10 session built
+`graphene_self_heating_model` from its own read of this preprint; today's read
+exists to test the module against the text rather than against the note that
+recorded the text.
+
+**Every transcription survived, including the two most at risk.**
+
+- The fit is printed `kappa_ox = ln(T_ox^0.52) - 1.687` with `T_ox =
+  (T_0+T)/2`, the **mean** oxide temperature. The module's docstring already
+  records the ln-identity and `thermal_resistances` already evaluates the fit
+  at `0.5*(T0+T)`. At the 300 K benchmark the distinction is **exactly** inert
+  — the mean of 300 and 300 is 300 with no rounding — so no A-series number
+  depends on it. At 500 K the two readings differ by 2.1 %, which is why it was
+  worth reading for.
+- `kappa_ox ~ 1.3 Wm-1K-1 ... (at 300 K)` is in **supp. Sec. 5 and nowhere in
+  the main text**, exactly as A1's label claims.
+
+**The module with the most published numbers per line has zero false
+citations.** Section 7 of the new module states that as a result rather than
+as a null result, and it refutes this repository's own ranked prediction (§8).
+
+New information the read brought back and the tree does not carry: the
+`~20 %`/`~2 %` `v_sat` statement is bracketed between `~280 K` and `~500 K`,
+and the `~20 %` belongs to the 55 meV SiO2-phonon branch while the `~2 %`
+belongs to the 160 meV graphene-OP branch. `V3` tests only the sign.
+
+### 2. The instrument
+
+`graphene_citation_census_audit.py`, 51 checks, 51 passing, nine verdicts each
+with a planted control (the **twenty-second** instance of that standing item),
+5/5 mutants detected.
+
+The design decision that matters: **the population is not re-derived.** It is
+the tolerance census's own 13 quoted rows, asserted field-for-field (5a/5b), so
+the two instruments cannot disagree about *which* labels claim a source — only
+about what is true of them. The consequence is deliberate: this module
+inherits the old `extract_quote`, misparses included. That is how the misparse
+was found.
+
+The verdicts are warrant classes and are disjoint from the tolerance census's
+vocabulary (5c): `CITED`, `INFLATED`, `AMBIG_PREC`, `DERIVED`, `UNWARRANTED`,
+`ORDINAL`, `RETRACTED`, `UNREGISTERED`, `NO_SOURCE`.
+
+### 3. Finding 1 — the published value was the ordinal of a supplementary section, and it is a defect in the commissioning instrument
+
+    graphene_self_heating_model.py  384  token=5  s.f.=1  dorgan  ORDINAL
+
+A1's label reads *"rounds to the 1.3 W/m.K Dorgan supp. Sec. 5 prints for the
+oxide at 300 K"*. The tolerance census matches a cue and takes the next number
+within forty characters: the cue that wins is `Dorgan` and the next number is
+**the 5 of "Sec. 5"**. Since 2026-11-11 it has reported A1 as a comparison
+against a published value of 5 quoted to one figure, and printed it in its
+table of the tree.
+
+Same class as the footnote-ordinal bug that census fixed on the day it was
+written, surviving in the one position the fix did not cover: **an ordinal that
+follows the cue instead of preceding the number.** Making `footnote-\d+` a
+longer cue does nothing for it. And check 8e cannot see it either — 8e rejects
+a **negative** quoted value, which is what the earlier bug produced, and a
+section number is positive. A guard written against one instance of a class
+caught that instance.
+
+The check A1 performs is sound: `_rounds_to(kappa_ox(300), 1.3, 2)` in the
+code. The defect is entirely in the census's reading of its label.
+
+### 4. Finding 2 — the only false citation in the tree credits CODATA for a number this thesis computed
+
+    graphene_fet_signed_carrier_model.py  648  token=6.45  codata  UNWARRANTED
+
+> `this module reproduces Section 3.3's quoted 6.45 kOhm/sq from CODATA`
+
+CODATA prints `e` and `h`. **6.45 kΩ/□ is `1/(4e²/h)` computed from them, by
+this repository, in Chapter 3.** This is the class 9k said no AST instrument
+could reach, and it is the only instance in the tree.
+
+Its consequence was live, not latent: the tolerance census adjudicated that row
+**VACUOUS by ×0.5** against a three-figure publication interval **that no
+publication licenses**. The three figures came from the spelling of a number
+this tree wrote itself.
+
+The repair is a wording — Chapter 3 for the quantity, CODATA for `e` and `h` —
+and it is deliberately **not applied**: the two censuses are cross-validated
+against each other's populations in this session, and editing the label in the
+same commit would make that validation vacuous. It is ranked first below.
+
+### 5. Finding 3 — a real citation spelled finer than its source printed
+
+    graphene_areal_thermal_resistance.py  374  token=1.0e4  dorgan  INFLATED
+
+I1 writes Dorgan's `R_th` as `1.0e4`. The paper prints `10^4`. Two figures
+claimed, one printed, and exactly a factor of ten in licensed width — `1/2`
+against `1/20`, asserted as exact rationals. `INFLATED` is an integer
+inequality between two spellings with no tolerance anywhere in it, which is the
+one way this instrument is sounder than the tolerance census.
+
+Latent today, because I1 is a `LIT_NO_TEST` row. It is the same defect A2's
+literal had before 11-12, one layer out: in the **label**, which is where the
+tolerance census takes its evidence from.
+
+### 6. Two warrant classes that are not defects, and one measured ambiguity
+
+- **`DERIVED`.** "Dorgan's 2.8e-11 m²" is nowhere in Dorgan: it is `L*W` from
+  the printed geometry, checked to **0 ulp**, and the possessive is doing work
+  the paper did not do. The distinction has teeth — the geometry is *stated*
+  and not fitted, so the derivation inherits no interval, which is exactly why
+  11-12 could show the paper's two numbers are one statement over an exact
+  constant.
+- **`AMBIG_PREC`.** `V3`'s `~20 %` fixes no figure count by its spelling.
+  Dorgan does print `~20%`, so the citation is real and only its precision is
+  unscorable; the mutant that guesses two figures instead of refusing is
+  detected on that control.
+- **One row does not identify its own warrant.** A3's "the paper's 4 %"
+  matches two printed Dorgan values at once — the `~4 %` share of `R_B` and the
+  `4 μm` channel length. The census matches on **value, not meaning**, scores
+  it `CITED`, and counts it. The count is the measurement of the limit (8b),
+  not a dismissal of it.
+
+### 7. The second warrant, and a verdict that turns on one ulp
+
+A2's centre is Dorgan's one-figure `~1e4`; its width is the two-figure
+`~2.8e-7` **from the same sentence**. The repair is the second optional label
+token the item predicted, spelled machine-readably because reading a precision
+claim out of English is the whole defect of the first version:
+
+    ... [width-warrant: 2.8e-7]
+
+A2 goes **`OVER_TIGHT` ×28 → `MATCHED`** with *nothing in the comparison
+changed* — not the tolerance, not the value, not the outcome. Honoured on
+relative forms only: a relative width is dimensionless and transfers across an
+exact constant, an absolute one would need the label to assert two quantities
+share units. A width warrant whose own spelling fixes no precision is refused,
+not guessed (10g).
+
+And the new verdict is a statement about the equality **band**:
+
+    A2's coded 0.05/2.8        = 0.01785714285714285962
+    the census's 0.5e-8/2.8e-7 = 0.01785714285714285615  = float(1/56)
+
+One ulp apart. **At `rel_eps = 0` the verdict is `VACUOUS` by that one ulp
+instead of `MATCHED`.** Third session in three where a one-ulp fact decided
+something.
+
+**8d is rewritten and its old numbers kept.** It asserted the tree still holds
+at least one `OVER_TIGHT` and one `VACUOUS` row; 11-12 annotated it as green
+while witnessing nothing. Today the old form would be red — correctly — so it
+splits: 8d keeps the `VACUOUS` half, now known to be a **real** defect by §4,
+and 8d2 asserts zero `OVER_TIGHT` rows where there was exactly one. 9l becomes
+the record of a repaired false positive, keeping the ×28 and the ±50 % in
+place.
+
+### 8. The 11-12 predictions, scored
+
+1. **Wrong, and wrong in the direction it argued against.** It said the first
+   finding would be in `graphene_self_heating_model` rather than an older
+   module, because volume of citation and not age predicts where a census
+   bites. The only `UNWARRANTED` row is in `graphene_fet_signed_carrier_model`;
+   `self_heating` has none. Its reasoning was half right in a way it did not
+   claim: `self_heating` produced the only `ORDINAL` **and** the only
+   `RETRACTED` row — both citation anomalies that are *not* false citations —
+   which is what a high citation density actually predicts.
+2. **First half right, second half wrong and unscorable as posed.** `MATCHED`
+   on A2, right, and §7 shows the equality holds to one ulp and not better. The
+   risky half — "will expose at least one row currently adjudicated `MATCHED`
+   as mis-adjudicated" — named a population that was **empty**: the tree had
+   zero `MATCHED` rows outside the instrument modules yesterday, and A2 is the
+   first this tree has ever had. **The X4 class for the third time**, and worth
+   stating as a pattern rather than as a third incident: three of this
+   thread's predictions have now failed by naming a population that did not
+   exist when they were written, which is a defect in how predictions are
+   posed and not in the reasoning inside them.
+3. **Not exercised.** The areal band at the repo's own `t_ox` was not built.
+
+### 9. Three self-caught errors
+
+1. **The mutation harness patched a copy of its own subject.** It did `import
+   graphene_citation_census_audit as M` and patched `M`; run as `__main__` the
+   import builds a **second module object**, so every mutation landed on the
+   copy while the controls called the original and all five mutants reported
+   NOT DETECTED. The 2026-09-30 item — *arrival, not response* — in a new
+   disguise. Check 3e is now the arrival check for the harness itself.
+2. **The new module plants the pattern it censuses.** Its labels quote registry
+   tokens because its subject *is* the quoting of registry tokens, so its
+   arrival put 10 planted controls into the tolerance census's table of the
+   tree, including three `ORDINAL` and two `UNWARRANTED` rows. The 2026-10-17
+   standing item, one module over — and a `SELF`-only exclusion cannot see it,
+   because the excluded thing is not "this file" but "a module that plants the
+   pattern it censuses", and there are now two. Hence `PLANTING_MODULES`, with
+   8h/8i measuring what the exclusion removes.
+3. **`_check_labels`' docstring described a tolerance the code does not have.**
+   It listed `_c` among accepted check-function names; the code requires a name
+   ending in `check`. A planted control written with `_c` on the docstring's
+   authority censused to **zero rows with no error**. Corrected in place, and
+   measured: no module in the tree uses `_c` for a check, so nothing was being
+   missed.
+
+### 10. Count
+
+New module 51/51 with 5/5 mutants; `tolerance_census` 71 → 82, 0 failing;
+`self_heating` 47/47 unchanged but for A2's label. Two items closed (both ranked
+first and second), three defects found — one of them in the commissioning
+instrument — two warrant classes separated, one limit measured, three
+self-caught errors, one source fetched and every transcription it was fetched
+to test confirmed.
+
+**Not yet covered (candidates for future runs):**
+
+- **FIX THE CODATA CREDIT ON 6.45 kΩ/□** — created today, **ranked first**,
+  and the only item on this list that is a *known* defect with a *known* fix
+  and nothing blocking it. The label should cite Chapter 3 Section 3.3 for the
+  quantity and CODATA for `e` and `h`. It was held back today only to keep the
+  two censuses' populations cross-validated inside one session; that reason
+  expires with this entry. It also removes the tree's last `VACUOUS` row, so it
+  will break 8d a second time in two days — this time by emptying its
+  population, and the right response will be to retire 8d rather than split it
+  again.
+- **TEACH THE CENSUS THE DIFFERENCE BETWEEN A VALUE AND A QUANTITY** — created
+  today by 8b, **ranked second**. The census matches on value, so A3's "the
+  paper's 4 %" matches both Dorgan's `~4 %` share and his `4 μm` length, and
+  one row in thirteen does not identify its own warrant. The fix is probably a
+  unit token in the registry and a unit cue in the label, which is cheap; the
+  risk is that it is the same "read the meaning out of English" mistake the
+  width-warrant repair was spelled machine-readably to avoid.
+- **CENSUS THE WIDTH WARRANTS THEMSELVES** — created today, **ranked third**.
+  `[width-warrant: 2.8e-7]` is a citation, and the citation census does not
+  read it: it censuses one token per row, the centre. A split warrant whose
+  *width* token is unwarranted is invisible to both instruments today. Exactly
+  one row has one, so the item is cheap now and gets more expensive with every
+  future split warrant.
+- **THE `~20 %`/`~2 %` BRACKET AND ITS TWO BRANCHES** — created today by the
+  source read. `V3` tests only the sign of a statement that is bracketed
+  between `~280 K` and `~500 K` and split between the 55 meV and 160 meV
+  branches. This is **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN** (carried
+  from 11-11, untouched for three sessions) with the paper's own bracket now in
+  hand, so the item is no longer blocked on knowing what magnitude to test
+  against.
+- **AN AREAL BAND AT THE REPO'S OWN `t_ox`** — carried from 11-12, prediction
+  (3) never exercised, still cheap, and still the form in which §3's result
+  would enter Chapter 4.
+- **THE 13.20 % BELONGS IN CHAPTER 4** — carried from 11-12, a *writing* item
+  with its number already in hand.
+- **A SPREADING-CORRECTED `R_ox`** — carried from 11-10.
+- **FIX `v_F`: FOUR NAMES MOVED TOGETHER** — carried from 10-25, mechanical,
+  blocked on nothing, **untouched for nineteen sessions**, count still four.
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS** — carried from 11-12 where
+  it was ranked third, measured population of 7 comparisons in 7 modules.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried, de-ranked 11-10 with its reason recorded.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried from 11-10, still a *joined* item.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — carried from 11-10.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — carried,
+  blocked on figure reading, explicitly low value (0.002 %). Note that today's
+  read confirmed the text but **did not** read Fig. 2b or Fig. 3c as data, so
+  this item is exactly as blocked as it was.
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** and
+  **`INCIDENTAL` IS NOT ONE CLASS** — both carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, sixth occurrence, mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried,
+  **twenty-second and twenty-third** instances today (nine warrant verdicts;
+  W1/W2/W3 for the second warrant).
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **twenty-second** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08. The second is sharper today: `PLANTING_MODULES` made
+  the exclusion a declared class with two members, so the question "what else
+  belongs in it" now has a place to be answered.
+- **WHAT `n_puddle` ACTUALLY MEANS** and **WHETHER THE FLOOR BELONGS INSIDE
+  `C_q`'s ARGUMENT** — both carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-sixth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-seventh** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, and today's 10d makes it the **fourth** session running in which a
+  one-ulp fact mattered, which is enough occurrences that "cosmetic" is now an
+  assumption rather than an observation.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **thirtieth** session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-fifth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **thirty-third** session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **thirty-second**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **thirty-third** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **thirty-third** session.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08.
+- **A WRITING ITEM HAS NOW BEEN AT THE TOP OF THE WRITING QUEUE FOR THREE
+  SESSIONS WITH NO WRITING DONE.** 11-12 said this plainly rather than
+  re-listing it; today repeats it, and the repetition is the finding. Chapter
+  7's contact-metal synthesis is in fact already drafted (§7.2 retracts the
+  2026-09-17 version and states what survives), so the item as *named* is
+  closed and what is actually outstanding is **Chapter 4's thermal discussion
+  inheriting the 13.2 % areal over-statement**, which is a different and much
+  smaller item. Three sessions of "no writing" were partly three sessions of
+  mis-naming the writing item.
+
+**Retired from the list this session:**
+
+- **RETIRED:** A CENSUS OF CITATIONS, NOT TOLERANCES — created 2026-11-11,
+  ranked first on 11-12, closed in one session. Found three defects, the first
+  of them in the instrument that commissioned it, and confirmed that the module
+  it was expected to convict has nothing wrong with its citations.
+- **RETIRED:** TEACH THE CENSUS THAT CENTRE AND WIDTH CAN HAVE DIFFERENT
+  WARRANTS — created 2026-11-12, ranked second, closed the same day as the
+  item above. It did *not* "un-break 8d": it made 8d's old form red for the
+  right reason, which is a better outcome than the item asked for and not the
+  one it predicted.
+- **RETIRED:** CHAPTER 7's CONTACT-METAL CONTRADICTION IS THE LARGEST
+  ACTIONABLE WRITING ITEM — carried since 2026-09-17 and retired **as
+  mis-named rather than as done**: §7.2.1 retracted the contradiction and
+  §7.2.2 replaced it with the structural statement, both already in the
+  chapter. The item outlived the work it described by several sessions because
+  nobody re-read the chapter it pointed at.
+
+**Predictions for the next session**, so this entry can be scored the way
+11-08 through 11-12 were. All three name populations that exist **today**,
+which is the repair for the X4 class in §8:
+
+1. **Fixing the CODATA credit will leave the tolerance census with zero
+   adjudicated rows in the whole tree.** Today the tree has exactly two
+   adjudicated rows: one `VACUOUS` (the 6.45 row) and one `MATCHED` (A2).
+   Repairing the first removes its publication cue entirely, so it leaves the
+   census's population as 12 rows of which one is adjudicated — and the
+   prediction is the sharper claim that the *defect* count goes to zero while
+   the *row* count stays at 13, because `LIT_NO_TEST` and `SIGFIG_TEST` rows do
+   not depend on the cue being a real citation.
+2. **Censusing the width warrants will find that A2's `2.8e-7` is `CITED` and
+   that no second split warrant exists to test it against.** The risky half is
+   the second: the item will come back with a working instrument and a
+   population of one, which makes it the fourth item in this thread whose
+   measured population is smaller than the item's framing assumed.
+3. **The unit-token repair of 8b will reclassify A3 and A4 but not A5.** A3's
+   `4` collides with the `4 μm` length and A4's `84` collides with nothing, so
+   a unit token should leave A4 exactly where it is — meaning the repair will
+   change one row in thirteen, and the prediction is that it changes **only**
+   A3. If it changes A4 or A5 as well, the unit cue is reading English again
+   and the repair is the mistake it was built to avoid.
