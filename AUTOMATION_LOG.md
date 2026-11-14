@@ -17018,3 +17018,235 @@ which is the repair for the X4 class in §8:
    change one row in thirteen, and the prediction is that it changes **only**
    A3. If it changes A4 or A5 as well, the unit cue is reading English again
    and the repair is the mistake it was built to avoid.
+
+## 2026-11-14 — a duplicate session, because the "has today's work been done" check reads a repository that cannot see a push backlog; and what the duplicate found
+
+**Commits before this entry:** 2 — 6l's second clause corrected in place; the
+frozen populations in X3/X4.
+
+### 0. WHAT HAPPENED FIRST, BECAUSE IT GOVERNS EVERYTHING BELOW
+
+This session began by cloning both repositories fresh from GitHub, reading
+`AUTOMATION_LOG.md` for an entry dated today, finding none, and concluding
+that no work had been done. That conclusion was **right about today and wrong
+about the state of the work**: 2026-11-13's eight commits were never pushed —
+the write path is closed by an environment policy — so they exist only as
+bundles in `_to_push/`, and a clone from GitHub cannot see them.
+
+So the session re-derived 11-13's **ranked-first item in both repositories,
+from scratch, without knowing it existed.** It wrote its own
+`graphene_citation_census_audit.py` (32 checks, 6 mutants), found the `Sec. 5`
+misread, the CODATA/6.45 internal citation and the `1.0e4` respelling — the
+same three findings, independently — and re-anchored the sibling's `M4`.
+
+**The duplication is a defect in the daily procedure, not in either day's
+work.** The procedure's own step 2 is "check both repos for work already done
+today", and it reads `AUTOMATION_LOG.md` **in the clone**. A clone is the
+pushed state. With a push backlog the clone is stale by however many days the
+backlog is deep, and the staleness is invisible: a missing entry means
+"nothing was committed today" and "everything committed since the backlog
+began is not here" equally well. **An empty answer is indistinguishable from a
+clean one** — this tree's own words, from 11-12 §6, about a census that read
+zero files.
+
+The repair is mechanical and belongs in the procedure: **before concluding no
+work was done, look in `_to_push/`.** It is ranked first below.
+
+11-13's work is the better artifact in both repositories and is what ships.
+Its graphene citation census is 51 checks against today's 32, and it also
+closed 11-12's ranked-*second* item (the split warrant) and re-read
+arXiv:1005.2711 to confirm every transcription. Today's duplicate was
+discarded except for the two things below, which it has and 11-13's does not.
+
+### 1. The duplicate's first survivor: 6l's second clause is false, and the correction is exact
+
+11-13's check **6l** reads:
+
+> the printed geometry is EXACT (stated, not fitted), so the derivation
+> **inherits no uncertainty** — which is precisely why 2026-11-12's I1 could
+> show the paper's two numbers are one statement divided by a constant
+
+The first clause is right and does the work 6l wanted. **The second does not
+follow.** A *stated* value is still a *printed* value, and Dorgan prints
+`W = 7 um` and `L = 4 um` to **one significant figure each**. What the
+derivation does not inherit is *fitting* uncertainty. What it does inherit is
+each printed length's quoting interval:
+
+    spelled 2.8e-11 at 2 s.f.            +- 1/56    = +- 1.785714 %
+    printed 4 um x 7 um at 1 s.f. each    -3/16     = -18.750 %   = 21/2 x
+                                         +23/112    = +20.536 %   = 23/2 x
+
+**Exactly 10.5 and exactly 11.5**, asserted as rationals (6l2, 6l3). And the
+printed band is **asymmetric**, a shape no relative half-width can represent
+(6l4) — so the spelled token hides *three* things, not one: the width, the
+warrant (9l's class) and the shape. 6l5 records that 6l's **verdict** survives
+intact: the band brackets 2.8e-11, so `DERIVED` is about provenance and not
+correctness. The number is right and is cited as the wrong kind of thing.
+
+6l is **annotated in place with its numbers unchanged**, per standing
+practice. And 6l's condition is the literal `True`, so **it could not have
+caught its own second clause** — a check that cannot fail is not evidence,
+this repository's own words from the tolerance census's Section 5. The
+condition is left as it stands so the annotation has something to annotate;
+6l2–6l5 are the checks. Citation census **51 → 55**, 0 failing.
+
+### 2. The duplicate's second survivor: X3 was pinning a tree, not scoring a prediction
+
+The duplicate's module took this tree's `NO_QUOTE` population from 102 to 106,
+and `graphene_tolerance_census_audit` went **82/0 to 81/1**. X3 required
+
+    len(_own_no_quote) == 102
+
+among its conjuncts — this tree's count as it stood when the sibling's 11-11
+prediction was scored on 11-12. **Every word of X3's label stayed true.**
+
+A prediction is a claim about a comparison that **was made**. Re-deriving one
+side of it on every later run does not score it, it pins a tree, so the first
+module anyone adds afterwards breaks a correct verdict.
+`OWN_NO_QUOTE_1112 = 102` and `SIB_NO_QUOTE_1112 = 6` are now frozen with
+their date and reason; X3 keeps the substantive comparison live (the sibling's
+count against the frozen own count, and zero adjudicated rows, which is still
+a property of the sibling worth re-verifying) and drops the identity; X4's
+`len(_sib_rec) == 6` goes the same way, since the sibling grows too; new X3b
+reports the drift and requires only that it *be* growth. **83 passed, 0
+failed.**
+
+**And it would not have been found today without the accident.** 11-13's
+shipped module is excluded from its own census, so the count is still 102 on
+the tree that ships. The brittleness was real, latent, and waiting for
+whoever next added a module. A duplicate session is an expensive way to find
+that, and it is the only reason it was found.
+
+Same class as the sibling's 11-12 finding that mutant `M4`'s premise was a
+property of the tree rather than of the thing under test — this is that
+arriving from the prediction-scoring side. The sibling re-anchored that very
+mutant on 11-13, and the duplicate re-anchored it again today on a *set
+identity*, which is the one piece of today's sibling work that also survives.
+
+### 3. Count
+
+Citation census 51 → 55 with the 6l correction, 0 failing; tolerance census 82
+→ 83 after the freeze, 0 failing; `self_heating` 47/47 and `areal` 20/20
+unchanged. Two commits, both corrections to 11-13's own work, both found by a
+session that should not have happened. No source fetched.
+
+### 4. Scoring the 11-13 predictions
+
+Deliberately **not scored today.** The session that would have scored them did
+not know they existed, and scoring a prediction against work done in ignorance
+of it is not scoring. They carry to the next session unscored, with this entry
+as the reason.
+
+**Not yet covered (candidates for future runs):**
+
+- **READ `_to_push/` BEFORE CONCLUDING NO WORK WAS DONE** — created today,
+  **ranked first**, and it is a defect in the daily procedure rather than in
+  either repository. The step that asks "has today's work already been done"
+  reads `AUTOMATION_LOG.md` in a fresh clone, which is the *pushed* state; with
+  a push backlog that answer is stale and the staleness is invisible. Today
+  that cost a full duplicate session in both repositories. The fix is to read
+  `_to_push/README-HOW-TO-PUSH.md` and the bundles' own `git log` first, and to
+  treat a non-empty `_to_push/` as "the clone is not the state".
+- **THE PUSH BACKLOG IS NOW TWO DAYS DEEP** — created today. Nothing in either
+  repository can fix it; it needs a `git push` from a terminal on the
+  computer. Until then every session commits into a scratch clone that cannot
+  reach GitHub, and — worse than the lost contribution graph — **each session
+  starts from a stale view and may duplicate the last one.**
+- **LAND THE SECTIONING REJECTION IN `_QUOTE_RE` ITSELF** — the duplicate
+  wrote and validated a rejection rule (decline a number introduced by
+  `Sec.`/`Fig.`/`Table`/`Eq.`/`supp.`/…, leaving the row uncited rather than
+  wrongly cited), measured its whole-tree effect as the single set `{A1}`, and
+  gave it a positive control over eight sectioning forms. That code was
+  discarded with the duplicate. It is **cheap to rewrite and now has a known
+  answer**, which makes it the best-specified item on this list.
+- **A LEFTWARD EXTRACTOR IS NOT THE REPAIR, AND THE MEASUREMENT EXISTS** — the
+  duplicate measured that the first number before A1's cue is **300**, from
+  the `kappa_ox(300K)` in the check's own name, so a leftward search mis-cites
+  A1 too, just differently. Worth recording as a check next to the rejection
+  rule above so nobody proposes the relocation.
+- **A TEXT SEARCH CANNOT TELL A QUOTATION FROM A DENIAL OF ONE** — the
+  duplicate found that `1.2794`, which is not a published number at all, has
+  more quoted-line support in this tree than two genuine citations do, because
+  every hit is part of the 11-11 retraction. That is 9k's blindness one level
+  up: polarity instead of existence. Worth a stated limit wherever 11-13's
+  module reasons from text support.
+- **BARE INTEGERS ADMIT NO MECHANICAL QUOTATION SUPPORT** — `4`, `84`, `12`,
+  `20` and `5` cannot be searched for; a substring hit is not evidence. A
+  census that scored them "unsupported" would be reporting its own blind spot
+  as a finding.
+- **ADJUDICATE THE THREE TERM SHARES AGAINST THE PAPER** — carried from the
+  duplicate's list, and the first item in this thread that **requires a source
+  fetch**: A3/A4/A5 are 4 / 84 / 12 %, their whole warrant in this tree is one
+  comment, and no mechanical check can reach them.
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS** — carried from 11-12,
+  untouched by both of 11-13's and 11-14's sessions, mechanical, population 7
+  comparisons in 7 modules.
+- **AN AREAL BAND AT THE REPO'S OWN `t_ox`** and **THE 13.20 % BELONGS IN
+  CHAPTER 4** — both carried from 11-12, both untouched, and today's 6l3 makes
+  the second sharper: the chapter would be inheriting a number whose licensed
+  band is eleven times what its spelling suggests.
+- **A SPREADING-CORRECTED `R_ox`** — carried from 11-10.
+- **FIX `v_F`: FOUR NAMES MOVED TOGETHER** — carried from 10-25, mechanical,
+  blocked on nothing, untouched again.
+- **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN** — carried.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried, de-ranked 11-10 with its reason recorded.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried from 11-10, still a *joined* item.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — carried from 11-10.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — carried,
+  blocked on figure reading, explicitly low value (0.002 %).
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** and
+  **`INCIDENTAL` IS NOT ONE CLASS** — both carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08.
+- **WHAT `n_puddle` ACTUALLY MEANS** and **WHETHER THE FLOOR BELONGS INSIDE
+  `C_q`'s ARGUMENT** — both carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11**, **THE §4.6.5 REWIRING ITEM**,
+  **MECHANISE the magnitude item**, **MEASURE WHAT EACH DECLARATION COSTS**,
+  **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** — all
+  carried.
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** — carried, and still the largest
+  single block of pure writing in the repository: their computational results
+  have been complete for weeks. **Two consecutive sessions have now gone to
+  instrument work on the same item**, one of them by accident.
+- **CHAPTER 7's CONTRADICTION IS STILL UNSYNTHESISED** — carried. Chapter 4
+  favours high-work-function contact metals (Ni, Au, Pd) for low contact
+  resistance; Chapter 6 §6.7 finds those same metals worst for symmetric
+  two-terminal photoresponse.
+
+**Predictions for the next session, recorded so they can be scored:**
+
+1. **If `_to_push/` is still non-empty, the next session will duplicate work
+   again unless it reads it.** This is less a prediction than a statement of
+   the mechanism, so the content is the sharper claim: **the next session will
+   pick the same ranked-first item a third time**, because it will read this
+   entry's list from the pushed tree, which will not contain it.
+2. **Landing the sectioning rejection will change exactly one row and no
+   verdict.** The duplicate measured the whole-tree effect as `{A1}`, and A1 is
+   a significant-figure check whose verdict needs no width. If anything else
+   moves, that measurement was taken against a tree that has since changed.
+3. **The next `== <count>` pin found in either repository will be in a
+   prediction-scoring check rather than in a census.** Reason: a census's
+   counts get re-derived and noticed; a scoring check is written once, in the
+   past tense, and never looked at again.
