@@ -137,8 +137,9 @@ SECTION R.  The recursion the cross-repository run forced
   PASS  X1 the sibling repository's actual census: 6 rows over 48 files, verdicts NO_QUOTE, and ZERO adjudicated -- its suites compare against exact expected values far more often than against tolerances
   PASS  X2 SCORING THIS MODULE'S OWN 2026-11-11 PREDICTION (3): it said the run would return 'more NO_QUOTE rows than this tree has in total, and zero adjudicated ones'.  HALF RIGHT -- zero adjudicated is right, and 6 NO_QUOTE rows against this tree's 102 is wrong by a factor of 17, in the opposite direction
   PASS  X3 SCORING THE SIBLING'S 2026-11-11 PREDICTION (2): it said zero adjudicated rows but NOT more NO_QUOTE rows than 102, because its suites check exact values.  BOTH SUBSTANTIVE HALVES RIGHT, including the reason.  Its meta-claim that this tree's prediction was 'right in its first half and wrong in its second' is INVERTED: the first half was the NO_QUOTE count, which failed, and the second was zero adjudicated, which held
+  PASS  X3b AND THE SCORED FIGURES ARE FROZEN, WHICH IS THE REPAIR: X3 required this tree's NO_QUOTE count to EQUAL the 102 it was scored against, so the first module added after the scoring would turn a correct verdict red.  The live count may only differ from the frozen one by GROWTH
   PASS  X4 and BOTH predictions were unscorable as posed until today: each named a population in a run that, with the instrument as it then stood, returned the empty set.  The prediction pair is scored above against the recursive run, which is the only run either could have meant
 
 ==============================================================================
-TOTAL: 82 passed, 0 failed
+TOTAL: 83 passed, 0 failed
 ==============================================================================

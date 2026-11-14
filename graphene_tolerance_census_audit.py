@@ -1423,6 +1423,31 @@ def planted_width():
               len(_adjudicated) == 0 and len(_no_quote) < len(_own_no_quote),
               "sibling NO_QUOTE %d, own NO_QUOTE %d"
               % (len(_no_quote), len(_own_no_quote)))
+        # FROZEN POPULATIONS, ADDED 2026-11-14.
+        #
+        # X3 required `len(_own_no_quote) == 102` -- this tree's NO_QUOTE
+        # population as it stood when the prediction was scored on 11-12.
+        # That is not scoring a prediction; it is pinning a tree.  A
+        # prediction is a claim about a comparison that WAS MADE, and
+        # re-deriving one side of it on every later run means the verdict
+        # goes red the first time anyone adds a module, for a reason that has
+        # nothing to do with the prediction.
+        #
+        # FOUND BY A DUPLICATE SESSION, which is the only reason it was found
+        # at all.  The 2026-11-14 run could not see 11-13's commits (they were
+        # in a push backlog, not on GitHub) and so re-derived this day's
+        # ranked-first item independently.  Its citation module took this
+        # tree's NO_QUOTE count from 102 to 106 and X3 went red with every
+        # word of its label still true.  Today's module does not, being
+        # excluded from the census -- so without the accident this would have
+        # waited for the next module anyone added.
+        #
+        # Same class as the sibling repository's 11-12 finding that mutant
+        # M4's premise was a property of the tree rather than of the thing
+        # under test; this is that arriving from the prediction-scoring side.
+        OWN_NO_QUOTE_1112 = 102          # this tree, scored 2026-11-12
+        SIB_NO_QUOTE_1112 = 6            # the sibling, scored 2026-11-12
+
         check("X3 SCORING THE SIBLING'S 2026-11-11 PREDICTION (2): it said "
               "zero adjudicated rows but NOT more NO_QUOTE rows than 102, "
               "because its suites check exact values.  BOTH SUBSTANTIVE "
@@ -1431,18 +1456,33 @@ def planted_width():
               "its second' is INVERTED: the first half was the NO_QUOTE "
               "count, which failed, and the second was zero adjudicated, "
               "which held",
-              len(_adjudicated) == 0 and len(_no_quote) <= 102
-              and len(_own_no_quote) == 102,
-              "sibling: %d NO_QUOTE, %d adjudicated; own NO_QUOTE now %d"
-              % (len(_no_quote), len(_adjudicated), len(_own_no_quote)))
+              len(_adjudicated) == 0
+              and len(_no_quote) <= OWN_NO_QUOTE_1112,
+              "sibling: %d NO_QUOTE, %d adjudicated; scored against this "
+              "tree's %d as of 2026-11-12 (live: %d)"
+              % (len(_no_quote), len(_adjudicated), OWN_NO_QUOTE_1112,
+                 len(_own_no_quote)))
+        check("X3b AND THE SCORED FIGURES ARE FROZEN, WHICH IS THE REPAIR: "
+              "X3 required this tree's NO_QUOTE count to EQUAL the 102 it "
+              "was scored against, so the first module added after the "
+              "scoring would turn a correct verdict red.  The live count may "
+              "only differ from the frozen one by GROWTH",
+              len(_own_no_quote) >= OWN_NO_QUOTE_1112
+              and len(_sib_rec) >= SIB_NO_QUOTE_1112,
+              "own NO_QUOTE %d when scored, %d now (+%d); sibling %d when "
+              "scored, %d now"
+              % (OWN_NO_QUOTE_1112, len(_own_no_quote),
+                 len(_own_no_quote) - OWN_NO_QUOTE_1112,
+                 SIB_NO_QUOTE_1112, len(_sib_rec)))
         check("X4 and BOTH predictions were unscorable as posed until today: "
               "each named a population in a run that, with the instrument as "
               "it then stood, returned the empty set.  The prediction pair "
               "is scored above against the recursive run, which is the only "
               "run either could have meant",
-              len(_sib_flat) == 0 and len(_sib_rec) == 6,
+              len(_sib_flat) == 0 and len(_sib_rec) > 0,
               "flat run returned %d rows; the scored run is the recursive "
-              "one, %d rows" % (len(_sib_flat), len(_sib_rec)))
+              "one, %d rows when scored and %d now"
+              % (len(_sib_flat), SIB_NO_QUOTE_1112, len(_sib_rec)))
 
     print("\n" + "=" * 78)
     print("TOTAL: %d passed, %d failed" % (passed, failed))
