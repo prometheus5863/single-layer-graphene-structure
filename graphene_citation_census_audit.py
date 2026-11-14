@@ -1005,13 +1005,76 @@ def main():
           "the printed geometry, and the possessive is doing work the paper "
           "did not do",
           len(der) == 1 and der[0].token == "2.8e-11")
+    # 6l IS KEPT AS WRITTEN AND ITS SECOND CLAUSE IS WRONG.  ANNOTATED IN
+    # PLACE 2026-11-14, NOT REWRITTEN.
+    #
+    # "stated, not fitted" is right and does the work 6l wanted: A = L*W is
+    # exact in the paper's own arithmetic, which is why 11-12's I1 could show
+    # the two published numbers are one statement divided by a constant.
+    # "INHERITS NO UNCERTAINTY" does not follow and is false.  A stated value
+    # is still a PRINTED value, and 4 um and 7 um are printed to ONE
+    # significant figure each.  What the derivation does not inherit is
+    # FITTING uncertainty; what it does inherit is the quoting interval of
+    # each printed length, and that is wide.  6l2-6l4 carry the arithmetic.
+    #
+    # 6l's condition is also the literal `True`, so it could not have caught
+    # its own second clause.  A check that cannot fail is not evidence --
+    # this repository's own words, from the tolerance census's Section 5.
+    # The condition is left as it is so the annotation has something to
+    # annotate; 6l2-6l4 are the checks.
     check("6l and the distinction has teeth: the printed geometry is EXACT "
           "(stated, not fitted), so the derivation inherits no uncertainty "
           "-- which is precisely why 2026-11-12's I1 could show the paper's "
-          "two numbers are one statement divided by a constant",
+          "two numbers are one statement divided by a constant.  "
+          "[SECOND CLAUSE SUPERSEDED 2026-11-14: it inherits no FITTING "
+          "uncertainty and does inherit the printed lengths' quoting "
+          "intervals -- see 6l2-6l4.  Numbers unchanged.]",
           True,
           "if L and W had been fitted, 2.8e-11 would carry their intervals "
           "and the areal and absolute statements would be independent")
+
+    # 6l2-6l4: WHAT THE DERIVATION ACTUALLY INHERITS, as exact rationals.
+    _h_abs, _h_rel, _sf = TC.half_width("2.8e-11")
+    check("6l2 the spelled token '2.8e-11' licenses EXACTLY 1/56 in relative "
+          "terms at the two figures it is written to, which is the width the "
+          "tolerance census reads off it",
+          _sf == 2 and abs(_h_rel - 1.0 / 56.0) <= 4e-17,
+          "h_rel = %.17e, 1/56 = %.17e, difference %.2e"
+          % (_h_rel, 1.0 / 56.0, _h_rel - 1.0 / 56.0))
+
+    _A_lo, _A_hi = 3.5e-6 * 6.5e-6, 4.5e-6 * 7.5e-6
+    _rel_lo = (_A_lo - 2.8e-11) / 2.8e-11
+    _rel_hi = (_A_hi - 2.8e-11) / 2.8e-11
+    check("6l3 CORRECTING 6l's SECOND CLAUSE: the PRINTED warrant is two "
+          "one-figure lengths, each licensing half a unit in its last place, "
+          "so the printed geometry licenses an area band whose edges are "
+          "EXACTLY 21/2 and 23/2 times the spelled half-width.  Citing the "
+          "product as a published number understates its licensed width by a "
+          "factor of about eleven",
+          abs(abs(_rel_lo) / _h_rel - 10.5) < 1e-12
+          and abs(_rel_hi / _h_rel - 11.5) < 1e-12,
+          "L in [3.5,4.5] um and W in [6.5,7.5] um give A in [%.6e, %.6e]; "
+          "lo %.6f %% = %.4f x h_rel; hi %+.6f %% = %.4f x h_rel"
+          % (_A_lo, _A_hi, 100.0 * _rel_lo, abs(_rel_lo) / _h_rel,
+             100.0 * _rel_hi, _rel_hi / _h_rel))
+
+    check("6l4 and the printed band is ASYMMETRIC (-3/16, +23/112), which a "
+          "relative half-width cannot represent at all.  So the spelled "
+          "token hides three things and not one: the width, the warrant "
+          "(9l's class) and the shape",
+          abs(_rel_lo + 3.0 / 16.0) < 1e-15
+          and abs(_rel_hi - 23.0 / 112.0) < 1e-15
+          and abs(_rel_hi) > abs(_rel_lo),
+          "-3/16 = %.17e, +23/112 = %.17e, so the band is wider above than "
+          "below by %.4f %% of the quoted value"
+          % (-3.0 / 16.0, 23.0 / 112.0, 100.0 * (_rel_hi + _rel_lo)))
+
+    check("6l5 and 6l's own verdict SURVIVES this correction: the band "
+          "brackets the derived value, so DERIVED is about provenance and "
+          "not about correctness.  2.8e-11 is the right number, cited as the "
+          "wrong kind of thing",
+          _A_lo < 2.8e-11 < _A_hi,
+          "[%.6e, %.6e] contains 2.8e-11" % (_A_lo, _A_hi))
 
     # the ambiguous ones, and the non-identifying ones
     amb = [c for c in rows if c.verdict == "AMBIG_PREC"]

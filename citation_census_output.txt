@@ -75,8 +75,16 @@ CITATION CENSUS -- DID THE NAMED SOURCE PRINT THE NAMED NUMBER?
         1e4 -> 1/2, 1.0e4 -> 1/20
   PASS  6j I1 is a LIT_NO_TEST row, so the inflation licenses nothing today -- it is a latent defect of exactly the kind A2's literal was before 2026-11-12, one layer out in the label
   PASS  6k FINDING 4, A WARRANT CLASS AND NOT A DEFECT: 'Dorgan's 2.8e-11 m^2' is not printed anywhere in Dorgan.  It is L*W from the printed geometry, and the possessive is doing work the paper did not do
-  PASS  6l and the distinction has teeth: the printed geometry is EXACT (stated, not fitted), so the derivation inherits no uncertainty -- which is precisely why 2026-11-12's I1 could show the paper's two numbers are one statement divided by a constant
+  PASS  6l and the distinction has teeth: the printed geometry is EXACT (stated, not fitted), so the derivation inherits no uncertainty -- which is precisely why 2026-11-12's I1 could show the paper's two numbers are one statement divided by a constant.  [SECOND CLAUSE SUPERSEDED 2026-11-14: it inherits no FITTING uncertainty and does inherit the printed lengths' quoting intervals -- see 6l2-6l4.  Numbers unchanged.]
         if L and W had been fitted, 2.8e-11 would carry their intervals and the areal and absolute statements would be independent
+  PASS  6l2 the spelled token '2.8e-11' licenses EXACTLY 1/56 in relative terms at the two figures it is written to, which is the width the tolerance census reads off it
+        h_rel = 1.78571428571428562e-02, 1/56 = 1.78571428571428562e-02, difference 0.00e+00
+  PASS  6l3 CORRECTING 6l's SECOND CLAUSE: the PRINTED warrant is two one-figure lengths, each licensing half a unit in its last place, so the printed geometry licenses an area band whose edges are EXACTLY 21/2 and 23/2 times the spelled half-width.  Citing the product as a published number understates its licensed width by a factor of about eleven
+        L in [3.5,4.5] um and W in [6.5,7.5] um give A in [2.275000e-11, 3.375000e-11]; lo -18.750000 % = 10.5000 x h_rel; hi +20.535714 % = 11.5000 x h_rel
+  PASS  6l4 and the printed band is ASYMMETRIC (-3/16, +23/112), which a relative half-width cannot represent at all.  So the spelled token hides three things and not one: the width, the warrant (9l's class) and the shape
+        -3/16 = -1.87500000000000000e-01, +23/112 = 2.05357142857142849e-01, so the band is wider above than below by 1.7857 % of the quoted value
+  PASS  6l5 and 6l's own verdict SURVIVES this correction: the band brackets the derived value, so DERIVED is about provenance and not about correctness.  2.8e-11 is the right number, cited as the wrong kind of thing
+        [2.275000e-11, 3.375000e-11] contains 2.8e-11
   PASS  6m FINDING 5: 1 row(s) quote a value whose spelling fixes no precision, so no precision verdict is available and none is given.  V3's '~20 %' is the instance, and Dorgan does print a '~20%' -- so the citation is real and only its precision is unscorable
         [('graphene_self_heating_model.py', '20')]
   PASS  6n FINDING 6, MEASURED: 1 row(s) match more than one printed value of their source and therefore do not identify their own warrant.  A3's 'the paper's 4 %' matches both the R_B share and the 4 um channel length, and only a reader can tell which
@@ -145,5 +153,5 @@ graphene_self_heating_model.py         622   20        amb     dorgan       AMBI
   PASS  9d exactly three rows carry a verdict that is a defect (UNWARRANTED, INFLATED, ORDINAL); the other ten are sound citations, declared derivations, retractions or unscorable precisions
 
 ==============================================================================
-TOTAL: 51 passed, 0 failed
+TOTAL: 55 passed, 0 failed
 ==============================================================================
