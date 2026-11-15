@@ -17250,3 +17250,266 @@ as the reason.
    prediction-scoring check rather than in a census.** Reason: a census's
    counts get re-derived and noticed; a scoring check is written once, in the
    past tense, and never looked at again.
+
+---
+
+## 2026-11-15 — a topic the repository had no coverage of at all, a unipolar sign convention that does not survive ambipolarity, and a threshold that refuted the prose written to introduce it
+
+### 0. The duplicate check, and the backlog
+
+`_to_push/README-HOW-TO-PUSH.md` was read **before** any conclusion about
+prior work, which is what the 11-14 entry ranked first. It now begins
+"NOTHING IS PENDING. The backlog was pushed on 2026-11-14" and records
+`69405cf..c60a180` (7 commits) here and `4425e9c..2bb17c6` (8 commits) in the
+sibling, pushed by hand as plain fast-forwards. A fresh clone's `HEAD` is
+`c60a180`, so the pushed state and the local state agree and the clone is once
+again a sound basis for the "has today's work been done" question. Neither
+repository had a 2026-11-15 entry or a commit since midnight UTC: a full
+session, not a duplicate.
+
+**But the 11-14 predicate is wrong, and today shows how.** `_to_push/` is
+still non-empty — it holds the October bundles, the superseded notice, the
+`_pushed-2026-11-14/` folder and the README itself — so a session testing
+"is `_to_push/` non-empty" would conclude there is a backlog when there is
+none. The sound test is the one used today: compare `origin/main` against the
+last `AUTOMATION_LOG.md` entry, which needs no folder convention at all.
+
+### 1. What was done
+
+Three commits, on a topic with **zero prior coverage** in this repository:
+`grep -ril` for `flicker`, `noise figure` and `NF_min` all returned nothing
+before today.
+
+1. `notes/2026-11-15-low-frequency-noise-in-gfets.md` — research notes from
+   two sources read today (Balandin arXiv:1307.4797; Mavredakis et al.
+   arXiv:1806.06589), both HTTP 200 on the first attempt.
+2. `graphene_low_frequency_noise_model.py` — CNF, CNF+CMF and Hooge noise on
+   this repository's **own, unchanged** `I_d(V_g)`.
+3. `low_frequency_noise_output.txt` + `low_frequency_noise_gate_dependence.png`
+   — the run and its three-panel figure. **PASS over 10 checks, 8 of them
+   against exactly known values.**
+
+Why the topic is device-relevant rather than decorative: 1/f noise
+up-converts to oscillator phase noise as `(1/f)^3`, its corner frequency
+(1–100 kHz for graphene, Balandin Sec. II) is a quoted figure of merit, and
+the review states outright that its level "is important for determining the
+competitiveness of graphene technology for cell phones, radars or other
+communication applications". It is also the one noise quantity that **cannot
+be averaged away**: for `gamma >= 1` the accuracy "cannot be improved by
+extending the measuring time".
+
+### 2. Finding 1 — a unipolar sign convention transcribed to an ambipolar device
+
+The CNF+CMF expression `(g_m/I_d + alpha_c mu C_ox)^2 S_Vfb` is written for a
+MOSFET, where `g_m > 0` at every usable bias; the sign of the correlated term
+is a convention the sources write `+-`. **Graphene is ambipolar.** On the hole
+branch `g_m/I_d` is negative, the sum passes through zero, and the form
+predicts a gate voltage at which a trap-limited device has **no 1/f noise from
+its dominant mechanism**:
+
+- `alpha_c mu C_ox = 6.90627e-2 1/V`, **bias-independent** — oxide and
+  mobility only;
+- `g_m/I_d` crosses `-6.906e-2 1/V` at `V_g = -2.90 V`;
+- the two forms differ there by **7.6e5x** (`6.17e-13` vs `4.72e-7 1/Hz`);
+- its mirror bias `V_g = +4.50 V` — same `|V_g - V_dirac|`, electron side — is
+  a noise **maximum**, so the verbatim form makes two mirror-image bias points
+  differ by **7.8e5x** with nothing physical distinguishing them;
+- in the measured total the Hooge floor hides most of it: a factor **8.4**.
+  Invisible by eye on a log plot; not to a fit.
+
+Repair: `(|g_m/I_d| + alpha_c mu C_ox)^2`. Coulomb scattering from a trapped
+charge raises the scattering rate on both branches, so the correlated term
+adds in magnitude. `s_cnf_cmf_signed()` is **kept**, so the artefact stays
+reproducible, and three checks pin it as algebra rather than prose: V7 (the
+signed form is *exactly* 0 at the notch), V7b (the corrected form is *exactly*
+`4(alpha_c mu C_ox)^2 S_Vfb` there), V8 (the correction is a *bitwise* no-op
+on all 117 electron-branch points).
+
+### 3. Finding 2 — the threshold refuted the prose written to introduce it, and Finding 1 is why the wrong prose was plausible
+
+Central dip depth `log10(min(max_left, max_right)/S(CNP))` discriminates the
+M-shape (dip at the charge-neutrality point) from the Lambda-shape (peak at
+it). Measured: **+0.517 decades at `N_T = 1.1e20`** (M), **0 at `N_T = 1e17`**
+(Lambda), threshold
+
+> **`N_T* = 7.474e17 1/(eV cm^3)` — INSIDE the conventional Si/SiO2 interval
+> `1e16..1e18`, at 75 % of its top end.**
+
+The module's draft prose asserted the opposite: that `N_T*` would sit far
+*above* that interval, and hence that an M-shape on a SiO2-gated GFET could
+not be homogeneous charge-number fluctuation. **The prose was corrected, in
+place, and the number was not reinterpreted.** The corrected claim is the
+stronger one: homogeneous CNF at an ordinary oxide trap density already
+produces the M-shape, so **the M-shape is not by itself evidence of the
+electron/hole-puddle inhomogeneity the Balandin review attributes it to.**
+
+Robustness: across the factor-23 span of `alpha_H` the source's own Table 1
+reports for other devices (`3e-4`..`7e-3`), `N_T*` moves only
+`1.725e17`..`4.024e18` — straddling the top of the conventional interval, two
+orders below the fitted `1.1e20` throughout.
+
+**The two findings are the same finding.** Recomputing `N_T*` on the verbatim
+signed total gives **`5.466e21`, a factor 7314 higher**, because dip depth
+takes the minimum of the two flank maxima and the notch suppresses the flank
+that decides. With the imported sign convention one would have concluded that
+the M-shape needs a trap density three orders above the conventional range —
+*exactly the claim the draft prose made*. A transcribed sign would have
+produced a plausible-looking, confidently-stated, wrong physical conclusion,
+and nothing in the shape of the plotted curves would have looked odd.
+
+Methodological note, carried in the transcript rather than in a comment:
+`dip_depth` is **identically zero** over the whole Lambda region, so the
+threshold is a region boundary and not a root. The first draft tried to
+sign-bracket it and raised `ValueError`; the committed version bisects on the
+predicate and prints the dip depth on both sides of the final bracket
+(`+4.06e-8` above, exactly `0` below) so the degeneracy stays visible.
+
+### 4. A list item that has been false since 2026-09-29 and was asserted again yesterday
+
+**"CHAPTERS 2 AND 3 ARE STILL UNDRAFTED"** appears in three entries —
+2026-10-17, 2026-10-18 and **2026-11-14**, where it is described as "still the
+largest single block of pure writing in the repository". It has been false
+since **2026-09-29**:
+
+- `thesis_draft/02-electronic-structure.md`, 459 lines, header "first drafted
+  2026-09-28";
+- `thesis_draft/03-transport-and-optical-properties.md`, 444 lines, header
+  "first drafted 2026-09-29";
+- and **the repository's own Chapter 1 status table says so**, row 3 reading
+  "**DRAFTED 2026-09-29**" in the same tree as the list that denies it.
+
+This is the sibling repository's twelve-session adjudication defect in this
+repository: a carried item is copied forward without being re-tested against
+the tree, and a *deliverable-naming* item is the easiest kind to test —
+`thesis_draft/0X-*.md` either exists with content or does not. The item is
+**struck** below rather than carried, and the general form is added as a
+mechanical candidate.
+
+Note the item's provenance, since it explains the persistence: it entered from
+*outside* the repository, in the standing task description, which was written
+2026-09-17 — before either chapter existed. The 2026-10-18 entry's own title
+records that class ("one of them came from outside the repository") and this
+is another instance of it.
+
+### 5. Environment
+
+The device VM's session filesystem was **100 % full** at the start of the
+session: `/sessions` 9.3 G used, **0 available**, of which this session owned
+29 MB. The standard clone location failed with "No space left on device".
+Work moved to a per-session directory on `/tmp` (different filesystem, 3.1 G
+free) and `scipy` — still not preinstalled — was installed with
+`pip --target /tmp/pylibs`, with `MPLCONFIGDIR` and `TMPDIR` redirected
+likewise. Both repositories then cloned and ran normally. Deleting other
+sessions' files is not possible (each session runs as its own uid), so this is
+a condition to work around rather than clear. The sibling logged a `TMPDIR`
+repair for the same condition on 2026-11-14; today is the same condition seen
+from the other side, and it is now **two consecutive days**, which makes it a
+standing environment property rather than an incident.
+
+### 6. Scoring the 2026-11-14 predictions
+
+1. **"If `_to_push/` is still non-empty, the next session will duplicate work
+   a third time unless it reads it … it will pick the same ranked-first item
+   again."** — **RED on its literal reading, and instructively so.**
+   `_to_push/` *is* still non-empty and this session did **not** duplicate:
+   the backlog had been pushed by hand and the README says so in its first
+   line. The prediction's predicate (folder non-empty) is not the condition it
+   names (work unpushed), which is precisely the fault it was written about,
+   one level up. Section 0 states the sound test.
+2. **"Landing the sectioning rejection will change exactly one row and no
+   verdict."** — **UNSCORED**, not attempted; carried.
+3. **"The next `== <count>` pin found in either repository will be in a
+   prediction-scoring check rather than in a census."** — **UNSCORED**, no
+   `== <count>` pin was encountered today; carried.
+
+**Not yet covered (candidates for future runs):**
+
+- **STRUCK, NOT CARRIED: "CHAPTERS 2 AND 3 ARE STILL UNDRAFTED."** False since
+  2026-09-29, contradicted by the repository's own Chapter 1 status table, and
+  asserted as recently as yesterday. See §4.
+- **TEST EVERY LIST ITEM THAT NAMES A FILE AGAINST THE TREE** — created today
+  by §4, **ranked first**, mechanical, and the cheapest audit on this list: an
+  item naming `thesis_draft/0X-*.md`, a `.py` module or a `notes/` file can be
+  checked for existence and non-triviality by `git ls-files` plus a line
+  count. One such item survived 46 days and three entries.
+- **AUDIT THE REPOSITORY FOR OTHER UNIPOLAR FORMS TRANSCRIBED TO AN AMBIPOLAR
+  DEVICE** — created today by §2, **ranked second**, and it is a class, not an
+  instance. Candidates: any imported expression carrying a bare `g_m` where
+  `|g_m|` is meant, a `V_gs - V_th` overdrive, or a `+-` the source left as a
+  convention. `rf_small_signal_model.py` and the Chapter 4 material first.
+- **A PUDDLE-FLUCTUATION MODEL** — created today, **ranked third**, and §3 is
+  what promoted it: the repository's only argument for *needing* one was the
+  M-shape, and that argument is now gone. `n_puddle` regularises the density;
+  it does not fluctuate.
+- **MEASURE THE 1/f CORNER FREQUENCY** — created today. It is the review's own
+  figure of merit and the number an RF designer asks for; it needs the thermal
+  + shot floor of the same device, which the repository does not have, and it
+  crosses `rf_small_signal_model.py`.
+- **PHASE-NOISE UP-CONVERSION (`(1/f)^3`)** and **AREA/OXIDE SCALING OF
+  `N_T*`** and **THE CONTACT-NOISE TERM** — all created today, all stated in
+  the new module's Section 5 as what it does not establish.
+- **LAND THE SECTIONING REJECTION IN `_QUOTE_RE` ITSELF** — carried from
+  11-14, still the best-specified instrument item, still with a known answer
+  (`{A1}`).
+- **A LEFTWARD EXTRACTOR IS NOT THE REPAIR**, **A TEXT SEARCH CANNOT TELL A
+  QUOTATION FROM A DENIAL OF ONE**, **BARE INTEGERS ADMIT NO MECHANICAL
+  QUOTATION SUPPORT** — all carried from 11-14.
+- **ADJUDICATE THE THREE TERM SHARES AGAINST THE PAPER** — carried; the first
+  item in that thread needing a source fetch, and today shows fetches are
+  working again (two for two, HTTP 200, no retry).
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS**, **AN AREAL BAND AT THE
+  REPO'S OWN `t_ox`**, **THE 13.20 % BELONGS IN CHAPTER 4**, **A
+  SPREADING-CORRECTED `R_ox`**, **FIX `v_F`: FOUR NAMES MOVED TOGETHER**,
+  **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN**, **DECIDE WHETHER A
+  `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** — all carried
+  unchanged.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried, and today gives it a second reason: the RF chapter is also
+  the first place to look for §2's class.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`**, **READ DORGAN FIG. 2b**, **SAY
+  WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE**, **`INCIDENTAL`
+  IS NOT ONE CLASS**, **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO
+  MODULES**, **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL**,
+  **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD**, **FLIP THE DEFAULT TO
+  `B_T`**, **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?**, **A LOWER BOUND ON
+  `l`**, **A `D_c` FORM FOR THE CHEMISORBED METALS**, **PACK THE CENSUS PARTS
+  BY COST**, **RE-DECIDE THE CENSUS EXCLUSIONS**, **WHAT `n_puddle` ACTUALLY
+  MEANS** (sharpened today by the puddle-fluctuation item), **WHETHER THE
+  FLOOR BELONGS INSIDE `C_q`'s ARGUMENT**, **THE FOUR DEAD NAMES**, **CONVERT
+  THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES**, **THE
+  PRESENT/USED/REACHED TABLE AS A TEST**, **§4.8.2's FORM OF ERROR**, **THE
+  2–3 ULP ANTISYMMETRY**, **THE CONTACT MODEL'S OWN APPROXIMATIONS**, **A
+  THIRD KNOB: THE ROUNDING FORM**, **BUILD ITEM 17 AS A SWEEP**, **CENSUS
+  EVERY CRITERION AND CHECK THAT IS A RATIO**, **THE `d|n|/dV` = 0 HALF OF
+  ITEM 11**, **THE §4.6.5 REWIRING ITEM**, **MECHANISE THE MAGNITUDE ITEM**,
+  **MEASURE WHAT EACH DECLARATION COSTS**, **THE HOLE-BRANCH SIGN OF CHAPTER
+  4's BRANCH-ASYMMETRIC RESULTS** (now with a worked instance in §2 — this is
+  the same question) — all carried.
+- **CHAPTER 7's CONTRADICTION IS STILL UNSYNTHESISED** — carried. Chapter 4
+  favours high-work-function contact metals (Ni, Au, Pd) for low contact
+  resistance; Chapter 6 §6.7 finds those same metals worst for symmetric
+  two-terminal photoresponse. Unlike the struck item above, this one was
+  re-tested today: Chapter 7 exists at 2357 lines, and the contradiction is
+  not in it.
+- **THE NEW MODULE IS NOT IN ANY CHAPTER** — created today. Nothing in
+  `thesis_draft/` cites the noise model; on this repository's own evidence
+  (09-28, 09-29) drafting is what falsifies a module's status, so this is a
+  prediction as much as a task.
+
+**Predictions for the next session, recorded so they can be scored:**
+
+1. **The `|g_m|` audit of §2 will find at least one more instance, and it will
+   be in a figure-of-merit expression rather than in a current model.** Reason:
+   current models in this repository take `abs(n)` early (`sheet_conductivity`
+   does), while figures of merit are transcribed from unipolar RF literature
+   where the sign never arises.
+2. **Drafting the noise material into a chapter will falsify something in
+   `graphene_low_frequency_noise_model.py`.** Reason: it has happened on both
+   occasions a chapter was drafted here (09-28 Chapter 2, 09-29 Chapter 3,
+   four defects in one module). The non-trivial half: it will be in the
+   Hooge term, not the CNF term, because the Balandin review's own warning
+   about applying a volume-noise figure of merit to a 2D material is recorded
+   in the notes and *not* acted on in the code.
+3. **The file-existence audit (ranked first) will strike at least one more
+   item.** Reason: this list is long, items are carried by copying, and
+   nothing has ever tested one against the tree.
