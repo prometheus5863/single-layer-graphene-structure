@@ -1,0 +1,139 @@
+==============================================================================
+LOW-FREQUENCY 1/f NOISE IN A SINGLE-LAYER GRAPHENE FET
+CNF / CNF+CMF / Hooge, on this repository's own I_d(V_g)
+==============================================================================
+Device (imported unchanged from graphene_fet_model.py):
+  W = 1 um, L = 200 nm, area = 0.2 um^2
+  C_ox = 3.8368e-04 F/m^2 (t_ox = 90 nm), mu = 4000 cm^2/Vs
+  V_dirac = 0.8 V, n_puddle = 5.000e+15 m^-2, Vds = 0.05 V
+Noise parameters:
+  f = 10 Hz, lambda = 0.1 nm, alpha_H = 0.0013, alpha_c = 450 V s/C
+  S_Vfb(N_T=1.1e20) = 2.4793e-05 V^2/Hz
+  S_Vfb(N_T=1e17)   = 2.2539e-08 V^2/Hz
+
+------------------------------------------------------------------------------
+SECTION 1.  VALIDATION
+------------------------------------------------------------------------------
+  [PASS] V1 EXACT  g_m/I_d of a linear I(Vg) equals 1/(Vg-V0)
+          max rel err 4.086e-14
+  [PASS] V2 EXACT  CNF noise is even about the CNP in the Vds->0 limit
+          max asymmetry 2.489e-14
+  [PASS] V2b RANGE  finite-Vds asymmetry halves when Vds halves (ratio 2 +-2%)
+          a(2e-6)=6.792e-06 a(1e-6)=3.396e-06 ratio 2.0000
+  [PASS] V3 EXACT  both CMF variants at alpha_c=0 are bitwise CNF
+          max |residue| signed 0.0e+00, branch-corrected 0.0e+00
+  [PASS] V4 EXACT  both terms scale as 1/f (S(1Hz)/S(100Hz)=100)
+          max rel err 4.263e-16
+  [PASS] V5 EXACT  Hooge noise scales as 1/(W L): ratio is 4
+          ratio 4.000000000000000, rel err 0.0e+00
+  [PASS] V6 RANGE  area-normalised S_I/I^2 overlaps the published 1e-8..1e-7 um^2/Hz band
+          model spans 1.78e-09 .. 2.60e-08 um^2/Hz
+  [PASS] V7 EXACT  signed CMF form is exactly 0 at g_m/I_d = -alpha_c*mu*C_ox
+          S = 0.0e+00 1/Hz (alpha_c mu C_ox = 6.90627e-02 1/V)
+  [PASS] V7b EXACT branch-corrected form at that point is exactly 4(alpha_c mu C_ox)^2 S_Vfb
+          ratio 1.907861e-02 vs 1.907861e-02, rel err 0.0e+00
+  [PASS] V8 EXACT  the branch correction is bitwise a no-op where g_m>=0
+          117 points, max |difference| 0.0e+00
+  verdict: PASS over 10 checks (8 exact, 2 range/convergence)
+
+------------------------------------------------------------------------------
+SECTION 2.  GATE DEPENDENCE AT THE TWO TRAP DENSITIES
+------------------------------------------------------------------------------
+  N_T = 1.1e20 (fitted, electrolyte-gated)
+    S_total at the CNP          : 2.5828e-07 1/Hz
+    S_total global max           : 8.5067e-07 1/Hz at Vg = -0.80 V
+    CNF/Hooge ratio at the max   : 7.241
+    central dip depth            : +0.5168 decades  -> M-shape
+    area-normalised S at the CNP : 5.1655e-08 um^2/Hz (published band 1e-8..1e-7)
+  N_T = 1.0e17 (mid Si/SiO2 range)
+    S_total at the CNP          : 1.3012e-07 1/Hz
+    S_total global max           : 1.3012e-07 1/Hz at Vg = +0.80 V
+    CNF/Hooge ratio at the max   : 0.000897
+    central dip depth            : +0.0000 decades  -> Lambda-shape
+    area-normalised S at the CNP : 2.6023e-08 um^2/Hz (published band 1e-8..1e-7)
+
+------------------------------------------------------------------------------
+SECTION 3.  THE IMPORTED SIGN CONVENTION NOTCHES THE HOLE BRANCH
+------------------------------------------------------------------------------
+  alpha_c*mu*C_ox = 6.90627e-02 1/V (bias-INDEPENDENT: oxide and mobility only)
+  g_m/I_d crosses -alpha_c*mu*C_ox at Vg = -2.900 V (g_m/I_d = -6.89049e-02 1/V)
+  at that bias the two forms disagree by a factor 7.646e+05:
+    verbatim signed form   : 6.1721e-13 1/Hz
+    branch-corrected form  : 4.7194e-07 1/Hz
+  its mirror bias Vg = +4.500 V (same |Vg-V_dirac|, electron side)
+    both forms there       : 4.7850e-07 1/Hz (V8: bitwise equal)
+  So the verbatim form makes two mirror-image bias points differ
+  by 7.753e+05 x in trap-limited 1/f noise, with nothing physical
+  distinguishing them.  Totals (CMF+Hooge), which is what a
+  measurement would see: signed 6.3910e-08 vs corrected 5.3585e-07 1/Hz.
+  The Hooge floor hides part of it -- the notch is a factor 8.384
+  in the TOTAL, which is why it would be missed by eye on a log
+  plot but not by a fit.  Checks V7/V7b/V8 pin all three claims.
+
+------------------------------------------------------------------------------
+SECTION 4.  THE M-SHAPE ONSET IS A TRAP-DENSITY THRESHOLD
+------------------------------------------------------------------------------
+  bisection on the PREDICATE dip>0 (dip_depth is identically 0
+  over the whole Lambda region, so this is a region boundary and
+  not a root), tol = 1e-4 decades, 17 iterations
+  N_T* = 7.4737e+17 1/(eV cm^3)
+  dip depth just above N_T*: +4.055e-08 decades
+  dip depth just below N_T*: +0.000e+00 decades (exactly 0 => no dip)
+  Below N_T* the predicted gate dependence is Lambda-shaped (the
+  noise PEAKS at the charge-neutrality point); above it the CNF
+  term wins on the flanks and opens the central dip, giving the
+  M-shape the experimental literature reports.
+  N_T* / 1e18 (top of the conventional Si/SiO2 interval) = 0.747
+  N_T* / 1.1e20 (the fitted electrolyte-gated value)     = 0.00679
+  => N_T* lies INSIDE the conventional 1e16..1e18 interval, at
+     75% of its top end.
+  SENSITIVITY TO THE HOOGE FLOOR.  N_T* is where CNF overtakes
+  the Hooge term at the flanks, so it moves with alpha_H.  The
+  three alpha_H values the same Table 1 lists for other devices:
+    alpha_H = 3.0e-04  -> N_T* = 1.725e+17  (its Ref. 33, lowest)
+    alpha_H = 1.3e-03  -> N_T* = 7.474e+17  (this model, L=13um row)
+    alpha_H = 7.0e-03  -> N_T* = 4.024e+18  (its Ref. 32, highest)
+  DOES THE SECTION-3 ARTEFACT MOVE THIS THRESHOLD?  Recomputing
+  N_T* on the verbatim signed total instead of the corrected one:
+    N_T*(branch-corrected) = 7.4737e+17
+    N_T*(verbatim signed)  = 5.4660e+21   ratio 7313.6764
+  The notch sits on one flank, and dip depth takes the MINIMUM of
+  the two flank maxima, so the notched flank is the one that
+  decides -- the artefact DOES move the threshold.
+  Over that whole factor-23 span in alpha_H, N_T* stays below
+  the fitted 1.1e20 and spans the top of the conventional
+  interval rather than sitting far above it.
+
+------------------------------------------------------------------------------
+SECTION 5.  WHAT THIS DOES AND DOES NOT ESTABLISH
+------------------------------------------------------------------------------
+  DOES, AND IT IS THE OPPOSITE OF WHAT THIS MODULE WAS DRAFTED
+  EXPECTING.  The draft prose asserted that the M-shape onset
+  would sit far ABOVE the conventional SiO2 trap-density range,
+  and therefore that an M-shape on a SiO2-gated GFET could not
+  be homogeneous CNF.  The computed threshold refutes that:
+  N_T* = 7.474e+17 1/(eV cm^3) is INSIDE the 1e16..1e18 interval.
+  So on this device, homogeneous charge-number fluctuation at a
+  perfectly ordinary oxide trap density already produces the
+  M-shape, and the M-shape is NOT by itself evidence of the
+  electron/hole-puddle inhomogeneity that Balandin's review
+  attributes it to.  The shape discriminates mechanism only
+  together with an independent trap-density measurement.
+  DOES NOT: the puddle mechanism is not in this model at all --
+  n_puddle here REGULARISES the density, it does not fluctuate.
+  This result weakens the inference FROM shape TO mechanism; it
+  says nothing about whether puddles also contribute.
+  DOES NOT: contact noise (negligible near the CNP per
+  arXiv:1806.06589, dominant at high |Vg|) is absent, so the
+  flanks are a lower bound and the dip depth an upper one.
+  DOES NOT: the CMF form and alpha_c are SUMMARY-ONLY provenance
+  (that paper's supplement was not read verbatim).  V3/V7b pin
+  the form's algebra, not the form.
+  DOES NOT: N_T* is a threshold in THIS geometry at THIS mu and
+  t_ox.  S_Vfb carries 1/(W L C_ox^2), so a thinner oxide or a
+  larger area moves it; no scaling study is done here.
+
+  figure written: low_frequency_noise_gate_dependence.png
+==============================================================================
+VERDICT: PASS over V1..V8
+==============================================================================
