@@ -510,3 +510,107 @@ re-measured in the same reference environment:
   `graphene_potential_census_audit.py`, `graphene_quantum_capacitance_overflow.py` — unchanged.
 
 `docs/baseline_hashes.txt` was re-taken at `77a2f3a` and Checkpoint 1 re-run against it on the merged branch (§7 procedure): **105 identical, 0 mismatched**, 13 legacy rows skipped; the pristine audit's stdout again differs only in commit id, working-tree list and timings.
+
+## 9. Update after merging `main` @ `e4fbc26` (2026-11-16)
+
+Main gained **29 modules and 44 outputs** between `77a2f3a` and `e4fbc26` (the 2026-10-17 to 2026-11-16 automation
+sessions). Every file is mapped in `docs/PATH_MAP.md`. The layout decision of §6 is unchanged: modules stay flat in
+`src/`, and `audits/` is still the planned end state of a separate PR, because moving the audits changes the
+populations they count. New outputs go to `results/<figures|transcripts>/<chapter>/`, the chapter being the first
+thesis chapter that cites the producer; verification-layer audits go to `audits/`.
+
+### 9.1 New scripts
+
+Class as in §1. Outputs are where `scripts/reproduce_all.py` regenerates them; "(stdout)" marks a transcript that is
+the module's captured stdout.
+
+| script | class | outputs | imports from repo modules | purpose (first lines of the docstring) |
+|---|---|---|---|---|
+| `src/graphene_ambipolar_mirror_audit.py` | audit | `results/figures/ch4/ambipolar_mirror_audit.png`, `results/transcripts/ch4/ambipolar_mirror_audit_output.txt` (stdout) | bracketed_root, graphene_diffusion_current_model, graphene_fet_model, rf_small_signal_model | THE SYMMETRY WAS NEVER LOST AT FINITE DRAIN BIAS. ITS CENTRE MOVED, BY EXACTLY V_ds/2, AND TWO PLACES IN THIS REPOSITORY STILL READ IT AT V_ |
+| `src/graphene_areal_thermal_resistance.py` | model | `results/figures/ch4/areal_thermal_resistance.png`, `results/transcripts/ch4/areal_thermal_resistance_output.txt` (stdout) | graphene_fet_model, graphene_self_heating_model | THE RANKED-FIRST ITEM CLOSES AND ITS STATED JUSTIFICATION IS FALSE. At Dorgan's fixed geometry the per-unit-area check is NOT an independent |
+| `src/graphene_attribute_default_capture.py` | audit | `results/transcripts/audits/attribute_default_capture_output.txt` (stdout) | graphene_cross_module_delivery_audit, graphene_fet_model, graphene_figure_provenance_audit, graphene_mutation_arrival_probe, graphene_velocity_saturation_model, rf_small_signal_model | THE INERT-KNOB CENSUS HAS BEEN COUNTING ONE SPELLING OF A TWO-SPELLING FAULT, AND THE FUNCTION WHOSE DOCSTRING DENIES THE FAULT MOST EXPLICI |
+| `src/graphene_branch_asymmetric_mobility.py` | model | `results/figures/ch4/branch_asymmetric_mobility.png`, `results/transcripts/ch4/branch_asymmetric_mobility_output.txt` (stdout) | graphene_fet_model, graphene_fet_signed_carrier_model | ELECTRON-HOLE MOBILITY ASYMMETRY IN THE GFET, AND HOW TO TELL IT APART FROM CONTACT ASYMMETRY. |
+| `src/graphene_capture_leverage_figure.py` | audit | `results/figures/audits/capture_surface_leverage.png`, `results/transcripts/audits/capture_surface_leverage_output.txt` (stdout) | graphene_capture_surface_guard, graphene_default_flip, graphene_fet_model | with every number in it derived and every legend entry built from an artist. WHY A FIGURE AT ALL, when 2026-10-23 declined one. That session |
+| `src/graphene_capture_surface_guard.py` | audit | `results/transcripts/audits/capture_surface_guard_output.txt` (stdout) | graphene_binding_class, graphene_contact_doping_model, graphene_default_flip, graphene_fet_model, graphene_quantum_capacitance_argument, graphene_replacement_read_audit, graphene_write_read_guard | COUNTERFACTUAL, not by a read set. WHY THIS EXISTS. |
+| `src/graphene_capture_surface_mutation.py` | audit | `results/transcripts/audits/capture_surface_mutation_output.txt` (stdout) | — | A self-checking suite that passes against deliberately broken code has measured nothing. 2026-09-17 in the sibling repository found a testbe |
+| `src/graphene_census_split_equivalence.py` | audit | `results/transcripts/audits/census_split_equivalence_output.txt` (stdout) | graphene_pristine_transcript_audit | THE SPLIT CENSUS MUST SEE WHAT THE SINGLE-CALL CENSUS SAW. graphene_pristine_transcript_audit.py gained a --part/--assemble mode today, |
+| `src/graphene_chapter_status_audit.py` | audit | `results/transcripts/audits/chapter_status_audit_output.txt` (stdout) | — | A GUARD AGAINST A CORRECTION THAT DID NOT HOLD. On 2026-10-18 this repository audited its own standing list and found, as item |
+| `src/graphene_chord_decay_length.py` | model | `results/figures/ch4/chord_vs_local_decay_length.png`, `results/transcripts/ch4/chord_decay_length_output.txt` (stdout) | bracketed_root, graphene_contact_doping_nonlinear_model, graphene_per_metal_crossover_model | Costs the 2026-10-18 item "IS `ell` EVEN THE RIGHT PARAMETER TO BOUND?". ------------------------------------------------------------------- |
+| `src/graphene_citation_census_audit.py` | audit | `results/transcripts/audits/citation_census_output.txt` (stdout) | graphene_citation_census_audit, graphene_self_heating_model, graphene_tolerance_census_audit | A LABEL CAN NAME A NUMBER ITS SOURCE NEVER PRINTED, AND NO AMOUNT OF ARITHMETIC IN THIS TREE CAN NOTICE. THIS IS THE INSTRUMENT THAT CAN. |
+| `src/graphene_default_flip.py` | audit | `results/figures/ch4/default_flip.png`, `results/transcripts/ch4/default_flip_output.txt` | contact_resistance_crossover, graphene_binding_class, graphene_contact_argument_blast_radius, graphene_contact_doping_model, graphene_fet_model, graphene_quantum_capacitance_argument | ======================== Section 7.9 item 16 -- "flip the default to form B_T" -- has stood ranked |
+| `src/graphene_density_dependent_mobility.py` | model | `results/figures/ch4/density_dependent_mobility.png`, `results/transcripts/ch4/density_dependent_mobility_output.txt` (stdout) | graphene_branch_asymmetric_mobility, graphene_fet_model, graphene_fet_signed_carrier_model | A DENSITY-DEPENDENT ELECTRON/HOLE MOBILITY PAIR, AND THE GATE VOLTAGE AT WHICH THE ASYMMETRY STOPS MATTERING. |
+| `src/graphene_impurity_limited_crossover.py` | model | `results/figures/ch4/impurity_limited_crossover.png`, `results/transcripts/ch4/impurity_limited_crossover_output.txt` (stdout) | graphene_branch_asymmetric_mobility, graphene_density_dependent_mobility, graphene_fet_model, graphene_fet_signed_carrier_model | THE CROSSOVER DENSITY IS NOT A MATERIAL CONSTANT: n_c IS PROPORTIONAL TO THE CHARGED-IMPURITY DENSITY, AND THE GATE STACK THAT DECIDES WHETH |
+| `src/graphene_installed_surface_audit.py` | audit | `results/transcripts/audits/installed_surface_audit_output.txt` (stdout) | graphene_capture_surface_guard, graphene_contact_argument_blast_radius, graphene_default_flip, graphene_fet_model, graphene_quantum_capacitance_argument, graphene_replacement_read_audit, graphene_value_read_surface | repository was taken with the replacement's own flip NOT entered, and until today nothing had checked that the two configurations agree. |
+| `src/graphene_installed_surface_mutation.py` | audit | `results/transcripts/audits/installed_surface_mutation_output.txt` (stdout) | — | graphene_installed_surface_audit. A suite that passes against deliberately broken code has measured nothing, |
+| `src/graphene_kappa_impurity_bound.py` | model | `results/figures/ch4/kappa_impurity_bound.png`, `results/transcripts/ch4/kappa_impurity_bound_output.txt` (stdout) | graphene_density_dependent_mobility, graphene_fet_model, graphene_impurity_limited_crossover | THE PAIRING CANNOT BE RESOLVED FROM ZION ET AL. -- THE FULL TEXT CARRIES NO MOBILITY AT ALL -- BUT IT CARRIES SOMETHING BETTER: ZION'S OWN C |
+| `src/graphene_low_frequency_noise_model.py` | model | `results/figures/ch4/low_frequency_noise_gate_dependence.png`, `results/transcripts/ch4/low_frequency_noise_output.txt` (stdout) | graphene_fet_model | Low-frequency (1/f) noise in a back-gated single-layer graphene FET: charge-number fluctuation (CNF, dN), correlated mobility fluctuation (C |
+| `src/graphene_mixed_capture_repair_audit.py` | audit | `results/transcripts/audits/mixed_capture_repair_output.txt` (stdout) | graphene_mutation_arrival_probe | MEASURES the repair that this session's first two commits made, against the PRE-REPAIR SOURCE, and refuses to take either side of it on trus |
+| `src/graphene_replacement_read_audit.py` | audit | `results/figures/audits/replacement_read_audit.png`, `results/transcripts/audits/replacement_read_audit_output.txt` (stdout) | graphene_binding_class, graphene_contact_argument_blast_radius, graphene_contact_doping_model, graphene_default_flip, graphene_fet_model, graphene_quantum_capacitance_argument | ================================== THE QUESTION, AND WHY IT IS RANKED FIRST |
+| `src/graphene_screening_overdrive_invariance.py` | model | `results/figures/ch7/screening_overdrive_invariance.png`, `results/transcripts/ch7/screening_overdrive_invariance_output.txt` (stdout) | — | THE GATE STACK DOES NOT DECIDE WHETHER BRANCH ASYMMETRY IS SCREENED, AND THE 56x SPREAD THAT SAID IT DID CAME FROM HOLDING n_c FIXED ACROSS  |
+| `src/graphene_self_heating_model.py` | model | `results/figures/ch4/self_heating_electrothermal.png`, `results/transcripts/ch4/self_heating_output.txt` (stdout) | graphene_fet_model | Self-consistent electro-thermal model of the back-gated single-layer graphene FET of graphene_fet_model.py: the channel dissipates power, th |
+| `src/graphene_self_heating_mutation.py` | audit | `results/transcripts/audits/self_heating_mutation_output.txt` (stdout) | — | Mutation test for graphene_self_heating_model.py. A self-checking suite that has never been shown to FAIL is a suite of |
+| `src/graphene_standing_list_audit.py` | audit | `results/transcripts/audits/standing_list_audit_output.txt` (stdout) | — | A STANDING ITEM THAT ASSERTS A STATE OF THE TREE IS A CLAIM, AND NOTHING HERE HAS EVER CHECKED ONE. |
+| `src/graphene_tolerance_census_audit.py` | audit | `results/transcripts/audits/tolerance_census_output.txt` (stdout) | graphene_fet_signed_carrier_model, graphene_self_heating_model | A COMPARISON AGAINST A PUBLISHED NUMBER IS A CLAIM ABOUT THE SOURCE'S PRECISION, AND UNTIL TODAY THIS REPOSITORY HAD CHECKED EXACTLY ONE OF  |
+| `src/graphene_tolerance_census_figure.py` | audit | `results/figures/audits/tolerance_census_licensed_vs_tested.png` | graphene_fet_signed_carrier_model, graphene_self_heating_model, graphene_tolerance_census_audit | What the source licenses, against what the check tests. Three panels, one per adjudicated row of graphene_tolerance_census_audit.py on |
+| `src/graphene_value_read_mutation.py` | audit | `results/transcripts/audits/value_read_mutation_output.txt` (stdout) | — | graphene_value_read_surface. A suite that passes against deliberately broken code has measured nothing. |
+| `src/graphene_value_read_surface.py` | audit | `results/transcripts/audits/value_read_surface_output.txt` (stdout) | graphene_capture_surface_guard, graphene_contact_argument_blast_radius, graphene_default_flip, graphene_fet_model, graphene_quantum_capacitance_argument, graphene_replacement_read_audit | sound, and that is the one property every `UNREACHED` verdict rests on. WHY THIS EXISTS. |
+| `src/graphene_write_read_guard.py` | audit | `results/transcripts/audits/write_read_guard_output.txt` (stdout) | graphene_binding_class, graphene_contact_argument_blast_radius, graphene_contact_doping_model, graphene_default_flip, graphene_fet_model, graphene_quantum_capacitance_argument, graphene_replacement_read_audit | WHY THIS EXISTS, and what it is not. 2026-10-22 §4 found that `gfet.C_ox` is READ by all five channel/contact |
+
+### 9.2 Path adaptations
+
+Main's new modules name their inputs and outputs by root-relative bare names. Each is routed through `graphene.paths`
+on the line it replaces, so no source line moves (several audits print line numbers):
+
+* outputs: `results_path(chapter, name)`, as in Phase 1;
+* inputs that used to sit at the root: `locate(root, name)` / `rel_locate(root, name)` find `AUTOMATION_LOG.md`,
+  `thesis_draft/…` (now `thesis/…`), committed transcripts and modules inside any tree — this checkout, a pristine
+  clone of it, or a flat pre-reorg clone — and `repo_root_of(dir)` maps `src/` to the repository root;
+* `graphene_pristine_transcript_audit.py` takes main's version (blob reads, part/assemble mode) with the same
+  adaptations; its `writes_own_transcript` regex also accepts `results_path(...)`;
+* `graphene_tolerance_census_audit.py` skips the `graphene/` infrastructure package, so its population is unchanged;
+* `graphene_standing_list_audit.py`'s `git log -S` ignores deletions (`--diff-filter=d`), so the rename
+  `thesis_draft/ → thesis/` is not reported as the commit that last touched its phrase;
+* `graphene_capture_leverage_figure.py` checks its figure's size at `results_path(...)`, where it now writes it;
+* `scripts/reproduce_all.py` decodes and writes transcripts as UTF-8 with LF, so their bytes do not depend on the OS.
+
+### 9.3 Dependency graph of the contact model (input to Phase C)
+
+`graphene_contact_doping_model` is imported, directly or transitively, by 26 modules. Those that **call**
+`contact_edge_carrier_density`, `junction_extra_resistance` or `recalibrate_metal_rc` are
+`graphene_contact_argument_blast_radius`, `graphene_contact_consistent_argument`, `graphene_default_flip`,
+`graphene_default_scale_audit`, `graphene_edge_contact_model`, `graphene_replacement_read_audit`,
+`graphene_sensitivity_audit` and `graphene_write_read_guard`, plus the capture and value-read audits through them.
+Chapter 6's models (`graphene_contact_doping_nonlinear_model`, `graphene_crossover_sensitivity_model`,
+`graphene_per_metal_crossover_model`, `graphene_photodetector_*`, `graphene_second_anchor_bound`) import only the
+constants `METAL_WORK_FUNCTIONS`, `W_GRAPHENE` and `lambda_decay`. They add their own crossover (`W_CROSS_CHEM = 5.4 eV`
+or `W_GRAPHENE + Δ_c`) to `W_GRAPHENE`, and they do not call the contact model's density function.
+
+### 9.4 Checkpoint A
+
+Baseline: `docs/baseline_hashes.txt`, re-taken at `main` @ `e4fbc26` **before any file was moved**, by running every
+script from the flat root in sorted order, one process each, in a clean venv with the pinned requirements (Python
+3.13.5 on Windows; numpy 2.5.3, scipy 1.18.1, matplotlib 3.10.9). Captured stdout is hashed with CRLF normalised to LF.
+Then, on the merged branch, `python scripts/reproduce_all.py --check`:
+
+```
+CHECK against docs/baseline_hashes.txt: 146 identical, 3 mismatched, 13 legacy rows skipped
+  note: stdout:graphene_pristine_transcript_audit.py: differs (non-deterministic by construction)
+  MISMATCH: stdout:graphene_capture_leverage_figure.py: stdout differs
+  MISMATCH: stdout:graphene_census_split_equivalence.py: stdout differs
+  MISMATCH: stdout:graphene_standing_list_audit.py: stdout differs
+```
+
+* `capture_leverage_figure` and `standing_list_audit` were two missed path adaptations (§9.2). Each was fixed on its
+  own line and re-run, and both now match. All 18 source-scanning audits were re-run after the fix: 24 rows
+  identical, 0 mismatched.
+* `census_split_equivalence` times the pristine-transcript audit and counts that audit's output lines. Its transcript
+  differs from main's **only in those timings and line counts**, and every verdict is the same. It is now listed with
+  the pristine audit as non-deterministic by construction.
+* The pristine-transcript audit differs from main's only in its working-tree listing and its timings. Every
+  per-suite verdict and check is identical.
+
+**Result: every transcript is byte-identical to main's and every figure is byte-identical (hence pixel-identical),
+except the two audits whose stdout is non-deterministic by construction, and those agree verdict for verdict.**
+As in §7, this shows that the reorganisation changed nothing. It does not show that the outputs are right. In this
+environment 75 of main's committed outputs differ from what main itself regenerates. Most are PNGs, whose bytes
+depend on the platform's font rasterisation.
