@@ -1,0 +1,182 @@
+==============================================================================
+DEAD-NAME SWEEP -- module-level constants no code reads
+2026-10-01.  Answers the 2026-09-30 item; ALPHA_ABS was found by
+accident, and nothing was looking for the class.
+==============================================================================
+
+SECTION 1 -- positive control on the sweep itself
+  planted BODY_ONE           expect BODY_ONLY     got BODY_ONLY
+  planted DEAD_ONE           expect DEAD          got DEAD
+  planted DERIVED            expect DEAD          got DEAD
+  planted EXEMPT_NO_REASON   expect DEAD          got DEAD
+  planted EXEMPT_ONE         expect EXEMPT        got EXEMPT
+  [PASS] all five planted non-live classes come back correctly
+  [PASS] a constant read by a function is NOT reported  -- LIVE is the common case and must not be noise
+  [PASS] an exemption with no reason is reported as DEAD, not EXEMPT  -- otherwise the marker is a way to silence the check for free
+  [PASS] every EXEMPT row carries a reason
+
+SECTION 2 -- the sweep over this repository
+  CROSS_MODULE  graphene_binding_class.py                      CONTACT_OPERATING_POINT          line 68    graphene_exact_charge_rederivation.py,gr
+  CROSS_MODULE  graphene_capture_surface_guard.py              CI                               line 483   graphene_value_read_surface.py
+  CROSS_MODULE  graphene_capture_surface_guard.py              FP                               line 490   graphene_cross_module_delivery_audit.py
+  BODY_ONLY     graphene_capture_surface_guard.py              SF                               line 491   
+  BODY_ONLY     graphene_capture_surface_mutation.py           FLIP                             line 33    
+  BODY_ONLY     graphene_citation_census_audit.py              ORDINAL_WORDS                    line 341   
+  CROSS_MODULE  graphene_contact_consistent_argument.py        E_CHARGE                         line 88    graphene_branch_asymmetric_mobility.py,g
+  CROSS_MODULE  graphene_contact_doping_nonlinear_model.py     CHEMISORBED                      line 95    graphene_chord_decay_length.py,graphene_
+  CROSS_MODULE  graphene_contact_doping_nonlinear_model.py     D_CHEM_PHYS                      line 82    graphene_dead_name_sweep.py
+  CROSS_MODULE  graphene_default_flip.py                       VDS_RF                           line 106   graphene_ambipolar_mirror_audit.py,graph
+  CROSS_MODULE  graphene_default_flip.py                       VG_RF                            line 105   graphene_exact_charge_rederivation.py,gr
+  CROSS_MODULE  graphene_density_dependent_mobility.py         EPSILON_0                        line 182   graphene_screening_overdrive_invariance.
+  CROSS_MODULE  graphene_diffusion_current_model.py            HBAR                             line 181   graphene_band_structure_audit.py,graphen
+  BODY_ONLY     graphene_fet_signed_carrier_model.py           H_PLANCK                         line 89    
+  CROSS_MODULE  graphene_installed_surface_audit.py            CQP                              line 502   graphene_value_read_surface.py
+  CROSS_MODULE  graphene_installed_surface_audit.py            QCT                              line 499   graphene_value_read_surface.py
+  CROSS_MODULE  graphene_installed_surface_audit.py            QCTN                             line 500   graphene_value_read_surface.py
+  CROSS_MODULE  graphene_installed_surface_audit.py            QKB                              line 503   graphene_value_read_surface.py
+  CROSS_MODULE  graphene_installed_surface_audit.py            QNAE                             line 501   graphene_value_read_surface.py
+  DEAD          graphene_low_frequency_noise_model.py          VDS_SYMMETRIC                    line 124   
+  CROSS_MODULE  graphene_mutation_arrival_probe.py             CLASS_UNUSED                     line 101   graphene_cross_module_delivery_audit.py
+  EXEMPT        graphene_plasmonic_photodetector_model.py      FANG_ANTENNA_TEST_WAVELENGTH_NM  line 126   descriptive-only literature point -- Fan
+  DEAD          graphene_potential_census_audit.py             CHANNEL_POTENTIAL_READINGS       line 338   
+  CROSS_MODULE  graphene_quantum_capacitance_argument.py       A_OX                             line 66    graphene_exact_charge_rederivation.py
+  CROSS_MODULE  graphene_screening_overdrive_invariance.py     EPSILON_0                        line 122   graphene_density_dependent_mobility.py
+  BODY_ONLY     graphene_tolerance_census_figure.py            C_LIC                            line 77    
+  BODY_ONLY     graphene_tolerance_census_figure.py            C_TEST                           line 78    
+  BODY_ONLY     graphene_tolerance_census_figure.py            OUT                              line 42    
+  BODY_ONLY     graphene_tolerance_census_figure.py            ROWS                             line 50    
+  CROSS_MODULE  graphene_value_read_mutation.py                GUARD                            line 36    graphene_capture_surface_mutation.py
+  CROSS_MODULE  graphene_value_read_surface.py                 ADDED_CONTACT                    line 477   graphene_installed_surface_audit.py
+  BODY_ONLY     graphene_value_read_surface.py                 ADDED_QCA_CHARGE                 line 495   
+  BODY_ONLY     graphene_value_read_surface.py                 ADDED_QCA_CQ                     line 508   
+  BODY_ONLY     graphene_value_read_surface.py                 BCQS                             line 546   
+  BODY_ONLY     graphene_value_read_surface.py                 BNC                              line 547   
+  CROSS_MODULE  graphene_value_read_surface.py                 CI                               line 548   graphene_capture_surface_guard.py
+  CROSS_MODULE  graphene_value_read_surface.py                 COX                              line 537   graphene_capture_surface_guard.py,graphe
+  BODY_ONLY     graphene_value_read_surface.py                 GHBAR                            line 454   
+  BODY_ONLY     graphene_value_read_surface.py                 GKB                              line 455   
+  BODY_ONLY     graphene_value_read_surface.py                 GQC                              line 549   
+  BODY_ONLY     graphene_value_read_surface.py                 GVF                              line 456   
+  BODY_ONLY     graphene_value_read_surface.py                 NP                               line 540   
+  CROSS_MODULE  graphene_value_read_surface.py                 QCT                              line 542   graphene_installed_surface_audit.py
+  CROSS_MODULE  graphene_value_read_surface.py                 QCTN                             line 543   graphene_installed_surface_audit.py
+  BODY_ONLY     graphene_value_read_surface.py                 QEC                              line 451   
+  BODY_ONLY     graphene_value_read_surface.py                 QFP                              line 541   
+  CROSS_MODULE  graphene_value_read_surface.py                 QKB                              line 452   graphene_installed_surface_audit.py
+  CROSS_MODULE  graphene_value_read_surface.py                 QNAE                             line 544   graphene_installed_surface_audit.py
+  BODY_ONLY     graphene_value_read_surface.py                 QSF                              line 545   
+  BODY_ONLY     graphene_value_read_surface.py                 VD                               line 539   
+  BODY_ONLY     graphene_value_read_surface.py                 XFT                              line 536   
+  BODY_ONLY     graphene_velocity_saturation_model.py          HBAR_OMEGA_EV                    line 178   
+  CROSS_MODULE  graphene_write_read_guard.py                   COX                              line 388   graphene_capture_surface_guard.py,graphe
+  BODY_ONLY     graphene_write_read_guard.py                   CQ                               line 389   
+  totals: {'BODY_ONLY': 24, 'CROSS_MODULE': 27, 'DEAD': 2, 'EXEMPT': 1, 'LIVE': 439}
+  [FAIL] no module-level constant in this repository is DEAD  -- 2 dead
+
+SECTION 2b -- is every CROSS_MODULE resolution supported by an IMPORT?
+----------------------------------------------------------------------
+  CROSS_MODULE says a constant is alive because another module here
+  references its NAME.  That is a liveness claim only if the other
+  module can reach this one.  10-01 fixed the mention-vs-use half of
+  this loophole (text search -> AST) and left the same-spelling half.
+    UNSUPPORTED  graphene_capture_surface_guard.py              FP                       line 490    graphene_cross_module_delivery_audit.py does not import graphene_capture_surface_guard.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_branch_asymmetric_mobility.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_contact_argument_blast_radius.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_density_dependent_mobility.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_diffusion_current_model.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_exact_charge_rederivation.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_fet_signed_carrier_model.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_impurity_limited_crossover.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_kappa_impurity_bound.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_perfect_contact_counterfactual.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_potential_declaration.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_quantum_capacitance_argument.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_quantum_capacitance_overflow.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_screening_overdrive_invariance.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_contact_consistent_argument.py        E_CHARGE                 line 88     graphene_velocity_saturation_model.py does not import graphene_contact_consistent_argument.py
+    UNSUPPORTED  graphene_default_flip.py                       VDS_RF                   line 106    graphene_ambipolar_mirror_audit.py does not import graphene_default_flip.py
+    UNSUPPORTED  graphene_default_flip.py                       VDS_RF                   line 106    graphene_exact_charge_rederivation.py does not import graphene_default_flip.py
+    UNSUPPORTED  graphene_default_flip.py                       VDS_RF                   line 106    graphene_quantum_capacitance_argument.py does not import graphene_default_flip.py
+    UNSUPPORTED  graphene_default_flip.py                       VG_RF                    line 105    graphene_exact_charge_rederivation.py does not import graphene_default_flip.py
+    UNSUPPORTED  graphene_default_flip.py                       VG_RF                    line 105    graphene_quantum_capacitance_argument.py does not import graphene_default_flip.py
+    UNSUPPORTED  graphene_density_dependent_mobility.py         EPSILON_0                line 182    graphene_screening_overdrive_invariance.py does not import graphene_density_dependent_mobility.py
+    UNSUPPORTED  graphene_diffusion_current_model.py            HBAR                     line 181    graphene_band_structure_audit.py does not import graphene_diffusion_current_model.py
+    UNSUPPORTED  graphene_diffusion_current_model.py            HBAR                     line 181    graphene_velocity_saturation_model.py does not import graphene_diffusion_current_model.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            CQP                      line 502    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            QCT                      line 499    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            QCTN                     line 500    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            QKB                      line 503    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+    UNSUPPORTED  graphene_installed_surface_audit.py            QNAE                     line 501    graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+    UNSUPPORTED  graphene_quantum_capacitance_argument.py       A_OX                     line 66     graphene_exact_charge_rederivation.py does not import graphene_quantum_capacitance_argument.py
+    UNSUPPORTED  graphene_screening_overdrive_invariance.py     EPSILON_0                line 122    graphene_density_dependent_mobility.py does not import graphene_screening_overdrive_invariance.py
+    UNSUPPORTED  graphene_value_read_mutation.py                GUARD                    line 36     graphene_capture_surface_mutation.py does not import graphene_value_read_mutation.py
+    UNSUPPORTED  graphene_value_read_surface.py                 CI                       line 548    graphene_capture_surface_guard.py does not import graphene_value_read_surface.py
+    UNSUPPORTED  graphene_value_read_surface.py                 COX                      line 537    graphene_capture_surface_guard.py does not import graphene_value_read_surface.py
+    UNSUPPORTED  graphene_value_read_surface.py                 COX                      line 537    graphene_write_read_guard.py does not import graphene_value_read_surface.py
+    UNSUPPORTED  graphene_write_read_guard.py                   COX                      line 388    graphene_installed_surface_audit.py does not import graphene_write_read_guard.py
+    UNSUPPORTED  graphene_write_read_guard.py                   COX                      line 388    graphene_value_read_surface.py does not import graphene_write_read_guard.py
+  CROSS_MODULE rows: 27   unsupported: 36
+  [PASS] 2b positive control: a resolution with no import is reported  -- a synthetic CROSS_MODULE row naming a module that does not exist and
+therefore imports nothing must be flagged; got 1
+  [FAIL] every CROSS_MODULE resolution is supported by a real import  -- an unsupported resolution is a HIDDEN DEAD name: nothing that can
+see the constant reads it, and the sweep calls it alive because an
+unrelated module spells something the same way.
+  graphene_capture_surface_guard.py.FP <- graphene_cross_module_delivery_audit.py does not import graphene_capture_surface_guard.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_branch_asymmetric_mobility.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_contact_argument_blast_radius.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_density_dependent_mobility.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_diffusion_current_model.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_exact_charge_rederivation.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_fet_signed_carrier_model.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_impurity_limited_crossover.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_kappa_impurity_bound.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_perfect_contact_counterfactual.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_potential_declaration.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_quantum_capacitance_argument.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_quantum_capacitance_overflow.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_screening_overdrive_invariance.py does not import graphene_contact_consistent_argument.py
+  graphene_contact_consistent_argument.py.E_CHARGE <- graphene_velocity_saturation_model.py does not import graphene_contact_consistent_argument.py
+  graphene_default_flip.py.VDS_RF <- graphene_ambipolar_mirror_audit.py does not import graphene_default_flip.py
+  graphene_default_flip.py.VDS_RF <- graphene_exact_charge_rederivation.py does not import graphene_default_flip.py
+  graphene_default_flip.py.VDS_RF <- graphene_quantum_capacitance_argument.py does not import graphene_default_flip.py
+  graphene_default_flip.py.VG_RF <- graphene_exact_charge_rederivation.py does not import graphene_default_flip.py
+  graphene_default_flip.py.VG_RF <- graphene_quantum_capacitance_argument.py does not import graphene_default_flip.py
+  graphene_density_dependent_mobility.py.EPSILON_0 <- graphene_screening_overdrive_invariance.py does not import graphene_density_dependent_mobility.py
+  graphene_diffusion_current_model.py.HBAR <- graphene_band_structure_audit.py does not import graphene_diffusion_current_model.py
+  graphene_diffusion_current_model.py.HBAR <- graphene_velocity_saturation_model.py does not import graphene_diffusion_current_model.py
+  graphene_installed_surface_audit.py.CQP <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+  graphene_installed_surface_audit.py.QCT <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+  graphene_installed_surface_audit.py.QCTN <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+  graphene_installed_surface_audit.py.QKB <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+  graphene_installed_surface_audit.py.QNAE <- graphene_value_read_surface.py does not import graphene_installed_surface_audit.py
+  graphene_quantum_capacitance_argument.py.A_OX <- graphene_exact_charge_rederivation.py does not import graphene_quantum_capacitance_argument.py
+  graphene_screening_overdrive_invariance.py.EPSILON_0 <- graphene_density_dependent_mobility.py does not import graphene_screening_overdrive_invariance.py
+  graphene_value_read_mutation.py.GUARD <- graphene_capture_surface_mutation.py does not import graphene_value_read_mutation.py
+  graphene_value_read_surface.py.CI <- graphene_capture_surface_guard.py does not import graphene_value_read_surface.py
+  graphene_value_read_surface.py.COX <- graphene_capture_surface_guard.py does not import graphene_value_read_surface.py
+  graphene_value_read_surface.py.COX <- graphene_write_read_guard.py does not import graphene_value_read_surface.py
+  graphene_write_read_guard.py.COX <- graphene_installed_surface_audit.py does not import graphene_write_read_guard.py
+  graphene_write_read_guard.py.COX <- graphene_value_read_surface.py does not import graphene_write_read_guard.py
+
+----------------------------------------------------------------------
+SECTION 3 -- the inverted detector: prose names it, no code reads it
+  graphene_binding_class.py                      CONTACT_OPERATING_POINT          line 68
+  1 constant(s) named in prose and read by no function.
+  This is a REPORT, not an assertion: a docstring may mention a
+  constant it does not depend on.  What it must not do is cite one
+  as an input.  Every row here is read by SOMETHING (see Section 2)
+  or declared exempt, or Section 2 would have failed first.
+
+SECTION 4 -- one literature value, two definitions
+  graphene_contact_doping_nonlinear_model.D_CHEM_PHYS = 0.9000 eV
+  graphene_per_metal_crossover_model.DC_ANCHOR        = 0.9000 eV
+  [PASS] the two copies of the short-range chemical term agree  -- bitwise equal; the check exists because a revised extraction would otherwise move one copy silently
+  The physics is unaffected -- the term is applied through
+  w_cross_for_metal -> delta_c -> DC_ANCHOR -- so no committed
+  number depends on D_CHEM_PHYS.  That is exactly why it went
+  unread for ten sessions, and exactly why the duplication needs
+  a check rather than a comment.
+
+==============================================================================
+TOTAL: 6 passed, 2 failed
+==============================================================================
