@@ -1,0 +1,145 @@
+==============================================================================
+AMBIPOLAR MIRROR AUDIT -- where is the reflection centre, and
+which expressions in this repository disagree about it?
+==============================================================================
+  Scoring the 2026-11-15 prediction 1: 'the |g_m| audit will find
+  at least one more instance, and it will be in a figure-of-merit
+  expression rather than in a current model.'
+
+------------------------------------------------------------------------------
+SECTION 1.  THE LAW, measured over three decades of drain bias
+------------------------------------------------------------------------------
+   Vds [V]   V_mirror [V]   asym about V_m asym about V_dirac
+     0.001       0.800500        2.379e-16        1.047e-04
+      0.01       0.805000        2.068e-16        1.047e-03
+      0.05       0.825000        4.522e-16        5.235e-03
+       0.1       0.850000        3.121e-16        1.047e-02
+       0.2       0.900000        3.312e-16        2.091e-02
+       0.5       1.050000        2.496e-16        5.186e-02
+
+  and the LOCATED current minimum, by Brent (not grid argmin):
+   Vds [V]     V_g at min I_d    V_dirac + Vds/2   offset/Vds
+      0.01        0.805000011        0.805000000   0.50000114
+      0.05        0.825000047        0.825000000   0.50000094
+       0.1        0.850000025        0.850000000   0.50000025
+       0.2        0.900000040        0.900000000   0.50000020
+       0.5        1.049999978        1.050000000   0.49999996
+
+  So the gate voltage this model's channel is actually neutral at
+  is V_dirac + Vds/2 = %.3f V at the RF bias, not the %.3f V that
+  `gfet.V_dirac` names.  The 50 mV is not an error in V_dirac --
+  V_dirac is a FLAT-BAND parameter and is exactly what it says.
+  It is the CURVE's centre that moves, and nothing in this
+  repository had written the relation down.
+
+------------------------------------------------------------------------------
+SECTION 2.  CENSUS -- every site that treats a centre as known
+------------------------------------------------------------------------------
+  SITE  rf_small_signal_model.gate_capacitance
+        line 224: dV = Vg_range - Vch - gfet.V_dirac, with Vch defaulting to 0.0, so C_gs is the SOURCE-END capacitance while g_m belongs to a channel-averaged device at finite Vds
+        -> MEASURED BELOW -- this is the figure-of-merit instance prediction 1 named
+
+  SITE  graphene_diffusion_current_model.py:693  j_dirac
+        j_dirac = int(np.argmin(np.abs(Vg - gfet.V_dirac))), used to report the diffusion share 'at the nearest grid point to the Dirac point' and as the left-hand side of check G4a
+        -> MEASURED BELOW -- the grid point it selects is Vds/2 = 50 mV away from the bias at which this model's channel is actually neutral
+
+  SITE  graphene_low_frequency_noise_model.py  V2
+        takes a SEPARATE Vds -> 0 limit function (id_zero_vds_limit) to get an exact evenness check about V_dirac
+        -> CORRECT AS WRITTEN, and strengthened rather than refuted: the exact check is available at finite Vds about V_dirac+Vds/2.  No number withdrawn.
+
+------------------------------------------------------------------------------
+SECTION 3.  THE FIGURE OF MERIT -- f_T's two centres
+------------------------------------------------------------------------------
+  C_gs is BITWISE even about V_dirac; |g_m| is even about
+  V_dirac + Vds/2.  f_T = |g_m|/(2 pi C_gs) is therefore even
+  about neither, and the two branch peaks of a device whose I_d
+  is exactly symmetric come out UNEQUAL:
+
+                              electron peak      hole peak      ratio e/h
+  committed C_gs(Vch=0)       20.27790 GHz  20.27876 GHz   0.9999575857
+  channel-averaged C_gs       20.27833 GHz  20.27833 GHz   1.0000000000
+  peak bias, committed           2.810 V      -1.110 V
+
+  Magnitude, honestly: at the PEAK the two capacitances barely
+  differ, because there C_gs is C_ox-dominated and flat -- the
+  peak-f_T asymmetry is 4.241e-05, i.e. the committed peak numbers in
+  Chapter 4 are NOT materially wrong and none is withdrawn.  The
+  mismatch is large where C_q matters, i.e. near neutrality:
+    |Vg - V_m| = 0.05 V : committed C_gs differs between the two branches by  2.8472 %
+    |Vg - V_m| = 0.10 V : committed C_gs differs between the two branches by  1.7404 %
+    |Vg - V_m| = 0.20 V : committed C_gs differs between the two branches by  0.4297 %
+    |Vg - V_m| = 0.50 V : committed C_gs differs between the two branches by  0.0656 %
+    |Vg - V_m| = 1.00 V : committed C_gs differs between the two branches by  0.0163 %
+
+  The claim is therefore about the SHAPE of f_T near the Dirac
+  point, which is the region the repository's own RF chapter
+  says it cannot be asked about for a different reason (the
+  puddle floor, graphene_diffusion_current_model Section 3).
+
+------------------------------------------------------------------------------
+SECTION 4.  THE j_dirac SITE, measured
+------------------------------------------------------------------------------
+  graphene_diffusion_current_model.py Section 3 reports the
+  diffusion share 'at the nearest grid point to the Dirac
+  point'.  On its own 240-point grid (step 0.025105 V):
+    nearest grid point to V_dirac        = +0.811715 V, share -0.006925 %
+    nearest grid point to V_dirac+Vds/2  = +0.861925 V, share +0.015818 %
+    the two grid points are the same point: False
+
+  VERDICT: the two grid points DIFFER, so the reported
+  number is the share at the wrong bias.  Both are printed
+  above; neither is deleted.
+
+------------------------------------------------------------------------------
+SECTION 5.  VALIDATION
+------------------------------------------------------------------------------
+  [PASS] V1 EXACT  I_d is even about V_dirac+Vds/2 at all six drain biases
+         worst rel asymmetry 4.522e-16 (at Vds = 0.05 V), over Vds spanning a factor 500
+  [PASS] V2 ARTEFACT  the same curve is NOT even about V_dirac         
+         (not exact) rel asymmetry 1.0466e-02 at Vds = 0.1 V, i.e. 2.31e+13 x V1's floor
+  [PASS] V3 EXACT  C_gs is BITWISE even about V_dirac (wrong centre)   
+         max |diff| 0.000e+00, bitwise-equal on all 41 pairs: True
+  [PASS] V4 EXACT  the channel-averaged C_gs IS even about V_dirac+Vds/2
+         max rel asymmetry 6.489e-16
+  [PASS] V5 EXACT  repaired f_T: electron/hole peak ratio is 1         
+         ratio 1.00000000000000 (|ratio-1| = 2.220e-16)
+  [PASS] V6 RATE  C_gs discrepancy at FIXED V_g is O(Vds) (ratio -> 2) 
+         (not exact) rel discrepancies 6.271e-03, 1.795e-03, 7.496e-04, 3.472e-04, 1.675e-04, 8.232e-05, 4.081e-05; successive ratios 3.494, 2.394, 2.159, 2.073, 2.035, 2.017
+  [PASS] V6b LIMIT  the leading coefficient is -C'(V_g)/2              
+         (not exact) Richardson limit -9.872395e-19 F/V against -C'/2 = -9.873991e-19 F/V, rel err 1.62e-04; Richardson sequence -3.46462e-19, -9.17641e-19, -9.74568e-19, -9.84594e-19, -9.86741e-19, -9.87240e-19
+  [PASS] V7 ARTEFACT  committed f_T: electron/hole peak ratio is NOT 1 
+         (not exact) ratio 0.999957586 (|ratio-1| = 4.241e-05), peaks 20.2779 GHz at +2.810 V and 20.2788 GHz at -1.110 V
+  [PASS] V8a EXACT  the repair is a BITWISE no-op at Vds=0, n_segments=1
+         bitwise-equal to rf.gate_capacitance on all 691 points: True
+  [PASS] V8b NEAR   with 50 segments at Vds=0 the mean of identical floats is within the (n-1) ULP summation bound
+         (not exact) max distance 8.0 ULP against the n-1 = 49 bound, exactly equal on 60 of 691 points
+  [PASS] V9 EXACT  (reflection centre - V_dirac)/Vds = 1/2 for every Vds
+         max |ratio - 0.5| = 1.07e-14 by root-find, against 1.14e-06 for the same quantity located as an extremum (the minimiser's floor, not the law's) -- over Vds = 0.01, 0.05, 0.1, 0.2, 0.5
+
+------------------------------------------------------------------------------
+SECTION 6.  WHAT THIS DOES NOT ESTABLISH
+------------------------------------------------------------------------------
+  DOES NOT: the channel-averaged C_gs is a MIDPOINT average of
+  the source-end formula, not a derived non-reciprocal
+  capacitance.  Jimenez arXiv:1105.2734 obtains C_gs by
+  differentiating channel-integrated charges with Ward-Dutton
+  partitioning; that is a different and better object, and it is
+  not built here.  What is claimed is only that the averaged form
+  shares a reflection centre with g_m and the source-end one
+  does not.
+  DOES NOT: `rf.gate_capacitance` is left UNCHANGED, so every
+  committed f_T/f_max number in this repository is reproducible
+  bit for bit.  Nothing in Chapter 4 is withdrawn by this module.
+  DOES NOT: the law V_m = V_dirac + Vds/2 is a property of THIS
+  model's symmetric channel-potential grid and of mu_e = mu_h.
+  graphene_branch_asymmetric_mobility.py breaks the second
+  premise on purpose; the centre is not expected to survive it,
+  and that case is not measured here.
+  DOES NOT: velocity saturation and diffusion (vsat, dd modules)
+  integrate over the same profile but with an asymmetric
+  velocity field; whether the centre survives there is OPEN.
+
+  figure written: ambipolar_mirror_audit.png
+==============================================================================
+VERDICT: PASS over V1..V9 (11 checks)
+==============================================================================
