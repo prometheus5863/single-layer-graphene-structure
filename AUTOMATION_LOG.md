@@ -17513,3 +17513,306 @@ standing environment property rather than an incident.
 3. **The file-existence audit (ranked first) will strike at least one more
    item.** Reason: this list is long, items are carried by copying, and
    nothing has ever tested one against the tree.
+
+## 2026-11-16 — the symmetry was never lost at finite drain bias, its centre had moved by exactly Vds/2, and two expressions in the tree disagree about where it is
+
+### 0. The duplicate check
+
+`date -u +%F` on the device gave **2026-11-16**. Fresh clones of both
+repositories: neither `AUTOMATION_LOG.md` contained a 2026-11-16 entry and
+`git log --since=midnight --oneline` was empty in both. Both repositories'
+`HEAD` matched `origin/main` at the 2026-11-15 log commit, so the pushed
+state and the local state agree and the clone is a sound basis for the
+question — the sound test the 11-15 entry's §0 specified (compare
+`origin/main` against the last log entry), not the `_to_push/`-non-empty
+predicate it struck. A full session.
+
+### 1. What was done
+
+Three commits, on the 11-15 entry's **ranked-second** item ("audit the
+repository for other unipolar forms transcribed to an ambipolar device"),
+plus this entry.
+
+1. `notes/2026-11-16-the-mirror-centre-of-an-ambipolar-transfer-curve.md` —
+   research notes from two sources read today (Jiménez arXiv:1105.2734;
+   Lee, UCSD 2016), both HTTP 200 on the first attempt.
+2. `graphene_ambipolar_mirror_audit.py` +
+   `ambipolar_mirror_audit_output.txt` + `ambipolar_mirror_audit.png` —
+   the audit. **PASS over 11 checks, 6 of them against exactly known
+   values.**
+3. In-place annotations at both affected sites —
+   `rf_small_signal_model.gate_capacitance` and
+   `graphene_diffusion_current_model.py`'s `j_dirac` — **changing neither**,
+   so no committed output file moves.
+
+### 2. The finding — a reflection centre, not a missing `abs`
+
+`gfet.transfer_characteristic` averages the local channel resistance over
+`V_channel_profile = np.linspace(0, Vds, 50)`, and the local resistance
+depends on the local overdrive only through its magnitude. The profile is
+symmetric about `Vds/2`, so
+
+> **`I_d` is EXACTLY even about `V_MIRROR = V_dirac + Vds/2`, at every drain
+> bias — measured to `4.5e-16` relative over six drain biases spanning a
+> factor 500 (V1), while about `V_dirac` the same curve is asymmetric by
+> `1.05 %` at `Vds = 0.1 V` (V2).**
+
+`gfet.V_dirac = 0.8 V` is not wrong: it is a flat-band parameter and is
+exactly what its docstring says. What had never been written down is that
+the **curve's** centre is a different number, `0.85 V` at the RF bias.
+
+Then the instance the item was looking for. `rf_small_signal_model.`
+`gate_capacitance(Vg, Vch=0.0)` takes `Vg - Vch - V_dirac` through the even
+`quantum_capacitance`, so it is **bitwise** even about `V_dirac` (V3 — exact
+equality on floats, not agreement to 1e-16). So
+
+    f_T = |g_m| / (2 pi C_gs)
+
+divides a quantity centred at `V_dirac + Vds/2` by one centred at
+`V_dirac`, is even about neither, and the electron- and hole-branch peak
+`f_T` of a device whose `I_d` is **exactly** mirror-symmetric come out
+unequal: **20.27790 GHz against 20.27876 GHz, ratio 0.9999575857** (V7).
+With the capacitance averaged over the same channel profile the current is
+integrated over, the ratio is **1 to 2.2e-16** (V5).
+
+**Magnitude, stated as small because it is small.** The peak asymmetry is
+`4.24e-5`. At the peak `C_gs` is `C_ox`-dominated and flat, so there is
+almost nothing for the centre mismatch to act on, and **no committed
+Chapter 4 number is withdrawn or materially wrong.** Where it is not small
+is near neutrality, where `C_q` carries the bias dependence: the committed
+`C_gs` differs between the two branches by **2.85 % at 50 mV** from the
+centre and **1.74 % at 100 mV**. The defect is in the *shape* of `f_T` near
+the Dirac point, which — note the collision — is the region this
+repository's own diffusion module already says it cannot be asked about,
+for the unrelated reason that the puddle floor flattens it.
+
+### 3. Scoring prediction 1, and what it got right for the wrong reason
+
+> "The `|g_m|` audit of §2 will find at least one more instance, and it will
+> be in a figure-of-merit expression rather than in a current model.
+> Reason: current models in this repository take `abs(n)` early
+> (`sheet_conductivity` does), while figures of merit are transcribed from
+> unipolar RF literature where the sign never arises."
+
+**GREEN on both halves.** The instance is in `f_T`, a figure of merit, and
+not in a current model. And the stated reason is *also* confirmed in the
+specific form it names: the current models' early `abs` is exactly what
+makes `I_d` even at all, and `rf.gate_capacitance`'s evenness about the
+wrong centre is exactly a quantity whose reflection the unipolar literature
+never has to consider.
+
+But it is green on a form it did not anticipate. The prediction was written
+expecting a **missing `abs`** — a bare `g_m` where `|g_m|` is meant. There
+is no such instance: `rf.compute_fT_fmax`, `graphene_velocity_saturation_`
+`model.fT_fmax_saturated` and `graphene_diffusion_current_model` all already
+take `np.abs(gm)`, and `graphene_fmax_shortfall_decomposition` already takes
+`abs(db['gm'][j])` in the intrinsic-gain column. The repository had closed
+the sign half of this class before today. What it had not closed is the
+weaker and harder form: two individually-symmetric quantities, each even
+about its own centre, **divided by one another**. A grep for `abs` finds the
+first form and cannot find the second.
+
+### 4. A result in the tree is strengthened, not refuted
+
+`graphene_low_frequency_noise_model.py` (2026-11-15) states in its V2 that
+"at finite Vds the asymmetry is the drain bias itself", and gets its exact
+evenness check by evaluating a **separate `Vds -> 0` limit function**,
+`id_zero_vds_limit`. That reading is right and its check is sound. What it
+does not say is that **nothing is lost at finite `Vds`** — the exact
+evenness survives, displaced. A check that needed a limit can be taken at
+the operating bias instead. Its V2b convergence rate (asymmetry linear in
+`Vds`, measured *about* `V_dirac`) remains exactly right about the quantity
+it measures, and is in fact the same `Vds/2` seen as a magnitude. No number
+there is withdrawn.
+
+### 5. Three checks failed on their first draft, and all three were the check being wrong
+
+Recorded because the pattern is now the most productive thing in this
+repository, and because each wrong premise was *plausible*.
+
+1. **V6 asserted `O(Vds^2)`** "because the average is a midpoint rule", and
+   predicted a halving ratio near 4. Held at a fixed `V_g` it measured
+   3.494 / 2.394 / 2.159 — heading to 2. The premise confused two
+   comparisons: the average is compared against the **source-end** value,
+   not the exact channel integral, so
+   `C_avg - C(u) = -C'(u) * Vds/2 + O(Vds^2)` and the discrepancy is
+   **first** order with a known coefficient. V6b now checks that
+   coefficient against an independently differentiated `C'`, and needed the
+   Richardson pair taken down to `Vds = 0.00625 / 0.003125` before the
+   residual fell below `1e-3` — the first attempt at `0.05 / 0.025` left
+   1.3 %, which is the quadrature term, not a wrong coefficient.
+2. **V8 asserted a bitwise no-op at `Vds = 0`.** The profile collapses to
+   fifty copies of `0.0` and the mean of fifty **identical** floats is not
+   the identity: **8 ULP** measured, exactly equal on only 60 of 691
+   points. V8a now pins the bitwise claim where it is true
+   (`n_segments = 1`) and V8b states the textbook `(n-1) = 49` ULP
+   summation bound with the measured 8 printed beside it, so the gap —
+   numpy's pairwise summation — is visible rather than the bound being
+   tuned to the measurement.
+3. **V9 located the centre as an EXTREMUM** and measured `1.14e-6`, which
+   is the Brent minimiser's floor and not the law's accuracy. Reporting it
+   would have been reporting a tolerance as a result. Located instead as
+   the **root** of the odd function `I(c+h) - I(c-h)`, through this
+   repository's own `bracketed_bisect`, it is **`1.07e-14`** — eight orders
+   better, from the same model. Both numbers are printed side by side.
+
+All three wrong premises are kept in the module's source as comments.
+
+### 6. The j_dirac site, and why it was annotated rather than repaired
+
+`graphene_diffusion_current_model.py` line 693 has the repository's only
+site that equates the `I_d`-curve's neutrality bias with `gfet.V_dirac`:
+`j_dirac = int(np.argmin(np.abs(Vg - gfet.V_dirac)))`, used to report the
+diffusion share "at the nearest grid point to the Dirac point" and as the
+left-hand side of check G4a. On its own 240-point grid the two centres are
+**different grid points** and the share differs in **sign**:
+
+    nearest grid point to V_dirac       = +0.811715 V, share -0.006925 %
+    nearest grid point to V_dirac+Vds/2 = +0.861925 V, share +0.015818 %
+
+G4a's **verdict survives** — both shares are about three orders below the
+sweep maximum, so "the share COLLAPSES at charge neutrality instead of
+diverging there" is still true — so the line is annotated with both numbers
+and left unchanged, and `diffusion_current_output.txt` stays reproducible.
+What is false is the *wording*. Classified LATENT.
+
+### 7. Environment
+
+The device VM's session filesystem was **100 % full again** — `/sessions`
+9.3 G used, 0 available, of which this session owned 30 MB — for the
+**third consecutive day**. `mkdir $HOME/work` fails with "No space left on
+device". Work moved to `/tmp/ghwork` (on `/`, 2.8 G free) and `scipy`, still
+not preinstalled, was found **already present** at `/tmp/pylibs` from the
+11-15 session, so `PYTHONPATH=/tmp/pylibs MPLCONFIGDIR=/tmp/mpl` was enough
+and no install ran. Three days makes this a standing property: the
+`/tmp/pylibs` cache surviving between sessions is a useful consequence of
+it, and is worth relying on deliberately rather than rediscovering.
+
+### 8. Scoring the 2026-11-15 predictions
+
+1. **"The `|g_m|` audit will find at least one more instance, and it will be
+   in a figure-of-merit expression rather than in a current model."** —
+   **GREEN**, on both halves, in a form the prediction did not anticipate.
+   See §3.
+2. **"Drafting the noise material into a chapter will falsify something in
+   `graphene_low_frequency_noise_model.py`, and it will be in the Hooge term
+   rather than the CNF term."** — **UNSCORED**, not attempted; carried.
+   Note §4: the module's V2 was touched today and *not* falsified — it was
+   strengthened — so this prediction is still open on its own terms.
+3. **"The file-existence audit (ranked first) will strike at least one more
+   item."** — **UNSCORED**, not attempted. The ranked-first item was passed
+   over today in favour of the ranked-second one, deliberately: the
+   ranked-second item carried a scorable prediction and a physics question,
+   and the ranked-first one is mechanical and loses nothing by waiting. It
+   is re-ranked **first again** below.
+
+**Not yet covered (candidates for future runs):**
+
+- **TEST EVERY LIST ITEM THAT NAMES A FILE AGAINST THE TREE** — carried
+  from 11-15 and **still ranked first**, now with two sessions of
+  precedence behind it. `graphene_standing_list_audit.py` already exists
+  (2026-10-18) and is the right home; what it does not have is a
+  *mechanical* pass that extracts every `thesis_draft/0X-*.md`, `*.py` and
+  `notes/*.md` token from a "Not yet covered" list and checks existence
+  plus a line count. It has a known answer to validate against: run it on
+  the 2026-11-14 list and it must flag the Chapters 2/3 item; run it on the
+  2026-11-15 list, where that item is struck, and it must return nothing.
+- **DOES THE MIRROR CENTRE SURVIVE VELOCITY SATURATION AND DIFFUSION?** —
+  created today, **ranked second**. `graphene_velocity_saturation_model.py`
+  and `graphene_diffusion_current_model.py` integrate over the same
+  symmetric profile but with a velocity field that is **not** even in the
+  local overdrive, so `V_dirac + Vds/2` is not expected to survive
+  unchanged. Whatever replaces it is the centre their own `np.abs(gm)` and
+  their own `j_dirac` should be read against, and today's audit tests
+  neither module.
+- **A WARD-DUTTON `C_gs`** — created today, **ranked third**. Today's repair
+  is a midpoint average of a source-end formula, which is enough to restore
+  the shared centre and is explicitly *not* the non-reciprocal
+  channel-integrated `C_gs` of Jiménez arXiv:1105.2734. Building the latter
+  would also give `C_gd` and `C_sd` properly rather than through this
+  repository's `Cgd_over_Cgs` constant.
+- **THE CONTACT-DROP CORRECTION TO THE CENTRE** — created today. Jiménez's
+  `V_ds` is the *internal* drain-source voltage, after `I_ds(R_s + R_d)`;
+  this model's profile is built from the terminal `Vds` with `Rc_total`
+  added outside the integral. The exact law is exact for the model as
+  written; the two definitions differ by a contact drop this repository
+  already computes elsewhere.
+- **A `grep` FOR `abs` CANNOT FIND A CENTRE MISMATCH** — created today by
+  §3, and the general form of it: the sign half of the ambipolar class is
+  mechanically searchable and was already closed, the *centre* half is not
+  searchable at all. Any instrument for this class has to be a numerical
+  symmetry test, not a text search. This is the same mention/use boundary
+  the citation-census thread keeps running into, in a different vocabulary.
+- **ANNOTATE CHAPTER 4 WITH THE CENTRE** — created today. The annotation
+  landed in `rf_small_signal_model.py`'s docstring; `thesis_draft/`'s RF
+  material still presents `f_T(V_g)` with no statement of which bias is its
+  axis of symmetry.
+- **THE NEW MODULE IS NOT IN ANY CHAPTER** — carried from 11-15, and now
+  **two** modules deep: neither the noise model nor today's mirror audit is
+  cited anywhere in `thesis_draft/`.
+- **CHAPTER 7's CONTRADICTION IS STILL UNSYNTHESISED** — carried. Chapter 4
+  favours high-work-function contact metals (Ni, Au, Pd) for low contact
+  resistance; Chapter 6 §6.7 finds those same metals worst for symmetric
+  two-terminal photoresponse. Re-tested 11-15: Chapter 7 exists at 2357
+  lines and the contradiction is not in it. **Not re-tested today**, which
+  is itself the ranked-first item's point.
+- **A PUDDLE-FLUCTUATION MODEL**, **MEASURE THE 1/f CORNER FREQUENCY**,
+  **PHASE-NOISE UP-CONVERSION `(1/f)^3`**, **AREA/OXIDE SCALING OF `N_T*`**,
+  **THE CONTACT-NOISE TERM** — all carried from 11-15 unchanged.
+- **LAND THE SECTIONING REJECTION IN `_QUOTE_RE` ITSELF**, **A LEFTWARD
+  EXTRACTOR IS NOT THE REPAIR**, **A TEXT SEARCH CANNOT TELL A QUOTATION
+  FROM A DENIAL OF ONE**, **BARE INTEGERS ADMIT NO MECHANICAL QUOTATION
+  SUPPORT**, **ADJUDICATE THE THREE TERM SHARES AGAINST THE PAPER** — all
+  carried.
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS**, **AN AREAL BAND AT THE
+  REPO'S OWN `t_ox`**, **THE 13.20 % BELONGS IN CHAPTER 4**, **A
+  SPREADING-CORRECTED `R_ox`**, **FIX `v_F`: FOUR NAMES MOVED TOGETHER**,
+  **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN**, **DECIDE WHETHER A
+  `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM**,
+  **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** (today adds a third reason: that chapter is where the centre
+  mismatch lives), **A `v_sat` ADMISSIBILITY MAP OVER `V_g`**, **READ
+  DORGAN FIG. 2b**, **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN
+  ANTI DATE**, **`INCIDENTAL` IS NOT ONE CLASS**, **THE SAME MENTION/USE
+  LOOPHOLE IN THE OTHER TWO MODULES**, **GIVE EVERY VERDICT IN EVERY
+  VOCABULARY A PLANTED CONTROL**, **`gfet._thermal_rounding` IS A LEVER
+  WITH NO GUARD**, **FLIP THE DEFAULT TO `B_T`**, **IS THE ADMISSIBLE SHAPE
+  BOX THE RIGHT ONE?**, **A LOWER BOUND ON `l`**, **A `D_c` FORM FOR THE
+  CHEMISORBED METALS**, **PACK THE CENSUS PARTS BY COST**, **RE-DECIDE THE
+  CENSUS EXCLUSIONS**, **WHAT `n_puddle` ACTUALLY MEANS**, **WHETHER THE
+  FLOOR BELONGS INSIDE `C_q`'s ARGUMENT**, **THE FOUR DEAD NAMES**,
+  **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES**, **THE
+  PRESENT/USED/REACHED TABLE AS A TEST**, **§4.8.2's FORM OF ERROR**, **THE
+  2–3 ULP ANTISYMMETRY**, **THE CONTACT MODEL'S OWN APPROXIMATIONS**, **A
+  THIRD KNOB: THE ROUNDING FORM**, **BUILD ITEM 17 AS A SWEEP**, **CENSUS
+  EVERY CRITERION AND CHECK THAT IS A RATIO**, **THE `d|n|/dV` = 0 HALF OF
+  ITEM 11**, **THE §4.6.5 REWIRING ITEM**, **MECHANISE THE MAGNITUDE
+  ITEM**, **MEASURE WHAT EACH DECLARATION COSTS**, **THE HOLE-BRANCH SIGN
+  OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** — all carried unchanged.
+- **THE BRANCH-ASYMMETRIC CENTRE** — created today, and the sharpest form of
+  the item immediately above. `mu_e != mu_h` destroys today's premise on
+  purpose (`graphene_branch_asymmetric_mobility.py`). What, if anything,
+  replaces the reflection centre there is unknown, and `sigma_min`'s
+  geometric-mean closed form suggests the question has an answer.
+
+**Predictions for the next session, recorded so they can be scored:**
+
+1. **The velocity-saturation and diffusion modules do NOT share
+   `V_dirac + Vds/2` as their centre, and the departure will be larger in
+   the diffusion module than in the velocity-saturation one.** Reason: both
+   break the evenness of the local overdrive, but `vsat`'s saturation
+   factor depends on the local field magnitude while the diffusion term
+   carries `d|n|/dV`, which this repository has already measured to be
+   exactly zero at neutrality and therefore maximally sensitive to which
+   bias "neutrality" names.
+2. **The mechanical file-existence audit, when it is finally run, will
+   strike at least one item created on 2026-11-16.** The non-trivial half:
+   it will be a *notes* item rather than a chapter item, because today
+   created three items naming work in `thesis_draft/` and chapter files are
+   the ones the repository's own status table already tracks.
+3. **Annotating Chapter 4 with the centre will not change any number in the
+   chapter.** Reason, and why this is worth predicting rather than
+   assuming: today's measurement says the peak is where the mismatch
+   vanishes, and Chapter 4 quotes peaks. If a number *does* move, the
+   chapter is quoting something other than a peak and that is the more
+   interesting outcome.
