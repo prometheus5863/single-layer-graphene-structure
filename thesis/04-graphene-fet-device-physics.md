@@ -229,68 +229,91 @@ Sections 4.6.1–4.6.24 extend the RF model and audit the verification layer aro
 | [4.6.13](appendix-A-verification-record.md#s4-6-13) – [4.6.24](appendix-A-verification-record.md#s4-6-24) | rebinding, capture and guard audits of the verification layer | no physics number |
 
 
-## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
+## 4.7 Per-metal Rc recalibration: the negative residual was an artefact of the crossover
 
 Section 4.5's contact-doping model computes a work-function-dependent
 "extra" resistance, R_extra, contributed by the extended in-plane doping
-junction beyond a contact's edge. Section 4.5 used R_extra only
-*diagnostically* (comparing metals to each other and to the model's own
-qualitative predictions). This section attempts to go one step further —
-recalibrate the model against real, individually-cited, per-metal
-measured Rc values from the literature — and reports a genuine negative
-result rather than a forced fit.
+region beyond a contact's edge. This section tests it against real,
+individually cited, per-metal measured Rc values: does the measured
+lumped Rc decompose as Rc,measured = R_extra + R_transmission, with
+R_transmission an unmodelled interface-injection term concentrated at
+the contact itself?
 
-Four literature Rc values were sourced this session (see
+Four literature Rc values were sourced (see
 `notes/2026-08-31-per-metal-contact-resistance-literature-and-
 recalibration.md` for full citations and search-access notes; Ti and Cr
 could not be recalibrated because no single clean per-metal figure was
-obtained this session — two ResearchGate fetches were rate-limited),
-all for top (surface) contacts at room temperature, gate-biased
-(on-state): Cu 184 Ω·µm, Ni 470 Ω·µm, Au 519 Ω·µm, Pd 584 Ω·µm.
+obtained), all for top (surface) contacts at room temperature,
+gate-biased (on-state): Cu 184 Ω·µm, Ni 470 Ω·µm, Au 519 Ω·µm,
+Pd 584 Ω·µm.
 
-The natural hypothesis going in was an additive decomposition,
-Rc,measured = R_extra (Section 4.5's doping-junction term) +
-R_transmission (an unmodeled interface-tunneling/mode-limited-injection
-term, concentrated at the contact itself). Computing R_extra at the same
-on-state bulk channel density used throughout this chapter
-(`n_bulk = 2.0e16 m^-2`) and subtracting it from each metal's measured
-Rc (`graphene_contact_doping_model.recalibrate_metal_rc()`,
+**The model's scope.** The doping is computed from W_metal − W₀, where
+W₀ = 5.4 eV is the n/p crossover work function of Giovannetti *et al.*
+(*PRL* 101, 026803 (2008)) and Khomyakov *et al.* (*PRB* 79, 195425
+(2009)) — graphene's own 4.5 eV plus the ≈0.9 eV interface step of the
+short-range metal–graphene interaction. That relation holds for
+**physisorbed** metals only. Of the four metals with a measured Rc, Cu
+and Au are physisorbed; **Ni and Pd chemisorb on graphene and are outside
+the model**, the same stance §6.11–§6.12 take. Their rows are computed
+and shown only for continuity with the superseded table; no claim is
+made from them.
+
+Computing R_extra at the on-state bulk channel density used throughout
+this chapter (`n_bulk = 2.0e16 m^-2`) and subtracting it from each
+metal's measured Rc (`graphene_contact_doping_model.recalibrate_metal_rc()`,
 `rc_recalibration.png`):
 
-| Metal | Rc, measured (Ω·µm) | R_extra, computed (Ω·µm) | Naive R_transmission (Ω·µm) |
-|---|---|---|---|
-| Cu | 184.0 | 971.5 | **−787.5** |
-| Ni | 470.0 | 830.5 | **−360.5** |
-| Au | 519.0 | 609.2 | **−90.2** |
-| Pd | 584.0 | 533.1 | +51.0 (~9% of total) |
+| Metal | regime | Rc, measured (Ω·µm) | R_extra, computed (Ω·µm) | Naive R_transmission (Ω·µm) |
+|---|---|---|---|---|
+| Cu | physisorbed | 184.0 | -445.04 | **+629.04** |
+| Ni | *outside model (chemisorbed)* | 470.0 | -225.99 | +695.99 |
+| Au | physisorbed | 519.0 | -161.14 | **+680.14** |
+| Pd | *outside model (chemisorbed)* | 584.0 | -135.78 | +719.78 |
 
-*Two annotations to this table (2026-09-22, 2026-10-13) are in [Appendix A, §4.7 notes](appendix-A-verification-record.md#s4-7-note-a): the negative rows are the robust ones, and under the C_q-argument correction Pd's +51.0 becomes −203.276.*
+**What the corrected model shows.** Every tabulated metal with a
+measured Rc has W < W₀, so each contact *n*-dopes graphene — in the same
+sense as the n-type on-state channel, and more strongly than the gate
+does. There is no p–n junction at any of these contacts. The
+near-contact region therefore conducts *better* than the bulk channel,
+R_extra is **negative**, and the naive residual is positive and larger
+than the measured Rc itself. For the two metals the model covers, the
+implied transmission resistance is +629.04 Ω·µm (Cu) and +680.14 Ω·µm (Au).
 
+**The negative-residual result was an artefact.** Until 2026-11-16 the
+code measured the doping from graphene's 4.5 eV rather than from W₀,
+contradicting §4.5's own statement of the crossover. That p-doped Cu,
+Ni, Au and Pd against the n-type channel, put a spurious p–n junction at
+every contact, and inflated R_extra past the measured Rc for three of
+the four metals (Cu −787.5, Ni −360.5, Au −90.2 Ω·µm). The conclusion
+drawn from it — that the additive decomposition fails, robustly — does
+not survive the correction and is withdrawn. The superseded table, its
+two annotations and the correction are in
+[Appendix A, §4.7 notes](appendix-A-verification-record.md#s4-7-note-a)
+and the [corrections table](appendix-A-verification-record.md#corrections).
 
-For three of the four metals, the computed doping-junction contribution
-**alone exceeds the entire measured lumped contact resistance**, which
-would require a negative "transmission resistance" to balance the
-books — unphysical, since a resistance cannot be negative. Only Pd gives
-a small, plausible positive residual. Rather than adjusting
-`lambda_decay` or the bulk-density reference ad hoc until the four data
-points come out positive — which would just be curve-fitting a
-parameter to this session's four measurements — this is reported as-is:
-**the simple additive decomposition does not hold**, most plausibly
-because the transfer length method (TLM) used to extract all four
-literature Rc values fits total device resistance vs. contact spacing
-back to zero spacing, and its "contact resistance" term can already
-partially absorb the same near-contact doping-gradient region this
-model integrates separately — i.e. R_extra and Rc,measured likely
-double-count part of the same physical region rather than summing as
-independent series terms. A second, non-exclusive possibility is that
-`lambda_decay` = 250 nm (Section 4.5, from Khomyakov et al. 2010's
-doped-graphene asymptotic regime) over-integrates the extra-resistance
-contribution for these specific literature devices' actual channel
-geometry. Distinguishing between these needs either the source papers'
-extracted transfer length L_T (not available from the excerpts obtained
-this session) or an explicit simulation of the TLM extraction procedure
-on top of the doping profile — both left as open items rather than
-resolved here.
+**What is and is not established.** A positive residual makes the
+additive decomposition *sign-consistent* for Cu and Au; it does not
+confirm it. For Au, |R_extra| is a minority of the measured Rc, so the
+implied R_transmission is set mainly by the measurement. For Cu it is
+not: |R_extra| exceeds Cu's entire measured Rc, so the decomposition
+needs an interface resistance 3.4× the measured total, offset by
+a channel-side reduction larger than that total. That is not
+unphysical, but it is strained, and it says the model's near-contact
+conductance enhancement is at least as uncertain as the residual it
+produces. The positive signs are not fragile: the residuals are
+well-conditioned (κ ≤ 0.81; Cu's sign would need a 141.3 % error in R_extra to
+flip, `graphene_sensitivity_audit.py`), and with the `C_q`-argument correction
+(form B_T) installed they stay positive (Cu 599.06, Au 647.16 Ω·µm,
+`graphene_default_flip.py`). Two further caveats apply. First, the work
+functions are tabulated polycrystalline values while W₀ comes from DFT
+on (111) surfaces; those same calculations find Au(111) *p*-type at
+their own W = 5.54 eV, whereas this table's W = 5.10 eV makes it
+n-type, so Au's sign is not established here. Second, the TLM
+extraction behind all four measured values can absorb part of the
+near-contact region this model integrates separately, so R_extra and
+Rc,measured may still overlap. Pt (W = 5.65 eV > W₀) is the one tabulated
+physisorbed metal that p-dopes graphene and forms a genuine p–n junction
+against the n-type channel; it has no measured Rc in this set.
 
 A secondary, more solid finding from the same literature search: within
 a single paper and a single metal (Au, Passi et al., arXiv:1807.04772),
@@ -382,7 +405,7 @@ The ~11× edge-contact comparison was later found to have been made against the 
 | Contact-resistance-vs-channel-length crossover | Complete (`contact_resistance_crossover.py`) |
 | Spatially-resolved, work-function-dependent contact doping | Complete, diagnostic model (`graphene_contact_doping_model.py`) — see Section 4.5 for known limitations |
 | RF figures of merit (f_T, f_max) | Complete, incl. access resistance + extrinsic pad-capacitance estimate (`rf_small_signal_model.py`, Section 4.6); numerical provenance of g_ds audited 2026-09-26 and both entangled defaults exonerated to <10⁻⁶ (Section 4.6.1) |
-| Using the doping-profile model to *recalibrate* Rc per metal (vs. using it only diagnostically) | Attempted (Section 4.7) — additive decomposition found NOT to hold for 3 of 4 metals (Cu, Ni, Au); only Pd gives a physically plausible residual. Root cause (TLM double-counting vs. `lambda_decay` mismatch) not yet isolated; Ti and Cr not recalibrated (no literature Rc sourced this session) |
+| Using the doping-profile model to *recalibrate* Rc per metal (vs. using it only diagnostically) | Attempted (Section 4.7). Corrected 2026-11-16: with the doping measured from W₀ = 5.4 eV the naive residual is positive for both physisorbed metals with a measured Rc (Cu +629.04, Au +680.14 Ω·µm), so the additive decomposition is sign-consistent, not refuted; the earlier three-of-four failure was an artefact ([Appendix A](appendix-A-verification-record.md#s4-7-superseded)). Ni and Pd are outside the model; Au's doping sign is not established; Ti and Cr not recalibrated (no literature Rc sourced) |
 | Contact-geometry dependence (edge vs. top, patterned contacts) | Complete, DFT-Fermi-shift-derived model (Section 4.8, `graphene_edge_contact_model.py`) — reproduces the qualitative direction (edge lower than top) and the large-hole-diameter branch of Passi et al.'s patterned-contact data; does not reproduce their small-diameter upturn or the full ~11x measured device-level reduction (only ~2.6x from the isolated doping-density effect)**— annotated 2026-10-01 (Section 4.8.2): the ~11x is an ON-STATE figure, and the model is gate-independent. Against Passi et al.'s Dirac-point column — read for the first time this session, having been a cited but dead constant for ten sessions — the same geometry gives 3.01x and the model's 2.59x is within 14% of it. The small-D upturn is confirmed to be a carrier-density effect (3.5x larger in the on state than at the Dirac point), so a purely geometric model cannot produce it** |
 
 Cross-references: Chapter 5 (interconnects) and Chapter 6 (photodetectors)

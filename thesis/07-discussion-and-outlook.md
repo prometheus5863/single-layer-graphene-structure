@@ -451,9 +451,10 @@ Three candidates are visible and none has been attempted:
   uncertainty; it is better read as evidence that the wrong quantity is being
   ranked, and that the robust statement is a *parity* in whether the liner
   conducts in parallel or not.
-* **Chapter 4 §4.7's additive decomposition.** Its failure is the cleanest
-  candidate for a bound: see §7.5.2 below, where the conditioning result turns a
-  negative result into a robust one.
+* **Chapter 4 §4.7's additive decomposition** — withdrawn as a candidate on
+  2026-11-16: the failure it would have bounded was an artefact of the crossover
+  (Section 4.7; the bullet as written is in
+  [Appendix A](appendix-A-verification-record.md#s7-4-3-superseded)).
 
 **Today's audit adds a fourth, and it is a caution rather than a candidate.**
 The `log_sensitivity` result of 2026-09-27 shows that the *same*
@@ -566,7 +567,7 @@ correctly, reported under the wrong name for five weeks.
 
 Six dated annotations (2026-10-05 to 2026-10-10) record how each RF lever of Chapter 4 — saturation, the perfect contact, diffusion, the named potential, the signed carrier, the exact charge relation — was built and what it did to this verdict; none reverses it. They are in [Appendix A, §§7.8.1b–g](appendix-A-verification-record.md#s7-8-1b).
 
-### 7.8.2 Contacts: the real near-term contribution, and a negative result worth having
+### 7.8.2 Contacts: the real near-term contribution, and a negative result withdrawn
 
 Contact resistance is the binding constraint on every graphene device in this
 thesis, and Chapter 4's substantive results are about it:
@@ -576,11 +577,21 @@ thesis, and Chapter 4's substantive results are about it:
   into the channel over a screening length, and the resulting junction
   resistance is what a two-probe measurement attributes to "the contact"
   (Section 4.5).
-* **The additive decomposition `R_c = R_transmission + R_extra` fails for three
-  of four metals, and it fails robustly.** The negative residuals are not
-  amplified input error: Cu's would need an 81 % error in `R_extra` to flip
-  sign (Section 4.10.3). This is a real modelling result and it says the
-  two-term picture is incomplete, not mis-parameterised.
+* **The negative result this section used to report was an artefact, and is
+  withdrawn.** Until 2026-11-16 the additive decomposition
+  `R_c = R_transmission + R_extra` was reported to fail, robustly, for three of
+  four metals. The code had measured the contact doping from graphene's 4.5 eV
+  instead of the 5.4 eV n/p crossover, which put a spurious p–n junction at
+  every contact (Section 4.7;
+  [corrections table](appendix-A-verification-record.md#corrections)). The
+  robustness margin behind "robustly" (Section 4.10.3) was correct arithmetic
+  on that wrong model, so it is withdrawn with the result. Corrected, Cu and Au
+  — the two physisorbed metals with a measured `R_c` — n-dope the contact,
+  `R_extra` is negative, and the residuals are +629.04 and +680.14 Ω·µm. That is
+  sign-consistent, not a confirmation: for Cu it needs an interface term
+  3.4× the measured total, and Au's doping sign is not established.
+  Ni and Pd chemisorb and are outside the model. The superseded bullet is in
+  [Appendix A](appendix-A-verification-record.md#s7-8-2-superseded).
 * **Edge contacts beat top contacts** and patterned (hole-array) contacts
   reproduce the qualitative direction and large-diameter trend of the published
   data — but not the small-diameter upturn, and not the full measured ~11×
@@ -667,7 +678,7 @@ Stated as falsifiable items, in order of how much they would move. Each item's f
 3. Reconciling the 0.12 eV measured step with the 0.25–1.07 eV assumed offsets
 4. A photo-thermoelectric term
 5. Asking the differential question of Chapter 5
-6. Re-running Chapter 4's contact-resistance results at the 5.4 eV crossover
+6. Re-running Chapter 4's contact-resistance results at the 5.4 eV crossover — closed.
 7. Naming the potential in Eq. (4) — closed.
 8. A self-heating term — closed.
 9. A signed-carrier FET model — closed.

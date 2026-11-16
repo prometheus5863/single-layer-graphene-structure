@@ -36,6 +36,7 @@ section, which keeps the superseded text as it was written.
 | 2026-10-13 | §4.7 Pd naive transmission residual | +51.0 Ω·µm | −203.276 Ω·µm under the C_q-argument correction | C_q evaluated at the work-function potential, outside the harness | blast-radius audit (`graphene_contact_argument_blast_radius.py`) | [§4.6.12](#s4-6-12), [§4.7 notes](#s4-7-note-a) |
 | 2026-10-29 | §4.6.7 disorder floor e·μ·n_puddle called exact | exact | exact only at μ_e = μ_h; overestimates by μ̄/√(μ_eμ_h) off it | equal branch mobilities assumed | two-carrier minimisation (`graphene_branch_asymmetric_mobility.py`) | §4.11.3 (body) |
 | 2026-11-03 | §4.11.5 crossover density p ≈ 3 × 10¹² cm⁻² read as a material constant | 3 × 10¹² cm⁻² | proportional to the charged-impurity density; high by at least 13 % | n_c moves with the gate stack (A = n_c·μ̄_L is the invariant) | bound from Zion *et al.*'s own numbers (`graphene_kappa_impurity_bound.py`) | [§4.11.5a](#s4-11-5a) |
+| 2026-11-16 | §4.7 Table 4.7 naive transmission residuals; the additive decomposition "fails robustly" | Cu −787.5, Ni −360.5, Au −90.2, Pd +51.0 Ω·µm (Pd −203.276 under the C_q-argument correction) | Cu +629.04, Au +680.14 Ω·µm (physisorbed); Ni +695.99, Pd +719.78 outside the model; conclusion withdrawn | contact doping measured from graphene's 4.5 eV, not the 5.4 eV n/p crossover §4.5 states | review of §4.5 against the code; now pinned by `tests/test_contact_crossover.py` | [§4.7 superseded](#s4-7-superseded), [§7.8.2](#s7-8-2-superseded) |
 
 ## A.2 Chapter 1: Introduction
 
@@ -4076,6 +4077,77 @@ Machine output: `mutation_arrival_probe_output.txt` (Section 7b split, 43/0),
 conversion), `pristine_transcript_audit_output.txt` (19/0). Notes:
 `notes/2026-10-28-three-unchecked-claims-and-the-guard-blind-to-itself.md`.
 
+<a id="s4-7-superseded"></a>
+
+*Superseded 2026-11-16 by the crossover correction ([A.1](#corrections)). Chapter 4 §4.7 as it stood from 2026-08-31, kept as written, and the row of §4.9's summary table that reported it. Every number here was computed with the contact doping measured from graphene's own 4.5 eV rather than from the 5.4 eV n/p crossover. The two annotations that follow annotate this table.*
+
+> ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
+>
+> Section 4.5's contact-doping model computes a work-function-dependent
+> "extra" resistance, R_extra, contributed by the extended in-plane doping
+> junction beyond a contact's edge. Section 4.5 used R_extra only
+> *diagnostically* (comparing metals to each other and to the model's own
+> qualitative predictions). This section attempts to go one step further —
+> recalibrate the model against real, individually-cited, per-metal
+> measured Rc values from the literature — and reports a genuine negative
+> result rather than a forced fit.
+>
+> Four literature Rc values were sourced this session (see
+> `notes/2026-08-31-per-metal-contact-resistance-literature-and-
+> recalibration.md` for full citations and search-access notes; Ti and Cr
+> could not be recalibrated because no single clean per-metal figure was
+> obtained this session — two ResearchGate fetches were rate-limited),
+> all for top (surface) contacts at room temperature, gate-biased
+> (on-state): Cu 184 Ω·µm, Ni 470 Ω·µm, Au 519 Ω·µm, Pd 584 Ω·µm.
+>
+> The natural hypothesis going in was an additive decomposition,
+> Rc,measured = R_extra (Section 4.5's doping-junction term) +
+> R_transmission (an unmodeled interface-tunneling/mode-limited-injection
+> term, concentrated at the contact itself). Computing R_extra at the same
+> on-state bulk channel density used throughout this chapter
+> (`n_bulk = 2.0e16 m^-2`) and subtracting it from each metal's measured
+> Rc (`graphene_contact_doping_model.recalibrate_metal_rc()`,
+> `rc_recalibration.png`):
+>
+> | Metal | Rc, measured (Ω·µm) | R_extra, computed (Ω·µm) | Naive R_transmission (Ω·µm) |
+> |---|---|---|---|
+> | Cu | 184.0 | 971.5 | **−787.5** |
+> | Ni | 470.0 | 830.5 | **−360.5** |
+> | Au | 519.0 | 609.2 | **−90.2** |
+> | Pd | 584.0 | 533.1 | +51.0 (~9% of total) |
+>
+> *Two annotations to this table (2026-09-22, 2026-10-13) are in [Appendix A, §4.7 notes](appendix-A-verification-record.md#s4-7-note-a): the negative rows are the robust ones, and under the C_q-argument correction Pd's +51.0 becomes −203.276.*
+>
+>
+> For three of the four metals, the computed doping-junction contribution
+> **alone exceeds the entire measured lumped contact resistance**, which
+> would require a negative "transmission resistance" to balance the
+> books — unphysical, since a resistance cannot be negative. Only Pd gives
+> a small, plausible positive residual. Rather than adjusting
+> `lambda_decay` or the bulk-density reference ad hoc until the four data
+> points come out positive — which would just be curve-fitting a
+> parameter to this session's four measurements — this is reported as-is:
+> **the simple additive decomposition does not hold**, most plausibly
+> because the transfer length method (TLM) used to extract all four
+> literature Rc values fits total device resistance vs. contact spacing
+> back to zero spacing, and its "contact resistance" term can already
+> partially absorb the same near-contact doping-gradient region this
+> model integrates separately — i.e. R_extra and Rc,measured likely
+> double-count part of the same physical region rather than summing as
+> independent series terms. A second, non-exclusive possibility is that
+> `lambda_decay` = 250 nm (Section 4.5, from Khomyakov et al. 2010's
+> doped-graphene asymptotic regime) over-integrates the extra-resistance
+> contribution for these specific literature devices' actual channel
+> geometry. Distinguishing between these needs either the source papers'
+> extracted transfer length L_T (not available from the excerpts obtained
+> this session) or an explicit simulation of the TLM extraction procedure
+> on top of the doping profile — both left as open items rather than
+> resolved here.
+>
+> *Section 4.9 summary row, as written:*
+>
+> | Using the doping-profile model to *recalibrate* Rc per metal (vs. using it only diagnostically) | Attempted (Section 4.7) — additive decomposition found NOT to hold for 3 of 4 metals (Cu, Ni, Au); only Pd gives a physically plausible residual. Root cause (TLM double-counting vs. `lambda_decay` mismatch) not yet isolated; Ti and Cr not recalibrated (no literature Rc sourced this session) |
+
 <a id="s4-7-note-a"></a>
 
 *Annotation moved from the body of Chapter 4, §4.7.*
@@ -5779,6 +5851,24 @@ tried and measured rather than assumed to be small.
 > table. This draft discharges them, and adds two that arose on the day it was
 > finally written.
 
+<a id="s7-8-2-superseded"></a>
+
+*Superseded 2026-11-16 by the crossover correction ([A.1](#corrections)). The §7.8.2 bullet as written; its result was an artefact of measuring the contact doping from 4.5 eV.*
+
+> * **The additive decomposition `R_c = R_transmission + R_extra` fails for three
+>   of four metals, and it fails robustly.** The negative residuals are not
+>   amplified input error: Cu's would need an 81 % error in `R_extra` to flip
+>   sign (Section 4.10.3). This is a real modelling result and it says the
+>   two-term picture is incomplete, not mis-parameterised.
+
+<a id="s7-4-3-superseded"></a>
+
+*Superseded 2026-11-16, same cause. The §7.4.3 bullet as written:*
+
+> * **Chapter 4 §4.7's additive decomposition.** Its failure is the cleanest
+>   candidate for a bound: see §7.5.2 below, where the conditioning result turns a
+>   negative result into a robust one.
+
 <a id="s7-9"></a>
 
 *Moved from Chapter 7, §7.9. Original section and item numbers kept.*
@@ -5888,8 +5978,12 @@ Stated as falsifiable items, in order of how much they would move:
    question about the thesis's one symmetry-derived result — because if it does
    not, §7.2.3's polarity statement loses its exactness.
 5. **Asking the differential question of Chapter 5** (§7.3's prediction).
-6. **Re-running Chapter 4's contact-resistance results at the 5.4 eV
-   crossover** rather than at graphene's 4.5 eV, for consistency with Chapter 6.
+6. ~~**Re-running Chapter 4's contact-resistance results at the 5.4 eV
+   crossover**~~ rather than at graphene's 4.5 eV, for consistency with Chapter 6.
+   — **CLOSED 2026-11-16** (§4.7, [A.1](#corrections)). The contact model now measures
+   the doping from `W_CROSSOVER = 5.4 eV`; `tests/test_contact_crossover.py` pins
+   n_contact(W₀) = 0 exactly. The §4.7 negative residuals did not survive, and the
+   section's conclusion is withdrawn.
 7. ~~**Naming the potential in Eq. (4)**~~ — **CLOSED 2026-10-08** (§4.6.6,
    §7.8.1e). `V_ch` is declared the **quasi-Fermi potential**, in the source
    where it is defined. The consequence is that 2026-10-07's diffusion term is
