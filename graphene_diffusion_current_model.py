@@ -690,6 +690,27 @@ def main():
     share = (I1 / I0 - 1.0) * 100.0
     ashare = np.abs(share)
     j_max = int(np.argmax(ashare))
+    # ANNOTATION 2026-11-16.  `gfet.V_dirac` is a FLAT-BAND parameter, not
+    # the gate voltage at which this model's channel is neutral.  The
+    # reflection centre of transfer_characteristic at drain bias Vds is
+    # V_dirac + Vds/2 exactly (graphene_ambipolar_mirror_audit.py, V1 and
+    # V9: even to 4.5e-16 about that centre, asymmetric by 1.05 % about
+    # V_dirac), so at VDS_REF = 0.1 V the neutrality bias is 0.85 V and the
+    # line below selects a grid point 50 mV below it.  On this module's own
+    # 240-point grid the two are DIFFERENT grid points and the reported
+    # share differs in SIGN between them:
+    #
+    #     nearest grid point to V_dirac        = +0.811715 V, share -0.006925 %
+    #     nearest grid point to V_dirac+Vds/2  = +0.861925 V, share +0.015818 %
+    #
+    # Neither number is deleted and the line is NOT changed, because
+    # check G4a's verdict does not turn on it: both shares are ~3 orders
+    # below the sweep maximum, so "the share COLLAPSES at charge neutrality
+    # instead of diverging there" remains true, and the committed
+    # diffusion_current_output.txt stays reproducible.  What is wrong is the
+    # JUSTIFICATION as worded -- "at the nearest grid point to the Dirac
+    # point" is off by Vds/2 -- and on a finer grid the printed number would
+    # move.  Recorded as LATENT, with the corrected number stated above.
     j_dirac = int(np.argmin(np.abs(Vg - gfet.V_dirac)))
     say()
     say(f"  MEASURED.  largest |share| {ashare[j_max]:.4f} % at V_g = "
