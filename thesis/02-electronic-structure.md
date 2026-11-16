@@ -347,80 +347,9 @@ in Chapters 6 and 7.
   density. It is the one omission of the linear model that this chapter
   quantifies rather than merely names.
 
-## 2.10 Correction of record: this repository's band structure had no Dirac point
+## 2.10 Correction of record (moved)
 
-**What was wrong.** From the creation of `graphene_band_structure.py` until
-2026-09-28, the module's high-symmetry points were written as
-
-```
-k_point = [4.0/(3·√3), 0]          ← no π
-m_point = [π/(3·√3), π/3]          ← π
-```
-
-three lines apart in the same function, while `graphene_hamiltonian()` builds
-its phases from nearest-neighbour vectors of unit length — the bond-length
-convention of Section 2.2, in which the zone corner is at `4π/(3√3)`. The
-shipped K was therefore **exactly a factor of π too small** (the measured
-ratio `|K_correct|/|K_shipped|` is 3.141592654), and the shipped M was wrong in
-both components.
-
-**What it cost.** `|φ(K_shipped)| = 2.5718` instead of 0. The consequences,
-measured:
-
-| quantity | as shipped | corrected | exact value |
-|---|---|---|---|
-| gap at the point labelled K | **14.4019 eV** | 2.5 × 10⁻¹⁵ eV | 0 |
-| minimum gap over the whole Γ–K–M–Γ path | **11.2000 eV** | 2.5 × 10⁻¹⁵ eV | 0 |
-| gap at the point labelled M | 11.2000 eV | 5.6000 eV | `2t` = 5.6 eV |
-
-Graphene's single defining electronic property — the gapless linear crossing —
-was **absent from `band_structure.png`**, the oldest figure in the repository
-and the one this chapter is built on, through five weeks of daily automated
-sessions. The superseded values are retained in the module as
-`HIGH_SYMMETRY_LEGACY` and the broken spectrum is still reproducible via
-`calculate_band_structure(legacy=True)`, per the standing rule that deleting a
-superseded implementation destroys the only oracle available for judging its
-replacement.
-
-**Why nothing caught it, which is the more useful half.** The repository
-contained three band-structure or density-of-states figures and **not one of
-them was a calculation that could have failed**:
-
-- `band_structure.png` was computed, and was wrong;
-- `band_structure_simple.png` *draws* `E = ±v_F|k|` — the known answer,
-  plotted rather than derived;
-- `density_of_states.png` came from a function that returns `|E|/(πt²)`
-  analytically and **never calls the Hamiltonian at all**. This is demonstrated
-  in the audit by mutation: replacing the Hamiltonian with the k-independent
-  gapped matrix `diag(+7, −7)` — which has no Dirac point and no dispersion
-  whatsoever — leaves the shipped DOS output **bitwise identical**.
-
-A density of states computed from the bands would have caught this on the
-first run, because it would have shown no states near zero energy and its van
-Hove peaks in the wrong place. The figure that could have falsified the
-calculation was instead the figure that certified it. That function is now
-annotated in place and retained, labelled as non-discriminating, with a pointer
-to `dos_from_bands()`.
-
-**What does and does not move.** Nothing in Chapters 4 through 7 changes. Those
-chapters import `v_F` and the linear density of states (Section 2.11) and never
-the k-path, which is simultaneously the reason the error was survivable for
-five weeks and the reason no device number depends on it. `v_F` itself is
-confirmed to 1 × 10⁻⁶ relative by the corrected computation.
-
-**The methodological point, stated narrowly.** The audit that found this also
-committed the same fault inside itself, twice, within an hour: its first
-normalisation check on the computed DOS — that the density of states integrates
-to four states per unit cell — passed to sixteen digits *while the reciprocal
-lattice vectors were wrong*, because the normalisation divides by the sample
-count and returns four states per cell whatever the Hamiltonian is. It is kept
-in the code and printed as **vacuous**, beside the two checks that replaced it
-and do have power: periodicity of `|φ|` under the reciprocal vectors, and a
-count of the Dirac cones inside the sampled cell (which must be two, and was
-one). The lesson this chapter carries forward is therefore not "check your
-conventions" but something more specific and more actionable: **a check that
-cannot fail is worse than no check, because it certifies whatever sits beside
-it**, and the way to tell the two apart is to make the check fail on purpose.
+The band-structure module's high-symmetry points were wrong by a factor of π until 2026-09-28 (gap at the point labelled K: 14.4019 eV as shipped, 0 corrected). Every number in this chapter is the corrected one; the defect, its cost and its detection are in [Appendix A, §2.10](appendix-A-verification-record.md#s2-10).
 
 ## 2.11 What the later chapters import from this chapter
 
