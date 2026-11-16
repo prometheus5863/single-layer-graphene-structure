@@ -379,8 +379,8 @@ def main():
           '%.1f px for %+.4f %%' % (px_small - px_zero, smallest))
 
     check('F6  the figure file was written and is non-trivial',
-          os.path.exists(FNAME) and os.path.getsize(FNAME) > 20000,
-          '%d bytes' % (os.path.getsize(FNAME) if os.path.exists(FNAME) else 0))
+          os.path.exists(results_path('audits', FNAME)) and os.path.getsize(results_path('audits', FNAME)) > 20000,
+          '%d bytes' % (os.path.getsize(results_path('audits', FNAME)) if os.path.exists(results_path('audits', FNAME)) else 0))
     print()
     print('    base contact C_q at V = %s V: %s F/m^2 (%s)'
           % (csg.PROBE_V, base, float(base).hex()))

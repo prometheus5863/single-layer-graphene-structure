@@ -1343,7 +1343,7 @@ def main():
         # read as "never committed" -- the P5 defect, one layer out.
         out = subprocess.run(
             ['git', '-C', HERE, 'log', '--format=%h %ad %s', '--date=short',
-             '-S', 'true of the committed model and false of the corrected one',
+             '-S', 'true of the committed model and false of the corrected one', '--diff-filter=d',
              '--', 'thesis_draft/04-graphene-fet-device-physics.md'],
             capture_output=True, text=True, timeout=60)
         hist = out.stdout.strip()
