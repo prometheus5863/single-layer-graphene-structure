@@ -1,0 +1,121 @@
+==============================================================================
+THE CROSSOVER DENSITY AS A FUNCTION OF CHARGED-IMPURITY DENSITY
+==============================================================================
+
+SECTION 0.  The constants, and which of them is a pairing
+  C (Chen et al. 2008, arXiv:0708.2408)   = 5.0000e+15 V^-1 s^-1
+  n_c,ref (Zion et al., arXiv:1801.03565) = 3.0000e+16 m^-2  (3.00e12 cm^-2)
+  mu_L,ref (this repository, gfet.mu)     = 4.0000e-01 m^2/Vs
+  -> A = n_c*mu_L_bar  (the INVARIANT)    = 1.2000e+16 V^-1 s^-1
+  -> N_imp,ref = C/mu_L                   = 1.2500e+16 m^-2  (1.25e12 cm^-2)
+  -> KAPPA = A/C                          = 2.400000  (dimensionless)
+  A is a PAIRING of Zion's crossover with this repository's
+  mobility, not a measurement on one device.  D5 shows which
+  reported quantities carry it and which do not.
+
+SECTION 1.  D1: EXACT REPRODUCTION OF THE MODEL THIS SUPERSEDES
+            At N_imp = N_imp,ref this model must BE the 10-30
+            model, not approximate it.
+  [PASS] D1-i n_c(N_imp,ref) == N_CROSSOVER within a counted 4-ulp budget
+         n_c = 3e+16 against N_CROSSOVER = 3e+16, ulp distance 0, budget 4 (four roundings: C/mu, n_c*mu, A/C, and the product)
+  [PASS] D1-ii the mobility pair reproduces DDM within a counted 16-ulp budget over the whole +/-5 V sweep
+         max ulp distance 2, budget 16: mu_b is a sum of POSITIVE terms, so relative error is the right currency and the 4 ulp of D1-i propagate without amplification
+  [PASS] D1-iii the asymmetry parameter reproduces DDM within a counted ABSOLUTE 16-eps budget
+         max absolute deviation 1.5266e-16 against 3.5527e-15; relative would be the WRONG currency here and 10-30 D1 is the precedent -- r is a difference of nearly equal mobilities over their sum, so cancellation amplifies relative error by 1/|r| without bound
+  [PASS] D1-iv the sheet conductivity reproduces DDM within a counted 32-ulp budget
+         max ulp distance 0, budget 32: the odd term 0.5*dmu*n_net is bounded by r times the even term, so sigma inherits no cancellation amplification
+
+SECTION 2.  The two consequences of Section 2 of the docstring
+  [PASS] D2 r0 is invariant under N_imp over seven decades (recovered at n << n_c)
+         recovered r0 spans 1.3878e-16 against an absolute budget of 7.1054e-15; r0 = 0.130434782609.  The asymmetry is a per-scatterer cross-section ratio and carries no density, so scaling N_imp scales BOTH branches equally
+  [PASS] D4-i r(n) is STRICTLY INCREASING in N_imp at fixed n -- a dirtier device is more asymmetric
+         at n = 1.382e+17 m^-2 (10 nm HfO2 at 1 V), r/r0 over N_imp = 0.01..1e6 x ref: 0.0022, 0.0216, 0.0995, 0.1809, 0.3064, 0.6884, 0.9567, 1.0000
+  [PASS] D4-ii-a r -> r0 as N_imp -> infinity, reached within a counted 8-ulp budget
+         at N_imp = 1e20 x ref: r = 0.13043478260869557 against r0 = 0.13043478260869565, ulp distance 3, budget 8 -- five roundings reconstructing r0 from mu_L_bar*(1 +/- r0) and one comparing.  At this N_imp the short-range term is 4.6e-20 of 1/mu_L and cannot move the float at all, so this is the limit itself and not an approach to it.
+  [PASS] D4-ii-b the finite-N_imp residual is the PREDICTED first-order term, not noise
+         at N_imp = 1e12 x ref the shortfall is 5.9053e-13; (B3) predicts r0*u/(1+u) with u = (1-r0^2)*n/n_c = 4.5269e-12, i.e. 5.9047e-13 -- accounted for to 9.680e-05 relative.  A tolerance large enough to pass this would have been 83x the counted budget and would have hidden a real term; a prediction can be false in a way a tolerance cannot.
+  [PASS] D4-iii r -> 0 as N_imp -> 0 (a perfectly clean channel is symmetric at any finite density)
+         at N_imp = 1e-12 x ref: r = 2.8760e-14, i.e. r/r0 = 2.2049e-13
+
+SECTION 3.  D3: the asymptote IS the invariant, against an
+            exactly predicted value
+  N_imp (m^-2)     |n|*mu at |n|=2^30*n_c   ulp     
+  1.2500e+13       11999999988824130        0       
+  1.2500e+14       11999999988824130        0       
+  1.2500e+15       11999999988824130        0       
+  1.2500e+16       11999999988824128        1       
+  1.2500e+17       11999999988824130        0       
+  1.2500e+18       11999999988824130        0       
+  1.2500e+19       11999999988824130        0       
+  [PASS] D3 |n|*mu_b = A*X/(1+X) exactly, at every N_imp, within a counted 8-ulp budget
+         predicted 11999999988824130 (an EXACT consequence of (B1), not a limit taken numerically); worst ulp distance 1 over seven decades of N_imp.  The predicted value does not contain N_imp, and that is the content of (C1).
+
+SECTION 4.  D6: one dimensionless group, tested BITWISE
+  [PASS] D6 r(2n, 2*N_imp) == r(n, N_imp) BITWISE -- the model has exactly one dimensionless group, n/N_imp
+         tested at 15 (n, N_imp) points.  A factor of TWO is used, not a round ten: scaling by a power of two is exact and commutes with rounding at every step, so this is a true bitwise symmetry rather than a tolerance that happens to hold.
+
+SECTION 5.  D5: which numbers carry the Section 3 pairing
+  [PASS] D5-i every RATIO is independent of the pairing, BITWISE under a x4 perturbation of A
+         n_c(dirty)/n_c(clean) = 1.9090909090909092 both before and after A -> 4A.  A factor of 4 rather than 3 so the perturbation is exactly representable and the invariance is bitwise.
+  [PASS] D5-ii every ABSOLUTE n_c moves by exactly the perturbation, so the pairing is carried by the absolute numbers and only by them
+         n_c(dirty): 1.260000e+17 -> 5.040000e+17, ratio exactly 4.0
+
+SECTION 6.  D8: the symmetry that must give zero
+  [PASS] D8 r0 = 0 gives mu_e == mu_h bitwise and sigma(+dV) - sigma(-dV) EXACTLY 0.0, at every impurity density
+         worst |sigma(+dV)-sigma(-dV)| over five decades of N_imp: 0.0 (exact zero, not a small number)
+
+SECTION 7.  D7: the cost of reading Chen's TOTAL mobility as a
+            long-range-channel mobility
+  density                            |n|/n_c      long-range     N_imp,ref     
+                                                  share of 1/mu  overstated by 
+  puddle, n_p                        0.1667       0.8571         16.7 %        
+  90 nm SiO2 back gate at 5 V        0.3991       0.7147         39.9 %        
+  10 nm HfO2 top gate at 1 V         2.0933       0.3233         209.3 %       
+  [PASS] D7 the long-range channel is the MAJORITY of 1/mu at the shipped device's densities, so (C2) is being used inside its regime there
+         shares 0.8571 (puddle) and 0.7147 (5 V back gate).  At the top-gate operating point it is 0.3233 -- a MINORITY, which is not a defect but the restatement of M > 1: that device operates past the crossover, where neutral defects dominate.  The caveat this measures is that N_imp,ref inferred as C/mu_total is overstated by the factor (1 + |n|/n_c) at whatever density Chen et al. measured, and they do not state it.
+
+SECTION 8.  D9: the 2026-10-30 hand calculation, reproduced
+            from ITS OWN input before being corrected
+  [PASS] D9 the 10-30 entry's "n_c ~ 6e12 cm^-2, dV_c ~ 0.43 V, margin 2.3x" is reproduced from its stated input (mobility halved)
+         mobility halved -> N_imp = 2.5000e+16 m^-2 -> n_c = 6.0000e+16 m^-2 (6.000e12 cm^-2), dV_c = 0.4343 V, M = 2.303.  A correction that cannot reproduce what it corrects is not a correction.
+
+  THE CORRECTION.  The 10-30 figure used ONE of the two numbers
+  arXiv:1010.0913 reports -- the mobility loss.  Using its OTHER
+  number, the added charged-impurity density, directly:
+  channel                        N_imp (e12 cm^-2) n_c (e12 cm^-2) dV_c (V)     M at 1 V  
+  reference (no deposition)      1.250          3.000          0.2171       4.605     
+  +1.5e12 (paper, clean end)     2.750          6.600          0.4777       2.093     
+  mobility-halved (10-30)        2.500          6.000          0.4343       2.303     
+  +4.0e12 (paper, dirty end)     5.250          12.600         0.9120       1.096     
+  [PASS] the 10-30 CONCLUSION survives -- the top-gated device still operates past the crossover across the whole impurity range
+         margin falls from 2.093 (clean end) to 1.096 (dirty end) against the 2.30 of 10-30.  THE CONCLUSION SURVIVES AND THE MARGIN DOES NOT: 10-30 reported 2.3x and the honest range is 1.10-2.09x.  At the dirty end the device clears the crossover by 10 %, which is not a margin a process would design to.
+
+SECTION 9.  The design rule, which is the device statement
+  N_imp* = C*C_ox*V/(e*A) -- the dirtiest channel a gate stack can
+  drive past the crossover at a given overdrive:
+  gate stack and overdrive           N_imp* (e12 cm^-2) vs. actual      
+  10 nm HfO2 at 1 V                  5.757            4.61x the reference
+  90 nm SiO2 at 5 V                  0.499            0.40x the reference
+  [PASS] the HfO2 deposition budget is REAL but thin: the paper's dirty end sits just inside it
+         a 10 nm HfO2 gate driven to 1 V tolerates dN_imp <= 4.507e12 cm^-2 of deposition damage; the paper reports up to 4.00e12, so the headroom is 12.7 %.  This is the falsifiable form of 10-30's "a thicker or dirtier dielectric could eat it".
+  [PASS] the back-gated device cannot reach n_c at ANY cleanliness it plausibly has -- and the reason is the inverted one
+         the 90 nm stack at 5 V would need N_imp <= 0.499e12 cm^-2, i.e. the channel 2.51x CLEANER than it is.  Cleaning a channel moves n_c DOWN, so better material reaches the asymmetry-killing regime at LOWER gate voltage -- the opposite of the intuition that a cleaner device is the more ideal one in every respect.
+
+SECTION 10. D10: the source's two numbers constrain each other
+  [PASS] arXiv:1010.0913's mobility loss and its added-impurity range are mutually consistent only at the CLEAN end of its own range
+         its "~50 % of the mobility" implies dN_imp = 1.250e12 cm^-2 given C, which is 0.83x its stated low end (1.5e12) and 0.31x its stated high end (4.0e12).  So the two numbers agree to 17 % at the clean end and disagree by a factor of 3.2 at the dirty end.  THE ESCAPE IS REAL AND IS NOT ASSUMED AWAY: if HfO2 deposition also adds NEUTRAL defects then A grows too, the mobility loss is shared between the channels, and a larger dN_imp becomes consistent.  That would change A, which this module holds fixed, and it is logged as an open item rather than modelled here.
+
+SECTION 11. D11: the pre-correction model, reinstated as a
+            control rather than described
+  N_imp (m^-2)     mutant |n|*mu            ulp     
+  1.2500e+14       1.1999999988824128e+18   30212697392815832
+  1.2500e+16       11999999988824128        1       
+  1.2500e+18       119999999888241.3        29845197393158094
+  [PASS] D11 holding n_c fixed instead of A makes D3 FAIL at every impurity density away from the reference
+         2 of 3 probes exceed D3's 8-ulp budget, and the one that does not is the reference point itself, where the two models coincide by construction.  The mutant's asymptote moves as 1/N_imp instead of staying at A -- which is exactly the error the 10-30 entry identified in prose and this module removes from the code.
+
+  Figure written: impurity_limited_crossover.png
+
+==============================================================================
+CHECKS: 21 passed, 0 failed
+==============================================================================

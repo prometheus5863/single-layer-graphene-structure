@@ -191,6 +191,210 @@ recorded here as a prediction rather than a result:
 
 ---
 
+## 7.3a The four strands are two process steps, and only one of the three couplings is a trade-off
+
+### 7.3a.1 Why this is one problem and not four
+
+The contact/photoresponse item has accumulated four strands since 2026-09-17,
+each logged as it arrived and none of them yet synthesised. They are:
+
+1. **Chapter 4 §4.7** — contact resistance is lowest for the high-work-function
+   metals Ni, Au and Pd, and `R_c` is computed for one interface at a time.
+2. **Chapter 6 §6.14** — the two-terminal zero-bias photoresponse `N` is
+   *exactly* odd in the differential work-function offset `s` and *exactly*
+   even in the common offset `m` (measured to 2.3×10⁻¹⁵), with a reversal
+   threshold `τ* = W_B − W_A` independent of λ, of `L` and of every transport
+   parameter.
+3. **§4.11 and the 2026-10-30 result** — the same contact-induced
+   work-function mismatch that pins the contact doping is the mechanism behind
+   the contact-origin branch asymmetry `r₀`, and whether `r₀` survives at the
+   operating density is a screening question governed by `x ≡ |n|/n_c`.
+4. **The 2026-11-02 and 2026-11-03 results** — `n_c` is not a material
+   constant but a charged-impurity density, `n_c = κ·N_imp`, with
+   `N_imp ≥ N_A^(S) = C_ox·V_NP/e`; the dielectric that provides a strong gate
+   also raises `N_imp` through the damage its deposition leaves behind.
+
+Listed that way they look like four separate facts about graphene. They are
+not. **Each is a consequence of one of exactly two process steps**, and the
+synthesis this chapter owes is the statement of which step sets what, and of
+which couplings between them are real constraints rather than apparent ones.
+
+### 7.3a.2 The two steps, and the quantities each one sets
+
+**Step A — contact metallisation.** Choosing the two contact metals fixes
+`W_A` and `W_B`, and therefore both coordinates of the pair:
+
+&nbsp;&nbsp;&nbsp;&nbsp;`m = ½(ΔW_A + ΔW_B)` — the common offset, which is what a
+single-junction contact-resistance figure of merit responds to (strand 1);
+
+&nbsp;&nbsp;&nbsp;&nbsp;`s = ½(ΔW_A − ΔW_B)` — the differential offset, which sets
+`sign(N)` and `τ*` (strand 2);
+
+and, through the contact-induced doping profile, the contact-origin component
+of `r₀` (strand 3's source term).
+
+**Step B — gate dielectric deposition.** Choosing thickness and permittivity
+fixes `C_ox`, and the deposition leaves behind a charged-impurity density
+whose *net* part is what the neutrality-point offset `V_NP` measures. Those
+two together fix
+
+&nbsp;&nbsp;&nbsp;&nbsp;`|n| = C_ox·ΔV/e` &nbsp;&nbsp;and&nbsp;&nbsp;
+`n_c = κ·N_imp ≥ κ·C_ox·V_NP/e`,
+
+and hence `x = |n|/n_c`, which is the only quantity that decides how much of
+`r₀` survives (strands 3 and 4).
+
+So there are two steps, four quantities of interest, and three couplings worth
+asking about. Two of the three turn out not to be trade-offs at all, and the
+third is a trade-off that cannot be resolved with the knob one would reach for.
+
+### 7.3a.3 Coupling 1 — contact resistance against photoresponse is not a trade-off, and the reason is a parity
+
+This is §7.2's result, read as a process statement. `m` and `s` are
+*independent coordinates* on the metallisation choice, and §7.2.2 establishes
+that `N` is exactly even in `m` and exactly odd in `s`. A process is therefore
+free to optimise `R_c` through `m` and the photoresponse through `s` at the
+same time: the two criteria are not competing for the same degree of freedom.
+
+**The 2026-09-17 contradiction was never a trade-off.** It was a
+single-junction criterion being applied to a quantity that depends on the
+difference between two junctions, and §7.2.1 has already retracted the metal
+list it produced. What the four strands add here is that the retraction is not
+merely a correction of a ranking: it removes the apparent conflict between
+strands 1 and 2 entirely.
+
+The cost is real but it is a cost in *process complexity*, not in device
+physics: `s ≠ 0` requires two metallisation steps where a symmetric device
+needs one.
+
+### 7.3a.4 Coupling 2 — the decoupling is bought with model risk, and the risk sits exactly where the model has no reach
+
+§7.2.4 records the anti-correlation; as a process statement it is sharper.
+Maximising `|s|` means choosing metals far apart in work function, and the
+pairs with the smallest reversal margins — Au/Pd at 0.020 eV, Ni/Au at 0.060
+eV, Ni/Pd at 0.080 eV, Cr/Cu at 0.150 eV — are **exactly the four pairs the
+per-metal crossover model of §6.12 refuses**, because Ti, Ni and Pd are
+chemisorbed and sit ~1.2 Å below the physisorbed anchor.
+
+So Coupling 1's freedom is not free: it is exercised in the region where this
+thesis's own model cannot predict the quantity that decides polarity. That is
+a statement about the state of the modelling, not about the device, and
+§7.2.4's wording — *the model's reach and the thesis's risk are
+anti-correlated by construction* — is the correct summary of it.
+
+### 7.3a.5 Coupling 3 — Step B cannot be used to fix Step A, because the obvious knob cancels exactly
+
+This is the coupling the four strands were accumulated for, and it is the one
+place a genuine constraint survives. It also **reverses the conclusion**
+strand 3 was logged with, so the reversal is stated before the synthesis.
+
+The 2026-10-30 result turned `n_c` into a crossover gate overdrive
+`ΔV_c = e·n_c/C_ox` and evaluated it for two stacks:
+
+| gate stack | `C_ox` (F m⁻²) | `ΔV_c`, one fixed `n_c` |
+|---|---|---|
+| 90 nm SiO₂ back gate | 3.84×10⁻⁴ | 12.53 V |
+| 10 nm HfO₂ top gate | 2.21×10⁻² | 0.217 V |
+
+and concluded that whether the asymmetry matters *"is a property of the gate
+stack, not of the graphene"*, being screened away in the thin-oxide stacks a
+semiconductor process would actually build. **That table uses one value of
+`n_c` for both rows, and strand 4 says `n_c` is not shared between them.**
+
+Substituting `N_imp = f·N_A^(S) = f·C_ox·V_NP/e` with `f ≥ 1`, the `C_ox` in
+`n_c` cancels the `C_ox` in the denominator:
+
+&nbsp;&nbsp;&nbsp;&nbsp;**`ΔV_c = κ·f·V_NP`** &nbsp;&nbsp;and&nbsp;&nbsp;
+**`x = ΔV / (κ·f·V_NP)`**
+
+The crossover overdrive is independent of oxide thickness and of oxide
+permittivity alike. Under this reading the two stacks need the *same*
+overdrive to reach `n_c`, and `graphene_screening_overdrive_invariance.py`
+measures that difference as exactly `0.0` V rather than as small; the 57.69×
+spread in the table above is exactly the inverse `C_ox` ratio, which is what
+identifies it as a statement about the oxide rather than about the graphene.
+
+**The device consequence is a reversal, not a rescaling.** With the bounded
+`κ ≤ 2.0889` of §4.11.5a and Zion's `V_NP = 20 V`, `κ·V_NP = 41.78 V` — more
+overdrive than *either* stack sees in operation. At 1 V of overdrive on the
+10 nm HfO₂ top gate the fixed-`n_c` reading gives `r = 0.0180`, a 5.6×
+screening; the scaled reading gives `r = 0.0977`, which is **97.7 % of the
+unscreened `r₀ = 0.10`**, a factor of 192 in `x`. The branch asymmetry is
+essentially *unscreened* in precisely the stack 10-30 said would screen it.
+
+The superseded numbers are left in place in their own section and annotated
+there, per the standing practice of this work; what is withdrawn is the
+conclusion, not the arithmetic, which reproduces exactly (12.527 V and
+0.2171 V) when the fixed-`n_c` premise is granted.
+
+**And the same shape as §7.2.** It is worth naming, because this is now the
+second time it has decided a device question in this thesis: in both cases the
+knob a process engineer would reach for enters the quantity of interest in a
+way that cancels. `m` enters `N` evenly, so contact quality cannot move the
+photoresponse at leading order. `C_ox` enters `x` through both the numerator
+and the denominator, so oxide scaling cannot move the screening at all. Two of
+this thesis's three sharpest device statements are of the form *the obvious
+lever is not a lever*, and both were found by asking what a quantity is
+**exactly** even or invariant in, rather than by surveying values.
+
+### 7.3a.6 The process statement, in the form a process engineer can act on
+
+| quantity | set by | the lever that works | the lever that does **not** |
+|---|---|---|---|
+| contact resistance `R_c` | Step A | the common offset `m` — high-work-function metals | `s`: the pairing is irrelevant to one junction |
+| `sign(N)`, margin `τ*` | Step A | the differential offset `s` — deliberately mismatch | `R_c` / `m`: exactly even, so no first-order effect |
+| contact-origin `r₀` | Step A | contact chemistry and geometry | the gate stack: `r₀` is a source term, not a screened one |
+| surviving asymmetry `r` | Step B | `V_NP` (how clean the deposition is) and the overdrive ratio `ΔV/V_NP` | `C_ox`: thickness and permittivity cancel exactly |
+
+The last row is the new one and it is the practically expensive one. A process
+that wants the electron/hole asymmetry screened away cannot buy that by
+thinning the dielectric or by moving to a higher-permittivity one — the two
+changes that a scaled device makes for every other reason. It can buy it only
+by leaving less net charge behind (smaller `V_NP`) or by gating harder relative
+to that charge. Those are deposition-quality and operating-point decisions, not
+stack-geometry decisions.
+
+### 7.3a.7 What this section does and does not claim
+
+**It does not claim that `C_ox` is irrelevant to the device.** `C_ox` sets the
+carrier density at a given gate voltage and therefore sets transconductance,
+`f_T` and everything Chapter 4 computes from them. The claim is narrower and
+exact: it does not appear in the *ratio* `x` that governs screening, because it
+appears identically in `|n|` and in the lower bound on `n_c`.
+
+**The cancellation rests on one identification, and it is named.** It holds
+under `N_imp = f·C_ox·V_NP/e` with `f` not systematically different between
+stacks — that is, under the assumption that the neutrality-point offset is a
+faithful proxy for the charged-impurity density up to a stack-independent
+factor. A dielectric whose deposition damage were uncorrelated with the net
+charge it leaves would break it. That assumption is a literature question and
+is logged as one; it is not established here.
+
+**The direction of the inequality is the safe one.** `N_A^(S)` is a net charge
+and therefore a lower bound on the impurity count, so `f ≥ 1`, so `x` is
+bounded *above* and the surviving `r` is bounded *below*. The bound cannot
+promise a device more screening than it gets. §7.3a.5's numbers are therefore
+conservative in the direction that matters.
+
+**`κ` is bounded, not known.** §4.11.5a excludes `κ = 2.4` and bounds
+`κ ≤ 2.0889` from Zion's own two numbers. The 41.78 V inherits that bound and
+would move with it. The *structural* result does not: the module checks that
+`ΔV_c/(κ·V_NP) = 1` to two ulp over four decades of `κ`, so the cancellation —
+and with it the withdrawal of the 57.69× spread — does not depend on resolving
+the `κ` dispute at all.
+
+**It does not resolve §4.11.5a's open question**, and that question cuts the
+same way. If the neutral-defect channel is branch-asymmetric rather than
+branch-symmetric, then at `s = 2r₀` the asymmetry does not screen at *any*
+density, exactly. That would strengthen this section's conclusion rather than
+weaken it, which is worth stating so that the open item is not read as a
+caveat pointing the other way.
+
+**It says nothing about Chapter 5.** §7.3's differential-interconnect
+prediction remains untested and is unaffected by any of this.
+
+---
+
 ## 7.4 Bounds and parities versus rankings over tabulated sets
 
 ### 7.4.1 The distinction
@@ -785,12 +989,68 @@ operating in the regime of velocity saturation results in the highest
    65 → 40 GHz in `f_max`. Today's ×4.0007 is a ratio between two runs of one
    model and is largely insulated from this; the absolute 56.687 GHz is not.
 
+   > **ANNOTATION 2026-11-10 — this worry is now MEASURED, and it is
+   > NARROWED rather than confirmed. No number above is changed.**
+   >
+   > `graphene_self_heating_model.py` builds the missing term from the
+   > thermal network that Dorgan, Bae and Pop (*APL* 97, 082112 (2010))
+   > carry alongside the mobility and saturation-velocity fits this chapter
+   > already uses, so `R_th` is checkable rather than asserted. The
+   > implementation reproduces that paper's own term shares
+   > (3.60 / 84.49 / 11.91 % against its stated 4 / 84 / 12 %, total
+   > 9915.6 K/W against its ~1e4 K/W) and its footnote-18 branch-cut
+   > densities (9.4043e11 and 1.1113e11 cm⁻² against 9.4e11 and 1.1e11).
+   >
+   > **At the bias this chapter's `f_max` is computed at — `V_ds` = 50 mV —
+   > the self-consistent temperature rise is 1.0675 K and the current loss
+   > is 1.8 × 10⁻⁶.** The absolute 56.687 GHz is therefore exposed *in
+   > principle* and negligibly exposed *in fact*, at this bias. The clause
+   > above — "the absolute 56.687 GHz is not" — stands as written, because
+   > it is true of the model's silence; what is now known is the size of
+   > what the silence was hiding, and it is small here.
+   >
+   > **Where it is not small is the bias a real RF GFET is driven at.** At
+   > `V_ds` = 1 V the same network gives Δ*T* = 168.7 K, and the sweep
+   > passes Dorgan's own ~200 K fit-exclusion ceiling at `V_ds` = 1.25 V —
+   > i.e. this device's thermal environment puts it outside the regime its
+   > own transport parameters were measured in before it reaches the bias
+   > where the literature's peak `f_max` is found. That, and not a
+   > correction factor, is the usable result.
+   >
+   > Three caveats that keep this an upper bound rather than an estimate.
+   > (i) Eq. (5) assumes `W, L >> t_ox`; this device has `L/t_ox` = 2.22,
+   > so lateral spreading in the oxide is neglected and `R_ox` is
+   > **over**-estimated — the error is directional, so every Δ*T* here is
+   > a worst case. (ii) The boundary conductance `h` = 1e8 W m⁻² K⁻¹ is a
+   > **secondary citation** (Chen *et al.* 2009 *via* Dorgan). (iii) The
+   > 65 → 40 GHz figure that created this item is Feijoo *et al.*'s
+   > measurement on *their* device, and nothing here reproduces it; what is
+   > reproduced is the thermal *model*, on the device this thesis actually
+   > models.
+   >
+   > **The 160 meV branch could not be used at all**, which is a result and
+   > not an omission: at `V_g` = 3 V this device's density is 7.26e15 m⁻²
+   > against a branch cut of 9.40e15 m⁻², so Dorgan's two phonon energies
+   > **cannot bracket** `v_sat(T)` here. `V_g` = 4.1277 V would be needed.
+   > The remaining admissible spread is 113.97 K (55 meV) to 168.72 K
+   > (82 meV) at `V_ds` = 1 V, so the phonon energy — not the mobility-fit
+   > ambiguity, which moves Δ*T* by 0.004 K — is the dominant uncertainty.
+
 So the RF verdict of §7.8.1a — *unaddressed*, not refuted — survives in a
 third form. The ratio is settled and contact-limited only mildly; `f_max`
 itself is contact-limited by a factor of four; and the reason this thesis
 still cannot speak to the RF case is no longer the absence of saturation, but
 the absence of diffusion and of self-heating in the model that was built to
 replace the resistor.
+
+**AMENDED 2026-11-10.** Self-heating is no longer absent; diffusion still is.
+The sentence above is kept as written because it records what the chapter
+could say on 2026-10-06, and the correction is that the RF thread's
+remaining blocker is now **diffusion alone** — see the annotation to item 2
+above, which is unchanged, and the annotation to item 3, which is the work
+that removed it from the list. The self-heating half of the verdict is
+discharged in the direction of *the model was conservative here*, which was
+not the expected direction.
 
 See `graphene_perfect_contact_counterfactual.py`,
 `perfect_contact_counterfactual_output.txt` and
@@ -1107,7 +1367,22 @@ Stated as falsifiable items, in order of how much they would move:
    `ℓ ≤ (5.0 Å − 3.3 Å)/ln(0.9 eV/ε)`. At the only small energy scale the
    paper attaches to "small" nearby — its 0.08 eV — this gives
    **`ℓ ≤ 0.7024 Å`, excluding 66.5 % of the committed sweep range
-   [0.3, 1.5] Å**; the top of that range would put the 5.0 Å crossover
+   [0.3, 1.5] Å**;
+   *[Annotated 2026-10-18. Both numbers stand and neither is revised. The
+   hedge above — "the only small energy scale the paper attaches to 'small'
+   nearby" — understates the borrowing in two ways the source's verbatim
+   sentence makes plain: the `∼0.08 eV` is the deviation at `d ≈ 3.3 Å`, the
+   separation about which that same sentence says Eq. (1) **holds**, and the
+   paper traces it to a perturbation "that cannot be described as a rigid
+   shift" — while `Δ_c` **is** a rigid shift. So it is the wrong quantity at
+   the wrong separation, and the two defects compound rather than cancel.
+   **There is therefore no privileged row:** the family over
+   `ε ∈ [0.02, 0.20] eV` is the result, and no single `ε` is "the paper's".
+   The sentence is kept as written because the bound it reports is correct
+   as arithmetic; what was wrong was the attribution, and the transcript —
+   which until today carried the attribution and none of the caveat — now
+   prints its own provenance. See §4.6.16's sibling finding: a qualification
+   with no output behind it is 2026-10-01's dead-name class inverted.]* the top of that range would put the 5.0 Å crossover
    **0.2898 eV above `W_G`**, which is not "≈ `W_G`" under any reading. The
    committed default `ℓ = 0.6 Å` **survives**, and that was not guaranteed:
    it was chosen as "the midpoint of the swept range", a choice with no
@@ -1130,6 +1405,35 @@ Stated as falsifiable items, in order of how much they would move:
    margins. Ti has the largest `|ΔW|` in the table (−1.07 eV) and is contact A
    of *both* Chapter 6 headline pairs. The chapter's central numbers rest on the
    one assumption the literature most explicitly disowns.
+   *[Annotated 2026-10-20. A **fourth** independent failure is now on record,
+   it is upstream of the three above, and — unlike them — it is **not confined
+   to the chemisorbed metals.** No number in this item is revised.
+   `graphene_chord_decay_length.py` costs the question of whether `ℓ` is the
+   right parameter at all. Writing Eq. (4) as `e^(−γd) P(d)` and `L = ln P`,
+   the chord and local decay lengths are `1/ℓ_chord = γ − ⟨L'⟩` and
+   `1/ℓ_local(d) = γ − L'(d)`, so their difference is `L'(d) − ⟨L'⟩` and **`γ`
+   cancels exactly** — as does `a₀`, since `L' = P'/P` is scale-invariant.
+   Two of the four coefficients the paper never reports leave the question,
+   and the gap is computable from `P`'s two shape ratios alone.
+   By the mean value theorem `ℓ_chord` equals `ℓ_local(ξ)` at one interior
+   separation `ξ`. Measured over 204 admissible quadratic shapes,
+   **`ξ ∈ [3.8482, 4.4952] Å`, above Al's 3.41 Å — the largest tabulated
+   `d_eq` — by `+0.4382 Å`.** So the swept parameter is the local decay length
+   at **no metal in the table, under no admissible shape**, and the four
+   physisorbed metals that sit *inside* the chord interval are not spared:
+   the gap vanishes only at `ξ`, not across the interval. At `ℓ = 0.6 Å` the
+   ratio `ℓ_local/ℓ` runs 0.89–1.95 for the physisorbed metals and 0.79–2.73
+   for Ni and Co; at the top of the committed sweep, `ℓ = 1.5 Å`, **92
+   metal-shape combinations have no representable local length at all** —
+   `ℓ_local` infinite or negative, which no single exponential reproduces at
+   any `ℓ` — and those reach the physisorbed metals too.
+   This **compounds with** the `d_eq < d_0` exclusion rather than replacing
+   it: Ti, Ni, Co and Pd now fail for two independent reasons, a regime
+   boundary and a parameter read off an interval they are not in. It does
+   **not** move item 1's bound, which is arithmetic about the chord and
+   remains correct as arithmetic; what it says is that the bounded quantity
+   is not the quantity the per-metal evaluation uses. See
+   `notes/2026-10-20-gamma-cancels-and-the-parameter-is-right-at-no-metal.md`.]*
 3. **Reconciling the 0.12 eV measured step with the 0.25–1.07 eV assumed
    offsets** (§7.8.2). Bounded in the common channel by Section 6.13's
    sensitivity table; **not** bounded in the differential channel, which is the
@@ -1152,10 +1456,28 @@ Stated as falsifiable items, in order of how much they would move:
    transport model*, rewritten 2026-10-07 when the term turned out to be the
    difference between two readings of a variable — is kept because the shape of
    it recurs. **It is replaced, not succeeded, by item 12.**
-8. **A self-heating term.** The same paper measures 65 → 40 GHz in `f_max` from
-   self-heating alone. This bounds every absolute frequency in Chapter 4; the
-   *ratios* between model runs, which is what §7.8.1c reports, are much less
-   exposed.
+8. ~~**A self-heating term.**~~ The same paper measures 65 → 40 GHz in `f_max`
+   from self-heating alone. This bounds every absolute frequency in Chapter 4;
+   the *ratios* between model runs, which is what §7.8.1c reports, are much
+   less exposed. — **CLOSED 2026-11-10**,
+   `graphene_self_heating_model.py`, 41/41 checks, 10/10 mutants detected,
+   both of Dorgan's published benchmarks reproduced. The item stood for 34
+   sessions and the obstacle was never the physics: it was that a thermal
+   resistance with no provenance would have been a number that looked like a
+   measurement. It became answerable when the primary source for this
+   chapter's *transport* parameters turned out to carry its own *thermal*
+   budget, with the geometry and the per-term shares, making `R_th`
+   checkable. **The expected conclusion was wrong in a useful direction**:
+   the bound on Chapter 4's absolute frequencies is 1.8e-06 in current at
+   the bias those frequencies are computed at, not the large correction the
+   65 → 40 GHz figure suggested — because that figure belongs to a device
+   driven at volts, and this one is characterised at 50 mV. What the model
+   does find is a *regime boundary* at `V_ds` = 1.25 V, past Dorgan's own
+   fit-exclusion ceiling. Two of the session's own errors were caught by
+   the suite before commit (a tolerance that tested a precision the source
+   never claimed, and a monotonicity claim that was simply false — the
+   isothermal current turns over too, at 1.11 V), and both are recorded in
+   place rather than quietly fixed.
 9. ~~**A signed-carrier FET model**~~ (added 2026-10-07) — **CLOSED
    2026-10-09**, `graphene_fet_signed_carrier_model.py`, 19/19 checks, §4.6.7.
    The sharper statement of why it blocked item 12 than 10-08 gave: both terms
@@ -1474,6 +1796,106 @@ Stated as falsifiable items, in order of how much they would move:
    The only precondition still open is the one that was never numerical:
    §4.7's prose and §4.10's annotation have to be **rewritten**, since "only
    Pd gives a small, plausible positive residual" becomes false.
+   **ANNOTATION 2026-10-18 (§4.6.16). The sentence above is kept verbatim and
+   is false, and it was false on the day it was written.** Commit `7604c05`,
+   dated **2026-10-13** — the day *before* this annotation's own 10-14
+   paragraph — is titled "the two sentences in Sections 4.7 and 4.10 that the
+   measurement makes false, annotated in place", and both annotations are in
+   Chapter 4 with their numbers: §4.7's names −1.2583 % (Cu), +20.8352 % (Ni),
+   +39.2281 % (Au), **+47.6925 % (Pd)** and `+51.0 → −203.276`, states that
+   "Only Pd gives a small, plausible positive residual" is "true of the
+   committed model and false of the corrected one", and leaves the sentence
+   standing "**pending the item 16 flip**"; §4.10's amendment says the 9.6 %
+   margin "stands as computed" and is a margin against *input* error that a
+   known *modelling* error already exceeds fivefold. So a session recorded a
+   writing precondition as open while its own tree carried the writing, and
+   the 2026-10-17 entry then carried it forward as "still untouched and still
+   writing, not plumbing" for a fourth day.
+   **What is actually open is narrower and cannot be done first.** The
+   annotations are written *in the subjunctive* — they describe what the
+   corrected model would say and explicitly defer to the flip. The writing
+   that remains is the writing that only the flip makes possible: when
+   "pending the item 16 flip" itself goes stale, the committed table becomes
+   the superseded column rather than the live one, and §4.10's "margin against
+   input error" becomes a statement about a margin that was consumed. That is
+   why 2026-10-17's operational advice — precondition (ii) and the flip in the
+   same session — is right while its reason is wrong, and the difference is
+   not pedantic: a session that believes (ii) is missing can discharge it by
+   writing a sentence asserting a state of the code that does not exist, which
+   is the §7.5.4 "created by a fix" class applied to prose. **Item 16's
+   remaining content is therefore the flip and nothing else**, and it is
+   ranked first for the next run on that basis.
+   **AMENDED 2026-10-21 (§4.6.17). "The flip and nothing else" was wrong in
+   one specific way, and the way is worth more than the flip.** Composition
+   was left as well. The two halves of item 16 are each committed, each
+   validated and each correct alone, and **installing both at once does not
+   give form `B_T` everywhere**: `n_contact` lands **4.86× (Ni) to 10.77×
+   (Cu)** past the effect this item exists to install, in the **same
+   direction**, so it would not have read as a sign error. Measured:
+   −51.3850 % to −61.9143 % against the committed contact-only form `B_T`,
+   where the item's own effect is −4.7696 % to −12.4964 %. The cause is one
+   attribute read. The contact replacement is deliberately built on the
+   **shipped** `gfet.quantum_capacitance` — for two good reasons recorded in
+   §4.6.12 (a 9.48e6 ulp constants gap in the alternative, and the overflow
+   item 13 closed) — and reads that name by attribute lookup at call time,
+   which is exactly the name the channel half rebinds. The contact's
+   self-consistency is then solved against a `C_q` that has itself already
+   been solved, against the wrong series capacitance. **No number above is
+   revised**: every cost this entry quotes is reproduced exactly by the
+   composed flip, which is the evidence that the defect is in the composition
+   and not in either half.
+   The general form is the part that outlives item 16, and **no guard in this
+   repository currently covers it** [*as of 2026-10-21; `graphene_replacement_
+   read_audit.py` covers it as of 2026-10-22, in the broadened cross-flip form
+   — see §4.6.18*]. `bc.rebind()` asks whether all bindings
+   of a name move together. `bc.rebind_by_operating_point()` asks whether any
+   member of the class is unassigned. Neither asks **whether a replacement
+   reads a name the same flip rebinds**. Such a replacement is neither stale
+   nor unassigned — it is correctly installed, and reads a different object
+   than the one it was validated against. That is a third failure mode beside
+   the two the 2026-10-14 and 2026-10-17 mechanisms were built for, and it is
+   invisible to both.
+   Two further findings. (a) The failure decomposes into **(i)** the inner
+   `C_q` and **(ii)** the inner series capacitance — `qca.series_factor`
+   reads `gfet.C_ox` at call time and the contact solve has it substituted —
+   and the two **partially cancel**, by +1.02 to +2.30 percentage points, so
+   repairing (ii) alone makes the error *larger*. (b) The repair is to bind
+   the contact replacement to the object **captured at entry** rather than to
+   the live name; it reproduces the committed contact-only form `B_T`
+   **bitwise** on all seven metals, and the channel half reproduces
+   `on_consistent_argument()` **bitwise** on all eight census entries.
+   **Status unchanged: the item is still OPEN and the default is still
+   (4.29).** What changed is that the flip is now built, validated and costed
+   as a single installable object (`graphene_default_flip.on_default_flip()`),
+   so what remains is editing `graphene_fet_model.py` — a decision about what
+   the thesis claims, not a build. With both halves in the circuit for the
+   first time, Pd's implied transmission residual moves **+50.9489 →
+   −203.2764 Ω·µm** and the additive decomposition fails **4 of 4**, which is
+   §4.10's margin consumed exactly as the paragraph above predicted.
+   **AMENDED 2026-10-22 (§4.6.18). The guard now exists, and it reports two
+   things the 2026-10-21 amendment above did not ask for.** (a) The audit
+   confirms the exposure as framed: of the four replacements, exactly one —
+   `blast._cq_consistent_contact` — reads a name rebound while it is
+   installed. **No number above is revised.** (b) But the question as the
+   amendment above words it, "*whether a replacement reads a name the same
+   flip rebinds*", answers **empty** for that very replacement: the name it
+   reads is rebound by a *different* manager, and the two are concurrent only
+   because this item composes them. A guard written to that wording would
+   have passed the composed flip. The relation is replacement × every flip
+   installable **concurrently**. (c) A second exposure, outside the wording
+   entirely: all five replacements **read** `gfet.C_ox` at call time and
+   three of them **write** it, and `gfet.C_ox` is in no identity class, so
+   neither existing mechanism nor this item's own question can see it.
+   (d) The decomposition into (i) and (ii) is not two defects — **192**
+   channel arrivals under the unrepaired flip, **181** of them with `C_ox`
+   already substituted, **0** under the repaired flip — one cause with two
+   consequences, which is why one change repairs both. (e) The repair is
+   **contingently** correct: a capture protects the name it holds, not the
+   names the held object reads, and it suffices here only because the shipped
+   `gfet.quantum_capacitance` reads nothing rebound. **Status unchanged: the
+   item is still OPEN and the default is still (4.29)**, and the ranking
+   consequence is unchanged too — the flip should not be landed in the same
+   session as this audit, and the audit is now done.
 17. **A two-knob check that reports the ratio, not smallness** (added
    2026-10-10 as "a check that can see a cancellation", **amended 2026-10-11
    on its first use**, §4.6.9(f)). Every check in this repository asks about
@@ -1721,6 +2143,181 @@ Stated as falsifiable items, in order of how much they would move:
    reader, or declare it exempt with a stated reason — applies to all four.
    **Ranked first for the next run**, ahead of item 16, for a reason
    internal to item 16: see its precondition (iii).
+21. **The standing list is not a closed system, and two of its items asserted
+   the opposite of what the tree contained** (added 2026-10-18, §4.6.16; the
+   first item on this list created by auditing *the list itself* rather than
+   the code or the physics). Every session here chooses its work from the
+   "Not yet covered" list of the preceding `AUTOMATION_LOG.md` entry. Nothing
+   had ever checked a claim that list makes. Two of the 2026-10-17 list's
+   twenty-five items assert a state of the tree that the tree denies: item
+   16's precondition (ii), above, and **"CHAPTERS 2 AND 3 ARE STILL
+   UNDRAFTED … the largest remaining block of pure writing"**, when Chapter 2
+   was drafted 2026-09-28 and Chapter 3 2026-09-29 and both have been in the
+   tree for nineteen days.
+   The second is the more instructive, because **the list had already got it
+   right**. From 2026-10-01 to 2026-10-06 it carried the corrected form
+   ("Chapters 2 and 3 *are drafted* but §4.8.2's form of error is not audited
+   for elsewhere"), carried nothing for the ten entries after that, and
+   returned on 2026-10-17 to the pre-09-28 wording — and returned it to
+   *first-rank contention*, since the entry closes it "worth ranking against
+   item 16 deliberately rather than by default". So the one item offered as a
+   competitor to the top measured item was describing writing committed three
+   weeks earlier. **This is not a stale item carried past its repair; it is a
+   retired wording revived**, and the distinction matters because the two have
+   different fixes: staleness is cured by re-checking an item, revival is cured
+   by making retirement checkable.
+   **The cause is outside the repository, which is why no audit here could
+   have found it by looking inward.** These sessions are driven by a scheduled
+   brief that carries a frozen description of repository state dated
+   2026-09-17, including the A1 sentence almost verbatim. A session that reads
+   its own brief as current state will re-derive items the list has retired,
+   and will do so with the authority of an instruction rather than the
+   tentativeness of a memory. The standing rule this produces is checkable
+   only in its second half, and both halves are recorded: **(a) procedural —
+   a claim about the state of the tree that arrives from outside the tree is
+   re-verified against the tree before it ranks anything; (b) mechanical —
+   `graphene_standing_list_audit.py`**, which re-checks every standing item
+   that asserts a tree state, and whose *retired* rows assert both that a
+   retired wording stays gone and that the fact which justified retiring it
+   still holds, so the suite cannot go quiet the moment its finding is acted
+   on.
+   Two by-products are worth keeping. The module's **first draft failed its
+   own plant on its own subject matter** — it tested for a sentence by exact
+   bytes, the markdown file wraps that sentence, and it therefore reported
+   §4.10 "untouched" about a file carrying the amendment, i.e. it *confirmed*
+   the item it was written to contradict. Resolving a claim on spelling is the
+   same defect as the two docstrings of §4.6.15 and the 2026-10-17 grep, and
+   it is now three for three that this repository's instruments fail first by
+   answering a weaker question than the one asked. And
+   **Design-Verification-Roadmap built `tools/open_item_staleness_audit.py`
+   for this exact failure on 2026-10-13, and on 2026-10-17 used it to retire
+   an item of its own for the identical reason** ("it names work finished
+   before the item started being carried"). That repository caught its
+   instance on the same day this one revived its instance. The difference
+   between the two days was one module, and the generalisation — *an
+   instrument built in one place does not protect the other* — is the
+   cross-repository form of §7.5.2.
+22. **Which `v_F` this thesis is quoting, and the fact that it cannot
+   currently say** (added 2026-10-25, §4.6.21 (c)–(d); the first item on this
+   list that is a question about the *physics* produced by an audit of the
+   *code*). Two findings, and the second is a precondition for even asking
+   the first.
+   **(i) The Fermi velocity is two names, not one knob.** `C_q` carries it as
+   `CQ_PREFACTOR = 2e³/(π ħ² v_F²)` and `A_FERMI = ħ v_F √π / e`. The contact
+   replacement follows `gfet.v_F` with d ln `C_q`/d ln `v_F` = −2.323463;
+   both channel replacements are **bitwise unreachable** from `gfet.v_F` and
+   follow `qca.CQ_PREFACTOR` (+1.008232) and `qca.A_FERMI` (+0.519524), which
+   `graphene_exact_charge_rederivation` computed from `gfet.v_F` at import
+   time and copied in. A `v_F` sensitivity study done by editing `gfet.v_F`
+   would have reported **channel insensitivity to the Fermi velocity as a
+   result**. The repair takes three names moved together, one as *k*⁻²; it is
+   a mechanical change and is not blocked on anything.
+   **(ii) And the committed value is the bare one, on a substrate that
+   renormalises it.** Hwang *et al.* measure 1.15 ± 0.02 (SiC, ε = 7.26),
+   1.49 ± 0.08 (BN, ε = 4.22) and 2.49 ± 0.30 (quartz, ε = 1.80), ×10⁶ m s⁻¹,
+   against a fully screened *ab initio* 0.85 × 10⁶ [Sci. Rep. **2**, 590
+   (2012)]. This thesis commits 1.00 × 10⁶ throughout, just above the bare
+   value, while §4.2 models a 90 nm SiO₂ stack whose ε ≈ 3.9 puts the
+   substrate-appropriate value near 1.5 × 10⁶ — and ×1.5 is exactly the
+   perturbation that moves the contact `C_q` by **−63.5273 %**.
+   **What this item asks for is a decision, not a build.** Using the bare
+   value consistently is defensible: most compact device models do, and the
+   renormalisation is carrier-density dependent, so one number is already an
+   approximation. The weak position is the present one, which quotes the
+   contact `C_q` at a `v_F` the modelled substrate does not have *and* cannot
+   express the alternative by changing one name. **(i) should be done first
+   regardless of how (ii) is decided**, because (i) is what makes (ii)
+   measurable, and because until it is done any number this thesis quotes for
+   the `v_F` sensitivity of a channel result is zero for the wrong reason.
+   **Annotated 2026-10-26 (§4.6.22).** The −63.5273 % of (ii) was measured on
+   the contact replacement **in isolation**. It **survives** for the holder the
+   default flip actually installs — on `flip.make_contact_cq(live=False)`,
+   `gfet.v_F` carries −63.5273 % in *every* configuration measured, and
+   `gfet.hbar` carries the bitwise identical figure, as `(ħ v_F)²` requires. It
+   does **not** survive on `blast._cq_consistent_contact` composed with either
+   other flip, where `gfet.v_F` is bitwise dead. (i) and (ii) are unchanged in
+   substance; what is added is that the number has a stated configuration.
+23. **The configurations §4.6.22 did not measure, and a verdict indexed by
+   configuration** (added 2026-10-26, §4.6.22 (d) and (g)). §4.6.22 measures
+   six installed objects against three flips and isolation, and finds exactly
+   one non-composing row. Three things are open, in descending order of cost.
+   **(i) The missing cells.** `live_contact=True` is the unrepaired contact
+   replacement *as the default flip installs it*, which is the configuration
+   §4.6.17 actually costed, and it is not in the 6 × 3 table. The
+   *simultaneous* entry of two managers is not either, and it is the
+   configuration a future chapter that flips both halves would run in. Both
+   are mechanical: the table is built from `rra.FLIPS`, so the work is adding
+   managers to it and supplying the verdicts.
+   **(ii) A verdict indexed by configuration.** §4.6.22 (d) shows
+   exhaustively that no single member of {PROTECTED, UNREACHED, EXPOSED,
+   GOVERNED} is true in both configurations for `gfet.C_ox` on the live
+   contact replacement. So the long-standing item asking for the
+   non-composing compositions to be *adjudicated* is not merely unfinished —
+   it is **not satisfiable in the present vocabulary**, and that is why three
+   sessions have noted it without discharging it. The repair is a verdict
+   that names its configuration, with the guard requiring one per
+   (holder, flip) cell rather than one per (holder, name) pair. This is a
+   change to §4.6.20's and §4.6.21's guards, not an addition to them, and it
+   should be costed before being built.
+   **(iii) The probe point.** "Invariant under its own flip" is asserted
+   bitwise at a single `csg.PROBE_V` with a single `csg.PERTURBATION`. A
+   corner sweep over both would turn the strongest claim of §4.6.22 (b) from
+   a measurement at a point into a measurement over a box, and it shares its
+   cheapest entry with the standing *is the admissible shape box the right
+   one?* item.
+24. **Does `n_c` differ between the electron and hole branches, and does the
+   asymmetry therefore screen at all?** (added 2026-11-03,
+   `graphene_kappa_impurity_bound.py` §7, and ranked **first** of the open
+   items in this chapter.) Every other item here moves a number. This one
+   decides whether a *qualitative* conclusion of Chapters 3 and 4 survives.
+   §4.11.5 says the electron–hole asymmetry "dies off as the long-range
+   impurity potential screens". That is a consequence of the Matthiessen form
+   **plus** a single `n_c` shared between the branches, and the second part
+   was never argued. Written per branch with a split `n_{c,e/h} = n_c(1±s/2)`,
+   there is an exact identity at `s = 2r₀`: the `(1+|n|/n_c)` factor cancels
+   out of the asymmetry ratio and `r(n) = r₀` at **every** density, with no
+   screening whatever. At the top-gate operating point a 20 % split moves `r`
+   by 524 %, so the range between "screened 6.2×" and "not screened at all" is
+   spanned by an assumption nobody has tested.
+   **Why the symmetric case is not the safe default.** `r₀` is derived from a
+   beyond-Born cross-section ratio — a property of scattering off a potential
+   of a given sign. Neutral defects are also potentials. There is no argument
+   anywhere in this thesis for the asymmetry vanishing for vacancies and grain
+   boundaries while surviving for charged impurities; it was assumed by
+   writing one symbol.
+   **What would settle it, and it is cheap.** Zion *et al.* read their
+   `3 × 10¹² cm⁻²` off the **hole** branch (their Section III c). The electron
+   branch's transition density is in the same figure. Reading both off Zion
+   Fig. 5 gives `s` for one sample directly — and that is the **same picture**
+   the standing *lower bound on ℓ* and *`Δ_c` form for the chemisorbed metals*
+   items are blocked on, so one figure read discharges three items. This is
+   now the cheapest high-value unblocking action available to a human reader,
+   displacing the full-text fetch of arXiv:1801.03565, which was attempted on
+   2026-11-03 and is **closed**: the text contains no mobility anywhere, so
+   the pairing it was meant to resolve is unresolvable from that source and
+   was instead resolved by a different route (item 25).
+25. **The `A` pairing, closed 2026-11-03, and what replaced it.** Recorded here
+   because it is the first item on this list to be discharged by finding that
+   the datum it wanted does not exist. The 11-02 module obtained `κ = A/C`
+   by pairing Zion's crossover density with *this* repository's mobility, and
+   logged "read Zion's own mobility" as the fix. The full text has no mobility
+   in it. But it has Zion's own charged-acceptor density,
+   `N_A^(S) = C_ox·V_NP/e`, for the same sample — so `κ = n_c/N_imp` is
+   readable off **one** device from **two** numbers in **one** paper, with no
+   mobility and no cross-paper pairing. Because `N_A^(S)` is a net charge
+   inferred from a compensating voltage, because Zion's own `N_t` oxide-defect
+   density is acknowledged and unquantified, and because the film is
+   transferred CVD, `N_imp ≥ N_A^(S)` and therefore `κ ≤ 2.089`. The 11-02
+   value `κ = 2.4` is **excluded** by 14.9 %. Every `n_c` and `ΔV_c` in this
+   thesis derived from it falls 13.0 %; every operating margin and impurity
+   budget rises 14.9 %. No verdict reverses — the thinnest margin, `1.10×`,
+   becomes `1.26×`, which is the useful direction. As a by-product the
+   mobility the paper never prints is bounded anyway:
+   `μ_{L,Zion} ≤ 0.348 m²/Vs`. **The methodological point worth carrying
+   forward** is that the blocked item was discharged by asking what the source
+   *does* contain rather than by re-attempting the fetch for what it was
+   assumed to contain, and §7.5's taxonomy has no class for this: it is not a
+   claim that failed, it is a *question* that was mis-posed.
 
 
 ---

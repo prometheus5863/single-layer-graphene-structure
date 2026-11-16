@@ -9,12 +9,12 @@ Validation 1 (EXACT, P1): Euler sum rule  sum_i S_i == 1
   PASS
 
 Validation 2 (EXACT): known power-law exponents recovered
-  (a) lambda_bulk/resid, expect +1               1.000000000  |err| 1.66e-11  (conv 8.4e-12)
-  (b) rho ~ rho_bulk^1 (fixed lam_imp), expect +1 1.000000000  |err| 5.52e-12  (conv 2.9e-12)
+  (a) lambda_bulk/resid, expect +1               1.000000000  |err| 3.79e-11  (conv 4.4e-11)
+  (b) rho ~ rho_bulk^1 (fixed lam_imp), expect +1 1.000000000  |err| 4.55e-12  (conv 1.1e-11)
   (c) bulk-only S(bulk), expect +1 EXACT         1.000000000  |err| 0.00e+00  (conv 0.0e+00)
   (c) bulk-only S(edge), expect  0 EXACT         0.000000000  |err| 0.00e+00  (conv 0.0e+00)
-  (d) Q = c/x, expect -1                        -1.000000000  |err| 2.64e-14  (conv 2.9e-12)
-  worst |error| : 1.663e-11   PASS
+  (d) Q = c/x, expect -1                        -1.000000000  |err| 1.01e-11  (conv 1.1e-11)
+  worst |error| : 3.786e-11   PASS
 
 Validation 3 (EXACT): degenerate limits and scale invariance
   (a) Q = A - A  : Q = 0.0e+00, 1/kappa = 0.000e+00  PASS
@@ -27,8 +27,13 @@ Validation 3 (EXACT): degenerate limits and scale invariance
 
 Validation 4 (EXACT): the calibration point pins rho
   (a) rho(22 nm) == rho_calibration bitwise : True
-  (b) S(rho_calibration) = 0.999999999994  |err| 5.6e-12
-  (c) exact zeros : 3/3  S(rho_bulk) = 0.0, S(p_default) = 0.0, S(lambda_bulk) = 0.0
+  (b) S(rho_calibration) = 0.999999999995  |err| 4.6e-12
+  (c) BITWISE zeros : 2/3   zeros within the derived floor 5.7e-11 : 3/3
+      S(rho_bulk) = -1.110e-11, S(p_default) = 0.000e+00, S(lambda_bulk) = 0.000e+00
+      (was 3/3 BITWISE up to 2026-09-26 under the old asymmetric
+      stepping; 2/3 since 2026-09-27 under the corrected symmetric
+      stepping, which is more accurate.  See the annotation in the
+      source: one of the three exact zeros was floating-point luck.)
   PASS
 
 ==============================================================================
@@ -59,11 +64,11 @@ FAMILY B -- Chapter 5:  the lambda_impurity calibration solve
     sum S                        S =  1.000000   kappa = 19.71  NEAR-CANCELLING
 
   PARAMETER level (d ln lambda_imp / d ln p):
-    rho_calibration   -19.7143   (conv 7.6e-07)
-    rho_bulk           19.7143   (conv 6.5e-07)
-    lambda_bulk        13.1429   (conv 1.8e-07)
-    W_calibration     -12.1429   (conv 2.3e-07)
-    p_default          -3.7267   (conv 5.4e-09)
+    rho_bulk           19.7143   (conv 7.1e-07)
+    rho_calibration   -19.7143   (conv 7.1e-07)
+    lambda_bulk        13.1429   (conv 2.0e-07)
+    W_calibration     -12.1429   (conv 2.0e-07)
+    p_default          -3.7267   (conv 3.7e-09)
 
 ==============================================================================
 FAMILY C -- Chapter 5:  rho_GNR(W)
@@ -79,11 +84,11 @@ FAMILY C -- Chapter 5:  rho_GNR(W)
   (ii) PARAMETER level, lambda_impurity RE-SOLVED (the chapter's real dependency chain):
         W/nm  rho_calibrati       rho_bulk      p_default  W_calibration    lambda_bulk   kappa  class
           18         0.8796         0.1204        -0.0370         0.5418         0.1204   0.880  reinforcing
-          22         1.0000         0.0000         0.0000         0.6159         0.0000   1.000  reinforcing
+          22         1.0000        -0.0000         0.0000         0.6159         0.0000   1.000  reinforcing
           30         1.1965        -0.1965         0.0603         0.7370        -0.1965   1.197  mildly ill-cond.
           40         1.3835        -0.3835         0.1177         0.8521        -0.3835   1.383  mildly ill-cond.
           52         1.5512        -0.5512         0.1692         0.9555        -0.5512   1.551  mildly ill-cond.
-      worst convergence estimate over the table: 5.5e-10
+      worst convergence estimate over the table: 2.7e-10
 
 ==============================================================================
 FAMILY D -- Chapter 5:  Cu liner model, W_eff = W - 2t  (t = 3.0 nm)
@@ -94,7 +99,7 @@ FAMILY D -- Chapter 5:  Cu liner model, W_eff = W - 2t  (t = 3.0 nm)
       30    24.00   1.2500  -0.2500  1.000000        1.250        0.5500  mildly ill-cond.
       40    34.00   1.1765  -0.1765  1.000000        1.176        0.3794  mildly ill-cond.
       52    46.00   1.1304  -0.1304  1.000000        1.130        0.2759  mildly ill-cond.
-  worst convergence estimate: 8.6e-11
+  worst convergence estimate: 1.9e-10
 
 ==============================================================================
 FAMILY E -- Chapter 6 cross-check: same machinery, 2026-09-21's pairs

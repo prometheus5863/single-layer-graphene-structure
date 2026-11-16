@@ -246,8 +246,8 @@ def quantum_capacitance_dispersion(n):
     return CQ_PREFACTOR * fermi_voltage(n)
 
 
-def _dd_integrals(V_g, Vds_ch, n_quad=N_QUAD, lam=1.0, v_sat_const=None,
-                  constant_n=False, omega_op=vsat.OMEGA_OP,
+def _dd_integrals(V_g, Vds_ch, n_quad=None, lam=1.0, v_sat_const=None,
+                  constant_n=False, omega_op=None,
                   v_sat_prefactor=2.0 / np.pi, grid=None):
     """Q, the diffusion boundary term, S and its diffusion part, Eqs. (11-12).
 
@@ -256,6 +256,10 @@ def _dd_integrals(V_g, Vds_ch, n_quad=N_QUAD, lam=1.0, v_sat_const=None,
     the interior at all.  `constant_n` freezes n, which makes the diffusion
     term exactly zero (X3).
     """
+    if omega_op is None:
+        omega_op = vsat.OMEGA_OP   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if n_quad is None:
+        n_quad = N_QUAD   # 2026-10-17: was a frozen default capture
     if grid is None:
         V = np.linspace(0.0, Vds_ch, n_quad)
     else:
@@ -303,7 +307,7 @@ def _Id_given_Vds_ch(V_g, Vds_ch, lam=1.0, saturate=True, **kw):
     return Id, d
 
 
-def transfer_characteristic_dd(Vg_range, Vds=VDS_REF, lam=1.0, saturate=True,
+def transfer_characteristic_dd(Vg_range, Vds=None, lam=1.0, saturate=True,
                                Rc_total=None, tol=1e-15, max_iter=200,
                                report=False, **kw):
     """I_d(V_g) with velocity saturation AND diffusion, Eqs. (10) + (5).
@@ -312,6 +316,8 @@ def transfer_characteristic_dd(Vg_range, Vds=VDS_REF, lam=1.0, saturate=True,
     report=True additionally returns, per bias, min(1 + kappa) over the
     channel (X8) and the diffusion share Qd/(Q+Qd).
     """
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Vg_range = np.atleast_1d(np.asarray(Vg_range, dtype=float))
     Rc = gfet.Rc_total if Rc_total is None else Rc_total
     Id_out = np.zeros_like(Vg_range)
@@ -350,18 +356,24 @@ def transfer_characteristic_dd(Vg_range, Vds=VDS_REF, lam=1.0, saturate=True,
     return Id_out
 
 
-def gds_dd(Vg_range, Vds=VDS_REF, dVds=1e-3, **kw):
+def gds_dd(Vg_range, Vds=None, dVds=1e-3, **kw):
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Ip = transfer_characteristic_dd(Vg_range, Vds=Vds + dVds, **kw)
     Im = transfer_characteristic_dd(Vg_range, Vds=Vds - dVds, **kw)
     return (Ip - Im) / (2.0 * dVds)
 
 
-def _fT_fmax_local(V_g, Vds=VDS_REF, lam=1.0, N_fingers=1, h=H_VG_COMMITTED,
+def _fT_fmax_local(V_g, Vds=None, lam=1.0, N_fingers=1, h=None,
                    **kw):
     """f_T, f_max and the pieces, at ONE gate bias, on a 5-point stencil of
     the COMMITTED gate-grid spacing so np.gradient's central difference here
     is the same estimator as the committed one.  Mirrors
     vsat.fT_fmax_saturated's formula exactly; only g_m and g_ds change."""
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
+    if h is None:
+        h = H_VG_COMMITTED   # 2026-10-17: was a frozen default capture
     Vg = V_g + h * np.arange(-2, 3, dtype=float)
     Id = transfer_characteristic_dd(Vg, Vds=Vds, lam=lam, **kw)
     gm = np.gradient(Id, Vg)
@@ -379,8 +391,19 @@ def _fT_fmax_local(V_g, Vds=VDS_REF, lam=1.0, N_fingers=1, h=H_VG_COMMITTED,
                 gm=float(gm[k]), gds=float(gds[k]), Id=float(Id[k]))
 
 
-def _at_literature_geometry(fn, W=rf.W_RF, N_fingers=rf.N_FINGERS_RF):
-    """Late binding only -- the 2026-10-03 frozen-default fault."""
+def _at_literature_geometry(fn, W=None, N_fingers=None):
+    """Late binding only -- the 2026-10-03 frozen-default fault.
+
+    CORRECTED 2026-10-17, same finding as the twin of this function in
+    graphene_velocity_saturation_model: the sentence above was true of the
+    NAME spelling and false of this signature, which captured
+    `W=rf.W_RF, N_fingers=rf.N_FINGERS_RF` as frozen ATTRIBUTE defaults.
+    Kept in place rather than rewritten.  The None sentinels below are what
+    make it true."""
+    if W is None:
+        W = rf.W_RF   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if N_fingers is None:
+        N_fingers = rf.N_FINGERS_RF   # 2026-10-17: was a frozen ATTRIBUTE default capture
     W_saved, Rc_saved = gfet.W, gfet.Rc_total
     gfet.W = W
     gfet.Rc_total = 2 * (gfet.Rc_per_width_ohm_um * 1e-6) / W
@@ -667,6 +690,27 @@ def main():
     share = (I1 / I0 - 1.0) * 100.0
     ashare = np.abs(share)
     j_max = int(np.argmax(ashare))
+    # ANNOTATION 2026-11-16.  `gfet.V_dirac` is a FLAT-BAND parameter, not
+    # the gate voltage at which this model's channel is neutral.  The
+    # reflection centre of transfer_characteristic at drain bias Vds is
+    # V_dirac + Vds/2 exactly (graphene_ambipolar_mirror_audit.py, V1 and
+    # V9: even to 4.5e-16 about that centre, asymmetric by 1.05 % about
+    # V_dirac), so at VDS_REF = 0.1 V the neutrality bias is 0.85 V and the
+    # line below selects a grid point 50 mV below it.  On this module's own
+    # 240-point grid the two are DIFFERENT grid points and the reported
+    # share differs in SIGN between them:
+    #
+    #     nearest grid point to V_dirac        = +0.811715 V, share -0.006925 %
+    #     nearest grid point to V_dirac+Vds/2  = +0.861925 V, share +0.015818 %
+    #
+    # Neither number is deleted and the line is NOT changed, because
+    # check G4a's verdict does not turn on it: both shares are ~3 orders
+    # below the sweep maximum, so "the share COLLAPSES at charge neutrality
+    # instead of diverging there" remains true, and the committed
+    # diffusion_current_output.txt stays reproducible.  What is wrong is the
+    # JUSTIFICATION as worded -- "at the nearest grid point to the Dirac
+    # point" is off by Vds/2 -- and on a finer grid the printed number would
+    # move.  Recorded as LATENT, with the corrected number stated above.
     j_dirac = int(np.argmin(np.abs(Vg - gfet.V_dirac)))
     say()
     say(f"  MEASURED.  largest |share| {ashare[j_max]:.4f} % at V_g = "

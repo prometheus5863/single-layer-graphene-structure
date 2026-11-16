@@ -17,15 +17,60 @@ VALIDATIONS (exactly known values, not plausible ranges)
          ell_max at zero span = 0.0
   [PASS] ell_max strictly increasing in epsilon over 97 values
          ell_max spans 0.4466 -> 1.1303 A
+  [PASS] no print() asserts the source attribution unqualified (quoting it as superseded is allowed, in the same string)
+         violations: []
+  [PASS] the retracted wording is still quoted in the transcript, not merely absent from it
+         1 print strings quote it
+  [PASS] every provenance caveat token is emitted somewhere in the output
+         missing: []
+  [PASS] the superseded wording is kept in the file as a comment, not deleted
+         both superseded lines retained
   [PASS] exclusion counter reads exactly 0 at the top and 1 at the bottom
          f(eps=0.2898 eV) = 0.0 ; f(eps=0.0031 eV) = 1.0
+
+PROVENANCE OF EVERY SOURCED NUMBER IN THIS TRANSCRIPT
+  Source: Khomyakov et al., Phys. Rev. B 79, 195425 (2009), arXiv:0902.1203
+  Delta_c(3.3 A) = 0.9 eV   [Sec. III.2]
+      applies at : d ~ 3.3 A
+      quoted     : "the crossover point between n- and p-type doping
+      is found for a metal with a work function W_M = W_G + 0.9 eV"
+      quantity   : the crossover shift itself -- USED AS ANCHOR 1
+  Delta_c(5.0 A) <= epsilon   [Sec. III.2]
+      applies at : d = 5.0 A
+      quoted     : "the crossover point from n- to p-type doping
+      decreases to its expected value, W_M ~ W_G, for large
+      separations"
+      quantity   : an inequality in words; NO epsilon is quantified
+  epsilon = 0.08 eV   [Sec. III.2]
+      applies at : d ~ 3.3 A -- NOT 5.0 A
+      quoted     : "there is a small deviation of ~0.08 eV at the
+      equilibrium separation d ~ 3.3 A which can be traced to a
+      perturbation [...] that cannot be described as a rigid shift"
+      quantity   : the failure of the RIGID-SHIFT picture, which is
+      what Delta_c is. BORROWED, twice over: wrong separation and
+      wrong kind of quantity
+  Delta_c(d) form   [Sec. III.3, Eq. (4)]
+      applies at : all d
+      quoted     : "Delta_c(d) = e^(-gamma d) (a_0 + a_1 d + a_2
+      d^2)"
+      quantity   : gamma, a_0, a_1, a_2 are NOT reported numerically
+      anywhere in the text; (N1) drops the polynomial prefactor
+  => THERE IS NO PRIVILEGED ROW in the family below.  The paper
+     quantifies no epsilon at 5.0 A, so no epsilon is "the paper's",
+     the family is the result, and no single headline number is
+     reported for it.  SUPERSEDED 2026-10-18: this transcript used to
+     end "ell <= 0.7024 A at the paper's own 0.08 eV scale" and
+     "66.5 % of the committed swept range is excluded by the source".
+     Both numbers stand; both attributions were false, and they are
+     quoted here rather than deleted so that the transcript carries
+     its own correction.
 
 THE BOUND, AS A FAMILY OVER epsilon (the paper quantifies none)
   eps / eV     ell_max / A    excluded     ELL_DEFAULT survives?
   0.200        1.1303         30.8 %       yes
   0.150        0.9488         45.9 %       yes
   0.100        0.7737         60.5 %       yes
-  0.080        0.7024         66.5 %       yes   <- paper
+  0.080        0.7024         66.5 %       yes   <- BORROWED, see PROVENANCE
   0.050        0.5882         76.0 %       NO
   0.020        0.4466         87.8 %       NO
 
@@ -55,11 +100,14 @@ Wrote second_anchor_bound.png
 
 ========================================================================
 SUMMARY
-  ell <= 0.7024 A at the paper's own 0.08 eV scale.
-  66.5 % of the committed swept range is excluded by the source.
+  At epsilon = 0.08 eV -- BORROWED, not the paper's bound; see
+  PROVENANCE -- ell <= 0.7024 A, which excludes 66.5 % of the
+  committed swept range.  The source supports the FAMILY, not
+  this row: it asserts Delta_c(5.0 A) is negligible and
+  quantifies no epsilon at that separation.
   The committed default ELL_DEFAULT = 0.6 A survives (checked, not assumed).
   Metals whose n/p verdict moves: none
   The item stays OPEN for a two-sided constraint: nothing here
   bounds ell from below.
-  Validations: 6 passed, 0 failed
+  Validations: 10 passed, 0 failed
 ========================================================================

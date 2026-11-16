@@ -137,8 +137,8 @@ RESULT 4 (Q4) -- the logged TOP ITEM: does anything here pick a
   Census of graphene_default_scale_audit.py by AST + pattern search.
 
   log_sensitivity call sites: 2
-    line 201   binds S1,_                   conv -> DISCARDED into `_`
-    line 203   binds S2,_                   conv -> DISCARDED into `_`
+    line 268   binds S1,_                   conv -> DISCARDED into `_`
+    line 270   binds S2,_                   conv -> DISCARDED into `_`
   sites discarding conv: 2 of 2
 
   conv-minimisation patterns matched: 0

@@ -1,0 +1,26 @@
+==============================================================================
+MUTATION TEST: graphene_capture_surface_guard.py
+==============================================================================
+
+    UNMUTATED  rc=0  29/29  failed=[]  crashed=False
+    PASS the unmutated suite passes (the control)
+
+------------------------------------------------------------------------------
+    PASS M1  undo the 2026-10-21 repair: live=False reads the live name
+         23/29  rc=1  caught by C4,C5,C5b,C7,C14,C23
+    PASS M2  compare with a 1e-3 relative tolerance instead of bitwise
+         26/29  rc=1  caught by C5,C14,C19
+    PASS M3  drop the PROTECTED-but-unreached refusal
+         28/29  rc=1  caught by C24
+    PASS M4  attribute a held object to one name, dropping identity aliases
+         26/29  rc=1  caught by C5,C5b,C24
+    PASS M5  make the perturbation the identity, so nothing can move
+         24/29  rc=1  caught by C4,C5,C13,C14,C19
+    PASS M6  drop the pre-measurement held-object refusal
+         28/29  rc=1  caught by C23
+    PASS M7  report no reads for held objects, hiding the route entirely
+         27/29  rc=1  caught by C7,C23
+------------------------------------------------------------------------------
+
+DETECTED: 7/7 injected defects
+==============================================================================

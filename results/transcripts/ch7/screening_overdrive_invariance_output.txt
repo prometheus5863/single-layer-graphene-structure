@@ -1,0 +1,114 @@
+==========================================================================
+SCREENING OVERDRIVE INVARIANCE -- does the gate stack decide
+whether electron/hole asymmetry is screened?
+2026-11-07.  Closes the open item logged 2026-10-30.
+==========================================================================
+
+--------------------------------------------------------------------------
+SECTION 1 -- inputs, restated from the committed modules
+--------------------------------------------------------------------------
+  KAPPA, bounded (graphene_kappa_impurity_bound)   : 2.088887
+  KAPPA, the 11-02 value it EXCLUDES               : 2.400000
+  r0, shipped pair (Section 4.11.5)                : 0.100000
+  V_NP  (Zion Section III a)                       : 20.0 V
+  C_ox  back gate, 90 nm SiO2                      : 3.8368e-04 F/m^2
+  C_ox  top gate, 10 nm HfO2                       : 2.2135e-02 F/m^2
+  C_ox ratio, top/back                             : 57.69
+  N_CROSSOVER, the ONE value 10-30 used for both   : 3.000e+16 m^-2
+
+--------------------------------------------------------------------------
+SECTION 2 -- E1/E2: the cancellation, bitwise, over six decades
+--------------------------------------------------------------------------
+  exactly known dV_c = KAPPA * V_NP = 41.777747953064 V
+  max |dV_c - KAPPA*V_NP| over the grid : 1.421e-14 V
+  max ulp distance                      : 2
+  [PASS] E1 dV_c is independent of C_ox to a counted ulp floor
+         601 points over six decades of C_ox, max 2 ulp from the exactly known KAPPA*V_NP.  A 1/C_ox dependence would be 6 decades wide here, not 2 ulp.
+  exactly known x at dV = 1 V : 0.023936187301
+  max ulp distance            : 2
+  [PASS] E2 x = |n|/n_c is independent of C_ox to a counted ulp floor
+         the same statement one algebraic step on: C_ox enters |n| and n_c with the same power, so it cannot appear in their ratio
+  dV_c/(KAPPA*V_NP) over KAPPA in [1e-2, 1e2], max ulp from 1 : 2
+  [PASS] E2b the cancellation is independent of KAPPA, so the conclusion does not inherit the dispute about KAPPA's value
+         401 values of KAPPA over four decades; dV_c/(KAPPA*V_NP) is 1 to 2 ulp, and the top/back stack ratio is 1 to 0 ulp.  Whether KAPPA is 2.4 or the bounded 2.0889 or neither, the two stacks still coincide.
+
+--------------------------------------------------------------------------
+SECTION 3 -- E3: the symmetry that must give exactly zero
+--------------------------------------------------------------------------
+  x at dV = 0                : 0.0
+  [PASS] E3a at the neutrality point x is EXACTLY zero
+         not 'small' -- the float is 0.0, because |n| is 0.0 and n_c is finite and nonzero
+  r(0) through the COMMITTED r_closed : 0.10000000000000002
+  r0 computed directly from the pair  : 0.10000000000000002
+  [PASS] E3b r(0) == r0 exactly, through the committed closed form
+         the screening factor is 1/(1+(1-r0^2)x) and x is exactly 0 here, so this is an identity and not a numerical agreement.  Taken through graphene_density_dependent_mobility.r_closed, not a local copy of it
+
+--------------------------------------------------------------------------
+SECTION 4 -- E4: the two gate stacks, under BOTH readings
+--------------------------------------------------------------------------
+                             dV_c fixed n_c  dV_c scaled
+  90 nm SiO2 back gate            12.5274      41.7777
+  10 nm HfO2 top gate              0.2171      41.7777
+  ratio back/top                    57.69     1.000000
+
+  REPORTED, NOT ASSERTED: the fixed-n_c reading spreads the two
+  stacks by 57.7x; the scaled reading spreads them by 1.000000x.
+  [PASS] E4a the fixed-n_c model reproduces 10-30's two numbers
+         back 12.527 V against 10-30's ~12.5 V, top 0.2171 V against its ~0.22 V -- the predecessor is reproduced in its own terms before being contradicted
+  [PASS] E4b under the scaled reading the two stacks are EXACTLY equal
+         difference 0.0 V.  Both equal KAPPA*V_NP = 41.777748 V, so the difference is 0.0 and not merely small
+  [PASS] E4c and the fixed-n_c ratio is exactly the inverse C_ox ratio
+         57.6923 against 57.6923 -- which is what identifies the 56x as a statement about the oxide and not about the graphene
+
+--------------------------------------------------------------------------
+SECTION 5 -- E5: the overlapping limit, and it is bitwise
+--------------------------------------------------------------------------
+  C_ox at which the scaled n_c EQUALS N_CROSSOVER : 1.150500e-04 F/m^2
+  dV_c, fixed-n_c model   : 41.777747953063873 V
+  dV_c, scaled model      : 41.77774795306388 V
+  ulp distance            : 1
+  [PASS] E5 the two models agree BITWISE where their n_c coincide
+         the correction contains its predecessor: at this one C_ox the fixed n_c IS the scaled n_c, so disagreement here would mean the new model is a different model rather than a correction
+
+--------------------------------------------------------------------------
+SECTION 6 -- E6: the direction of the inequality, f >= 1
+--------------------------------------------------------------------------
+       f     dV_c (V)     x at 1 V     r at 1 V
+    1.00      41.7777     0.023936     0.097685
+    1.50      62.6666     0.015957     0.098445
+    2.00      83.5555     0.011968     0.098829
+    4.00     167.1110     0.005984     0.099411
+  [PASS] E6 dV_c strictly increases, x strictly decreases and the surviving r strictly increases with f
+         f = 1 is the LOWER bound on impurity count, so it is the UPPER bound on screening and the LOWER bound on surviving asymmetry -- the safe direction for a device claim
+
+--------------------------------------------------------------------------
+SECTION 7 -- E7: mutation.  Break the cancellation.
+--------------------------------------------------------------------------
+  with N_A^(S) ~ C_ox**2, dV_c spans 4.809e-06 .. 4.809e+00 V
+  max ulp spread, dV_c : 89808990795927127
+  max ulp spread, x    : 89724908630043949
+  [PASS] E7 the mutant is DETECTED -- both invariance checks go red
+         a cancellation check that passes when the cancellation is removed would be evidence of nothing.  Spreads 89808990795927127 and 89724908630043949 ulp.
+
+--------------------------------------------------------------------------
+SECTION 8 -- the device consequence, which is a REVERSAL
+--------------------------------------------------------------------------
+  90 nm SiO2 back gate   at 1.0 V overdrive
+      x  fixed n_c     0.0798   scaled     0.0239   factor      3.3
+      r  fixed n_c   0.092676   scaled   0.097685   of r0 = 0.10
+  10 nm HfO2 top gate    at 1.0 V overdrive
+      x  fixed n_c     4.6053   scaled     0.0239   factor    192.4
+      r  fixed n_c   0.017988   scaled   0.097685   of r0 = 0.10
+  [PASS] E8 the top-gated stack does NOT screen the asymmetry away, contradicting the 10-30 conclusion
+         r = 0.097685 against r0 = 0.100000 -- 97.7% of the unscreened value, where the fixed-n_c reading gives 0.017988.  10-30 concluded the asymmetry is 'small in the thin-oxide top-gated devices a semiconductor process would build'; under the scaled n_c it is essentially unscreened there.  This is a reversal of that conclusion, not a refinement of its magnitude.
+  [PASS] E8b and the crossover overdrive exceeds BOTH stacks' operating range, which is why
+         KAPPA*V_NP = 41.78 V of overdrive is needed to reach n_c, for either stack.  10-30's table put the top gate at 0.22 V, so the crossover looked reachable; it is not.
+
+--------------------------------------------------------------------------
+SECTION 9 -- the figure
+--------------------------------------------------------------------------
+  wrote screening_overdrive_invariance.png
+
+==========================================================================
+TOTAL: 13 passed, 0 failed
+==========================================================================

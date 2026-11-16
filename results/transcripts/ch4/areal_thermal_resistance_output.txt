@@ -1,0 +1,99 @@
+==============================================================================
+AREAL THERMAL RESISTANCE: R_th PER UNIT AREA vs DORGAN'S 2.8e-7
+Closes the item ranked FIRST on 2026-11-11, and refutes the
+reason it was ranked first.
+==============================================================================
+
+SECTION 1-2.  The published comparison and the planted quotient
+  A        = 2.800000e-11 m^2   (L*W, one ulp below the literal 2.8e-11)
+  R_th     = 9915.5790 K/W
+  R_th * A = 2.776362e-07 m^2.K/W   <- the paper's quantity
+  R_th / A = 3.541278e+14 m^-2.K/W  <- the trap, 21.1 decades away
+
+SECTION 3-4.  Independence refuted, and the identity
+  relative residual of R_th*A vs 2.8e-7 : -0.844210 %
+  relative residual of R_th  vs 1.0e4   : -0.844210 %
+  they differ by 1.94e-16, one ulp of 1.0 -- the same constraint
+  identity  R_th*A = 1/h + t_ox/k_ox + sqrt(A)/(2 k_Si):
+    1/h            = 1.000000e-08 m^2.K/W  ( 3.60 %)  area-independent
+    t_ox/k_ox      = 2.345643e-07 m^2.K/W  (84.49 %)  area-independent
+    sqrt(A)/(2kSi) = 3.307189e-08 m^2.K/W  (11.91 %)  GEOMETRY
+    sum            = 2.776362e-07 m^2.K/W  (residual 0.0e+00)
+
+SECTION 6.  Significant figures
+  2.8e-7 at 2 s.f. licenses +-1.7857 %   <- the +-1.8 % quoted
+  2.8e-7 read at 1 s.f. would license +-17.86 % (or +-16.67 % as 3e-7)
+  1e4 at 1 s.f. licenses +-50.0 %
+  => the 11-11 note and log said 'one significant figure licenses
+     +-1.8 %'.  The width is right; the reason is not.
+
+SECTION 5.  Where the independence actually lives
+  A-independent floor      = 2.445643e-07 m^2.K/W
+  paper's 2 s.f. band      = [2.7500e-07, 2.8500e-07] m^2.K/W
+  => admissible AREA range = [2.3714e-11, 4.1857e-11] m^2, a factor 1.765
+     (Dorgan's area sits at 1.181x the low edge)
+  this repo's FET: A = 2.00e-13 m^2, areal = 2.47359e-07 m^2.K/W
+  reusing 2.8e-7 there over-states R_th by 13.20 % (worst case 14.49 %)
+
+SECTION 7.  The ranked-third item, DECIDED
+  A2's coded +-5 % is not over-tight -- it is 2.8x LOOSER than
+  the same sentence licenses.  Tighten to +-1.7857 %, do NOT widen
+  to the one-figure +-50 %.  Residual to spare: 0.9415 %.
+
+SECTION 8.  Mutation
+  DETECTED-AS-PREDICTED  8  failing  predicted P2/P3       M1 areal figure of merit computed as R_th/A in
+  DETECTED-AS-PREDICTED  2  failing  predicted I3          M2 spreading term dropped from the identity
+  DETECTED-AS-PREDICTED  4  failing  predicted I3          M3 boundary term 1/h dropped from the identity
+  DETECTED-AS-PREDICTED  1  failing  predicted I3          M4 R_Si written with A instead of sqrt(A) -- t
+  DETECTED-AS-PREDICTED  2  failing  predicted I4          M5 spreading term given the wrong sign
+  DETECTED-AS-PREDICTED  2  failing  predicted F1          M6 relative_halfwidth loses its mantissa divis
+  DETECTED-AS-PREDICTED  7  failing  predicted P2          M7 the paper's number read at ONE figure as 3e
+  7/7 mutants detected, 7 of them by the predicted check
+
+SECTION 9.  Figure
+  wrote areal_thermal_resistance.png
+
+==============================================================================
+  [PASS] P1 A = L*W is NOT the literal 2.8e-11 the paper's geometry names -- 4e-6*7e-6 lands one ulp below it -- so every 'exact' identity between the paper's two numbers holds only to the representability of 2.8e-11 (this is what I1/I2 then measure)
+         L*W = 2.79999999999999970e-11, literal 2.8e-11 = 2.80000000000000002e-11, difference -3.231e-27 = 1.0 ulp
+  [PASS] P2 R_th*A rounds to the paper's 2.8e-7 m^2.K/W at the 2 s.f. it is printed to -- the comparison the 11-11 item ranked first
+         areal_thermal_resistance() = 2.776362e-07 -> 2.8e-07 at 2 s.f. (paper: 2.8e-7)
+  [PASS] P3 and it also sits inside the +-1.7857 % the two printed figures license, with room to spare
+         residual -0.8442 % of 2.8e-07, licensed +-1.7857 %
+  [PASS] P4 PLANTED CONTROL: the quotient R_th/A does NOT round to 2.8e-7 at any precision, so P2 is testing the product and not merely 'some area-combined number'
+         R_th/A = 3.541278e+14 m^-2.K/W, which is 21.1 decades above 2.8e-7
+  [PASS] P5 and the quotient is 21 decades off, not the 7 the 11-11 prediction stated -- the prediction compared R_th/A against R_th's own 1e4 rather than against the areal 2.8e-7
+         log10(quotient/2.8e-7) = 21.102 and log10(quotient/1e4) = 10.549; the predicted '7 decades' matches neither reference, so the prediction named the right trap and no correct size for it
+  [PASS] P6 the product carries the unit the paper prints and the quotient does not: scaling W and L by s scales A by s^2, R_th by ~1/s^2, so R_th*A is invariant to leading order while R_th/A moves by s^4
+         doubling both edges moves R_th*A by 11.91 % (the sqrt(A) term only) while R_th/A falls by a factor 14.3
+  [PASS] I1 2.8e-7 / A agrees with the paper's own 1.0e4 to within one ulp but is NOT exactly equal to it (1.00000000000000018e+04), so the two published numbers are one statement divided by a constant that binary floating point cannot hold exactly
+         2.8e-7/A = 1.00000000000000018e+04, 1.0e4 = 1.00000000000000000e+04, difference 1.819e-12 = 1.0 ulp
+  [PASS] I2 the relative residual of R_th*A against 2.8e-7 and that of R_th against 1e4 agree to 14 significant figures, their difference being one ulp of 1.0 and nothing more -- the per-area check is NOT independent of A2, it IS A2 with a different licensed width (refutes the 11-11 ranking's stated reason)
+         areal residual -8.44209690618646577e-03, total residual -8.44209690618627148e-03, difference -1.943e-16 (= 0.9 ulp of 1.0); independent constraints would differ at ~8.4e-03, which is 14 decades larger
+  [PASS] I2b in consequence NOTHING can fail one and pass the other at equal width, which is the precise denial of 'it can fail for a reason A2 cannot see'
+         both -0.8442 % at the same centre; only the licensed widths differ (+-1.79 % vs the +-5 % A2 coded)
+  [PASS] I3 EXACT ZERO: R_th*A == 1/h + t_ox/k_ox + sqrt(A)/(2 k_Si) to machine precision -- Section 4's identity, which is what makes two of the three terms area-independent
+         identity 2.77636212866267808e-07 vs R_th*A 2.77636212866267808e-07, residual 0.0e+00 (<= 4 ulp = 2.1e-22)
+  [PASS] I4 the decomposition's three terms sum to the total with no fourth term hiding, and each is positive
+         boundary 1.0000e-08 + oxide 2.3456e-07 + spreading 3.3072e-08
+  [PASS] F1 2.8e-7 printed to TWO figures licenses +-1.7857 %, which is the +-1.8 % both the 11-11 note and the 11-11 log quote
+         two-figure half-width = 1.785714 % -> 1.8 % at 2 s.f.
+  [PASS] F2 but 2.8e-7 HAS two significant figures, not the one those two places state -- the quoted tolerance was right and its stated reason wrong
+         2.8e-7 is unchanged by rounding to 2 s.f. and becomes 3e-07 at 1 s.f., so it carries 2
+  [PASS] F3 a genuine ONE-figure reading of the same datum would license >= 9x the width used: 17.9 % on the printed mantissa, 16.7 % after rounding to 3e-7 -- so the stated reason, had it been followed, would have made this check nearly vacuous
+         one-figure/two-figure width ratio = 10.00 (printed mantissa) and 9.33 (rounded to 3e-7)
+  [PASS] F4 and R_th's own ~1e4, at ONE printed figure, licenses +-50 % -- which is why A2's coded +-5 % was called over-tight on 11-11 and why Section 7 reverses that: the SAME sentence licenses +-1.79 %
+         one-figure half-width on 1e4 = 50.0 %, two-figure half-width on 2.8e-7 = 1.7857 %, ratio 28.0
+  [PASS] S1 EXACT LIMIT: as A -> 0 the areal figure of merit tends to the A-independent floor 1/h + t_ox/k_ox, because only R_Si carries a sqrt(A)
+         limit 2.44564321477960435e-07 vs floor 2.44564321477960435e-07
+  [PASS] S2 the floor is NOT inside the paper's two-figure band, so the areal number cannot be treated as scale-free: the spreading term contributes 11.91 % of Dorgan's own value and is the only part that carries the geometry
+         floor 2.4456e-07 is 12.66 % below 2.8e-7, licensed +-1.79 %
+  [PASS] S3 the band in AREA over which R_th*A stays inside the paper's own two-figure band spans a factor 1.765, and it brackets Dorgan's 2.8e-11 m^2
+         A in [2.3714e-11, 4.1857e-11] m^2, i.e. [0.847x, 1.495x] of Dorgan's area; factor 1.7651 wide
+  [PASS] S4 this repository's own FET (W = 1 um, L = 200 nm, A = 2.0e-13 m^2) is 140x smaller in area than Dorgan's and therefore FAR outside the S3 band: reusing 2.8e-7 as a scale-free areal figure of merit there would over-state R_th by 13.2 %
+         areal value at the repo geometry = 2.4736e-07 m^2.K/W (floor 2.4456e-07, spreading only 1.130 % of it), vs the paper's 2.8e-7 -- an over-statement of 13.20 %
+  [PASS] S5 and the error in S4 is bounded by the floor, not unbounded: no geometry can push the areal figure of merit below 1/h + t_ox/k_ox, so the over-statement from reusing 2.8e-7 can never exceed 2.8e-7/floor - 1
+         worst-case over-statement = 14.49 % (at A -> 0); at the repo geometry 91.07 % of that worst case is already realised
+==============================================================================
+20 checks, 20 passing, 0 failing; 7/7 mutants detected
+==============================================================================

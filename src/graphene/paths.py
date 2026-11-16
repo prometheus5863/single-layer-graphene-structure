@@ -60,3 +60,49 @@ def committed_path(chapter, name):
     """Location of a committed output, for audits that compare against it."""
     kind = "figures" if os.path.splitext(name)[1].lower() in _IMAGE_EXT else "transcripts"
     return os.path.join(REPO_ROOT, "results", kind, chapter, name)
+
+
+# --------------------------------------------------------------------------
+# Locating files that lived at the repository root before the reorganisation
+# (added 2026-11-16, merge of main @ e4fbc26).  Modules written on main name
+# their inputs by root-relative bare names -- 'AUTOMATION_LOG.md',
+# 'thesis_draft/04-...md', 'foo_output.txt', 'graphene_x.py'.  These helpers
+# map such a name to where the file now lives *inside the tree rooted at
+# ``root``*, so the same call works on this checkout, on a pristine clone of
+# it, and on a flat pre-reorg clone (where the bare name is found first).
+# --------------------------------------------------------------------------
+_RENAMED_DIRS = {"thesis_draft": "thesis"}
+
+
+def locate(root, name):
+    """Absolute path of ``name`` (root-relative, flat-layout spelling) in ``root``."""
+    flat = os.path.join(root, name)
+    if os.path.exists(flat):
+        return flat
+    head, _, rest = name.replace("\\", "/").partition("/")
+    if head in _RENAMED_DIRS:
+        return os.path.join(root, _RENAMED_DIRS[head], rest)
+    if name.endswith(".py") and os.path.exists(os.path.join(root, "src", name)):
+        return os.path.join(root, "src", name)
+    base = os.path.basename(name)
+    for kind in ("transcripts", "figures"):
+        d = os.path.join(root, "results", kind)
+        if os.path.isdir(d):
+            for ch in sorted(os.listdir(d)):
+                p = os.path.join(d, ch, base)
+                if os.path.exists(p):
+                    return p
+    return flat
+
+
+def rel_locate(root, name):
+    """``locate`` as a path relative to ``root`` with '/' separators (for ``git show``)."""
+    return os.path.relpath(locate(root, name), root).replace(os.sep, "/")
+
+
+def repo_root_of(src_dir):
+    """The repository root for a module directory: its parent when the
+    directory is a ``src/`` with ``graphene/`` beside the modules, else itself."""
+    if os.path.basename(os.path.normpath(src_dir)) == "src" and os.path.isdir(os.path.join(src_dir, "graphene")):
+        return os.path.dirname(os.path.normpath(src_dir))
+    return src_dir

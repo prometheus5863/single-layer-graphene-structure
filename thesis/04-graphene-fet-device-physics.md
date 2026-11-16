@@ -660,6 +660,37 @@ that have been measured rather than assumed:
 | 470 (practical Ni flow) | 8.268 | 0.680047 | −13.9 % |
 | 4000 (typical literature) | 0.222 | 0.698615 | −32.8 % |
 
+> **ANNOTATION 2026-11-10 — every `f_max` in this table is an *isothermal*
+> number, and that is now quantified rather than merely admitted. No value
+> above is changed.**
+>
+> These are computed at `V_ds` = 50 mV. `graphene_self_heating_model.py`
+> solves the coupled electro-thermal problem for this device and finds a
+> self-consistent temperature rise of **1.0675 K** at that bias, costing
+> **1.8 × 10⁻⁶** in drain current. The isothermal assumption behind this
+> table is therefore sound *at this bias*, to far better than the precision
+> printed, and the six-decimal `f_max/f_T` column is not being flattered by
+> a neglected mechanism.
+>
+> This is the opposite of what the 2026-10-06 reading of Feijoo *et al.*
+> implied, and the reason is a bias difference rather than a disagreement:
+> their 65 → 40 GHz degradation is measured on a device driven at volts,
+> where the same network here gives Δ*T* = 168.7 K and the device leaves
+> the regime its transport parameters were fitted in (past the ~200 K
+> fit-exclusion ceiling of Dorgan, Bae and Pop at `V_ds` = 1.25 V). **So
+> the table is safe and the extrapolation from it is not**: a reader must
+> not carry these numbers to a bias where the channel is 170 K hot. See
+> §7.8.1c and `self_heating_output.txt`.
+>
+> One consequence for this table specifically. The `R_c` sweep above holds
+> the *channel* fixed and varies the contacts, and self-heating couples to
+> the total dissipation including the contacts — so at a bias where heating
+> matters, the low-`R_c` rows would heat *more* (they pass more current),
+> not less, partially eating the gain the table attributes to them. At
+> 50 mV that coupling is 1.8e-06 and ignorable. It is recorded because the
+> sign is counter-intuitive and the table invites exactly that
+> extrapolation.
+
 Two readings, and the second was not anticipated.
 
 First, **this model's contact is 1.8× worse than that of the devices its
@@ -1687,6 +1718,18 @@ overlapping regularisations are fighting over the same physics.
    remains (4.29); `B_T` is measured, committed and available. Flipping the
    default would move every number in Chapters 4, 5 and 6 and is its own
    session's work, with its own transcript regeneration.
+   *[Annotated 2026-10-21, §4.6.17. Two corrections to this sentence, neither
+   of which changes the claim that the default is unflipped. First, §4.6.12
+   measured that Chapters 5 and 6 never call the charge path at all, so "every
+   number in Chapters 4, 5 and 6" is wrong in that direction and "more of
+   Chapter 4 than was measured" in the other. Second — and this is what
+   §4.6.17 adds — "its own session's work" was read as meaning the work is
+   the flip. It is not. The two halves of the flip are each correct alone and
+   **do not compose**: the contact replacement reads the shipped
+   `gfet.quantum_capacitance` at call time, which is the name the channel half
+   rebinds, and installing both at once costs −51 % to −62 % in `n_contact`,
+   4.86× to 10.77× the effect being installed. The numbers in this subsection
+   stand; what was incomplete was the account of what flipping requires.]*
 2. It does **not** claim `D_T` is exact physics. It is the exact integral of
    *this model's* differential relation at 300 K. The relation itself still
    uses a phenomenological rounding rather than Fermi–Dirac integrals, and
@@ -2713,6 +2756,1107 @@ today's red guard fails the new consistency check **by name**.
 
 
 
+### 4.6.16 The list that ranks this work had never been audited, and two of its items asserted the opposite of the tree
+
+Every session in this project chooses what to do from the "Not yet covered
+(candidates for future runs)" list at the foot of the preceding
+`AUTOMATION_LOG.md` entry. §4.6.12 audited a harness, §4.6.13 a rebind set,
+§4.6.15 three censuses. Nothing had ever audited **the list**, and a claim
+nothing checks is the standing subject of this chapter's instrument
+sections — §4.6.15's finding was that three instruments had been dark for
+twelve days, and the list is the artefact with the widest reach of all of
+them, because it is upstream of which instrument gets read at all.
+
+Two of the 2026-10-17 list's twenty-five items assert a state of this tree
+that the tree denies.
+
+**A2, item 16's precondition (ii).** Recorded 2026-10-17 as "§4.7's prose and
+§4.10's annotation — is still untouched and is still writing, not plumbing",
+and recorded in §7.9 on 2026-10-14 as "the only precondition still open".
+Commit `7604c05` of **2026-10-13** is titled *"Section 4.6.12, and the two
+sentences in Sections 4.7 and 4.10 that the measurement makes false, annotated
+in place"*. Both annotations are in this chapter, above §4.7's table and below
+it, carrying −1.2583 % (Cu), +20.8352 % (Ni), +39.2281 % (Au), +47.6925 %
+(Pd), and `+51.0 → −203.276`. The §7.9 sentence was therefore written **one
+day after** the work it describes as outstanding, and carried for four days
+after that.
+
+What is genuinely open is narrower than the item said and **cannot be done
+ahead of the flip**, which is the part worth recording. Both annotations are
+written in the subjunctive: §4.7's says the sentence it annotates is "true of
+the committed model and false of the corrected one" and leaves it standing
+"pending the item 16 flip". The writing that remains is the writing only the
+flip makes possible — the point at which "pending the item 16 flip" is itself
+stale, the committed table becomes the superseded column rather than the live
+one, and §4.10's margin-against-input-error becomes a statement about a margin
+already consumed. A session that believes (ii) is missing can discharge it by
+writing a sentence that asserts a state of the code that does not exist: the
+§7.5.4 "created by a fix" class, in prose. **Item 16's remaining content is
+the flip and nothing else.**
+
+**A1, and it is a revival rather than a staleness.** The 2026-10-17 list
+carries *"CHAPTERS 2 AND 3 ARE STILL UNDRAFTED — their computational results
+have been complete for weeks. This is the largest remaining block of pure
+writing and has now gone three sessions without being touched"*, and closes it
+*"Worth ranking against item 16 deliberately rather than by default"*. Chapter
+2 was drafted 2026-09-28 (`5bbd5f3`, eleven sections) and Chapter 3 on
+2026-09-29 (`c1d5abc`, ten sections); the tree holds 375 and 330 non-blank
+lines and 11 and 9 `##` sections. So the item offered as a competitor for
+first rank was describing writing committed three weeks earlier.
+
+And the list had already got this right. Measured across every dated entry:
+
+| wording | entries |
+|---|---|
+| "Chapters 2–3 remain/are still undrafted" | 2026-09-17 … 2026-09-27 (12), **and 2026-10-17** |
+| "Chapters 2 and 3 **are drafted**, but §4.8.2's form of error is not audited for elsewhere" | 2026-10-01 … 2026-10-06 (6) |
+| neither | 2026-10-07 … 2026-10-16 (10) |
+
+Every "undrafted" entry up to 09-27 was **true when written**. The list then
+tracked the drafting correctly for six entries, carried nothing for ten, and
+the entry after those ten revived the retired wording. The two failure modes
+have different cures and are worth separating: *staleness* is cured by
+re-checking an item, *revival* by making retirement checkable. An item absent
+long enough stops being remembered as retired and becomes available to be
+re-derived.
+
+**The cause is outside the repository.** These sessions are driven by a
+scheduled brief carrying a frozen description of repository state dated
+2026-09-17, which contains the A1 sentence almost verbatim — eleven entries
+after the list retired it. No audit inside the tree can read that brief, so
+the cause is recorded in `graphene_standing_list_audit.py` as a
+`NOT_MECHANISABLE` row with its reason rather than silently omitted, and the
+compensating rule is procedural: **a claim about the state of the tree that
+arrives from outside the tree is re-verified against the tree before it ranks
+anything.**
+
+**The instrument, and why its retired rows are the load-bearing half.**
+`graphene_standing_list_audit.py` parses the latest entry's list, matches each
+baseline assertion, and evaluates a predicate over the tree — so a verdict is
+gated on the mechanism it reports rather than on text similarity, which is
+Design-Verification-Roadmap's 2026-10-16 rule. The trap this file had to avoid
+is §4.6.15's: a suite that erases its own finding the moment the finding is
+acted on. Once A1 and A2 are retired from the list, "absent" must not read as
+a pass, so a **retired** row asserts two things — that the wording stays gone
+(returning it reports `REVIVED`, which is a fault class, and is the check that
+would have caught 2026-10-17 on the day) and that the tree-side fact which
+justified the retirement still holds (`RETIREMENT-STALE` otherwise, so
+truncating Chapter 2 later would re-open the item rather than leave a silent
+retirement). `ABSENT` is also a fault class, so a list the parser cannot read
+cannot pass as clean.
+
+Two by-products. **The module's first draft failed its own plant, on its own
+subject matter.** `p_item16_ii_untouched` tested `phrase in file.read()` for a
+sentence this file *wraps*, and for numbers written here with a Unicode minus;
+it therefore reported §4.10 "untouched" about the file carrying the amendment
+— it **confirmed the item it was written to contradict**, by answering "are
+these exact bytes present" instead of "is this claim present". That is the
+same defect as §4.6.15's two docstrings, which passed an audit by spelling
+while being the thing it audited for, and as the 2026-10-17 grep for a
+`setattr` route over computed names. Three for three: this repository's
+instruments fail first by answering a weaker question than the one asked, and
+the fix each time is to normalise or to put the question to an oracle rather
+than to a string.
+
+**And the instrument already existed, in the other repository.**
+Design-Verification-Roadmap built `tools/open_item_staleness_audit.py` for
+this failure on 2026-10-13, and on 2026-10-17 used it to retire an item for
+the identical reason — *"it names work finished before the item started being
+carried"*. That repository caught its instance on the same day this one
+revived its instance. The difference between the two days was one module; the
+generalisation is that an instrument built in one place does not protect the
+other, which is §7.5.2 across repositories rather than across modules.
+
+
+### 4.6.17 The two halves of item 16 do not compose: a replacement that reads a name the same flip rebinds
+
+§4.6.9 built form `B_T` in the channel. §4.6.14 gave the contact a
+replacement of its own instead of an exclusion. §4.6.12 measured what each
+costs. The log of 2026-10-20 recorded, on that basis, that item 16's
+"remaining content is the flip and nothing else".
+
+**It was not.** Composition was left as well, and composition fails.
+
+#### (a) The measurement
+
+`graphene_default_flip.py` installs both halves at once and asks what
+`n_contact` becomes. Against the committed contact-only form `B_T`:
+
+| Metal | `n_contact`, form A (m⁻²) | committed `B_T` (m⁻²) | both halves, unrepaired (m⁻²) | `B_T` vs A | unrepaired vs `B_T` | ratio |
+|---|---|---|---|---|---|---|
+| Ti | 1.644935e16 | 1.541997e16 | 7.281739e15 | −6.2578 % | −52.7772 % | 8.43× |
+| Cr | −0.0 | −0.0 | −0.0 | `n = 0` | `n = 0` | — |
+| Cu | −1.380517e16 | −1.314672e16 | −6.391282e15 | −4.7696 % | −51.3850 % | 10.77× |
+| Ni | −7.111301e16 | −6.227844e16 | −2.466546e16 | −12.4233 % | −60.3949 % | 4.86× |
+| Au | −8.034794e16 | −7.031424e16 | −2.760960e16 | −12.4878 % | −60.7340 % | 4.86× |
+| Pd | −8.343500e16 | −7.300861e16 | −2.859729e16 | −12.4964 % | −60.8302 % | 4.87× |
+| Pt | −1.660634e17 | −1.463454e17 | −5.573671e16 | −11.8738 % | −61.9143 % | 5.21× |
+
+The unrepaired composition overshoots the effect item 16 exists to install by
+**4.86× to 10.77×, metal by metal, and in the same direction** — so it would
+not have presented as a sign error, and a session that landed the flip and
+regenerated transcripts would have committed it as the answer.
+
+> The per-metal ratio is the honest statement, and the first draft of this
+> table did not give it. It divided the smallest-magnitude unrepaired
+> deviation by the **largest**-magnitude committed effect and the other way
+> round, quoting "4.1× to 13.0×" from two pairs of numbers belonging to
+> different metals. That is this chapter's recorded dominant failure mode — a
+> claim answering a weaker question than the one it was written to ask — and
+> it was caught by *reading the transcript*, not by any check in the file.
+
+#### (b) The cause is one attribute read
+
+The contact replacement is deliberately built on the **shipped**
+`gfet.quantum_capacitance`, for the two reasons §4.6.12 records: the
+alternative carries its own constants and differs by 9.48e6 ulp, and the
+committed `log(2(1+cosh η))` spelling overflows where the fixed point's first
+iterate lands. It reads that name by attribute lookup at call time:
+
+```python
+return gfet.quantum_capacitance(qca.A_FERMI * np.sqrt(nn), T=T)
+```
+
+and the channel half of the flip rebinds exactly that name. With both halves
+installed, the contact's self-consistency is solved against a `C_q` that has
+itself already been solved — once, against the wrong series capacitance.
+
+#### (c) The general form, which no mechanism in this thesis covers
+
+§4.6.13 established that the set a patch must reach is the name's runtime
+**identity class**, so that no binding is left stale. §4.6.14 established that
+the class must be **partitioned** by operating point, so that no member is
+silently left at the shipped object. Both are statements about *which names
+move*.
+
+**Neither asks whether a replacement READS a name the same flip rebinds.**
+
+A replacement that does is neither stale nor unassigned. It is correctly
+installed, computed by the right mechanism, reported as installed by that
+mechanism's own report — and it reads a different object than the one it was
+validated against. This is a third failure mode beside the two §4.6.13 and
+§4.6.14 were built for, and it is invisible to both. The audit that would
+catch it without running anything is a one-line question asked of each
+replacement: *which module-level names does this function read at call time,
+and does the flip rebind any of them?*
+
+> **Annotated 2026-10-22 (§4.6.18). The question as worded above answers
+> *no* for this very replacement.** It says "*the* flip" — the flip that
+> installs the replacement. `blast.contact_on_consistent_argument()`
+> installs `_cq_consistent_contact` and rebinds `cd.quantum_capacitance`;
+> the replacement reads `gfet.quantum_capacitance`. The intersection is
+> **empty**. The defect is **cross-flip**: the name it reads is rebound by a
+> *different* manager, which is only installed at the same time because
+> item 16 composes them. The audit of §4.6.18 measures both forms and
+> reports 1-of-4 under the composition against 0-of-4 under the wording
+> above. The sentence is left unrevised because it is the record of what was
+> asked; the correct question is *every flip installable concurrently*.
+
+#### (d) Two mechanisms, and they partially cancel
+
+The failure has two parts, not one. **(i)** the inner `C_q` is the channel's
+form-`B_T` solve rather than the shipped form-A `C_q`; **(ii)** that inner
+solve reaches `qca.series_factor`, which reads `gfet.C_ox` at call time, and
+the contact solve has `C_ox` substituted by `C_interface` for its duration —
+so the inner channel solve runs against the **contact's** series capacitance
+too. Isolating (i) by restoring `C_ox` for the inner call:
+
+| Metal | (i) alone | (i)+(ii) | (ii) contributes |
+|---|---|---|---|
+| Ti | −53.8545 % | −52.7772 % | +1.0772 |
+| Cu | −52.4054 % | −51.3850 % | +1.0204 |
+| Ni | −62.1287 % | −60.3949 % | +1.7338 |
+| Au | −62.5403 % | −60.7340 % | +1.8063 |
+| Pd | −62.6595 % | −60.8302 % | +1.8293 |
+| Pt | −64.2107 % | −61.9143 % | +2.2965 |
+
+**(ii) offsets (i) for every metal.** Repairing (ii) alone — which is the more
+obviously wrong-looking of the two, since a global being mutated across a
+nested call is visible on inspection — would have made the error *larger*.
+The repair has to be made at (i).
+
+> **Annotated 2026-10-22 (§4.6.18). (i) and (ii) are not two defects.** A
+> direct count of how often the channel replacement is reached during the
+> contact census, and of the value `gfet.C_ox` holds at each arrival, gives
+> **192 arrivals under the unrepaired flip, 181 of them with `C_ox` already
+> substituted by `C_interface`** — and **0 arrivals under the repaired
+> flip**. (ii) cannot occur without (i), because (ii) is a property of the
+> context (i)'s arrivals land in. One cause, two consequences, 181/192 of
+> the arrivals carrying both at once. The percentages in the table are
+> unrevised and remain the correct decomposition *of the error*; what is
+> corrected is the reading that they are two independent faults. It also
+> explains why a single change at (i) repairs both, which the table above
+> could not have predicted.
+
+#### (e) The repair, and what it does not do
+
+Bind the contact replacement to the shipped object **captured at manager
+entry** rather than to the live name. `on_default_flip()` then installs the
+whole flip through the two managers §4.6.14 named — `bc.rebind()` for the
+charge, whose class is `{gfet, crx}` and both members in the channel, and
+`bc.rebind_by_operating_point()` for the capacitance, whose class spans the
+two operating points. This is the first caller to give that manager a
+**non-`None` contact assignment**; until §4.6.14 the contact had no
+replacement of its own and the exclusion was correct exactly as long as that
+was true.
+
+Validated against exactly known values, not plausible ranges: the identity
+assignment (every member → its own shipped object) is **bitwise** neutral on
+all nineteen committed numbers; the flip's contact half reproduces the
+committed contact-only form `B_T` **bitwise** on all seven metals; its channel
+half reproduces `on_consistent_argument()` **bitwise** on all eight census
+entries; `n_contact(ΔW_F = 0)` is exactly `0.0`; the electron/hole antisymmetry
+is bitwise; an incomplete assignment raises and rebinds **nothing**; and a
+positive control asserts the repair is load-bearing, so that if the two ever
+agree this section's premise is known to have expired. 18 passed, 0 failed;
+transcript byte-identical across two consecutive runs.
+
+**With both halves in the circuit for the first time, every cost quoted in
+Chapter 7 item 16 is reproduced exactly** — `n` −1.0212 %, `I_d` −0.2530 %,
+`n_contact` −4.7696 % to −12.4964 %, §4.7 `R_extra` −1.2583 % to +47.6925 %,
+Pd's implied residual +50.9489 → −203.2764 Ω·µm, additive decomposition
+4-of-4 negative. That reproduction is the evidence that the defect lives in
+the composition and in neither half.
+
+**This section does not flip the default.** `graphene_fet_model.py` is
+unedited and the chapter's charge relation is still (4.29). What has changed
+is that the flip is a single installable, validated, costed object, so what
+remains is a decision about what this thesis claims rather than a build.
+
+> **Annotated 2026-10-22 (§4.6.18). The repair is correct and its
+> correctness is contingent.** Binding to the object captured at entry
+> protects the **name** the cell holds. It does not protect the names the
+> **held object** reads at call time. It is sufficient here only because the
+> shipped `gfet.quantum_capacitance` reads nothing in the rebind set — its
+> own live reads are `{gfet._thermal_rounding}`. Its neighbour
+> `gfet.carrier_density` reads `gfet.quantum_capacitance` at call time, so
+> the identical construction applied to *it* is **not** immune, which
+> §4.6.18 demonstrates with a planted control rather than arguing. Had the
+> contact needed the shipped charge relation instead of the shipped
+> capacitance, the same repair would have been written, would have looked
+> right, and would have left the defect in place. Separately, the live read
+> is still **in** the function on the `live=True` branch, and
+> `make_contact_cq` is public: this is a default, not a removal.
+
+### 4.6.18 Auditing what a replacement reads: three readers, a cross-flip relation, and the depth of a capture
+
+§4.6.17(c) named the audit that would have caught its own defect without
+running anything, and the log of 2026-10-21 ranked it first precisely because
+that defect had been found by accident. This section builds it. The result is
+that the exposure §4.6.17 found is, as framed there, **complete** — and that
+the instrument built to confirm that found two things §4.6.17 did not ask
+about, one of which bears on its own repair.
+
+#### (a) Three readers, chosen so that agreement is evidence
+
+A replacement's dependence on a name is a dependence on the **live binding**,
+so the question is which `(module, attribute)` pairs it resolves at call time.
+
+**Reader A — static.** A bytecode walk of the transitive closure of live name
+lookups: every `LOAD_GLOBAL` of a repository module followed by a `LOAD_ATTR`,
+every repository function reached through such a name or through a global,
+followed into recursively. Closure cells are resolved from the **real function
+object**, so a *captured* object is distinguished from a *live name read* —
+which is the entire content of §4.6.17's repair. Branch-**insensitive**, hence
+an over-approximation; §(d) turns that into a result rather than a caveat.
+
+**Reader B — sentinels.** An identity counting wrapper is installed at each
+member of the flip's rebind set, the replacement is called, and the counters
+that fired are the names it read. Object substitution, so it sees a read
+whether it is spelled `mod.attr` or held as a module global by
+`from mod import attr` — the spelling behind all three of the October delivery
+faults.
+
+**Reader C — module-type interception.** Each module's `__class__` is swapped
+for a `ModuleType` subclass whose `__getattribute__` and `__setattr__` record
+the access and delegate. It sees two things B cannot: reads of
+**non-callables** (`gfet.C_ox` is a float and cannot be wrapped) and
+**writes**.
+
+B and C are blind in **opposite** directions — a read made from inside a
+name's own module is a globals-dict lookup and never reaches the module type —
+so their agreeing is a test and not a restatement. They agree exactly on all
+five replacements. The planted controls confirm the blind spot is real: three
+of them are flagged by B and invisible to C. Rebind sets are obtained by
+entering each manager under reader C and collecting its own `setattr` calls,
+so a manager that grows a name is reported with it.
+
+Both instruments are bitwise neutral on the seven committed contact densities,
+checked before any count is used.
+
+#### (b) The answer, and the question's wording
+
+Of the four replacements §4.6.17 names, **exactly one** reads a name that is
+rebound while it is installed: `blast._cq_consistent_contact`. The accident of
+2026-10-21 found the whole of the exposure as it framed it.
+
+Asked in §4.6.17(c)'s own words, however — *does the flip **that installs
+it*** rebind any of them — the answer for that same replacement is **empty**.
+The defect is cross-flip, and the table makes the two readings explicit:
+
+| Replacement | own flip | the composition |
+|---|---|---|
+| `qca._carrier_density_consistent` | — | — |
+| `qca._quantum_capacitance_consistent` | — | — |
+| `blast._cq_consistent_contact` | **—** | **`gfet.quantum_capacitance`** |
+| `flip.make_contact_cq(live=False)` | — | — |
+| `flip.make_contact_cq(live=True)` | — | `gfet.quantum_capacitance` |
+
+A guard written to §4.6.17(c)'s wording would have passed the composed flip.
+
+#### (c) What the question did not ask: a write/read relation
+
+Reader C reports that **all five** replacements read `gfet.C_ox` at call time
+and that **three** of them write it. `gfet.C_ox` is in nobody's identity
+class, so it is invisible to §4.6.13's mechanism, to §4.6.14's, and to the
+question of §4.6.17(c), all three of which are about names a flip *rebinds*.
+
+The relation that governs composition is therefore not a set of names but a
+**bipartite relation between what replacements write and what replacements
+read**, and §4.6.17(d)'s mechanism (ii) is one edge of it rather than a quirk
+of one function. Its reachability under the repaired flip is currently zero —
+but that zero is a property of the capture, not of the write, and it returns
+the moment the capture is undone.
+
+#### (d) Capture is one level deep
+
+A cell protects the **name** it holds. It does not protect the names the held
+**object** reads at call time:
+
+| Captured object | its own live reads | in the rebind set? |
+|---|---|---|
+| `gfet.quantum_capacitance` | `{gfet._thermal_rounding}` | **no** — safe to capture |
+| `gfet.carrier_density` | `{gfet._thermal_rounding, gfet.quantum_capacitance}` | **yes** — not safe |
+
+> **Annotated 2026-10-24 (§4.6.20). Every entry in this table is correct and
+> the conclusion drawn in its third column is not.** "In the rebind set?" asks
+> whether a flip over the name exists *today*; "safe to capture" was read off
+> it as if it answered whether the name can move the result. §4.6.20 measures
+> the second question directly and finds that a rebind of
+> `gfet._thermal_rounding` — the single live read of the captured object, the
+> `no` row — moves the repaired contact replacement by **+58.3421 %**, to
+> bitwise the same value a rebind of `gfet.quantum_capacitance` moves the
+> *unrepaired* one to. Not being in a rebind set is not safety; it is the
+> absence of a mechanism that would notice. The numbers and the read sets
+> above are unrevised.
+
+Both captures are the same construction and are indistinguishable at the call
+site. §4.6.17's repair is safe because of a contingent fact about the one
+function it happens to capture. A planted control holding `gfet.carrier_
+density` by the identical construction is still flagged, which demonstrates
+the limit rather than asserting it.
+
+Stated in the form the other members of this family take:
+
+- §4.6.13 — a repair to one binding is not a repair to the class.
+- §4.6.14 — a class can span two operating points, so it must be partitioned.
+- §4.6.17 — a replacement that *reads* a rebound name is neither stale nor
+  unassigned.
+- **§4.6.18 — a capture that fixes one name does not fix the names the
+  captured object reads. The safe criterion is the transitive live-read set
+  of the captured object.**
+
+#### (e) What this section does not claim
+
+It does not claim the repository is clean. It audits the four replacements
+§4.6.17 names plus the two variants of the contact replacement; the eleven
+surviving hand-listed rebinding sites are not replacements and are not
+covered. It does not flip the default. And reader A is an
+over-approximation by construction: it reports the `live=True` branch for
+both variants of `make_contact_cq`, which is correct — the read is in the
+function — and is why the three readers are reported separately rather than
+reduced to one verdict.
+
+Machine output: `replacement_read_audit_output.txt` (30/30 validations,
+transcript byte-identical across two runs). Figure:
+`replacement_read_audit.png`. Notes:
+`notes/2026-10-22-what-a-replacement-reads.md`.
+
+
+### 4.6.19 The write/read relation as a guard: the two composition defects are two edges of one relation
+
+Section 4.6.17 reported a replacement reading a name its own flip rebinds.
+Section 4.6.18 §4 reported `gfet.C_ox`, written by three of the five
+replacements and read by all five, in no identity class and therefore
+invisible to `bc.rebind()`, to `bc.rebind_by_operating_point()` and to
+4.6.18's own question — all three of which are about names a flip *rebinds*.
+It closed by stating that what governs composition is not a set of names but
+a bipartite relation between what replacements write and what they read.
+
+**Those are two sources of writes into one relation, not two findings.** A
+name is written either by a replacement or by the flip itself, which is every
+member of the rebind set. Composing the two makes the composed column —
+the one 4.6.18 identified as the column that answers the question —
+computable instead of argued. With reads traced and each edge derived from
+the read:
+
+| composition | observed `(writer, name, reader)` edges |
+|---|---|
+| unrepaired (`live_contact=True`) | `THE FLIP --gfet.quantum_capacitance--> make_contact_cq`; `make_contact_cq --gfet.C_ox--> qca._quantum_capacitance_consistent`; `make_contact_cq --gfet.C_ox-->` itself |
+| repaired (`live_contact=False`) | `make_contact_cq --gfet.C_ox-->` itself |
+
+The first unrepaired edge **is** 4.6.17's defect; the second **is**
+4.6.18 §§4–5. The survivor is the contact substituting `gfet.C_ox` for
+`cd.C_interface` and reading it back inside its own call — the same operating
+point, restored before return — so it is the substitution and not a leak.
+**One change removes both cross-replacement edges**, which is 4.6.18 §5's
+"one cause, two consequences" as a measurement rather than as a reading of a
+coincidence. No number in 4.6.18 is revised; what is revised is the status of
+the relation, from a census to a guard.
+
+**The guard refuses, and it refuses in both directions.** Each edge must
+carry a verdict from `{GOVERNED, IMPOSSIBLE, OCCURS}` and a mandatory reason,
+in the vocabulary `bc.rebind_by_operating_point()` already uses for
+assignments; an unadjudicated edge raises before anything runs. What is new
+is that completeness is static but a verdict is a claim about
+**reachability**, which no static set contains — so every verdict is checked
+against an order probe. `GOVERNED` is refused if the name is in no rebind
+set, `IMPOSSIBLE` if the probe observes the edge, and `OCCURS` **if the probe
+never observes it**. The last is the half a census cannot have: a guard that
+only catches a wrongly-permissive claim answers a weaker question than it was
+written to ask, and an `OCCURS` reason describing an edge that has stopped
+occurring stays true-looking indefinitely because nothing asks it the
+opposite question.
+
+The operational result is that the repaired composition's adjudication — the
+same stated reasons, unchanged — is **accepted** for `live_contact=False` and
+**refused** for `live_contact=True`, naming three disagreeing verdicts. The
+distinction between the two compositions is now a raise rather than a table.
+
+Validation is anchored to exactly-known values: the 4.6.18 arrival counts are
+**reproduced** rather than cited (0 arrivals repaired, 192 unrepaired, exactly
+181 of those with `C_ox` already substituted), the repaired composition has
+**exactly zero** cross-replacement edges, and the deriver itself is put under
+synthetic traces whose answers are known without it — a deriver that returns
+few edges and a repository that has few are otherwise indistinguishable.
+
+Two defects in the work that produced this section are recorded because both
+generalise. The first probe **did not trace reads**: it closed an edge on
+every *arrival* following a write, which asks whether a replacement *ran*
+after a name moved rather than whether it *read* it, and reported twelve
+edges of which four were on names the reader does not read at all. Same shape
+as the dominant failure mode, reached through the choice of which events to
+instrument. The second is sharper: a **planted control found a crash in a
+refusal path that nothing else reaches**, so without it the guard would have
+shipped with one of its three refusals unable to report itself while looking
+correct, because the two refusals the live subject exercises both work. The
+generalisation, and the fourth member of the 4.6.14 / 4.6.17 / 4.6.18 family:
+**a refusal that nothing reaches is not a refusal**, so every verdict in a
+vocabulary needs its own planted control and not only the ones the subject
+happens to exercise.
+
+Machine output: `write_read_guard_output.txt` (21/21). Module:
+`graphene_write_read_guard.py`. Notes:
+`notes/2026-10-23-two-findings-one-relation.md`.
+
+
+### 4.6.20 A capture is adjudicated by a counterfactual, and the repaired contact's exact twin was open all along
+
+§4.6.17 repaired a composition defect by binding the contact replacement to
+the shipped `gfet.quantum_capacitance` **captured at manager entry**, so that
+a flip over that name could not reach it. §4.6.18 (d) recorded the limit of
+that construction — a cell protects the name it holds, not the names the held
+object reads — and judged the repair safe on the ground that the held
+object's own live reads, `{gfet._thermal_rounding}`, are in no rebind set.
+§4.6.19 made the write/read relation a guard. This section asks what the
+capture is actually worth, and answers it with a measurement rather than with
+a read set.
+
+#### (a) The instrument used to make the claim cannot check it
+
+§4.6.17's argument and §4.6.18's table are both written in the vocabulary of
+`rra.static_reads`. On the two objects that the entire repair is the
+difference between, that reader returns:
+
+| | static live-read set |
+|---|---|
+| `flip.make_contact_cq(shipped_cq, live=False)` — repaired | 8 names |
+| `flip.make_contact_cq(shipped_cq, live=True)` — unrepaired | the same 8 |
+
+with symmetric difference **zero**, both containing `gfet.quantum_capacitance`
+as a *live* read. `cq_of_n` carries both branches in its bytecode and a
+bytecode walk cannot know which runs, so the reader is sound and
+over-approximate exactly as designed — and therefore **cannot distinguish the
+repaired construction from the unrepaired one at all**. The correctness
+argument was never checkable where it was made.
+
+#### (b) The verdict is a counterfactual, and it is exact
+
+For each name on the capture surface — the holder's own live reads together
+with the live reads of everything it holds — the name is rebound to a
+deliberately wrong stand-in scaled by ×1.5, the holder is called, and the two
+results are compared **bitwise**. Nothing is compared to a tolerance: *does a
+rebind of this name reach this object* has an exact answer. An **identity**
+rebind of all nine names moves the result by exactly zero, checked before any
+verdict is used.
+
+Contact replacement at `V = 0.5 V`, base `C_q = 6.555495551420368 × 10⁻²`
+F/m² (`0x1.0c835a6063492p-4`):
+
+| Name on the capture surface | verdict | repaired | unrepaired |
+|---|---|---|---|
+| `gfet._thermal_rounding` | EXPOSED | **+58.3421 %** | +58.3421 % |
+| `qca.A_FERMI` | EXPOSED | +58.3417 % | +58.3417 % |
+| `qca.series_factor` | EXPOSED | +26.1720 % | +26.1720 % |
+| `qca._fixed_point` | EXPOSED | +22.4740 % | +22.4740 % |
+| `cd.C_interface` | EXPOSED | +18.1154 % | +18.1154 % |
+| `gfet.T` | EXPOSED | +0.0034 % | +0.0034 % |
+| `cd.quantum_capacitance` | UNREACHED | exact 0 | exact 0 |
+| `gfet.C_ox` | PROTECTED | **exact 0** | exact 0 |
+| `gfet.quantum_capacitance` | PROTECTED | **exact 0** | **+58.3421 %** |
+
+The two replacements differ on **exactly one** of the nine names, and it is
+the one §4.6.17 is about. That column is the repair, measured.
+
+#### (c) The result: the repair has an exact twin it does not cover
+
+A rebind of `gfet._thermal_rounding` moves the **repaired** replacement to
+`0x1.a92b527d6852cp-4` — **bitwise** the value a rebind of
+`gfet.quantum_capacitance` moves the **unrepaired** one to.
+`gfet._thermal_rounding` is the *sole* live read of the captured object, so
+the route is the capture itself. §4.6.17 closed one path to that number and
+left an exactly equally powerful one open **through the object it captured**.
+
+It is in no flip's rebind set and is written by no replacement, so
+`bc.rebind_by_operating_point`, §4.6.19's write/read guard and §4.6.17's
+argument all reach it equally: not at all. **A name outside every rebind set
+is not thereby harmless — it is only unwatched**, and §4.6.18 (d) is
+annotated in place to say so.
+
+#### (d) A second result, in the opposite direction
+
+Walking the holder's closure cells on **object identity** recovers not one
+held name but the held object's whole identity class,
+`{gfet.quantum_capacitance, cd.quantum_capacitance}`, reproducing
+`bc.identity_class(gfet, 'quantum_capacitance')` exactly and independently —
+two derivations of one set, which is this section's validation against the
+existing implementation in the overlapping limit. The capture therefore
+neutralises a rebind of **both** members, including
+`blast.contact_on_consistent_argument()`'s, which is **stronger** than
+§4.6.17 claimed. But only one member is ever looked up, so calling both
+PROTECTED would credit the capture with work it did not do — §4.6.18 (d)'s
+conflation with the sign reversed. `UNREACHED` keeps the two apart, and
+separating them needs the one judgement `static_reads` **can** make soundly:
+an over-approximate read set has reliable *negatives*, so *not on the read
+surface* is trustworthy even though *on it* is not.
+
+> **Annotated 2026-10-25 (§4.6.21). The sentence this paragraph ends on is
+> false.** `rra.static_reads` records a `(module, attr)` pair only when a
+> module object is loaded and an attribute taken from it, or when a bare
+> global resolves to a repo *function*. A bare global resolving to a
+> module-level **scalar**, read from inside the module that defines it —
+> which is how every constant here is read by its own module's functions —
+> is recorded **nowhere**, so a negative means *not read in a spelling the
+> walker can see*, not *not read*. The demonstration is a single name:
+> `qca.A_FERMI` is **off** the read surface of both channel replacements
+> while a rebind of it moves one of them by **+29.8900 %**, and it is **on**
+> the surface of both contact holders, where `blast` spells it qualified.
+> §4.6.21 measures this. **Nothing in (d) above is withdrawn**: the identity
+> class, the two independent derivations of it and the `PROTECTED`/`UNREACHED`
+> distinction all stand, and the `UNREACHED` verdicts of §4.6.20 are
+> re-measured in §4.6.21 and still hold. What is withdrawn is the *ground*
+> offered for them here. `UNREACHED` is sound when it rests on a measured
+> bitwise zero, and unsound when it rests on an absence.
+
+#### (e) A device-physics consequence, not only a software one
+
+`gfet.C_ox` is **exactly** protected for both variants. §4.6.19 left one
+`OCCURS` edge standing — the contact replacement's write-then-read of
+`gfet.C_ox` inside its own call — adjudicated *the substitution itself and
+not a leak* on the argument that the write and the read are at the same
+operating point. The counterfactual converts that argument into a measured
+zero: the **external** value of `gfet.C_ox` reaches the contact
+replacement's output not at all, because the replacement substitutes
+`cd.C_interface` for the whole solve and restores the old value before
+returning. **The contact self-consistency is referenced to `C_interface` and
+is exactly independent of the oxide capacitance**, so no §4.6 contact number
+inherits an oxide-thickness error through that path. The three names that
+*do* carry the contact `C_q` are `gfet._thermal_rounding` and `qca.A_FERMI`
+at ≈ +58 %, and `cd.C_interface` itself at +18 %, which is the sensitivity
+ranking a reader of §4.5 should have.
+
+> **Annotated 2026-10-25 (§4.6.21). The `gfet.C_ox` result stands; the
+> sensitivity ranking in the last sentence is incomplete and its "three
+> names" is wrong.** The exact zero on `gfet.C_ox` is re-measured in
+> §4.6.21 on `blast._cq_consistent_contact`, which has **no capture at
+> all**, so the zero is a property of the contact model and not of §4.6.17's
+> repair — a strengthening of this paragraph, not a retraction. The ranking
+> is another matter. Five further names reach the contact `C_q` and were
+> invisible to the surface this paragraph was computed from:
+>
+> | name | leverage on contact `C_q` |
+> |---|---|
+> | `gfet.e` | **+278.4911 %** |
+> | `gfet._thermal_rounding` | +58.3421 % |
+> | `qca.A_FERMI` | +58.3417 % |
+> | `gfet.hbar` | −63.5273 % |
+> | `gfet.v_F` | −63.5273 % |
+> | `qca.E_CHARGE` | −21.2518 % |
+> | `cd.C_interface` | +18.1154 % |
+>
+> The true ranking is headed by `gfet.e`, and `gfet.hbar` and `gfet.v_F`
+> are interleaved among the three names named above. The numbers quoted in
+> this paragraph are all correct; the claim that they are *the* ranking is
+> not, and §4.6.21 (c) draws the device-physics consequence for `v_F`.
+
+#### (f) It is a guard, not a census
+
+`graphene_capture_surface_guard.py` raises `UnadjudicatedCaptureSurface`
+before measuring anything if a surface name carries no `(verdict, reason)`,
+and `FalseCaptureVerdict` after measuring if a verdict disagrees with the
+counterfactual **in either direction**: PROTECTED on a name that moves,
+EXPOSED on a name that does not, UNREACHED on a name that *is* read,
+PROTECTED on a name that is read by nothing, GOVERNED on a name in no rebind
+set. One refusal is §4.6.18 (d)'s error verbatim — a PROTECTED verdict on a
+held name obliges every live read of the object held there to carry its own
+verdict, and any that moves must be adjudicated EXPOSED. The repaired
+capture's adjudication is **refused** for the unrepaired replacement, which
+(a) showed the static reader cannot tell apart.
+
+29/29 checks, with a planted control for every verdict and every refusal
+branch — the §4.6.19 lesson that a refusal nothing reaches is not a refusal,
+applied inside the module that states it. Seven defects injected one at a
+time into a copy of the repository are all detected (7/7); undoing §4.6.17's
+repair drops the score to 23/29, and replacing the bitwise comparison with a
+1 × 10⁻³ relative tolerance is caught too, so the result depends on exactness
+rather than on a threshold.
+
+Stated in the form the other members of this family take:
+
+- §4.6.13 — a repair to one binding is not a repair to the class.
+- §4.6.14 — a class can span two operating points, so it must be partitioned.
+- §4.6.17 — a replacement that *reads* a rebound name is neither stale nor
+  unassigned.
+- §4.6.18 — a capture that fixes one name does not fix the names the captured
+  object reads.
+- §4.6.19 — a refusal that nothing reaches is not a refusal.
+- §4.6.20 — a name outside every rebind set is not thereby harmless, only
+  unwatched. Whether a name can move a result is a counterfactual, and no
+  read set answers it.
+- **§4.6.21 — a name's absence from a read surface is a fact about the
+  surface's vocabulary, not about the name. Two names for one parameter are
+  not one knob, and a precomputed copy is unreachable from the name it was
+  computed from.**
+
+
+**Annotated 2026-10-26 (§4.6.22).** This section's `gfet.C_ox` **PROTECTED**
+verdict on `blast._cq_consistent_contact`, and the number behind it, are
+**correct and are not withdrawn** — but every leverage figure in this section
+and in §4.6.21 was measured with the replacement's **flip not entered**, and
+§4.6.22 shows that for this one holder the two configurations disagree about
+eleven of fifteen names. The stated reason here generalised from one
+configuration; §4.6.22 §(c) states the scope and corrects the wording in the
+code, keeping the superseded text. The §4.6.20 counterfactual instrument
+itself is vindicated: it is bitwise identical to the as-installed instrument
+for five of the six objects the flips install.
+
+### 4.6.21 The negatives were never sound, and `v_F` was never one name
+
+§4.6.20 adjudicated one capture and closed with a sentence it did not test:
+that an over-approximate read set has reliable *negatives*. This section
+tests it on the three remaining replacements, finds it false, and follows the
+consequence into a statement about the Fermi velocity that is a device-physics
+result rather than a software one.
+
+#### (a) The blind spot, and one name that exhibits it
+
+`rra.static_reads` records a name in two situations only: a module object
+loaded and an attribute taken from it (`qca.A_FERMI`), or a bare global
+resolving to a repo **function** (`cq_thermal`). A bare global resolving to a
+module-level **scalar** — the spelling every constant in this repository is
+read by inside its own module — matches neither, and is recorded nowhere.
+
+The cleanest exhibit is one name read two ways:
+
+| holder | on the §4.6.20 surface? | leverage of `qca.A_FERMI` |
+|---|---|---|
+| `qca._carrier_density_consistent` | **no** | +0.0121 % |
+| `qca._quantum_capacitance_consistent` | **no** | **+29.8900 %** |
+| `blast._cq_consistent_contact` | yes | +58.3417 % |
+| `flip.make_contact_cq(live=False)` | yes | +58.3417 % |
+
+One name, one value, one mechanism; `qca` reads it bare and `blast` spells it
+`qca.A_FERMI`, and that spelling is the whole of the difference. This is an
+exact binary prediction of the mechanism on a single name, and it is checked
+as such.
+
+#### (b) The answer to §4.6.20's own question, in both directions
+
+§4.6.20 asked whether `gfet._thermal_rounding` and `qca.A_FERMI` carry its
+≈ +58 % onto the other replacements, which would make them repository-wide
+levers rather than contact facts. The two halves answer oppositely.
+`gfet._thermal_rounding` is **bitwise exactly zero** on both channel
+replacements — a contact fact, and the zero is a *measured counterfactual*,
+not an absence from a surface, which after (a) would prove nothing.
+`qca.A_FERMI` is repository-wide, and off-surface in both places where it
+matters.
+
+Completing the surface on the four holders adds **18 (holder, name) pairs**,
+8 distinct names, and **every one moves the value**; the largest is `gfet.e`
+at +278.4911 % and the largest derived model prefactor is `qca.CQ_PREFACTOR`
+at +50.4145 %. None had ever carried a verdict, because a guard can only
+demand one for a name its surface names — and the §4.6.20 guard is shown to
+**accept** an adjudication of all three replacements with every one of them
+omitted. Repository-wide, **75 of the 90 module-level scalars (84 %)** are in
+the blind class; `gfet.t_ox` and `gfet.epsilon_0` are scalars outside it,
+because they are read only at import time to build `C_ox`, which pins the
+census from the other side.
+
+#### (c) The device-physics consequence: `v_F` is two names, not one
+
+`C_q` carries the Fermi velocity twice, as `CQ_PREFACTOR = 2e³/(π ħ² v_F²)`
+and as `A_FERMI = ħ v_F √π / e`, so a consistent change of `v_F` by *k* must
+move one as *k*⁻² and the other as *k*⁺¹. The two families do not share a
+name for it:
+
+| holder | `gfet.v_F` | `qca.CQ_PREFACTOR` | `qca.A_FERMI` |
+|---|---|---|---|
+| `qca._carrier_density_consistent` | **exact 0** | +0.000671 | +0.000247 |
+| `qca._quantum_capacitance_consistent` | **exact 0** | +1.008232 | +0.519524 |
+| `blast._cq_consistent_contact` | −2.323463 | **exact 0** | +1.161680 |
+
+*(d ln value / d ln name; `exact 0` = a ×1.5 rebind leaves the value bitwise
+unchanged.)* The contact replacement reads `gfet`'s **live** prefactor;
+both channel replacements read `qca.CQ_PREFACTOR` and `qca.A_FERMI`, which
+`graphene_exact_charge_rederivation` computed from `gfet.v_F` **at import
+time** and copied in. So `gfet.v_F` is bitwise unreachable from every
+Chapter 4 channel number, and `qca.CQ_PREFACTOR` is bitwise unreachable from
+the contact number. **A `v_F` sensitivity study performed by editing
+`gfet.v_F` would have reported channel insensitivity to the Fermi velocity
+as a result.** This is the §4.6.13 delivery fault in a new place: the name is
+neither stale nor unassigned but **precomputed**, and `bc.identity_class`
+cannot see it because the two values are not the same object — they are a
+float and a float derived from it.
+
+#### (d) And the perturbation is the physical case
+
+`v_F` is not a constant of nature. Hwang *et al.* measure, by ARPES,
+1.15 ± 0.02, 1.49 ± 0.08 and 2.49 ± 0.30 (×10⁶ m s⁻¹) for graphene on
+SiC(000-1) (ε = 7.26), BN (ε = 4.22) and quartz (ε = 1.80) respectively,
+against a fully screened *ab initio* value of 0.85 × 10⁶ m s⁻¹, with a 1/ε
+dependence at fixed carrier concentration [Sci. Rep. **2**, 590 (2012),
+doi:10.1038/srep00590].
+
+The value committed throughout this chapter, `v_F = 1.00 × 10⁶ m s⁻¹`, sits
+just above the **bare** value. The 90 nm SiO₂ back gate modelled in §4.2 has
+ε ≈ 3.9, between the BN and quartz cases, so the substrate-appropriate value
+is near 1.5 × 10⁶ m s⁻¹ — which is exactly the ×1.5 the probe applies by
+default. The **−63.5273 %** it reports for the contact `C_q` is therefore not
+a synthetic perturbation: it is the SiO₂-screened Fermi velocity, and this
+chapter quotes the contact `C_q` at a `v_F` its own substrate does not have.
+
+This is left as an open question rather than resolved here, and §7.9 records
+it as such. Using the bare value consistently is defensible — it is what most
+compact device models do, and the renormalisation is itself carrier-density
+dependent, so any single number is already an approximation. Quoting it as
+*the* contact `C_q` while the same chapter models a specific SiO₂ stack is
+weaker. What is not defensible is the present state, in which the question
+cannot be *asked* by changing one name.
+
+#### (e) Anchored to an exactly known symmetry
+
+All of (c) and (d) rest on a probe, so the probe is anchored to a value known
+in advance: `gfet.hbar` and `gfet.v_F` must have **bitwise identical**
+leverage, because the prefactor depends on them only through `(ħ v_F)²`. They
+do — both move the contact `C_q` to `0x1.87bc5bc0c26d0p-6`. A probe reaching
+the value by any other route would not reproduce that coincidence. 36/36
+checks, with 9 defects injected one at a time into a copy of the repository
+and all 9 detected; the mutation that hides this section's two findings behind
+the measuring module's own apparatus carve-out scored **31/31** against the
+first draft of the check meant to prevent exactly that, which is recorded in
+`notes/2026-10-25-the-negatives-were-never-sound.md` §8 rather than quietly
+fixed.
+
+**Annotated 2026-10-26 (§4.6.22).** Every number in (a)–(d) above is measured
+on the replacement **in isolation**, with its own flip not entered, and
+§4.6.22 shows that this is bitwise equivalent to the as-installed measurement
+for both channel holders and for `flip.make_contact_cq(live=False)` — so
+(a)–(c) stand unrevised, and the ×1.5 `v_F` figure of **−63.5273 %** holds in
+*every* configuration on the holder the default flip actually installs. The
+one exception is `blast._cq_consistent_contact`, on which `gfet.v_F` is
+**bitwise dead** once either other flip is entered. The 18 added pairs and
+the 84 % blind-class census are unaffected: both are statements about
+spelling, not about configuration.
+
+
+### 4.6.22 A verdict measured in isolation is a verdict about a configuration the replacement never runs in
+
+§4.6.20 and §4.6.21 adjudicate four *holders* — the replacement functions the
+flip managers of §4.6.16 install. Both measure them by calling them
+**directly**, with no manager entered. A replacement only ever runs with its
+manager entered, and all three instruments used here are relative to the
+namespace at the moment of use: `csg.capture_surface` and `vrs.value_reads`
+are static walks that resolve each name to the object *bound now*, and
+`csg.leverage` calls the holder in the current namespace. So the question
+§4.6.21 left untouched is whether isolation and installation agree. Until this
+section, nothing had asked.
+
+#### (a) The population, derived rather than listed
+
+`rra.FLIPS` × `rra.rebind_set` gives **8 (flip, site) pairs and 6 distinct
+installed objects**. §4.6.20 and §4.6.21 between them audited four. The two
+that had never had a read surface computed at all are the arrival-counting
+wrappers `flip._counting` builds — the objects `gfet.carrier_density`,
+`gfet.quantum_capacitance` and `crx.carrier_density` *actually become* under
+the default flip.
+
+#### (b) The answer: the instruments are vindicated on five of six objects
+
+Measured over all 6 × 3 cells, with the dependence of each (holder, name)
+pair classified on a four-valued axis (`BITWISE_SAME`, `BOTH_LIVE`,
+`DEAD_AS_INSTALLED`, `LIVE_ONLY_AS_INSTALLED`):
+
+| installed object | under its own flip | under the other two |
+|---|---|---|
+| `qca._carrier_density_consistent` | 14/14 `BITWISE_SAME` | invariant |
+| `qca._quantum_capacitance_consistent` | 11/11 | invariant |
+| `_counting(_carrier_density_consistent)` | 15/15 | invariant |
+| `_counting(_quantum_capacitance_consistent)` | 12/12 | invariant |
+| `flip.make_contact_cq(live=False)` | 19/19 | invariant |
+| **`blast._cq_consistent_contact`** | **15/15** | **not invariant under either** |
+
+**Every one of the six is bitwise flip-invariant under its own flip** — every
+name on its surface, every counterfactual, and the holder's own value. That
+proposition is what licenses every leverage figure quoted in §4.6.20,
+§4.6.21 and §4.6.18, and it had never been stated, let alone checked. It is
+now an assertion rather than an assumption.
+
+A **surface** change is also not a **verdict** change, and the measurement
+separates them: four of the six objects gain names on their surface in some
+configuration — the counting wrapper for `carrier_density` goes 15 → 17 under
+`qca.on_consistent_argument()` — while every one of their counterfactuals
+stays bitwise identical.
+
+#### (c) The one row that moves, and what it does and does not revise
+
+`blast._cq_consistent_contact` under `flip.on_default_flip(live_contact=False)`
+returns `0x1.4ef081d146707p-7` instead of `0x1.0c835a6063492p-4`, a factor of
+**6.4134**, and **eleven of its fifteen names cross the exact-zero
+boundary**: five go bitwise dead (`gfet.e` +278.4911 %, `gfet.hbar` and
+`gfet.v_F` −63.5273 %, `gfet.kB` +0.0242 %, and `gfet._thermal_rounding`
++58.3421 % — the whole of §4.6.20's finding) and six come alive from bitwise
+zero (`qca.cq_thermal`, `qca.cq_thermal_of_n` and `qca.CQ_PREFACTOR` at
++52.4103 %, `qca.KB` +35.8863 %, `qca.n_arg_EF_thermal` +9.0738 %).
+
+**The value change is not a new result.** It is §4.6.17's — *the two halves do
+not compose* — which measured this exact composition and costed it at −51 %
+to −62 % in `n_contact`. What is new is that the same non-composition appears
+as a change in the **read surface**, which is the object §4.6.19's and
+§4.6.20's guards demand adjudication over. §7.9's standing item on the
+unadjudicated compositions is therefore partly discharged: the relation is
+measured over all 6 × 3 cells and exactly one row is non-composing.
+
+What it revises is one **reason**, not one number. §4.6.21's dictionary gives
+`gfet.C_ox` on this holder the verdict PROTECTED with the reason *"the contact
+solve closes against `C_interface`, so the oxide capacitance reaches this
+value not at all … the zero is a property of the contact model and not of the
+2026-10-21 repair."* The first clause is right. The generalisation is not: the
+same holder gives `gfet.C_ox` **+7.8110 %** under the default flip, so the
+exact zero is a property of the contact model **composed with nothing else**.
+The reason is corrected in place in the code and the superseded wording is
+kept there.
+
+#### (d) And the vocabulary cannot express the state of that name
+
+Exhaustively over the four verdicts, for `gfet.C_ox` on this holder:
+
+| verdict | in isolation | as installed |
+|---|---|---|
+| `PROTECTED` | admissible | refused — it moves |
+| `UNREACHED` | refused — it is read | refused — it moves |
+| `EXPOSED` | refused — bitwise zero | admissible |
+| `GOVERNED` | refused — in no rebind set | refused |
+
+Exactly one verdict is admissible in each configuration **and they are
+different ones**. The four-verdict vocabulary of §4.6.20 is therefore not
+merely incomplete here; non-composition is **not dischargeable by
+adjudication at all**, which is the structural reason that item has survived
+three sessions of being noted. A fifth value — a verdict indexed by
+configuration — is the repair, and it is not attempted here.
+
+#### (e) A second finding: `flip._counting` is a capture
+
+Each counting wrapper's read surface contains exactly one name the
+replacement it wraps does not — that replacement's **own name** — and a
+rebind of it leaves the wrapper's value **bitwise unchanged**, because
+`_counting` holds the function object in a closure cell. This is a **third**
+capture in the model code, after the §4.6.17 contact repair and the
+`bc.rebind` family, and nothing had noticed it; its consequence is that the
+channel replacement *name* is immune under the default flip. The verdict is
+`UNREACHED` and not `PROTECTED`, by §4.6.20's own argument for the other
+identity-class member: the wrapper never *looks the name up*, so the bitwise
+zero is not a capture neutralising a read. This section's first draft said
+`PROTECTED` and the §4.6.20 guard refused it — the fourth time a rule planted
+in an earlier section has caught a claim written in a later one.
+
+#### (f) Exact anchors, and two of this section's own checks
+
+The result rests on probes, so the probes are anchored to values known in
+advance. `gfet.hbar` and `gfet.v_F` move `flip.make_contact_cq(live=False)` to
+the **bitwise identical** `0x1.87bc5bc0c26d0p-6` in all four configurations,
+because the `C_q` prefactor depends on them only through `(ħ v_F)²`; the
+counting wrapper returns a value bitwise equal to the replacement it wraps;
+an identity control flip leaves value and surface bitwise unchanged; and —
+the sharpest of the four — **the repaired and unrepaired contact replacements
+are bitwise indistinguishable in isolation**, both `0x1.0c835a6063492p-4`, so
+the entire content of the §4.6.17 repair appears *only* as installed. Five
+sections measured both holders in the one configuration in which they cannot
+be told apart.
+
+Nine defects were injected one at a time into a copy of the repository, each
+required to be caught **by a named check** rather than by a non-zero exit, and
+**two of this section's own checks failed that bar on the first run**: the
+positive control for the new PROTECTED-as-installed refusal planted its false
+verdict on a holder whose adjudication was incomplete in that configuration,
+so the missing-name refusal fired first and the branch under test was never
+reached (26/26, undetected); and the flip-invariance check asserted two hex
+values but never the invariance *flag* computed from them, so a relative
+tolerance could report a factor of 6.4 as invariant (27/28, undetected). Both
+are repaired. Final: **28/28 checks, 9/9 defects detected on their own terms,
+control clean.**
+
+#### (g) What this section does not claim
+
+It measures three configurations, not all of them: `live_contact=True` and the
+*simultaneous* composition of two managers are not covered. "Invariant under
+its own flip" is a bitwise statement at one probe point with one perturbation,
+not a theorem. And `vrs.value_reads` remains over-approximate with unsound
+negatives (§4.6.21 (a)); nothing here repairs that.
+
+Machine output: `installed_surface_audit_output.txt`,
+`installed_surface_mutation_output.txt`. Working notes:
+`notes/2026-10-26-the-configuration-the-replacement-runs-in.md`.
+
+
+### 4.6.23 A repaired instrument's own repair was mis-predicted twice, and the second prediction was the informative one
+
+Every adjudication in §4.6.16 through §4.6.22 is taken with two constants:
+`csg.PROBE_V`, the gate voltage the holder is evaluated at, and
+`csg.PERTURBATION`, the factor the counterfactual multiplies by. Until
+2026-10-27 both were captured as function defaults rather than read at call
+time, which put them in the delivery class `MIXED` — some readers live, some
+frozen — and `MIXED` is not an intermediate state. A rebind of a `MIXED` name
+reaches the live readers and not the frozen ones, so if the live readers are
+an audit's expected-value expressions and the frozen ones are its measuring
+functions, the audit reports a disagreement its own mutation manufactured.
+These two names are not incidental to this chapter: **every counterfactual in
+it is taken with them**, so the split was a defect in the instrument and not
+in any model the instrument measures. Three further names were `MIXED` for the same
+reason in `graphene_chord_decay_length.py`, the module behind §7.9 item 2's
+2026-10-20 annotation — the one that shows `γ` cancels from the chord/local
+decay-length gap and that `ℓ` is the local decay length at no metal in the
+table. Eleven of the repository's
+twelve capture sites are converted; the twelfth is discussed below.
+
+**No number in this chapter moves.** The two affected modules' machine
+transcripts are bitwise unchanged by the conversion, which is the standard the
+2026-09-30 and 2026-10-01 conversions were held to and the only available
+evidence that a repair to a measuring instrument did not also move the
+measurement. What changes is what a *future* mutation of those names will do.
+
+**The informative part is that the repair was mis-predicted, twice.** The
+suite written to measure it predicted the textbook `MIXED` signature on
+`D1_CHORD`: the live reader `L'(d)` moves under a rebind and the captured
+reader `⟨L'⟩` freezes. It does not freeze. `⟨L'⟩` captured the chord endpoint
+`d₁` as a default, but the function it calls to evaluate `P` reads `D1_CHORD`
+*live*, to re-centre the polynomial at `d − d₁`. So under a rebind the
+pre-repair code averaged `L'` over the **old** interval while evaluating a
+polynomial centred on the **new** `d₁`. The resulting number corresponds to no
+consistent choice of `d₁` at all. That is strictly worse than the frozen case
+the prediction assumed, because a frozen number is at least one the model once
+produced, and the quantity carrying it was Eq. (D) — the γ-free discrepancy
+this chapter quotes.
+
+Restating the check as *coherence* rather than *movement* then caught a second
+wrong draft of the same kind. The reference value for "the old interval" was
+first taken **with the rebind still in place**, which made the reference the
+same incoherent quantity it was meant to be distinguished from; it agreed with
+the measurement to `0.000000e+00` and the check failed for the right reason.
+A reference value has to be taken in the state it claims to describe. Under a
+rebind of `d₁` from 3.3 Å to 3.9 Å the pre-repair default path lands
+`1.617099e-02` from the new-interval value and `3.838368e-02` from the
+pre-rebind one — between the two and equal to neither. After the repair it
+equals the new-interval value **bitwise**.
+
+**The residual, and a conflict this chapter does not resolve.** One capture
+site is left: `n_quad=N_QUAD` in the velocity-saturation module. Its `def` sits
+inside a function *body*, so the default is re-evaluated on every call of the
+enclosing function and a rebind does arrive — it is live by scope, not frozen,
+and is measured as live. It is also the only *real* site the
+frozen-default-semantics suite has for demonstrating that a static pass can
+find a capture its confirmation step then silently discards. So the standing
+guard "no module-level constant is captured as a default anywhere" cannot go
+green while that demonstration keeps its site, while its sibling "and in
+particular none is `MIXED`" now can, for the first time since it was written
+on 2026-10-01. The conflict is in the guard's **vocabulary** — it counts
+syntactic captures and names the class it cares about only in the second check
+— and not in the tree. Resolving it means either splitting the guard, or
+trading a real demonstration site for a synthetic one, which is the trade that
+suite exists to argue against.
+
+Machine output: `mixed_capture_repair_output.txt` (33/33),
+`mutation_arrival_probe_output.txt` (Section 7b, 32/2 → 33/1). Notes:
+`notes/2026-10-27-the-repair-that-refuted-its-own-prediction.md`.
+
+**Resolved 2026-10-28** by splitting the guard — see §4.6.24. The paragraph
+above is left as written because it is the diagnosis the split was built from.
+
+### 4.6.24 A guard stated so that it cannot be true, and a guard blind to its own source
+
+The conflict §4.6.23 ends on is not about this chapter's physics. It is about
+a sentence. Section 7b asserted *"no module-level constant is captured as a
+default anywhere"* — a count of **syntactic** sites — and separately *"none is
+`MIXED`"* — a statement about a **delivery class**. By 2026-10-27 the second
+was true and the first could not become true, because the one remaining
+syntactic site is live by scope and is the only real demonstration site the
+frozen-default-semantics suite has. A check that cannot go green is not a
+guard; and its report, `1 site-groups remaining`, cannot distinguish the known
+site from a new one appearing while the known one was removed.
+
+Split into three, with no coverage given up:
+
+| | statement | exemptions | state |
+|---|---|---|---|
+| 7b-i | no capture site anywhere **freezes a read** (`FROZEN`, `MIXED`, or an unimportable module) | **none, by construction** | GREEN |
+| 7b-ii | no capture site in the tree is **unregistered** | one, with its class and its reason | GREEN |
+| 7b-iii | every registry entry still **describes the tree** (`VANISHED` / `DRIFTED`) | — | GREEN |
+
+The load-bearing control of the eight planted ones is the seventh: the
+*registered* site, planted as `FROZEN`, must still fire 7b-i. A registry that
+could silence the semantic check would make the split a weakening rather than
+a restatement, so `census_semantic_faults()` does not take the registry as a
+parameter at all and no caller can supply one. Suite 33/1 → 43/0.
+
+**Then the split committed the fault it guards against.** The three new
+predicates were first written with their tables as parameter defaults —
+`faults=SEMANTIC_CAPTURE_FAULTS`, `registry=SYNTACTIC_CAPTURE_EXEMPTIONS` —
+module-level constants captured at `def` time, in the module that defines the
+class. `graphene_figure_provenance_audit.py`'s repository-wide census of the
+pattern went from 1 occurrence in 1 file to 4 in 2 and that is how it was
+found. Converted to the 2026-09-30 late-bound form; transcript bitwise
+unchanged.
+
+Section 7b did **not** catch it and cannot: `repo_wide_frozen_census()` skips
+`graphene_mutation_arrival_probe` by name, because that module is full of
+capture patterns planted deliberately for its own controls. The exclusion is
+defensible; its consequence had never been written down. **A guard excluded
+from its own census is blind in exactly the place where being wrong is most
+likely**, since the module that defines a fault class is the one most often
+editing that class's shape. This is the same lesson as §4.6.8 — knowing a
+failure mode is not the same as not committing it — and a sharper instance of
+it, because here the committing module is the defining module.
+
+For this chapter's numbers nothing changes: the residual is still one site and
+still the same site, and `mixed_capture_repair_output.txt` reports 33/33
+before and after. What changes is that the guard now says which site, in which
+vocabulary, and why it is permitted.
+
+Machine output: `mutation_arrival_probe_output.txt` (Section 7b split, 43/0),
+`figure_provenance_audit_output.txt` (Section C, 4 occurrences → 1 after the
+conversion), `pristine_transcript_audit_output.txt` (19/0). Notes:
+`notes/2026-10-28-three-unchecked-claims-and-the-guard-blind-to-itself.md`.
+
+
 ## 4.7 Per-metal Rc recalibration: a genuine negative-residual result
 
 Section 4.5's contact-doping model computes a work-function-dependent
@@ -3105,3 +4249,253 @@ the first narrowing of that open item since it was opened.
 Figure: `sensitivity_audit.png`, panel (a). Machine output:
 `audit_output.txt`. Pre-registration and outcome:
 `notes/2026-09-22-condition-number-audit-of-chapters-4-and-5.md`.
+
+**Annotated 2026-10-23.** Section 4.6.18's closing claim — that what governs
+composition is a bipartite write/read relation rather than a set of names —
+is **correct and was a census**. It enumerated the relation; it did not
+refuse a composition containing an edge. Section 4.6.19 makes it a guard and,
+in doing so, shows that 4.6.17's defect and 4.6.18 §4's `gfet.C_ox` are **two
+edges of the same relation** removed by **one** change. The numbers in
+4.6.18 stand unrevised; its status does not.
+
+---
+
+## 4.11 Electron–hole mobility asymmetry: the floor is a geometric mean, and the Dirac point is not a doping measurement
+
+Every number in this chapter so far has been computed with a single mobility.
+`graphene_fet_model.sheet_conductivity()` takes `|n|` and multiplies by one
+`μ`, so the electron and hole branches of every transfer curve in §4.3–§4.5
+are identical by construction. That is not an approximation the chapter
+declared; it is one the code made silently, and this section is about what it
+costs.
+
+### 4.11.1 Why the branches differ, and why the literature does not agree about it
+
+Coulomb scattering of a Dirac fermion from a charged impurity depends, within
+the Born approximation, on the *square* of the impurity charge. The sign drops
+out, electrons and holes scatter identically, and electron–hole symmetry is
+exact at that order. Any measured asymmetry therefore originates outside
+leading-order Born, and two mechanisms compete:
+
+| | channel origin | contact origin |
+|---|---|---|
+| source | Zion *et al.*, arXiv:1801.03565 | Huard *et al.*, arXiv:0804.2040 |
+| geometry | Hall bar, probes 30 µm from the metal | probes crossing the strip vs. external arms |
+| result | `μ_h < μ_e`, asymmetry shrinking with `\|n\|` | `ρ_e/ρ_h = 1 ± 0.03` away from the metal, ≈ 1.20 through it |
+| mechanism | beyond-Born scattering off negatively charged acceptors (≈ 1.5 × 10¹² cm⁻² in the SiO₂) | the metal pins the graphene beneath it p-type, making the junction p–n for an n-type channel and p–p′ for a p-type one |
+| scales with | channel length | metal/graphene **interface width** |
+| worse branch | holes | electrons |
+
+They disagree about sign as well as mechanism. This thesis does not adjudicate
+that — it cannot, from a model — but §4.11.4 shows the two are distinguishable
+in principle and says exactly what experiment would distinguish them.
+
+Two of Huard *et al.*'s numbers land on this chapter's own calibration, which
+is the reason to take the contact mechanism seriously here rather than treating
+it as somebody else's samples: their specific contact resistance
+`λ = 135 Ω·µm` sits at the **bottom of the 110–500 Ω·µm band** §4.2 calibrates
+`Rc_total` against, and their mobility 4600 cm²/V·s is within 15 % of the
+shipped 4000 cm²/V·s.
+
+### 4.11.2 The model, and the closed form it turns on
+
+Mobility is a transport parameter and does not enter the charge relation, so
+the electrostatics of §4.3 are kept **untouched** and the asymmetry goes only
+into the two-carrier Drude sum, evaluated on the signed species decomposition
+of §4.6.7:
+
+```
+  n_e, n_h = (S ± n_net)/2,          S = sqrt(n_net² + n_p²)
+  σ(n_net) = e(μ_e n_e + μ_h n_h)
+           = e(μ̄ S + (Δμ/2) n_net)                                     (4.31)
+```
+
+with `μ̄ = (μ_e+μ_h)/2` and `Δμ = μ_e-μ_h`. Equation (4.31) is the useful form
+because `S` is **even** in `n_net` while `n_net` is **odd** in the overdrive:
+the chapter's existing conductivity is the even part, and the entire effect of
+the asymmetry is an odd part linear in the mobility difference. Minimising it:
+
+```
+  dσ/dn_net = e(μ̄ n_net/S + Δμ/2) = 0
+    ⇒  n_net* = -n_p r/sqrt(1-r²),   r ≡ (μ_e-μ_h)/(μ_e+μ_h)            (4.32)
+    ⇒  σ_min  = e n_p μ̄ sqrt(1-r²) = e n_p sqrt(μ_e μ_h)                (4.33)
+```
+
+The last equality is an identity, not an expansion, because
+`1-r² = 4μ_eμ_h/(μ_e+μ_h)²`. **The minimum sheet conductivity of a disordered
+graphene channel is set by the geometric mean of the two branch mobilities.**
+
+(4.32) is the part worth dwelling on: the conductivity minimum is **not at
+charge neutrality**. It sits displaced onto the low-mobility branch, at the
+density where the slow species' extra carriers exactly compensate the fast
+species' lost ones. Evaluating (4.31) at that displaced point is what converts
+an arithmetic mean into a geometric one.
+
+### 4.11.3 Correction of record, and the result for a device
+
+**§4.6.7's floor claim is correct where it was evaluated and overstated as
+written.** `graphene_fet_signed_carrier_model.sigma_min_ch4()` returns
+`e·μ·n_puddle` and calls it *exact*. On the `μ_e = μ_h` diagonal — where the
+shipped model lives and where that function evaluates — it is exact, and (4.33)
+reproduces it to **1 ulp**, checked rather than asserted. Off the diagonal:
+
+1. `e·μ·n_puddle` **overestimates** the floor by `μ̄/sqrt(μ_eμ_h)`;
+2. the accompanying phrase "at `dV = 0`" is no longer *where the minimum is*.
+
+No number in §4.6.7 or §3.3.1 moves, and none is deleted; both are annotated
+in place, and §3.3.2 carries the knock-on (the matched puddle density is an
+underestimate by +0.88 % at `μ_e/μ_h = 1.3`).
+
+The device-relevant result is the **difference in orders**:
+
+```
+  apparent Dirac shift :  ∝ r                        FIRST order
+  floor change         :  sqrt(1-r²) = 1 - r²/2      SECOND order
+```
+
+Inverting (4.32) through this chapter's own series-factor charge relation at
+the shipped 90 nm SiO₂ back gate (`C_ox = 3.8368 × 10⁻⁴ F/m²`):
+
+| `μ_e/μ_h` | `r` | apparent `ΔV_dirac` | fraction of the shipped `V_dirac = 0.80 V` | misattributed density |
+|---|---|---|---|---|
+| 1.05 | 0.0244 | −0.0524 V | 0.065 | 1.25 × 10¹⁰ cm⁻² |
+| 1.10 | 0.0476 | −0.1011 V | 0.126 | 2.42 × 10¹⁰ cm⁻² |
+| 1.20 | 0.0909 | −0.1922 V | 0.240 | 4.60 × 10¹⁰ cm⁻² |
+| 1.30 | 0.1304 | −0.2763 V | **0.345** | 6.62 × 10¹⁰ cm⁻² |
+| 1.50 | 0.2000 | −0.4278 V | 0.535 | 1.02 × 10¹¹ cm⁻² |
+
+A 30 % asymmetry — inside the range both papers above report — moves the
+resistance maximum **0.276 V** to lower gate voltage, **34.5 %** of the 0.80 V
+that §4.2 attributes entirely to built-in doping. The sign follows from (4.32)
+with no sweep: `μ_e > μ_h` puts the minimum on the hole side, so the apparent
+Dirac point moves **down** in `V_g`.
+
+**The measurement consequence, stated plainly:** reading a doping level off the
+position of a transfer-curve minimum assumes `r = 0`, and nothing in a
+two-terminal transfer curve tests that assumption. This is a caveat on an
+extraction method, not a defect in a model, and it is the practical reason this
+section exists. It also explains a pattern in the literature — that reported
+minimum conductivities cluster tightly while reported Dirac-point offsets
+scatter widely — without needing to invoke sample quality.
+
+### 4.11.4 Telling the two mechanisms apart, exactly
+
+The odd part of the two-terminal resistance is
+
+```
+  R_odd(L) ≡ R(-ΔV) - R(+ΔV)
+           = (L/W)(1/σ(-ΔV) - 1/σ(+ΔV)) + (Rc_p - Rc_n)                (4.34)
+```
+
+**exactly linear in channel length.** The slope carries the channel asymmetry;
+the intercept carries the contact asymmetry. Neither can be absorbed into the
+other at any length, because the contact term enters with no factor of `L`.
+This is the structure Huard *et al.* report from the measurement side: their
+odd resistance collapses when scaled by interface width, and a bulk-only
+reading of the same data yields a resistivity asymmetry that **drifts with
+probe spacing** — the signature of a nonzero intercept being misread as a
+slope.
+
+Because (4.34) is exactly linear, a planted truth must come back out of it, and
+that is the strongest check on this section. Planting `μ_e/μ_h = 1.3` and
+`ΔRc = 120 Ω` and solving two points of a 25-length sweep recovers the slope to
+**2.2 × 10⁻¹⁶ relative** and the intercept to the printed digit, residuals
+**1.4 × 10⁻¹² Ω**; all three scenarios (channel only, contact only, both) are
+adjudicated correctly from the fitted pair alone.
+
+**The cost, which is this section's honest limit.** At the shipped
+`L = 200 nm`, channel-only `R_odd` is 80.93 Ω and contact-only `R_odd` is
+120.00 Ω — a factor **1.48** apart. A single-length measurement is blind
+between the two mechanisms, and the device this chapter models is a single
+length. (4.34) is therefore a statement about an experiment this thesis does
+**not** model, offered as a method rather than claimed as a result.
+
+### 4.11.5 What this section does not claim
+
+`μ_e` and `μ_h` are **constants** here. Zion *et al.*'s central observation is
+that the asymmetry is density-dependent and dies off as the long-range
+impurity potential screens (their hole crossover is at `p ≈ 3 × 10¹² cm⁻²`),
+and a constant pair cannot represent that. A density-dependent pair is logged
+as an open item rather than guessed at. Likewise the contact asymmetry here is
+a constant resistance difference, not Huard *et al.*'s `n^{-1/2}` junction
+law; §4.11.4's separation argument needs only that the contact term be
+`L`-independent, which the `n^{-1/2}` law also is, so the argument survives the
+simplification even though the fitted intercept would then be bias-dependent.
+
+Nothing in §4.3–§4.10 is recomputed. The shipped model sits exactly on the
+`r = 0` diagonal, so every published number in this chapter is the `r = 0` case
+of the forms above. What this section changes is what those numbers are claims
+*about*: the floor is a geometric mean evaluated on a diagonal, and the 0.80 V
+`V_dirac` is a doping offset only under an assumption the chapter had never
+stated and no committed check had ever tested.
+
+Source: `graphene_branch_asymmetric_mobility.py`, 43/43 checks green. Figure:
+`branch_asymmetric_mobility.png`. Machine output:
+`branch_asymmetric_mobility_output.txt`. Derivation and literature:
+`notes/2026-10-29-the-floor-is-a-geometric-mean.md`.
+
+#### 4.11.5a Annotation (2026-11-03): the crossover quoted above is a *hole*-branch number, and "dies off as it screens" is conditional on an assumption this chapter never stated
+
+Two things in §4.11.5 need correcting in place. Neither changes a committed
+number in this chapter — §4.11.5 already records that the shipped model sits on
+the `r = 0` diagonal — but both change what the surrounding prose is entitled to
+claim.
+
+**(i) `p ≈ 3 × 10¹² cm⁻²` is not a material constant, and it is 13 % too
+high.** §4.11.5 quotes it as though it were a property of graphene. It is not.
+`graphene_impurity_limited_crossover.py` (2026-11-02) showed that the quantity
+invariant under charged-impurity density is the *product* `A = n_c·μ̄_L`, so
+`n_c` is proportional to the charged-impurity density and moves with the gate
+stack. `graphene_kappa_impurity_bound.py` (2026-11-03) then bounded the
+proportionality constant from Zion *et al.*'s own two numbers — their crossover
+density and the charged-acceptor density `N_A^(S) = C_ox·V_NP/e` they estimate
+for the same sample — giving `κ ≤ 2.089` against the `κ = 2.4` the 11-02 module
+had obtained by pairing Zion's crossover with *this* repository's mobility.
+`κ = 2.4` is therefore **excluded**, and every `n_c` derived from it, including
+the `3 × 10¹² cm⁻²` quoted above, is high by at least 13 %. The superseded
+number is left in the sentence above rather than edited out; the corrected
+reference value is `2.61 × 10¹² cm⁻²`.
+
+**(ii) The clause "dies off as the long-range impurity potential screens" is
+conditional, and the condition has never been checked.** Zion read their
+`3 × 10¹² cm⁻²` off the **hole** branch (their Section III c). The
+Matthiessen form this repository uses applies a *single* `n_c` to both
+branches. Writing it per branch,
+
+&nbsp;&nbsp;&nbsp;&nbsp;`1/μ_b(n) = 1/μ_{L,b} + |n|/(n_{c,b}·μ̄_L)`
+
+and parameterising a split as `n_{c,e/h} = n_c(1 ± s/2)`, there is an exact
+identity at `s = 2r₀`: the common factor `(1 + |n|/n_c)` cancels out of
+`r = (μ_e − μ_h)/(μ_e + μ_h)`, and
+
+&nbsp;&nbsp;&nbsp;&nbsp;**if `n_{c,b} ∝ μ_{L,b}` then `r(n) = r₀` at every density, exactly, and the
+asymmetry does not screen at all.**
+
+So the sentence above does not state a consequence of the model; it states a
+consequence of the model *plus* the assumption that the neutral-defect channel
+is branch-**symmetric** while the charged channel is not. That assumption was
+never argued — it was made by writing one `n_c` — and it is not the obviously
+correct one: `r₀` is derived from a beyond-Born cross-section ratio, which is a
+property of scattering off a potential of a given sign, and vacancies and grain
+boundaries are also potentials.
+
+The magnitude is not marginal. At the top-gated operating point
+(`|n|/n_c = 5.29`) the shipped `s = 0` answer is `r = 0.0160`, a 6.2× screening
+of `r₀ = 0.10`; at `s = 0.10` it is `0.0580`; at `s = 2r₀` it is `0.1000`
+exactly. A 20 % split — modest for a quantity that has never been measured —
+moves `r` by 524 %, and the endpoint is not a perturbation of the shipped
+answer but its negation.
+
+**What this costs the chapter.** Nothing in §4.3–§4.10 moves, for the reason
+§4.11.5 already gives: the shipped model is the `r = 0` case. What moves is
+§4.11.5's own framing. "A density-dependent pair is logged as an open item
+rather than guessed at" is still the right call, but the open item is now
+strictly larger than it was written to be: it is not only *which* pair, it is
+whether the density dependence has the sign and the asymptote this chapter
+attributes to it. Discharging it needs the **electron**-branch transition
+density, which is in Zion Fig. 5 next to the hole one and has never been read.
+
+Source: `graphene_kappa_impurity_bound.py`, 16/16 checks green, six against
+exactly known values. Figure: `kappa_impurity_bound.png` (panel (c) is the
+identity above). Machine output: `kappa_impurity_bound_output.txt`.
+Derivation and literature: `notes/2026-11-03-the-bound-is-in-the-papers-own-numbers.md`.

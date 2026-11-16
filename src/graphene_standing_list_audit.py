@@ -1,0 +1,1541 @@
+"""
+graphene_standing_list_audit.py
+
+A STANDING ITEM THAT ASSERTS A STATE OF THE TREE IS A CLAIM, AND NOTHING HERE
+HAS EVER CHECKED ONE.
+
+Created 2026-10-18, after two of this repository's own standing items were
+found, in ten minutes of reading, to assert the opposite of what the tree
+contains.  Both were in the "Not yet covered (candidates for future runs)"
+list of the 2026-10-17 entry, i.e. in the one artefact every session reads to
+decide what to do:
+
+  (1) "CHAPTERS 2 AND 3 ARE STILL UNDRAFTED -- their computational results
+      have been complete for weeks.  This is the largest remaining block of
+      pure writing and has now gone three sessions without being touched."
+
+      thesis_draft/02-electronic-structure.md was drafted 2026-09-28 (commit
+      5bbd5f3, eleven sections) and thesis_draft/03-transport-and-optical-
+      properties.md on 2026-09-29 (c1d5abc, ten sections).  Both have been in
+      the tree for nineteen days.  AND THE LIST KNEW: from 2026-10-01 to
+      2026-10-05 this item was carried, correctly, in the amended form
+      "Chapters 2 and 3 ARE DRAFTED but Section 4.8.2's form of error is not
+      audited for elsewhere".  It then vanished, and returned on 2026-10-17
+      in its PRE-09-28 wording.  The gap is measured in Section 3 rather than
+      stated here, so that this docstring cannot go stale the way its subject
+      did.
+
+      So this is not a stale item carried forward past its repair.  It is a
+      RETIRED WORDING REVIVED -- and revived into first-rank contention: the
+      2026-10-17 entry ends it "Worth ranking against item 16 deliberately
+      rather than by default", so the one item offered as a competitor to the
+      top measured item was describing writing committed three weeks earlier.
+
+  (2) Item 16's precondition (ii), recorded 2026-10-17 as "Section 4.7's prose
+      and Section 4.10's annotation -- is still untouched and is still
+      writing, not plumbing".
+
+      Commit 7604c05, 2026-10-13, is titled "thesis: Section 4.6.12, and the
+      two sentences in Sections 4.7 and 4.10 that the measurement makes false,
+      annotated in place".  Both annotations are in the file.  Section 4.7's
+      names the per-metal numbers (-1.2583 % Cu, +20.8352 % Ni, +39.2281 % Au,
+      +47.6925 % Pd), states that "Only Pd gives a small, plausible positive
+      residual" is "true of the committed model and false of the corrected
+      one", and says it is "left standing with this annotation rather than
+      rewritten, PENDING THE ITEM 16 FLIP".  Section 4.10's amendment says the
+      9.6 % margin "stands as computed" and is a margin against input error
+      that a known modelling error already exceeds fivefold.
+
+      Precondition (ii) is therefore not outstanding writing.  What is
+      outstanding is the writing that can only be done WITH the flip -- when
+      "pending the item 16 flip" itself goes stale and the committed table
+      becomes the superseded column.  The 2026-10-17 instruction, "precondition
+      (ii) and the flip in the same session", is right; its reason is wrong,
+      and the difference matters, because a session that believes (ii) is
+      missing can discharge it by writing a sentence about a state of the code
+      that does not exist yet.
+
+WHY AN INSTRUMENT AND NOT TWO CORRECTIONS
+
+Design-Verification-Roadmap built tools/open_item_staleness_audit.py on
+2026-10-13 for exactly this failure, and on 2026-10-17 that audit retired an
+item of its own for the identical reason: "it names work finished before the
+item started being carried".  That repository caught its instance on the same
+day this one revived its instance.  The difference between the two days is one
+module, and this is it.
+
+AND THE LIST IS NOT A CLOSED SYSTEM, WHICH IS THE PART AN AUDIT CANNOT SEE
+
+Both of this session's findings share a cause that no check in this file can
+reach: the standing list has an EXTERNAL INPUT.  The scheduled task that runs
+these sessions carries a frozen description of repository state dated
+2026-09-17, including the sentence "Chapters 2-3 (electronic structure,
+transport/optical) are still undrafted despite their computational results
+being complete -- the largest remaining block of pure writing".  That is the
+2026-10-17 bullet almost verbatim, eleven entries after the list had retired
+it.  A session that reads its own brief as current state will revive retired
+items, and will do so with the authority of an instruction rather than the
+tentativeness of a memory.
+
+That cannot be checked from inside the repository -- the brief is not in the
+tree -- so it is recorded here as a NOT_MECHANISABLE row with its reason,
+rather than silently omitted.  The checkable half is the half this file does:
+ANY standing item that asserts a state of the tree is re-verified against the
+tree before it is allowed to rank anything.
+
+CLASSES
+  CONFIRMED         the item's assertion about the tree is true
+  CONTRADICTED      the tree says otherwise -- the item must not rank
+  REVIVED           an earlier entry carried this item in a form the tree
+                    confirms, and a later entry returned to a form it denies
+  NOT_MECHANISABLE  the item makes no checkable assertion about the tree, or
+                    its subject is outside the tree; reason REQUIRED
+"""
+
+import os; from graphene.paths import locate, repo_root_of  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
+import re
+import subprocess
+import sys
+import tempfile
+
+HERE = repo_root_of(os.path.dirname(os.path.abspath(__file__)))
+LOG = os.path.join(HERE, 'AUTOMATION_LOG.md')
+
+
+# ---------------------------------------------------------------------------
+# Reading the standing list out of the log
+# ---------------------------------------------------------------------------
+
+ENTRY_RE = re.compile(r'^## (20\d\d-\d\d-\d\d)', re.M)
+NYC_RE = re.compile(r'\*\*Not yet covered[^\n]*\n(.*?)(?=\n\*\*Commits this run|\Z)',
+                    re.S)
+
+
+def entries(text):
+    """[(date, body)] for every dated entry, oldest first."""
+    marks = [(m.group(1), m.start()) for m in ENTRY_RE.finditer(text)]
+    out = []
+    for i, (d, s) in enumerate(marks):
+        e = marks[i + 1][1] if i + 1 < len(marks) else len(text)
+        out.append((d, text[s:e]))
+    return out
+
+
+# INLINE-CODE SPANS.  ADDED 2026-11-09, and this is the repair the 2026-11-08
+# addendum ranked first.
+#
+# THE DEFECT.  The 11-08 entry's ranked-first bullet QUOTED the retired A1
+# wording in order to describe its removal:
+#
+#     - **RE-RUN `graphene_standing_list_audit.py` AFTER THIS ENTRY LANDS** -
+#       ... 11-07 removed the decoy `CHAPTERS 2 AND 3 ARE DRAFTED` bullet ...
+#
+# and the anti-trigger counted that entry among those ASSERTING the item was
+# corrected.  So the 11-08 entry falsified its own prediction (the corrected
+# count read 9, not 8) by discussing the instrument.
+#
+# WHY grep DISAGREED WITH THE AUDIT, WHICH IS THE WORSE HALF.  The quotation
+# is line-wrapped in the source, so the phrase exists on NO line of the file:
+# `grep -n 'CHAPTERS 2 AND 3 ARE DRAFTED'` returned two hits, both in the
+# 11-07 entry.  The phrase comes into existence only inside `bullets()`, which
+# flattens each bullet with `' '.join(cur.split())` before the regexes see it.
+# A session checking its own entry with grep -- the obvious check, and the one
+# a human reviewer would run -- got the right answer about the file and the
+# wrong answer about what the audit sees, and nothing reported the difference.
+# See `--show-normalised`, which is the sibling repair and exists so that the
+# two readings can never diverge silently again.
+#
+# THE RULE.  A code span is a run of N backticks, the shortest text that
+# follows, and the next run of N backticks.  Its CONTENT is replaced, not just
+# its delimiters -- removing the backticks alone would leave the phrase intact
+# and fix nothing.
+#
+# WHICH WAY IT FAILS, WHICH IS THE PROPERTY WORTH STATING.  An UNTERMINATED
+# backtick matches nothing and leaves the bullet unstripped, so a malformed
+# span is read as an ASSERTION.  That is the conservative direction: this
+# repair can only ever REMOVE dates from the anti-set, and removing an anti
+# date can only ever ADD revivals, never drop one -- the same containment the
+# 11-06 `revivals()` amendment argued for itself, one layer out.  P10f gates
+# on it.
+#
+# WHAT IT COSTS.  A trigger phrase written legitimately INSIDE backticks would
+# now be missed.  Every trigger in BASELINE is a prose phrase about tree state
+# and none is a code identifier, so the cost is theoretical today; it is
+# recorded here rather than discovered later.
+CODE_SPAN_RE = re.compile(r'(`+)(.+?)\1')
+
+CODE_PLACEHOLDER = '<code>'
+
+
+def strip_code_spans(s, placeholder=CODE_PLACEHOLDER):
+    """`s` with every inline-code span replaced by `placeholder`.
+
+    Backtick-free text is returned UNCHANGED -- exactly, not approximately.
+    P10a gates on that identity over all 1328 bullets of the real log, which
+    is the must-be-zero control for this function: a normalisation that
+    quietly rewrites text nobody marked as code would be a second instrument
+    constraining how the log may be written, which is the fault this repair
+    exists to remove rather than to relocate.
+    """
+    return CODE_SPAN_RE.sub(lambda m: placeholder, s)
+
+
+def bullets(body, raw=False):
+    """Top-level '- ' bullets of an entry's Not-yet-covered list, each
+    flattened to one line AND with inline-code spans stripped.
+
+    `raw=True` returns the flattened-but-unstripped form -- what the file
+    effectively contains once wrapping is undone, and what every caller saw
+    before 2026-11-09.  The audit reads the stripped form; `--show-normalised`
+    prints both beside the source lines, so a reader can see which of the
+    three forms a verdict came from.
+    """
+    out = _bullets_flat(body)
+    if raw:
+        return out
+    return [strip_code_spans(b) for b in out]
+
+
+def bullet_source_lines(body):
+    """[[source lines]] per top-level bullet, in the same order as
+    `bullets()`.  ADDED 2026-11-09 so that "grep would miss this" can be
+    asked at the granularity the claim is actually about -- THE BULLET -- and
+    not about the whole entry.
+
+    The first draft of `show_normalised` asked it of the entry body, and on
+    the real 11-08 entry that answered "grep finds it" -- because the 11-08
+    ADDENDUM quotes the grep command itself, several hundred lines below the
+    bullet.  True about the entry, and the wrong answer to the question.  The
+    coarse reading would have reported the opposite of the finding it exists
+    to display.
+    """
+    m = NYC_RE.search(body)
+    if not m:
+        return []
+    out, cur = [], None
+    for line in m.group(1).split('\n'):
+        if line.startswith('- '):
+            if cur is not None:
+                out.append(cur)
+            cur = [line]
+        elif cur is not None:
+            if line.strip() == '':
+                continue
+            if line.startswith(('  ', '\t')):
+                cur.append(line)
+            else:
+                out.append(cur)
+                cur = None
+    if cur is not None:
+        out.append(cur)
+    return out
+
+
+def _bullets_flat(body):
+    """The pre-2026-11-09 `bullets()`: top-level '- ' bullets, each flattened
+    to one line, code spans left intact.  Continuation lines are indented, so
+    a top-level bullet is '- ' at column 0."""
+    m = NYC_RE.search(body)
+    if not m:
+        return []
+    out, cur = [], None
+    for line in m.group(1).split('\n'):
+        if line.startswith('- '):
+            if cur is not None:
+                out.append(' '.join(cur.split()))
+            cur = line[2:]
+        elif cur is not None:
+            if line.strip() == '':
+                continue
+            if line.startswith(('  ', '\t')):
+                cur += ' ' + line.strip()
+            else:
+                out.append(' '.join(cur.split()))
+                cur = None
+    if cur is not None:
+        out.append(' '.join(cur.split()))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# The baseline: assertions about the tree, each with a predicate
+# ---------------------------------------------------------------------------
+# Recorded by (id, trigger, expectation, predicate) with NO line numbers and
+# no entry dates in the trigger -- a baseline that goes stale on an unrelated
+# edit teaches the operator to ignore it (the 2026-10-17 rule).
+#
+# `expect_true` is what the ITEM asserts.  The predicate returns what the TREE
+# says.  CONTRADICTED is expect_true != tree.
+
+def _nonblank(path):
+    with open(path, encoding='utf-8') as fh:
+        return [ln for ln in fh.read().split('\n') if ln.strip()]
+
+
+def _sections(path):
+    with open(path, encoding='utf-8') as fh:
+        return len(re.findall(r'^## ', fh.read(), re.M))
+
+
+def p_chapters_23_undrafted(root):
+    """Tree-side truth of 'Chapters 2 and 3 are undrafted'."""
+    detail = []
+    drafted = True
+    for name in ('02-electronic-structure.md',
+                 '03-transport-and-optical-properties.md'):
+        path = locate(root, 'thesis_draft/' + name)
+        if not os.path.exists(path):
+            detail.append('%s MISSING' % name)
+            drafted = False
+            continue
+        n, s = len(_nonblank(path)), _sections(path)
+        detail.append('%s %d non-blank lines, %d sections' % (name, n, s))
+        if n < 200 or s < 5:
+            drafted = False
+    return (not drafted), '; '.join(detail)
+
+
+# THIS FUNCTION'S FIRST DRAFT FAILED ITS OWN PLANT (P5), AND THE REASON IS THE
+# SUBJECT OF THIS MODULE.  It tested `phrase in open(path).read()` for a
+# sentence that the markdown file WRAPS -- the Section 4.10 amendment reads
+#     > ... the fragility was realised by
+#     > the model and not by its inputs.*
+# so the byte string is absent while the claim is present -- and for numbers
+# the file writes with a Unicode minus (U+2212) where the baseline had an
+# ASCII hyphen.  The checker therefore reported "Section 4.10 is untouched"
+# about a file that carries the amendment, i.e. it CONFIRMED the very item it
+# was written to contradict, and it did so by answering a weaker question than
+# the one asked: "are these exact bytes here", not "is this claim here".
+#
+# That is the same defect as 2026-10-17's textual grep for the rebinding route,
+# and as the two docstrings that passed an audit by spelling while being the
+# thing it audited for.  A verdict must be gated on the mechanism it reports
+# (Design-Verification-Roadmap, 2026-10-16).  The fix is to normalise before
+# matching; the FAIL is kept on the record in the transcript committed with
+# this module.
+
+_MINUSES = {'\u2212': '-', '\u2013': '-', '\u2014': '-', '\u00a0': ' '}
+
+
+def _normalise(text):
+    """Markdown-insensitive form: drop blockquote markers and list bullets,
+    fold Unicode dashes and non-breaking spaces to ASCII, collapse all
+    whitespace.  A claim that survives re-wrapping must survive this."""
+    for k, v in _MINUSES.items():
+        text = text.replace(k, v)
+    text = re.sub(r'(?m)^[ \t]*(?:>[ \t]*)+', ' ', text)
+    text = re.sub(r'(?m)^[ \t]*[-*][ \t]+', ' ', text)
+    return re.sub(r'\s+', ' ', text)
+
+
+def p_item16_ii_untouched(root):
+    """Tree-side truth of 'Section 4.7's prose and Section 4.10's annotation
+    are still untouched'.  Untouched means NEITHER annotation is present."""
+    path = locate(root, 'thesis_draft/04-graphene-fet-device-physics.md')
+    if not os.path.exists(path):
+        return True, '04-graphene-fet-device-physics.md MISSING'
+    txt = _normalise(open(path, encoding='utf-8').read())
+    a47 = 'true of the committed model and false of the corrected one' in txt
+    a410 = 'the fragility was realised by the model and not by its inputs' in txt
+    nums = all(_normalise(s) in txt for s in ('+47.6925 %', '-203.276'))
+    detail = ('4.7 annotation present=%s; 4.10 amendment present=%s; '
+              'per-metal numbers present=%s' % (a47, a410, nums))
+    return (not (a47 and a410)), detail
+
+
+# RETIRED rows are the standing half, and they are why this suite does not go
+# vacuous the moment its finding is acted on.  Once an item is retired from the
+# list, "absent" is no longer a clean result to be read as a pass by default:
+# the row asserts BOTH that the wording stays gone AND that the tree-side fact
+# which justified retiring it still holds.  So the suite fails if the wording
+# comes back (the failure mode this module exists for -- it has already
+# happened once) and equally if the retirement turns out to have been
+# premature, e.g. if the chapters were later truncated below the threshold.
+#
+# This is the R4/R5 shape of 2026-10-17: a count can be satisfied by the wrong
+# rows, and a check that only counts what is present reads a cleared list and a
+# broken parser identically.  Without it, this file would be clean on the day
+# the finding landed and silent forever after -- which is precisely how the
+# Name census came to be read as a clean bill of health for five sessions.
+
+# ---------------------------------------------------------------------------
+# A1's TRIGGER.  BROADENED 2026-11-05, and the superseded form kept.
+#
+# The 2026-10-18 form required the literal word "still":
+#
+#     chapters? 2 ?(?:and|-|--) ?3 (?:are still|remain) undrafted
+#
+# The 2026-11-04 list carries "**CHAPTERS 2 AND 3 ARE UNDRAFTED** - the largest
+# block of pure writing in the repository, with their computational results
+# complete."  That is A1's assertion exactly, in a wording one word shorter,
+# and the trigger above does not match it.  So the row read CLEARED, R2 and R4
+# passed, and the item this module exists to catch was back at the bottom of
+# the live list for a day without the module noticing.  P5d-P5g below are the
+# planted record of that: the new trigger matches the 11-04 bullet, the old one
+# does not, and the old one still matches everything it used to.
+#
+# The two regexes also differed from each other before today -- the BASELINE
+# row's lacked the en-dash alternative and the Section 3 one lacked "&" -- so
+# they are now ONE constant, read in both places.  Two spellings of one
+# predicate is a thing this repository has been bitten by before.
+A1_TRIG_PRE_1105 = re.compile(
+    r'chapters? 2 ?(?:and|-|–) ?3 (?:are still|remain) undrafted', re.I)
+A1_TRIG = re.compile(
+    r'chapters? 2 ?(?:and|-|–|&) ?3 (?:are|remain)(?:\s+still)? undrafted',
+    re.I)
+
+BASELINE = [
+    # id, trigger, what the item asserts, tree predicate, gloss, retired_on
+    ('A1', A1_TRIG,
+     True, p_chapters_23_undrafted,
+     'the item asserts both chapters are undrafted', '2026-10-18'),
+    ('A2', re.compile(r'\(ii\)[^|]*?is still untouched', re.I),
+     True, p_item16_ii_untouched,
+     "the item asserts Section 4.7's prose and Section 4.10's annotation are untouched",
+     '2026-10-18'),
+]
+
+# Set to the empty string to re-arm a row as live (i.e. to put the item back on
+# the list deliberately).  RETIRED_ON carries a DATE rather than a bool so the
+# transcript says when the judgement was made and by which entry.
+
+
+# Items whose subject is outside the tree.  REASON REQUIRED -- an exemption
+# with no reason is a fault in its own right (the 2026-10-01 rule).
+NOT_MECHANISABLE = [
+    ('N1', 'the scheduled task brief is not in the tree',
+     'The brief that drives these sessions carries a frozen 2026-09-17 '
+     'description of repository state and is the probable source of the '
+     'revived A1 wording.  Nothing in this repository can read it, so the '
+     'check that would catch the cause cannot live here.  The compensating '
+     'rule is procedural and is recorded in Section 7.9: a claim about tree '
+     'state that arrives from outside the tree is re-verified before it ranks.'),
+]
+
+
+def audit(root, logtext):
+    """-> (rows, bullets_seen).  rows: (id, cls, item_assert, tree_says, detail)"""
+    ents = entries(logtext)
+    latest = ents[-1] if ents else ('<none>', '')
+    seen = bullets(latest[1])
+    rows = []
+    for bid, trig, expect_true, pred, what, retired_on in BASELINE:
+        hit = [b for b in seen if trig.search(b)]
+        tree, detail = pred(root)
+        if retired_on:
+            if hit:
+                # The wording is back on the list after being retired.  That
+                # is the whole subject of this module, so it is a FAILURE and
+                # not a report.
+                rows.append((bid, 'REVIVED', expect_true, tree,
+                             'retired %s and present again in the %s list; %s'
+                             % (retired_on, latest[0], detail)))
+            elif expect_true == tree:
+                # Absent, but the tree now agrees with the retired assertion:
+                # the retirement has become wrong.
+                rows.append((bid, 'RETIREMENT-STALE', expect_true, tree,
+                             'retired %s on the grounds that the tree said '
+                             'otherwise, and the tree no longer does; %s'
+                             % (retired_on, detail)))
+            else:
+                rows.append((bid, 'RETIRED', expect_true, tree,
+                             'retired %s; the tree still contradicts the '
+                             'retired wording, so the retirement stands; %s'
+                             % (retired_on, detail)))
+            continue
+        if not hit:
+            rows.append((bid, 'ABSENT', expect_true, tree,
+                         'no bullet in the %s list matches; %s' % (latest[0], detail)))
+            continue
+        cls = 'CONFIRMED' if (expect_true == tree) else 'CONTRADICTED'
+        rows.append((bid, cls, expect_true, tree, '%s; %s' % (what, detail)))
+    return rows, seen
+
+
+# A row is a fault iff it is in one of these classes.  Named once, so the
+# transcript and the exit code cannot disagree about what counts as a failure.
+FAULT_CLASSES = ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
+
+
+def _rows_against(logtext, baseline):
+    """Run audit() with BASELINE forced to `baseline`.  Added 2026-11-05 so a
+    plant can be driven through the real row machinery without each call site
+    repeating the save/restore dance."""
+    global BASELINE
+    saved, BASELINE = BASELINE, baseline
+    try:
+        rows, _ = audit(HERE, logtext)
+    finally:
+        BASELINE = saved
+    return rows
+
+
+def _trig_anti_dates(logtext, trig, antitrig):
+    """([dates asserting trig], [dates asserting antitrig]), oldest first."""
+    t, a = [], []
+    for d, body in entries(logtext):
+        bs = bullets(body)
+        if any(trig.search(b) for b in bs):
+            t.append(d)
+        if any(antitrig.search(b) for b in bs):
+            a.append(d)
+    return t, a
+
+
+def revivals_pre_1106(logtext, trig, antitrig):
+    """THE SUPERSEDED RULE, KEPT AS THE CONTROL'S REFERENCE.  Not called by
+    the audit.
+
+    "A trig entry strictly LATER than the LAST antitrig entry is a revival."
+    `a[-1]` is the last corrected entry IN THE WHOLE FILE, so this verdict is
+    a property of the file's END rather than of the entry being judged: one
+    later entry carrying the corrected wording retroactively erases EVERY
+    earlier revival from the record.  See the 2026-11-06 amendment below.
+    """
+    t, a = _trig_anti_dates(logtext, trig, antitrig)
+    revived = [d for d in t if a and d > a[-1]]
+    return t, a, revived
+
+
+def revivals(logtext, trig, antitrig):
+    """Entries whose bullet matches `trig`, entries whose bullet matches
+    `antitrig` (the retired/corrected wording), and the REVIVALS.
+
+    AMENDED 2026-11-06, and the superseded form is kept above.
+
+    A trig entry is a revival iff the item HAD ALREADY BEEN CORRECTED WHEN
+    THAT ENTRY WAS WRITTEN -- i.e. iff some antitrig entry precedes it.  The
+    comparison is against the last antitrig entry BEFORE the entry being
+    judged, not the last one overall, which makes the verdict a property of
+    the entry rather than of the file's end.
+
+    WHY THIS MATTERED ENOUGH TO CHANGE.  Under the old rule a single later
+    entry wording the item correctly would have erased all five recorded
+    revivals and flipped V2/V3 red.  The 2026-11-05 entry knew this and had
+    to word its own chapters-2-and-3 bullet to match NEITHER regex to avoid
+    it -- an instrument constraining how the log may be written, which that
+    entry recorded as the finding rather than patching in the session that
+    found it.  P6c measures exactly that hazard on the real log.
+
+    The two rules agree wherever no corrected entry follows a revival.  That
+    was the whole of this log until the 2026-11-06 entry, which words the item
+    correctly and so makes them diverge.  P9b/P9c show the divergence on a
+    plant, P9d measures it on the real log, and P9a gates on the CONTAINMENT
+    that holds either way: the current rule can only add revivals, never drop
+    one.
+    """
+    t, a = _trig_anti_dates(logtext, trig, antitrig)
+    revived = [d for d in t if any(x < d for x in a)]
+    return t, a, revived
+
+
+def revived_against(t, a):
+    """{revival date: the last corrected entry BEFORE it}.  The date the
+    revival is a revival *of* -- which the old rule could not name, because
+    it only ever compared against one date for the whole file."""
+    out = {}
+    for d in t:
+        prior = [x for x in a if x < d]
+        if prior:
+            out[d] = prior[-1]
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Plants: the checker measured against exactly known answers
+# ---------------------------------------------------------------------------
+
+PLANT_LOG = """\
+## 2026-01-01 - a plant
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted; the tree says otherwise.
+- **FLIP THE DEFAULT** - (ii) - Section 4.7's prose and Section 4.10's
+  annotation - is still untouched and is still writing, not plumbing.
+- **SOMETHING WITH NO TREE ASSERTION AT ALL** - carried.
+
+**Commits this run:** 0
+"""
+
+# A list carrying A1's wording and NOT A2's.  Used by P3b to check that the
+# rows are INDEPENDENT -- that one row going ABSENT does not change another
+# row's verdict, and that a partial list is not silently treated as a whole
+# one.  Written as a constant with a reader rather than left as scaffolding:
+# an unread module-level constant is a provenance claim with no code behind it
+# (graphene_dead_name_sweep, 2026-10-01), and this module would have shipped
+# one.
+PLANT_LOG_PARTIAL = """\
+## 2026-01-01 - a plant carrying A1's wording only
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted; A2's wording is absent.
+
+**Commits this run:** 0
+"""
+
+# THE 2026-11-04 BULLET, VERBATIM.  The wording that escaped the pre-11-05
+# trigger, kept here as a literal so the escape cannot be re-introduced by a
+# future edit to the regex without P5e going red.
+PLANT_LOG_REWORDED = """\
+## 2026-01-01 - a plant carrying the 2026-11-04 rewording
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE UNDRAFTED** - the largest block of pure writing in
+  the repository, with their computational results complete.
+- **SOMETHING WITH NO TREE ASSERTION AT ALL** - carried.
+
+**Commits this run:** 0
+"""
+
+# THE ERASURE, AS A FOUR-ENTRY LOG WITH EVERY ANSWER KNOWN BY INSPECTION.
+# 01-01 asserts the wording with nothing corrected before it, so it is not a
+# revival under either rule.  01-02 corrects it.  01-03 asserts it again and
+# IS a revival.  01-04 corrects it again -- and under the superseded rule that
+# last entry erases 01-03 from the record, because the rule compares against
+# the last corrected entry in the file rather than the last one before the
+# entry being judged.  Added 2026-11-06.
+PLANT_LOG_ERASURE = """\
+## 2026-01-01 - asserts the wording, nothing corrected yet
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted.
+
+**Commits this run:** 0
+
+## 2026-01-02 - corrected
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE DRAFTED** - planted correction.
+
+**Commits this run:** 0
+
+## 2026-01-03 - the revival
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted revival.
+
+**Commits this run:** 0
+
+## 2026-01-04 - corrected again, which must NOT erase 01-03
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE DRAFTED** - planted second correction.
+
+**Commits this run:** 0
+"""
+
+# A log asserting the wording repeatedly with NO correction anywhere.  The
+# zero case: a revival requires something to revive, so both rules must
+# return the empty list.  An instrument that reports a revival here would be
+# reporting the item's mere presence.
+PLANT_LOG_NO_CORRECTION = """\
+## 2026-01-01 - asserts it
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted.
+
+**Commits this run:** 0
+
+## 2026-01-02 - asserts it again
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - planted.
+
+**Commits this run:** 0
+"""
+
+PLANT_EMPTY = """\
+## 2026-01-01 - a plant with no list at all
+
+Nothing here.
+"""
+
+
+# ---------------------------------------------------------------------------
+# WHAT THE ANTI-SET ACTUALLY CONTAINS.  ADDED 2026-11-09.
+# ---------------------------------------------------------------------------
+# This went looking for the quotation the 11-08 addendum named and found that
+# the quotation is the SMALLEST of four ways a bullet can mention the wording
+# without the list carrying the item.  `_trig_anti_dates` asks "does any
+# bullet of this entry contain this phrase anywhere", and the question it is
+# used to answer -- in `revivals()`, which drives V2/V3/R4 -- is "did the list
+# CARRY the corrected item when that entry was written".  Those are not the
+# same question, and on the real log they have very different answers.
+#
+# The classes, all four of them live on the real log:
+#
+#   CARRIED      the bullet's own title IS the corrected item.  The honest
+#                reading of "the list carried the corrected wording".
+#   RETIRED      a `**RETIRED:**` bullet -- the item being taken OFF the list.
+#                Arguably the opposite of carrying it, and the 11-08 addendum
+#                already flagged this as "arguably a third class".
+#   SUBORDINATE  the bullet's title opens with the fact as a PREMISE for a
+#                different item: "Chapters 2 and 3 are drafted BUT §4.8.2's
+#                form of error is not audited for elsewhere".  The subject of
+#                the bullet is §4.8.2, not the chapters.
+#   INCIDENTAL   the phrase appears hundreds of characters into a long
+#                roll-up bullet that lists other items semicolon-separated.
+#   QUOTED       inside backticks.  Removed by `strip_code_spans` before this
+#                census sees it; counted here from the raw reading so the
+#                partition is over everything the pre-2026-11-09 reader saw.
+#
+# NOTHING IS CHANGED BY THIS SECTION, DELIBERATELY.  Narrowing the anti-set to
+# CARRIED would EMPTY the revival record -- all five revivals, V2 red -- and
+# that is a finding to report, not a rewrite to perform in the session that
+# found it (the 11-05 rule, and the reason the 11-08 addendum left its own
+# falsified prediction standing).  Section 5 computes the consequence exactly
+# and the standing list ranks the decision.
+#
+# AND IT BOUNDS THE 11-06 CONTAINMENT ARGUMENT, which is the part worth
+# keeping.  That amendment proved the new revival rule can only ADD revivals
+# and never drop one.  The proof holds the ANTI-SET FIXED.  It says nothing
+# about narrowing the anti-set, and narrowing it drops revivals -- so the
+# reassurance does not cover the change this section is about.
+
+ANTI_CLASSES = ('CARRIED', 'RETIRED', 'SUBORDINATE', 'INCIDENTAL', 'QUOTED')
+
+# THE WINDOW THE EXACT PARTITION IS GATED OVER, and the reason it exists.
+#
+# S5b and S5g were first written as exact statements about THE WHOLE LOG:
+# CARRIED == ['2026-11-06'], QUOTED == ['2026-11-08'].  Both were true when
+# written and both would have gone RED on the very next entry -- because this
+# session's own AUTOMATION_LOG entry describes the repair, and describing it
+# means quoting the wording inside backticks, which adds 2026-11-09 to QUOTED.
+#
+# A check that goes red because the log was written is the fault this module
+# exists to find, stated by its own 2026-10-17 rule: a baseline that goes
+# stale on an unrelated edit teaches the operator to ignore it.  Caught before
+# committing the entry, by asking what the entry would do to the suite -- the
+# question 11-08 did not ask and was falsified for not asking.
+#
+# So the exact partition is gated over the CLOSED historical window only, and
+# entries after it are REPORTED with their classes and gated on nothing.  The
+# window is a date in a constant rather than a bound computed from the file:
+# computing it from the file would make the check vacuous the moment the file
+# grows, which is the same defect one layer in.
+HISTORICAL_PARTITION_THROUGH = '2026-11-08'
+
+_RETIRED_HEAD = re.compile(r'^\s*\*{0,2}RETIRED:?\*{0,2}\s*', re.I)
+_LEAD_BOLD = re.compile(r'^\s*\*\*(.+?)\*\*')
+
+
+def classify_anti_bullet(raw_bullet, rx):
+    """Which of ANTI_CLASSES describes how `raw_bullet` mentions `rx`, or None
+    if it does not mention it at all.  `raw_bullet` is the FLATTENED,
+    UNSTRIPPED reading -- the one the pre-2026-11-09 audit matched against."""
+    if not rx.search(raw_bullet):
+        return None
+    stripped = strip_code_spans(raw_bullet)
+    if not rx.search(stripped):
+        return 'QUOTED'
+    if _RETIRED_HEAD.match(stripped):
+        body = _RETIRED_HEAD.sub('', stripped)
+        if rx.match(body.lstrip(' *')):
+            return 'RETIRED'
+    m = _LEAD_BOLD.match(stripped)
+    title = m.group(1) if m else re.split(r' (?:—|–|--|-) ', stripped, 1)[0]
+    tm = rx.search(title)
+    if not tm:
+        return 'INCIDENTAL'
+    # The title mentions it.  Is the title THE ITEM, or a longer claim that
+    # merely opens with it?  Trailing punctuation is allowed; further words
+    # are not.
+    rest = title[tm.end():].strip().strip('*').strip()
+    return 'CARRIED' if rest == '' else 'SUBORDINATE'
+
+
+def anti_census(logtext, rx):
+    """[(date, class, bullet)] for every bullet of every entry that mentions
+    `rx` in its flattened reading, in entry order."""
+    out = []
+    for d, body in entries(logtext):
+        for b in bullets(body, raw=True):
+            cls = classify_anti_bullet(b, rx)
+            if cls:
+                out.append((d, cls, b))
+    return out
+
+
+def anti_dates_by_class(logtext, rx, keep):
+    """The anti-date list restricted to the classes in `keep`."""
+    seen, out = set(), []
+    for d, cls, _ in anti_census(logtext, rx):
+        if cls in keep and d not in seen:
+            seen.add(d)
+            out.append(d)
+    return out
+
+
+def show_normalised(logtext, date=None, pattern=None):
+    """THE SIBLING REPAIR, 2026-11-09.  `AND bullets() SHOULD SAY WHAT IT
+    NORMALISED` from the 2026-11-08 addendum's list.
+
+    The 11-08 entry's prediction was falsified because the phrase the
+    anti-trigger matched EXISTS ON NO LINE OF THE FILE: it is assembled by
+    `_bullets_flat`'s `' '.join(cur.split())` out of two wrapped source lines,
+    and it is then removed again by `strip_code_spans`.  So three readings of
+    one bullet were in play -- the source, the flattened form, the stripped
+    form -- and only the third gated anything while only the first was
+    greppable.  A session that checked its own entry with `grep` got a true
+    answer about the file and a false one about the audit, and nothing said so.
+
+    This prints all three, side by side, for the bullets that matter.  It is
+    deliberately a REPORT and gates nothing: its job is to make the divergence
+    cheap to see, not to add a verdict.
+    """
+    ents = entries(logtext)
+    if date:
+        ents = [(d, b) for d, b in ents if d == date]
+    else:
+        ents = ents[-1:]
+    rx = re.compile(pattern, re.I) if pattern else None
+    for d, body in ents:
+        raw = bullets(body, raw=True)
+        strp = bullets(body)
+        srcs = bullet_source_lines(body)
+        print('=' * 78)
+        print('NORMALISATION REPORT -- %s (%d top-level bullets)' % (d, len(raw)))
+        if rx:
+            print('filtered to bullets matching %r in EITHER reading' % pattern)
+        print('=' * 78)
+        shown = 0
+        for i, (r, s) in enumerate(zip(raw, strp)):
+            if rx and not (rx.search(r) or rx.search(s)):
+                continue
+            shown += 1
+            # PER BULLET, not per entry -- see bullet_source_lines.
+            greppable = (any(rx.search(ln) for ln in srcs[i])
+                         if rx and i < len(srcs) else None)
+            print('\n[%d] FLATTENED : %s' % (i, r))
+            if s != r:
+                print('    STRIPPED  : %s' % s)
+            else:
+                print('    STRIPPED  : (identical -- no code spans)')
+            if rx:
+                print('    MATCHES   : flattened=%s  stripped=%s  '
+                      'any single SOURCE LINE of this bullet=%s'
+                      % (bool(rx.search(r)), bool(rx.search(s)), greppable))
+                if bool(rx.search(r)) != bool(rx.search(s)):
+                    print('    *** THE TWO READINGS DISAGREE: the flattened form '
+                          'asserts the wording,')
+                    print('        the stripped form only QUOTES it.  The audit '
+                          'reads the stripped form.')
+                if rx.search(r) and not greppable:
+                    print('    *** grep WOULD MISS THIS: the phrase is assembled '
+                          'by flattening and')
+                    print('        exists on no single line of the source.')
+        print('\n(%d bullet(s) shown of %d)' % (shown, len(raw)))
+
+
+def main():
+    global BASELINE
+    passed = failed = 0
+
+    def check(label, ok, detail=''):
+        nonlocal passed, failed
+        if ok:
+            passed += 1
+            print('  [PASS] %s' % label)
+        else:
+            failed += 1
+            print('  [FAIL] %s' % label)
+        if detail:
+            for ln in str(detail).split('\n'):
+                print('         %s' % ln)
+
+    print('=' * 78)
+    print('STANDING-LIST AUDIT -- do the items that rank the work')
+    print('tell the truth about the tree?')
+    print('2026-10-18.  Two items in the 2026-10-17 list assert the opposite')
+    print('of what the tree contains, and one of them was revived from a')
+    print('wording this list had already retired.')
+    print('=' * 78)
+
+    logtext = open(LOG, encoding='utf-8').read()
+
+    # -- Section 1: plants, against exactly known answers -------------------
+    print('\n' + '-' * 78)
+    print('1.  POSITIVE CONTROL -- the checker on plants whose answers are known')
+    print('-' * 78)
+
+    # A plant tree in which chapters 2 and 3 really ARE undrafted, and in
+    # which 4.7/4.10 really ARE untouched: both items must come back
+    # CONFIRMED.  Same checker, same baseline, opposite verdicts -- which is
+    # what distinguishes a checker from a constant.
+    with tempfile.TemporaryDirectory() as td:
+        os.makedirs(os.path.join(td, 'thesis_draft'))
+        for nm in ('02-electronic-structure.md',
+                   '03-transport-and-optical-properties.md'):
+            with open(os.path.join(td, 'thesis_draft', nm), 'w') as fh:
+                fh.write('# stub\n')
+        with open(os.path.join(td, 'thesis_draft',
+                               '04-graphene-fet-device-physics.md'), 'w') as fh:
+            fh.write('## 4.7 nothing annotated here\n')
+        _live = [(b[0], b[1], b[2], b[3], b[4], '') for b in BASELINE]
+        _saved, BASELINE = BASELINE, _live
+        try:
+            rows, seen = audit(td, PLANT_LOG)
+        finally:
+            BASELINE = _saved
+        got = {r[0]: r[1] for r in rows}
+        check('P1 empty-tree plant, rows LIVE: A1 CONFIRMED (chapters really absent)',
+              got.get('A1') == 'CONFIRMED', 'got %s' % got.get('A1'))
+        check('P2 empty-tree plant, rows LIVE: A2 CONFIRMED (annotations really absent)',
+              got.get('A2') == 'CONFIRMED', 'got %s' % got.get('A2'))
+        check('P3 plant list parsed to exactly 3 bullets',
+              len(seen) == 3, 'got %d: %r' % (len(seen), [b[:40] for b in seen]))
+        
+        # P3b ROW INDEPENDENCE, on a list carrying A1's wording and not A2's.
+        _sv, BASELINE = BASELINE, _live
+        try:
+            _rows, _seen = audit(HERE, PLANT_LOG_PARTIAL)
+        finally:
+            BASELINE = _sv
+        _g = {r[0]: r[1] for r in _rows}
+        check('P3b rows are independent: a list with only A1 gives '
+              'A1 CONTRADICTED and A2 ABSENT',
+              _g.get('A1') == 'CONTRADICTED' and _g.get('A2') == 'ABSENT',
+              'A1=%s A2=%s bullets=%d' % (_g.get('A1'), _g.get('A2'), len(_seen)))
+
+    # The real tree with the plant list.  Run once with the retirements
+    # CLEARED -- this is the verdict the rows carried on 2026-10-18, before
+    # they were retired, and the transcript committed with this module in its
+    # red state is that run.  Keeping it as a plant means the finding cannot
+    # evaporate when the list is corrected (the 2026-10-17 vacuity rule).
+    live = [(b[0], b[1], b[2], b[3], b[4], '') for b in BASELINE]
+    saved, BASELINE = BASELINE, live
+    try:
+        rows, _ = audit(HERE, PLANT_LOG)
+    finally:
+        BASELINE = saved
+    got = {r[0]: r[1] for r in rows}
+    check('P4 real tree, plant list, rows LIVE: A1 CONTRADICTED',
+          got.get('A1') == 'CONTRADICTED', 'got %s' % got.get('A1'))
+    check('P5 real tree, plant list, rows LIVE: A2 CONTRADICTED',
+          got.get('A2') == 'CONTRADICTED', 'got %s' % got.get('A2'))
+
+    # And once AS RETIRED against the same plant list: the retired wording is
+    # present, so both must come back REVIVED.  This is the check that would
+    # have caught 2026-10-17 on the day it happened.
+    #
+    # Both plants force the retirement state explicitly rather than reading
+    # whatever the baseline currently carries, so this whole section is
+    # invariant under retiring or re-arming a row.  A plant whose expected
+    # answer moves when the configuration moves is not a control.
+    retd = [(b[0], b[1], b[2], b[3], b[4], b[5] or '2026-10-18')
+            for b in saved]
+    BASELINE = retd
+    try:
+        rows, _ = audit(HERE, PLANT_LOG)
+    finally:
+        BASELINE = saved
+    got = {r[0]: r[1] for r in rows}
+    check('P5b retired rows + plant list carrying the wording -> REVIVED',
+          got.get('A1') == 'REVIVED' and got.get('A2') == 'REVIVED',
+          'A1=%s A2=%s' % (got.get('A1'), got.get('A2')))
+    check('P5c REVIVED is a fault class, so a revival cannot pass quietly',
+          'REVIVED' in FAULT_CLASSES)
+
+    # P5d-P5g -- THE BROADENING, MEASURED AGAINST EXACTLY KNOWN ANSWERS.
+    # One bullet, two regexes, and the answers are known before the code runs:
+    # the new trigger must match it, the old one must not, and the old one must
+    # still match what it always matched.  No tolerance and nothing read off
+    # the live tree -- these hold whatever the list currently says.
+    bullet_1104 = ('**CHAPTERS 2 AND 3 ARE UNDRAFTED** - the largest block of '
+                   'pure writing in the repository, with their computational '
+                   'results complete.')
+    bullet_1017 = ('**CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** - their '
+                   'computational results have been complete for weeks.')
+    check('P5d the 2026-11-04 wording IS matched by the broadened trigger',
+          bool(A1_TRIG.search(bullet_1104)),
+          'the bullet asserts A1 and the row must therefore fire on it')
+    check('P5e and was NOT matched by the pre-2026-11-05 trigger',
+          not A1_TRIG_PRE_1105.search(bullet_1104),
+          'this is why R2/R4 passed on 2026-11-04 with the item live: the '
+          'trigger required the word "still" and the list had dropped it')
+    check('P5f the broadening is a superset -- the "still" wording still '
+          'matches both triggers',
+          bool(A1_TRIG.search(bullet_1017))
+          and bool(A1_TRIG_PRE_1105.search(bullet_1017)),
+          'a broadening that stopped matching the old wording would be a '
+          'replacement, not a broadening')
+    check('P5g end to end: the reworded plant classifies A1 REVIVED',
+          (lambda: (lambda g: g.get('A1') == 'REVIVED')(
+              {r[0]: r[1] for r in _rows_against(PLANT_LOG_REWORDED, retd)}))(),
+          'through the real row machinery, not just the regex')
+
+    # P9a-P9f -- revivals() MADE A PROPERTY OF THE ENTRY.  Numbered P9
+    # because P6b/P6c already name the vacuity controls below.  The 2026-11-05
+    # entry's second-ranked item, and the reason that entry had to choose its
+    # own wording carefully.  Every answer below is known by inspection of a
+    # planted log or measured against the superseded rule on the real one.
+    _anti = re.compile(r'chapters? 2 and 3 are drafted', re.I)
+
+    # P9a THE INVARIANT, AND NOT THE COINCIDENCE.  THE FIRST DRAFT MADE V3b's
+    # MISTAKE ONE LAYER OVER.  It asserted that the two rules return the SAME
+    # list on the real log -- true only while no corrected entry follows a
+    # revival, i.e. true until the 2026-11-06 entry, which words the item
+    # correctly because the repair above is what makes that safe.  Running the
+    # suite against that entry before committing it is what caught this; no
+    # amount of reading the diff would have.
+    #
+    # What IS invariant: the current rule's result CONTAINS the superseded
+    # one's, always, and provably rather than empirically.  `a` is built in
+    # entry order and the dates are ISO, so a[-1] is max(a); d > max(a)
+    # implies some element of `a` precedes d, which is the current rule's
+    # condition.  So the repair can only ever ADD revivals to the record and
+    # never drop one -- and dropping one is the entire defect being repaired.
+    # That containment is the property worth gating on.  Equality never was.
+    _t_old, _a_old, _rev_old = revivals_pre_1106(logtext, A1_TRIG, _anti)
+    _t_new, _a_new, _rev_new = revivals(logtext, A1_TRIG, _anti)
+    check('P9a the current rule CONTAINS the superseded one on the real log, '
+          'so the repair can only add revivals and never drop one',
+          set(_rev_old) <= set(_rev_new),
+          'superseded %r, current %r' % (_rev_old, _rev_new))
+    check('P9a2 and the two rules read the SAME dates -- they differ in the '
+          'verdict, not in what they parse',
+          _t_old == _t_new and _a_old == _a_new,
+          'trig lists equal=%s, antitrig lists equal=%s'
+          % (_t_old == _t_new, _a_old == _a_new))
+    print('  rule comparison on this log: superseded %d revivals, current %d'
+          '%s' % (len(_rev_old), len(_rev_new),
+                  '  -- THEY DIVERGE HERE; see P9d'
+                  if _rev_old != _rev_new else '  (equal, for now)'))
+
+    # P9b THE DIVERGENCE, on a four-entry plant.  Known by inspection: 01-03
+    # is a revival; the old rule erases it because 01-04 corrects the wording
+    # again.  Both halves asserted, because "the new rule finds it" without
+    # "the old rule lost it" would not identify the defect.
+    _, _, _e_old = revivals_pre_1106(PLANT_LOG_ERASURE, A1_TRIG, _anti)
+    _, _, _e_new = revivals(PLANT_LOG_ERASURE, A1_TRIG, _anti)
+    check('P9b the superseded rule ERASES the planted revival when a later '
+          'entry corrects the wording again',
+          _e_old == [],
+          'old rule returns %r on a log whose 01-03 entry is a revival by '
+          'inspection' % (_e_old,))
+    check('P9c and the new rule keeps it, and only it',
+          _e_new == ['2026-01-03'],
+          'new rule returns %r -- 01-01 is correctly NOT a revival, having '
+          'no corrected entry before it' % (_e_new,))
+
+    # P9d THE HAZARD, MEASURED ON THE REAL LOG.  Append one entry carrying
+    # the corrected wording -- which is what any future session writing
+    # "chapters 2 and 3 are drafted" would do -- and the old rule drops all
+    # five recorded revivals while the new rule is unmoved.  This is the
+    # constraint that forced the 2026-11-05 wording, and the measurement of
+    # its removal.
+    _appended = logtext + '''
+## 2026-12-31 - a future entry wording it correctly
+
+**Not yet covered (candidates for future runs):**
+
+- **CHAPTERS 2 AND 3 ARE DRAFTED** - as they have been since 09-29.
+
+**Commits this run:** 0
+'''
+    _, _, _ap_old = revivals_pre_1106(_appended, A1_TRIG, _anti)
+    _, _, _ap_new = revivals(_appended, A1_TRIG, _anti)
+    check('P9d one future corrected entry would have erased all %d recorded '
+          'revivals under the superseded rule' % len(_rev_new),
+          _ap_old == [] and len(_rev_new) == 5,
+          'old rule after appending: %r (was %r)' % (_ap_old, _rev_old))
+    check('P9e and under the new rule the record is unchanged -- the verdict '
+          'is a property of the entry, not of the file end',
+          _ap_new == _rev_new,
+          'new rule after appending: %r' % (_ap_new,))
+
+    # P9f THE ZERO CASE.  No correction anywhere, so there is nothing to
+    # revive and both rules must return empty.  A rule that reported a
+    # revival here would be reporting mere presence.
+    _, _, _nc_old = revivals_pre_1106(PLANT_LOG_NO_CORRECTION, A1_TRIG, _anti)
+    _, _, _nc_new = revivals(PLANT_LOG_NO_CORRECTION, A1_TRIG, _anti)
+    check('P9f with no corrected entry anywhere, both rules return no '
+          'revivals', _nc_old == [] and _nc_new == [],
+          'old %r new %r' % (_nc_old, _nc_new))
+
+    # P10a-P10h -- A MENTION IS NOT A USE.  The 2026-11-08 addendum's
+    # ranked-first item.  Every answer below is known by inspection of a
+    # planted bullet or is an exact count on the real log; none is a range.
+    #
+    # The control is BOTH-SIDED by construction, which is the whole point: a
+    # repair that stopped counting quotations by also stopping counting
+    # assertions would pass a one-sided test and destroy the instrument.
+    _P10_ASSERT = '**CHAPTERS 2 AND 3 ARE DRAFTED** - plainly asserted.'
+    _P10_QUOTED = ('**RE-RUN THE AUDIT** - 11-07 removed the decoy '
+                   '`CHAPTERS 2 AND 3 ARE DRAFTED` bullet and recorded why.')
+    _P10_QUOTED2 = ('**RE-RUN THE AUDIT** - the decoy '
+                    '``CHAPTERS 2 AND 3 ARE DRAFTED`` bullet, in a '
+                    'double-backtick span.')
+
+    check('P10a strip_code_spans is the IDENTITY on backtick-free text, '
+          'over every bullet of the real log',
+          (lambda bs: all(strip_code_spans(b) == b for b in bs if '`' not in b)
+           and sum(1 for b in bs if strip_code_spans(b) != b)
+               == sum(1 for b in bs if '`' in b))(
+              [b for _, bd in entries(logtext) for b in bullets(bd, raw=True)]),
+          'changed-set and backtick-set must coincide exactly')
+    check('P10b a bullet ASSERTING the retired wording still counts',
+          bool(_anti.search(strip_code_spans(_P10_ASSERT))),
+          'the side that must not break')
+    check('P10c a bullet QUOTING it inside backticks does NOT count',
+          not _anti.search(strip_code_spans(_P10_QUOTED)),
+          'stripped: %r' % strip_code_spans(_P10_QUOTED))
+    check('P10d nor inside a DOUBLE-backtick span',
+          not _anti.search(strip_code_spans(_P10_QUOTED2)),
+          'stripped: %r' % strip_code_spans(_P10_QUOTED2))
+    check('P10e and the unstripped forms of P10b and P10c are '
+          'INDISTINGUISHABLE to the old reader -- which is why it was wrong',
+          bool(_anti.search(_P10_ASSERT)) and bool(_anti.search(_P10_QUOTED)),
+          'both matched before the repair; exactly one matches after')
+
+    # P10f THE DIRECTION OF FAILURE, on a plant whose answer is known: an
+    # unterminated backtick must leave the text alone, so a malformed span is
+    # read as an assertion.  Conservative, and provably so -- the repair can
+    # only remove anti dates, and removing an anti date can only add revivals.
+    _P10_BROKEN = '**A BULLET** - an unclosed `CHAPTERS 2 AND 3 ARE DRAFTED span.'
+    check('P10f an UNTERMINATED backtick leaves the bullet unstripped, so the '
+          'repair fails toward counting',
+          strip_code_spans(_P10_BROKEN) == _P10_BROKEN
+          and bool(_anti.search(strip_code_spans(_P10_BROKEN))),
+          'a malformed span must not silently un-count an assertion')
+
+    # P10g THE FLATTENING MUST SURVIVE.  The phrase in the 11-08 entry exists
+    # only AFTER flattening, so one tempting "fix" is to stop flattening and
+    # let grep and the audit agree by both missing it.  That would hide every
+    # wrapped assertion instead of one wrapped quotation.  A wrapped
+    # ASSERTION must still count.
+    _P10_WRAPPED = ('**Not yet covered (candidates for future runs):**\n'
+                    '- **CHAPTERS 2 AND 3 ARE\n  DRAFTED** - wrapped mid-phrase.\n')
+    check('P10g a wrapped ASSERTION still counts -- the repair strips code '
+          'spans, it does not abandon flattening',
+          any(_anti.search(b) for b in bullets(_P10_WRAPPED)),
+          'bullets: %r' % bullets(_P10_WRAPPED))
+
+    # P10h THE EXACT MEASUREMENT ON THE REAL LOG.  Known answers, not ranges:
+    # the anti-set loses exactly {2026-11-08} and the revival record is
+    # unchanged at the same five dates.  This is the 11-08 prediction, now
+    # true, and the reason it reads as a repair rather than as a rewording.
+    _a_raw = [d for d, bd in entries(logtext)
+              if any(_anti.search(b) for b in bullets(bd, raw=True))]
+    _t_s, _a_s, _rev_s = revivals(logtext, A1_TRIG, _anti)
+    check('P10h the repair removes exactly {2026-11-08} from the anti-set and '
+          'changes no revival',
+          set(_a_raw) - set(_a_s) == {'2026-11-08'}
+          and set(_a_s) - set(_a_raw) == set()
+          and _rev_s == ['2026-10-17', '2026-10-26', '2026-10-27',
+                         '2026-10-28', '2026-11-04'],
+          'raw %d dates, stripped %d, removed %r, revivals %r'
+          % (len(_a_raw), len(_a_s), sorted(set(_a_raw) - set(_a_s)), _rev_s))
+
+    # P10i THE WIRING, AND MUTATION TESTING IS WHAT ASKED FOR IT.  P10b-P10g
+    # all exercise `strip_code_spans` DIRECTLY, so a mutant in which
+    # `bullets()` simply stops calling it was caught by P10h alone -- 1 of 41
+    # checks, and P10h is a whole-log aggregate rather than a statement about
+    # the reader.  This is the control for the join itself: on the real 11-08
+    # entry, the two readings of the SAME bullet must disagree in the one way
+    # the repair intends.  Four mutants, four detections, and the fourth is
+    # why this check exists.
+    _e1108 = [bd for d, bd in entries(logtext) if d == '2026-11-08']
+    check('P10i the wiring: on the real 11-08 entry bullets() does NOT see '
+          'the wording and bullets(raw=True) DOES',
+          len(_e1108) == 1
+          and not any(_anti.search(b) for b in bullets(_e1108[0]))
+          and any(_anti.search(b) for b in bullets(_e1108[0], raw=True)),
+          'one bullet, two readings, exactly one match')
+
+    # P10j THE REPORT'S OWN ALIGNMENT, as an exact identity over the whole
+    # real log.  `bullet_source_lines` re-walks the list a second time, so it
+    # can drift out of step with `bullets()` and mislabel which bullet a
+    # verdict belongs to -- which is the 11-07 `elapsed`/`spent` shape again:
+    # two quantities, one displayed, the other meaning something else.  The
+    # identity that forbids it: flattening each bullet's own source lines must
+    # reproduce that bullet's raw reading, for every bullet of every entry.
+    _mis, _n = [], 0
+    for _d, _bd in entries(logtext):
+        _r, _s = bullets(_bd, raw=True), bullet_source_lines(_bd)
+        if len(_r) != len(_s):
+            _mis.append((_d, 'count %d vs %d' % (len(_r), len(_s))))
+            continue
+        for _i, (_rb, _sl) in enumerate(zip(_r, _s)):
+            _n += 1
+            if ' '.join(' '.join(_sl)[2:].split()) != _rb:
+                _mis.append((_d, 'bullet %d' % _i))
+    check('P10j bullet_source_lines stays in step with bullets() over all '
+          '%d bullets of the real log -- exact, not sampled' % _n,
+          _mis == [], 'mismatches: %r' % _mis[:6])
+
+    # VACUITY.  A list the parser cannot find must not read as a clean bill of
+    # health -- that is exactly how the inert-knob census came to be read as
+    # one for five sessions (2026-10-17).  ABSENT is not CONFIRMED.
+    saved, BASELINE = BASELINE, live
+    try:
+        rows, seen = audit(HERE, PLANT_EMPTY)
+    finally:
+        BASELINE = saved
+    got = {r[0]: r[1] for r in rows}
+    check('P6 VACUITY, rows LIVE: no list found -> every row ABSENT, '
+          'none CONFIRMED',
+          seen == [] and set(got.values()) == {'ABSENT'},
+          'bullets=%d classes=%r' % (len(seen), sorted(set(got.values()))))
+    check('P6b ABSENT is a fault class, so an unparseable list cannot read '
+          'as a clean run', 'ABSENT' in FAULT_CLASSES)
+
+    # The retired case on the same empty list is RETIRED and that is correct --
+    # but only because the tree predicate still runs.  Assert that it did: a
+    # RETIRED row that skipped its predicate would be a bare "the wording is
+    # gone", which is the report this module refuses to accept as a check.
+    BASELINE = retd
+    try:
+        rows, _ = audit(HERE, PLANT_EMPTY)
+    finally:
+        BASELINE = saved
+    treevals = {r[0]: r[3] for r in rows}
+    check('P6c retired rows still evaluate the tree predicate on an empty list',
+          treevals.get('A1') is False and treevals.get('A2') is False,
+          'A1 tree=%r A2 tree=%r' % (treevals.get('A1'), treevals.get('A2')))
+
+    # DISJOINTNESS (the Design-Verification-Roadmap 2026-10-17 rule): the
+    # mechanisable and not-mechanisable sets must not overlap, so that
+    # loosening either cannot move a contradiction into the benign column.
+    mech = {b[0] for b in BASELINE}
+    nmech = {n[0] for n in NOT_MECHANISABLE}
+    check('P7 baseline ids and NOT_MECHANISABLE ids are disjoint',
+          not (mech & nmech), 'overlap %r' % sorted(mech & nmech))
+    check('P8 every NOT_MECHANISABLE row carries a reason of >= 40 chars',
+          all(len(n[2]) >= 40 for n in NOT_MECHANISABLE),
+          '%d rows' % len(NOT_MECHANISABLE))
+
+    # -- Section 2: the real list -------------------------------------------
+    print('\n' + '-' * 78)
+    print('2.  THE REAL STANDING LIST, AS OF THE LATEST ENTRY')
+    print('-' * 78)
+
+    ents = entries(logtext)
+    rows, seen = audit(HERE, logtext)
+    print('  latest entry: %s' % ents[-1][0])
+    print('  top-level bullets in its Not-yet-covered list: %d' % len(seen))
+    print('  baseline assertions checked: %d' % len(rows))
+    print()
+    print('  %-4s %-14s %-9s %-9s' % ('id', 'class', 'item says', 'tree says'))
+    for bid, cls, ia, ts, detail in rows:
+        print('  %-4s %-14s %-9s %-9s' % (bid, cls, ia, ts))
+        for ln in re.findall(r'.{1,66}(?:\s|$)', detail):
+            if ln.strip():
+                print('       %s' % ln.strip())
+    print()
+    for nid, subj, reason in NOT_MECHANISABLE:
+        print('  %-4s NOT_MECHANISABLE  %s' % (nid, subj))
+        for ln in re.findall(r'.{1,66}(?:\s|$)', reason):
+            if ln.strip():
+                print('       %s' % ln.strip())
+
+    # NON-VACUITY on the real list: if the parser silently found nothing, the
+    # rows above are an artefact and the two FAILs below would read as PASSes.
+    print()
+    check('R1 the latest list parsed to at least 10 top-level bullets',
+          len(seen) >= 10, 'got %d' % len(seen))
+    check('R2 no baseline row is in a fault class %r' % (FAULT_CLASSES,),
+          all(r[1] not in FAULT_CLASSES for r in rows),
+          'faults: %r' % [(r[0], r[1]) for r in rows if r[1] in FAULT_CLASSES])
+    check('R3 every retired row is still justified by the tree',
+          all(r[1] != 'RETIREMENT-STALE' for r in rows),
+          'stale retirements: %r'
+          % [r[0] for r in rows if r[1] == 'RETIREMENT-STALE'])
+    check('R4 no retired wording has returned to the list',
+          all(r[1] != 'REVIVED' for r in rows),
+          'revived: %r' % [r[0] for r in rows if r[1] == 'REVIVED'])
+
+    # -- Section 3: the revival ---------------------------------------------
+    print('\n' + '-' * 78)
+    print('3.  A1 IS NOT A STALE ITEM.  IT IS A RETIRED WORDING REVIVED')
+    print('-' * 78)
+
+    # The same constant the BASELINE row uses -- see A1_TRIG.
+    trig = A1_TRIG
+    anti = re.compile(r'chapters? 2 and 3 are drafted', re.I)
+    t, a, revived = revivals(logtext, trig, anti)
+    against = revived_against(t, a)
+    print('  entries asserting UNDRAFTED : %s' % ', '.join(t))
+    print('  entries asserting DRAFTED   : %s' % ', '.join(a))
+    print('  revived (undrafted AFTER a corrected entry) : %s'
+          % (', '.join(revived) or 'none'))
+    for d in revived:
+        print('      %s revives the wording corrected on %s' % (d, against[d]))
+    print()
+    alldates = [d for d, _ in entries(logtext)]
+    gap = [d for d in alldates if a and d > a[-1] and d < (revived[0] if revived else 'ZZ')]
+    print('  entries between the last corrected one and the revival : %d%s'
+          % (len(gap), (' (%s..%s)' % (gap[0], gap[-1])) if gap else ''))
+    print()
+    print('  Chapter 2 was drafted 2026-09-28 and Chapter 3 2026-09-29, so')
+    print('  every UNDRAFTED entry up to 09-27 was true when written.  The')
+    # ANNOTATED 2026-11-09, NUMBER KEPT.  "tracked the drafting correctly for
+    # N entries" is false as a description of the LIST: Section 5 shows the
+    # list carried the corrected item as its own bullet in exactly ONE entry
+    # (11-06) and retired it in one more (11-07).  The other N-2 are mentions
+    # of the fact inside a different item.  The count is kept as printed
+    # because it is what `a` contains and what V1/V2/V3 are computed from;
+    # the gloss is corrected beside it rather than the number quietly changed.
+    print('  list then MENTIONED the drafting in %d entries' % len(a))
+    print('  (the 10-18 gloss read "tracked the drafting correctly", which')
+    print('   Section 5 shows is true of exactly one of them -- annotated')
+    print('   2026-11-09, number unchanged)')
+    print('  (%s..%s), carried nothing for %d, and the entry after those is'
+          % (a[0], a[-1], len(gap)))
+    print('  the revival.  An item absent long enough stops being remembered')
+    print('  as retired and starts being available to be re-derived.')
+
+    check('  V1 the list did at one point carry the corrected wording',
+          len(a) >= 1, 'entries: %r' % a)
+    check('  V2 at least one entry revived the retired wording',
+          len(revived) >= 1, 'revived: %r' % revived)
+    # V3 AMENDED 2026-11-06 to the entry-local invariant.  Its old form,
+    # min(revived) > max(a), encoded the rule this session replaced: it is a
+    # statement about the file's end and happens to hold today only because
+    # no corrected entry follows a revival.  Kept as V3b, reported as the
+    # coincidence it is.
+    check('  V3 every revival is strictly later than the corrected entry it '
+          'revives against',
+          bool(revived) and all(against[d] < d for d in revived),
+          'pairs: %s' % ', '.join('%s>%s' % (d, against[d]) for d in revived))
+    # V3b IS A REPORT AND NOT A CHECK, AND THE FIRST DRAFT GOT THIS WRONG.
+    # It was committed earlier today as a check() asserting min(revived) >
+    # max(a).  That is the superseded rule's own statement -- a property of
+    # where the file ENDS -- and the docstring two screens up calls it a
+    # coincidence.  Asserting a coincidence makes the suite go red the first
+    # time the coincidence breaks, for no finding, and this repository has a
+    # standing rule that a permanently red check is one nobody reads.
+    #
+    # It breaks on the very next entry.  Today's AUTOMATION_LOG entry words
+    # the chapters-2-and-3 item CORRECTLY -- which the revivals() repair is
+    # what makes safe -- so 2026-11-06 joins the corrected list, max(a)
+    # becomes 2026-11-06, and the old form reads False while every one of the
+    # five revivals is still correctly recorded.  So it is printed with its
+    # value and its reason, and nothing is gated on it.
+    _coincides = bool(revived) and bool(a) and min(revived) > max(a)
+    print()
+    print('  V3b the superseded global form, min(revival) > max(corrected),')
+    print('      reads %s on this log.  It is a REPORT, not a check: it is'
+          % _coincides)
+    print('      the replaced rule\'s own statement about where the file ends,')
+    print('      and it goes False as soon as any entry after a revival words')
+    print('      the item correctly -- which is a correct log entry, not a')
+    print('      fault.  min revival %s, last corrected %s.'
+          % (revived[0] if revived else '-', a[-1] if a else '-'))
+    print('      P9d is the measurement of what breaks it.')
+
+    # -- Section 4: git corroboration for A2 --------------------------------
+    print('\n' + '-' * 78)
+    print('4.  A2 CORROBORATED FROM THE HISTORY, NOT ONLY FROM THE FILE')
+    print('-' * 78)
+    try:
+        # `git -S` matches raw bytes, so the phrase chosen here is one the
+        # file does NOT wrap.  A phrase that wraps would come back empty and
+        # read as "never committed" -- the P5 defect, one layer out.
+        out = subprocess.run(
+            ['git', '-C', HERE, 'log', '--format=%h %ad %s', '--date=short',
+             '-S', 'true of the committed model and false of the corrected one',
+             '--', 'thesis_draft/04-graphene-fet-device-physics.md'],
+            capture_output=True, text=True, timeout=60)
+        hist = out.stdout.strip()
+    except Exception as exc:                                  # pragma: no cover
+        hist = ''
+        print('  git unavailable: %r' % (exc,))
+    if hist:
+        for ln in hist.split('\n'):
+            print('  %s' % ln)
+        check('  G1 the Section 4.7 annotation was committed on 2026-10-13',
+              '2026-10-13' in hist, hist.split('\n')[0])
+        check('  G2 and its commit message names BOTH sections',
+              'Sections 4.7 and 4.10' in hist, hist.split('\n')[0])
+    else:
+        print('  (no history available; the in-file evidence in Section 2')
+        print('   stands on its own and is the stronger of the two)')
+
+    # -- Section 5: WHAT THE ANTI-SET ACTUALLY CONTAINS ---------------------
+    print('\n' + '-' * 78)
+    print('5.  THE ANTI-SET IS NOT WHAT V1 SAYS IT IS.  ADDED 2026-11-09,')
+    print('    MEASURED, AND DELIBERATELY NOT ACTED ON')
+    print('-' * 78)
+    _cen = anti_census(logtext, anti)
+    print('  Every bullet of every entry mentioning the corrected wording,')
+    print('  classified by HOW it mentions it:')
+    print()
+    for _d, _c, _b in _cen:
+        print('    %s  %-12s %s' % (_d, _c, _b[:58]))
+    _by = {}
+    for _d, _c, _b in _cen:
+        _by.setdefault(_c, []).append(_d)
+    print()
+    for _c in ANTI_CLASSES:
+        print('    %-12s %d  %s' % (_c, len(_by.get(_c, [])),
+                                    ', '.join(_by.get(_c, [])) or '-'))
+
+    print()
+    print('  THE LIST CARRIED THE CORRECTED ITEM AS ITS OWN BULLET IN EXACTLY')
+    print('  ONE ENTRY -- 2026-11-06 -- and retired it in one more (11-07).')
+    print('  The other six mention the fact inside a DIFFERENT item.')
+    print()
+    print('  Consequence for the revival record, by which classes count:')
+    print()
+    _t_all, _, _ = revivals(logtext, A1_TRIG, anti)
+    _narrow = {}
+    for _keep in (('CARRIED',), ('CARRIED', 'RETIRED'),
+                  ('CARRIED', 'RETIRED', 'SUBORDINATE'), ANTI_CLASSES):
+        _a = anti_dates_by_class(logtext, anti, _keep)
+        _r = [d for d in _t_all if any(x < d for x in _a)]
+        _narrow[_keep] = (_a, _r)
+        print('    keep %-38s anti=%d  revivals=%d'
+              % ('+'.join(_keep), len(_a), len(_r)))
+    print()
+    print('  THE WHOLE REVIVAL RECORD RESTS ON THE SUBORDINATE CLASS.  The')
+    print('  five recorded revivals survive only because of the four 10-01..')
+    print('  10-04 bullets whose SUBJECT IS §4.8.2 and which mention the')
+    print('  chapters as a premise: "Chapters 2 and 3 are drafted BUT §4.8.2\'s')
+    print('  form of error is not audited for elsewhere".  Drop that class and')
+    print('  all five revivals go, V2 goes red, and R4 stops meaning anything.')
+    print()
+    print('  WHY NOTHING IS CHANGED HERE.  Whether a subordinate assertion')
+    print('  counts as the list CARRYING the corrected item is a real')
+    print('  question with two defensible answers, and the session that found')
+    print('  it is the worst placed to decide it -- the 11-05 rule.  It is')
+    print('  ranked on the standing list instead.')
+    print()
+    print('  AND IT BOUNDS THE 11-06 CONTAINMENT ARGUMENT.  That amendment')
+    print('  proved the revival rule can only ADD revivals, never drop one.')
+    print('  The proof holds the ANTI-SET FIXED.  Narrowing the anti-set drops')
+    print('  revivals -- five of them -- so the reassurance does not cover')
+    print('  this change.  Stating the scope of a proof is cheaper than')
+    print('  rediscovering its limit.')
+    print()
+
+    _classes_seen = {c for _, c, _ in _cen}
+    check('S5a the census partitions: every mention gets exactly one known '
+          'class, and the dates reproduce the raw anti-set',
+          _classes_seen <= set(ANTI_CLASSES)
+          and sorted({d for d, _, _ in _cen})
+              == sorted(set(anti_dates_by_class(logtext, anti, ANTI_CLASSES))),
+          'classes %r' % sorted(_classes_seen))
+    _byh = {}
+    for _d, _c, _b in _cen:
+        if _d <= HISTORICAL_PARTITION_THROUGH:
+            _byh.setdefault(_c, []).append(_d)
+    _later = [(d, c) for d, c, _ in _cen if d > HISTORICAL_PARTITION_THROUGH]
+    check('S5b CARRIED has exactly one member through %s'
+          % HISTORICAL_PARTITION_THROUGH,
+          _byh.get('CARRIED') == ['2026-11-06'],
+          'got %r' % _byh.get('CARRIED'))
+    check('S5c narrowing the anti-set to CARRIED (or CARRIED+RETIRED) EMPTIES '
+          'the revival record -- all five lost',
+          _narrow[('CARRIED',)][1] == []
+          and _narrow[('CARRIED', 'RETIRED')][1] == [],
+          'the measurement this section exists for; it is a finding, not a '
+          'fault, and nothing is narrowed')
+    check('S5d and the five come back exactly when SUBORDINATE is admitted, '
+          'so that class carries the entire record',
+          _narrow[('CARRIED', 'RETIRED', 'SUBORDINATE')][1]
+          == ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28',
+              '2026-11-04'],
+          'got %r' % (_narrow[('CARRIED', 'RETIRED', 'SUBORDINATE')][1],))
+    check('S5e the anti-set the audit now reads is exactly "all classes but '
+          'QUOTED" -- Section 1\'s repair, restated as a partition',
+          sorted(_a_s) == sorted(anti_dates_by_class(
+              logtext, anti, ('CARRIED', 'RETIRED', 'SUBORDINATE',
+                              'INCIDENTAL'))),
+          'audit reads %r' % (sorted(_a_s),))
+    # S5g THE WHOLE PARTITION AS ONE EXACTLY-KNOWN ANSWER.  Mutation testing
+    # asked for this: dropping the RETIRED class entirely was caught by S5f
+    # alone, 1 of 49, because every other S5 check names only CARRIED.  The
+    # map below is the full membership, read off the log by inspection, so any
+    # reclassification of any date goes red here with the diff in hand.
+    _EXPECTED = {
+        'CARRIED':     ['2026-11-06'],
+        'RETIRED':     ['2026-11-07'],
+        'SUBORDINATE': ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04'],
+        'INCIDENTAL':  ['2026-10-05', '2026-10-06'],
+        'QUOTED':      ['2026-11-08'],
+    }
+    check('S5g the full class -> dates partition through %s matches the '
+          'membership read off the log by inspection'
+          % HISTORICAL_PARTITION_THROUGH,
+          {c: _byh.get(c, []) for c in ANTI_CLASSES} == _EXPECTED,
+          'got %r' % ({c: _byh.get(c, []) for c in ANTI_CLASSES},))
+    print()
+    print('  Entries after the gated window (%s): %s'
+          % (HISTORICAL_PARTITION_THROUGH,
+             ', '.join('%s=%s' % (d, c) for d, c in _later) or 'none'))
+    print('  These are REPORTED and gated on nothing -- see')
+    print('  HISTORICAL_PARTITION_THROUGH for why the exact partition stops')
+    print('  at a closed window instead of growing with the file.')
+
+    # S5h THE WINDOW ACTUALLY PROTECTS THE PARTITION -- planted, because the
+    # whole point of the window is what it does to a log that has GROWN, and
+    # the real log has not grown yet.  A future entry quoting the wording in
+    # backticks (which is what this session's own AUTOMATION_LOG entry does)
+    # must classify QUOTED, must appear in the after-window report, and must
+    # leave the gated partition untouched.  This is the check whose absence
+    # falsified the 11-08 prediction: asking what the entry will do to the
+    # suite BEFORE committing the entry.
+    _future = logtext + (
+        '\n## 2026-12-31 - a plant\n\n'
+        '**Not yet covered (candidates for future runs):**\n\n'
+        '- **A BULLET DESCRIBING THE REPAIR** - it removed the decoy\n'
+        '  `CHAPTERS 2 AND 3 ARE DRAFTED` bullet, quoted here on purpose.\n\n'
+        '**Commits this run:** 0\n')
+    _fcen = anti_census(_future, anti)
+    _fby_h, _fby_late = {}, []
+    for _d, _c, _ in _fcen:
+        if _d <= HISTORICAL_PARTITION_THROUGH:
+            _fby_h.setdefault(_c, []).append(_d)
+        else:
+            _fby_late.append((_d, _c))
+    check('S5h a future entry QUOTING the wording classifies QUOTED, is '
+          'reported after the window, and leaves the gated partition intact',
+          _fby_late == [('2026-12-31', 'QUOTED')]
+          and {c: _fby_h.get(c, []) for c in ANTI_CLASSES} == _EXPECTED,
+          'late %r' % (_fby_late,))
+
+    # S5i AND THE SAME ENTRY ASSERTING IT IS STILL CAUGHT.  The window must
+    # not become a blind spot: it suspends the EXACT-MEMBERSHIP claim, not the
+    # reading.  A future entry asserting the wording plainly must classify
+    # CARRIED and show up in the report, or the window would have turned a
+    # gate into an exemption.
+    _future2 = logtext + (
+        '\n## 2026-12-31 - a plant\n\n'
+        '**Not yet covered (candidates for future runs):**\n\n'
+        '- **CHAPTERS 2 AND 3 ARE DRAFTED** - asserted plainly in a plant.\n\n'
+        '**Commits this run:** 0\n')
+    _f2 = [(d, c) for d, c, _ in anti_census(_future2, anti)
+           if d > HISTORICAL_PARTITION_THROUGH]
+    check('S5i and a future entry ASSERTING it classifies CARRIED -- the '
+          'window suspends the membership claim, not the reading',
+          _f2 == [('2026-12-31', 'CARRIED')], 'late %r' % (_f2,))
+
+    check('S5f every class is non-empty on the real log, so none of the five '
+          'is a hypothetical the classifier invented',
+          all(_by.get(c) for c in ANTI_CLASSES),
+          'empty: %r' % [c for c in ANTI_CLASSES if not _by.get(c)])
+
+    print('\n' + '=' * 78)
+    print('TOTAL: %d passed, %d failed' % (passed, failed))
+    print('=' * 78)
+    return 1 if failed else 0
+
+
+if __name__ == '__main__':
+    if '--show-normalised' in sys.argv:
+        _av = [a for a in sys.argv[1:] if a != '--show-normalised']
+        _date = next((a for a in _av if re.fullmatch(r'20\d\d-\d\d-\d\d', a)), None)
+        _pat = next((a for a in _av if a != _date), None)
+        show_normalised(open(LOG, encoding='utf-8').read(), _date, _pat)
+        sys.exit(0)
+    sys.exit(main())

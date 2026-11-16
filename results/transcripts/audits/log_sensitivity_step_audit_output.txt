@@ -17,14 +17,14 @@ Q7 -- SOURCE CENSUS: is `conv` ever compared against anything?
     graphene_default_scale_audit.py:73  D2  `log_sensitivity(rel_step=1e-5)` passes covariance EXACTLY (
     graphene_default_scale_audit.py:268  S1, _ = log_sensitivity(f1, 1.0, rel_step=rel_step)
     graphene_default_scale_audit.py:270  S2, _ = log_sensitivity(f2, 1.0 * lam, rel_step=rel_step)
-    graphene_sensitivity_audit.py:244  par[name] = log_sensitivity(lambda v, n=key[name]: _lambda_imp(*
-    graphene_sensitivity_audit.py:308  row[name] = log_sensitivity(
-    graphene_sensitivity_audit.py:343  Sp, conv = log_sensitivity(
-    graphene_sensitivity_audit.py:469  S, c = log_sensitivity(lambda v: v / 0.1522, 55.0)
-    graphene_sensitivity_audit.py:471  S, c = log_sensitivity(
-    graphene_sensitivity_audit.py:477  S, c = log_sensitivity(lambda v: 7.0 / v, 3.0)
-    graphene_sensitivity_audit.py:540  S_cal, c_cal = log_sensitivity(
-    graphene_sensitivity_audit.py:546  zeros[name] = log_sensitivity(
+    graphene_sensitivity_audit.py:254  par[name] = log_sensitivity(lambda v, n=key[name]: _lambda_imp(*
+    graphene_sensitivity_audit.py:324  row[name] = log_sensitivity(
+    graphene_sensitivity_audit.py:359  Sp, conv = log_sensitivity(
+    graphene_sensitivity_audit.py:485  S, c = log_sensitivity(lambda v: v / 0.1522, 55.0)
+    graphene_sensitivity_audit.py:487  S, c = log_sensitivity(
+    graphene_sensitivity_audit.py:493  S, c = log_sensitivity(lambda v: 7.0 / v, 3.0)
+    graphene_sensitivity_audit.py:556  S_cal, c_cal = log_sensitivity(
+    graphene_sensitivity_audit.py:562  zeros[name] = log_sensitivity(
   lines in which a conv-like name appears in a COMPARISON : 3
     graphene_covariance_probe_audit.py:460  if best is None or conv < best[1]:
     graphene_covariance_probe_audit.py:483  "DISCARDED into `_`" if conv_name == "_"

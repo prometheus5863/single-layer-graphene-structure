@@ -49,6 +49,34 @@ STDOUT_TRANSCRIPT = {
     "graphene_second_anchor_bound.py": "results/transcripts/ch7/second_anchor_bound_output.txt",
     "graphene_transport_optical_audit.py": "results/transcripts/ch3/transport_optical_audit_output.txt",
     "rf_small_signal_model.py": "results/transcripts/ch4/rf_small_signal_output.txt",
+    # added at the merge of main @ e4fbc26 (2026-11-16)
+    "graphene_ambipolar_mirror_audit.py": "results/transcripts/ch4/ambipolar_mirror_audit_output.txt",
+    "graphene_areal_thermal_resistance.py": "results/transcripts/ch4/areal_thermal_resistance_output.txt",
+    "graphene_attribute_default_capture.py": "results/transcripts/audits/attribute_default_capture_output.txt",
+    "graphene_branch_asymmetric_mobility.py": "results/transcripts/ch4/branch_asymmetric_mobility_output.txt",
+    "graphene_capture_leverage_figure.py": "results/transcripts/audits/capture_surface_leverage_output.txt",
+    "graphene_capture_surface_guard.py": "results/transcripts/audits/capture_surface_guard_output.txt",
+    "graphene_capture_surface_mutation.py": "results/transcripts/audits/capture_surface_mutation_output.txt",
+    "graphene_census_split_equivalence.py": "results/transcripts/audits/census_split_equivalence_output.txt",
+    "graphene_chapter_status_audit.py": "results/transcripts/audits/chapter_status_audit_output.txt",
+    "graphene_chord_decay_length.py": "results/transcripts/ch4/chord_decay_length_output.txt",
+    "graphene_citation_census_audit.py": "results/transcripts/audits/citation_census_output.txt",
+    "graphene_density_dependent_mobility.py": "results/transcripts/ch4/density_dependent_mobility_output.txt",
+    "graphene_impurity_limited_crossover.py": "results/transcripts/ch4/impurity_limited_crossover_output.txt",
+    "graphene_installed_surface_audit.py": "results/transcripts/audits/installed_surface_audit_output.txt",
+    "graphene_installed_surface_mutation.py": "results/transcripts/audits/installed_surface_mutation_output.txt",
+    "graphene_kappa_impurity_bound.py": "results/transcripts/ch4/kappa_impurity_bound_output.txt",
+    "graphene_low_frequency_noise_model.py": "results/transcripts/ch4/low_frequency_noise_output.txt",
+    "graphene_mixed_capture_repair_audit.py": "results/transcripts/audits/mixed_capture_repair_output.txt",
+    "graphene_replacement_read_audit.py": "results/transcripts/audits/replacement_read_audit_output.txt",
+    "graphene_screening_overdrive_invariance.py": "results/transcripts/ch7/screening_overdrive_invariance_output.txt",
+    "graphene_self_heating_model.py": "results/transcripts/ch4/self_heating_output.txt",
+    "graphene_self_heating_mutation.py": "results/transcripts/audits/self_heating_mutation_output.txt",
+    "graphene_standing_list_audit.py": "results/transcripts/audits/standing_list_audit_output.txt",
+    "graphene_tolerance_census_audit.py": "results/transcripts/audits/tolerance_census_output.txt",
+    "graphene_value_read_mutation.py": "results/transcripts/audits/value_read_mutation_output.txt",
+    "graphene_value_read_surface.py": "results/transcripts/audits/value_read_surface_output.txt",
+    "graphene_write_read_guard.py": "results/transcripts/audits/write_read_guard_output.txt",
 }
 # Superseded demo scripts. They stay in src/ only because several audits count
 # every *.py in that directory and print the count (docs/INVENTORY.md section 6);
@@ -58,7 +86,8 @@ LEGACY = {"generate_plots.py", "simple_graphene_plots.py", "summary.py",
 
 # Committed transcripts that are NOT regenerated, because they are records,
 # not outputs (docs/INVENTORY.md section 3).
-NOT_REGENERATED = {"audit_output.txt", "sensitivity_converged_output.txt"}
+NOT_REGENERATED = {"audit_output.txt", "sensitivity_converged_output.txt",
+                   "census_environment_verdict_in_anger.txt", "standing_list_normalisation_1108.txt"}
 
 # Modules whose stdout is not deterministic by construction (they print the
 # current commit, working-tree state, or wall-clock timings). Their files are
@@ -89,22 +118,23 @@ def snapshot():
 
 
 def run(modules):
-    env = dict(os.environ, MPLBACKEND="Agg", PYTHONHASHSEED="0", SOURCE_DATE_EPOCH="0")
+    env = dict(os.environ, MPLBACKEND="Agg", PYTHONHASHSEED="0", SOURCE_DATE_EPOCH="0", PYTHONUTF8="1")
     report = []
     for m in modules:
         before = snapshot()
         t0 = time.time()
-        p = subprocess.run([sys.executable, m], cwd=SRC, env=env, capture_output=True, text=True)
+        p = subprocess.run([sys.executable, m], cwd=SRC, env=env, capture_output=True, text=True,
+                           encoding="utf-8", errors="surrogateescape")  # bytes-exact on every OS
         dt = time.time() - t0
         if m in STDOUT_TRANSCRIPT:
             out = os.path.join(ROOT, STDOUT_TRANSCRIPT[m])
             os.makedirs(os.path.dirname(out), exist_ok=True)
-            with open(out, "w") as fh:
+            with open(out, "w", encoding="utf-8", errors="surrogateescape", newline="\n") as fh:
                 fh.write(p.stdout)
         after = snapshot()
         touched = sorted(k for k, v in after.items() if before.get(k) != v)
         report.append(dict(module=m, rc=p.returncode, seconds=round(dt, 1),
-                           stdout_sha256=sha(p.stdout.encode()), touched=touched))
+                           stdout_sha256=sha(p.stdout.encode("utf-8", "surrogateescape")), touched=touched))
         print(f"{m:58s} exit {p.returncode}  {dt:7.1f}s  {len(touched)} file(s)", flush=True)
         if p.returncode not in (0, 1):
             print(p.stderr[-2000:], file=sys.stderr)
@@ -113,7 +143,7 @@ def run(modules):
 
 def load_baseline():
     rows = []
-    for line in open(BASELINE):
+    for line in open(BASELINE, encoding="utf-8"):
         if line.startswith("#") or not line.strip():
             continue
         h, px, kind, name, producer = line.split()

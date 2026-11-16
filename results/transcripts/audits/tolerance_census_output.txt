@@ -1,0 +1,145 @@
+==============================================================================
+graphene_tolerance_census_audit.py -- 2026-11-11
+==============================================================================
+
+[1] _sigfigs reads precision off the SPELLING, and refuses to guess
+  PASS  1a _sigfigs('1.0') == 2
+  PASS  1a _sigfigs('9.4e11') == 2
+  PASS  1a _sigfigs('1e4') == 1
+  PASS  1a _sigfigs('1.1113e11') == 5
+  PASS  1a _sigfigs('6.45') == 3
+  PASS  1a _sigfigs('0.0050') == 2
+  PASS  1a _sigfigs('12') == 2
+  PASS  1a _sigfigs('100') == None
+  PASS  1a _sigfigs('20') == None
+  PASS  1a _sigfigs('0') == None
+  PASS  1b a literal's spelling and a label's spelling can disagree: '1.0e4' reads 2 s.f., '1e4' reads 1 -- the A2 case
+
+[2] the licensed interval is an EXACT rational, not a range
+  PASS  2a Dorgan's 1.1e11 at 2 s.f. licenses h_rel EXACTLY 1/22
+  PASS  2b and h_abs EXACTLY 5e9 cm^-2
+  PASS  2c Dorgan's 9.4e11 at 2 s.f. licenses h_rel EXACTLY 1/188
+  PASS  2d both footnote-18 values share the SAME h_abs, because both are quoted at the same decade and the same figures
+  PASS  2e an ambiguous spelling licenses NOTHING -- half_width returns None rather than a default
+
+[3] the 2026-11-10 B2 defect, reproduced as an identity
+  PASS  3a the recorded failure is 1.027 %
+  PASS  3b the value DOES round to the quoted figure
+  PASS  3c the failure lies STRICTLY inside (old tolerance, licensed half-width) -- the whole window in which a correct value fails a check
+  PASS  3d so the old 1 %% tolerance is OVER_TIGHT by exactly 1/22/0.01 = 4.5454...
+  PASS  3e a tolerance SET to the licensed half-width is MATCHED, so the defect is the NUMBER, not the operator -- this corrects the commissioning item's own wording
+
+[4] an absolute tolerance is judged in its own units
+  PASS  4a effective_half_width routes ABS_TOL to h_abs
+  PASS  4b and REL_TOL to h_rel
+  PASS  4c the real 6.45 kOhm/sq row is vacuous by EXACTLY 2, not by the 12.9 the unscaled first version reported
+
+[5] zeros
+  PASS  5a a source with no comparison censuses to EXACTLY zero rows
+  PASS  5b a source whose only comparison has no residual censuses to EXACTLY zero rows (a bare `x < 1` is not a tolerance test)
+  PASS  5c but an UNLABELLED residual is still counted -- the literature filter is not what makes the census empty
+  PASS  5d a quoted token of 0 licenses nothing and raises nothing
+
+[6] planted control -- every verdict in the vocabulary
+  PASS  6a the plant yields exactly the twelve planted rows, in order, with the twelve intended verdicts
+  PASS  6b verdict OVER_TIGHT has a planted instance
+  PASS  6b verdict VACUOUS has a planted instance
+  PASS  6b verdict MATCHED has a planted instance
+  PASS  6b verdict AMBIGUOUS has a planted instance
+  PASS  6b verdict NO_QUOTE has a planted instance
+  PASS  6b verdict SIGFIG_TEST has a planted instance
+  PASS  6b verdict LIT_NO_TEST has a planted instance
+  PASS  6c P8 is reached ONLY through the local name `rel`
+  PASS  6d P1's over-tightness is the B2 factor to the last figure
+  PASS  6f the %g vocabulary of the significant-figure test is recognised as such, not scored LIT_NO_TEST
+  PASS  6g the phrase cue fires on 'accepted ... value' and NOT on this tree's adjudication sense of the same word
+  PASS  6e P7's '4-5 %' does NOT become the quoted value: the hyphen-welded number is not a quotation
+
+[7] mutation -- five defects in the verdict, all detected
+    detected: inequality flipped           -> [('P1', 'VACUOUS'), ('P2', 'OVER_TIGHT'), ('P3', 'MATCHED')]
+    detected: always MATCHED               -> [('P1', 'MATCHED'), ('P2', 'MATCHED'), ('P3', 'MATCHED')]
+    detected: ambiguity suppressed         -> [('P1', 'OVER_TIGHT'), ('P2', 'VACUOUS'), ('P3', 'VACUOUS')]
+    detected: equality band widened to 100 % -> [('P1', 'MATCHED'), ('P2', 'VACUOUS'), ('P3', 'MATCHED')]
+    detected: never MATCHED                -> [('P1', 'OVER_TIGHT'), ('P2', 'VACUOUS'), ('P3', 'VACUOUS')]
+  PASS  7a all five verdict mutants are detected by the planted control
+  PASS  7b a _sigfigs that GUESSES 2 instead of refusing is detected: P4 stops being AMBIGUOUS
+
+[8] the tree
+
+==============================================================================
+COMPARISONS AGAINST A PUBLISHED NUMBER
+==============================================================================
+module                               line  form      tol       quoted    s.f. licensed   verdict      licensed/tol
+------------------------------------------------------------------------------------------------------------------
+graphene_areal_thermal_resistance.py 317   SIGFIG    -         2.8e-7    2    -          SIGFIG_TEST  
+graphene_areal_thermal_resistance.py 374   NO_TEST   -         1.0e4     2    -          LIT_NO_TEST  
+graphene_areal_thermal_resistance.py 479   NO_TEST   -         2.8e-11   2    -          LIT_NO_TEST  
+graphene_fet_signed_carrier_model.py 648   ABS_TOL   0.01      6.45      3    0.005      VACUOUS      x0.5
+graphene_kappa_impurity_bound.py     644   SIGFIG_FMT -         1.5e12    2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       384   SIGFIG    -         5         1    -          SIGFIG_TEST  
+graphene_self_heating_model.py       390   SIGFIG    -         1.2794    5    -          SIGFIG_TEST  
+graphene_self_heating_model.py       453   REL_TOL   0.0178571 ~1e4      1    0.017857   MATCHED      x1
+graphene_self_heating_model.py       472   SIGFIG    -         ~2.8e-7   2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       493   ROUND_EQ  -         4         1    -          SIGFIG_TEST  
+graphene_self_heating_model.py       496   ROUND_EQ  -         84        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       499   ROUND_EQ  -         12        2    -          SIGFIG_TEST  
+graphene_self_heating_model.py       622   NO_TEST   -         ~20       amb  -          LIT_NO_TEST  
+------------------------------------------------------------------------------------------------------------------
+13 rows printed; 104 tolerance comparisons in the tree in total, of which
+    VACUOUS      1
+    MATCHED      1
+    NO_QUOTE     102
+    SIGFIG_TEST  8
+    LIT_NO_TEST  3
+44 row(s) were reached only through a local name binding
+
+  PASS  8a the census is not empty on the real tree
+  PASS  8b name-bound residuals are a LARGE fraction of the tree, so the inline-only first version was missing most of it
+  PASS  8c every adjudicated row carries a quoted token and a verdict in the declared vocabulary
+  PASS  8d the tree contains at least one VACUOUS comparison against a published number, and it is a real defect: the 6.45 kOhm/sq row, whose THREE-figure licensed width comes from a number this repository wrote itself (the citation census calls it UNWARRANTED)
+  PASS  8d2 and the tree now contains ZERO OVER_TIGHT rows, where before 2026-11-13 it contained exactly one.  That one was A2, the false positive of 9l, and the split-warrant repair removed it WITHOUT touching the comparison -- only the warrant the census reads
+  PASS  8e no row in the tree is adjudicated against a NEGATIVE OR ZERO quoted value -- the footnote-ordinal bug would show up here
+  PASS  8f A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES (standing item, 2026-10-17) has an instance HERE: censusing this module adds 7 adjudicated rows that are its own controls
+  PASS  8g and excluding it removes every one of them from the tree's figures
+  PASS  8h THE SECOND PLANTING MODULE, AND WHAT IT WOULD HAVE COST: graphene_citation_census_audit (2026-11-13) contributes 10 quoted row(s) of its own planted controls, which a SELF-only exclusion would have reported as findings about the tree -- so the exclusion is now the declared class PLANTING_MODULES
+  PASS  8i and the exclusion changes NO adjudicated verdict about the tree, because every row it removes belongs to a file that was not in the tree before today
+
+[9] the vacuous tolerances, against the values they admit
+  PASS  9a kappa_ox(300K) = 1.2789670... does NOT round to the accepted 1.2794 at the five figures that value is quoted to
+  PASS  9b and A1 passes anyway, because |1.2789670 - 1.2794| = 4.33e-4 sits between the licensed 5e-5 and the coded 5e-4
+  PASS  9c a tolerance set to the licensed half-width would FAIL A1, which is the whole value of setting it there
+  PASS  9d the OTHER vacuous row is not masking anything today: 6.453202... does round to Chapter 3's 6.45 at 3 s.f.
+  PASS  9e and the OVER_TIGHT row is passing with room to spare, so its defect stays latent: 9915.6 K/W is inside both the 5 %% tested band and the 1-s.f. licensed band
+  PASS  9f of the three defective tolerances the census found, exactly ONE was passing a value its own label called equal to a published number it does not round to
+  PASS  9h the paper's actual printed value, 1.3 at 2 s.f., licenses +/-0.05 -- a band 1000x the 5e-5 the phantom 1.2794 appeared to license
+  PASS  9i and the computed value DOES round to it, so the transcription of the fit was never in question -- only its warrant was
+  PASS  9j no row in the tree now puts a TOLERANCE against 1.2794 behind a publication cue: the surviving 1.2794 row is the significant-figure check that records the discrepancy
+  PASS  9k THE LIMIT OF THIS INSTRUMENT, stated as a check so it is not forgotten: the census reads quoted precision off a check's LABEL, so a label citing a value its source never printed is adjudicated as though the citation were real.  Detecting that needs the paper, not the AST.  5 s.f. on 1.2794 and 2 s.f. on 1.3 are both read correctly from their spellings, and only one of them has a source.
+  PASS  9l THE CENSUS'S FIRST FALSE POSITIVE, REPAIRED 2026-11-13 AND RECORDED HERE RATHER THAN DELETED.  Until today the census assumed a check's CENTRE and its WIDTH are warranted by the SAME printed number.  A2 takes its centre from Dorgan's one-figure '~1e4' and its width from the two-figure '~2.8e-7 per unit of device area' in the same sentence -- the same quantity, since A = L*W is exact -- so the census read only the centre, licensed +-50 %, saw +-1.7857 % and returned OVER_TIGHT AT RATIO 28: a wrong verdict reached by correct arithmetic.  Section 10 is the repair, and this check now asserts the row is no longer OVER_TIGHT while keeping the old numbers in place
+  PASS  9m A BLIND SPOT MEASURED RATHER THAN ASSERTED: census_source resolves name-bound RESIDUALS (the left side, 44 rows via bound_via) but not name-bound TOLERANCES -- `tol` is taken only from a literal comparator, so a check whose width is a named constant is outside the census entirely.  There are 7 such comparisons in 7 modules, and A2 was one of them for the length of one edit on 2026-11-12, which is how this was found
+
+SECTION 10.  The second warrant: centre and width from different printed numbers
+  PASS  10a the tree now contains exactly one row with a DECLARED width warrant, and it is A2 -- centre from Dorgan's one-figure ~1e4, width from the two-figure ~2.8e-7 in the same sentence
+  PASS  10b and its verdict is MATCHED, where on 2026-11-11 and 2026-11-12 it was OVER_TIGHT at ratio x28.  THE COMPARISON IN THE CODE IS UNCHANGED: what changed is which printed number the census reads the licensed width off
+  PASS  10c the transfer is legitimate for exactly one reason, and it is an EXACT one: A = L*W is given by the stated geometry and not fitted, so 2.8e-7 / A = 1e4 to within one ulp (2026-11-12 I1) and a RELATIVE width on one is a relative width on the other
+  PASS  10d THE MATCHED VERDICT IS A STATEMENT ABOUT THE EQUALITY BAND, NOT ABOUT BITWISE EQUALITY: A2's coded 0.05/2.8 and the census's own 0.5e-8/2.8e-7 are two spellings of 1/56 that differ by EXACTLY 1 ulp, and at rel_eps=0 the verdict would be VACUOUS by that one ulp instead of MATCHED
+  PASS  10e THE RESTRICTION, CHECKED: a width warrant is honoured only on a relative form.  No ABS_TOL row in the tree carries one, so nothing is being silently transferred across units today
+  PASS  10f PLANTED CONTROLS FOR THE SECOND WARRANT (the twenty-third instance of the standing item): the SAME comparison at the SAME tolerance is MATCHED with the declared width warrant (W1) and OVER_TIGHT without it (W2) -- so the mechanism, and not the arithmetic, is what the verdict turns on
+  PASS  10g and a width warrant whose OWN spelling fixes no precision is refused, not guessed: W3 falls back to the centre's half-width and is OVER_TIGHT, exactly as if it had declared nothing
+  PASS  10h and the mutant that ignores the declared warrant is detected: W1 reverts to OVER_TIGHT
+  PASS  10i SCORING THE 2026-11-12 PREDICTION (2).  FIRST HALF RIGHT: it said teaching the census two warrants would turn MATCHED, not OK, on A2 -- because A2's width equals the licensed half-width exactly, so the boundary case is the right verdict.  It does, and 10d shows the equality holds to one ulp and not better
+  PASS  10j SECOND HALF WRONG, AND UNSCORABLE AS POSED -- the X4 class again.  It predicted the repair would expose at least one row currently adjudicated MATCHED as mis-adjudicated.  The tree contained ZERO MATCHED rows on 2026-11-12, so the population it named was empty before the repair ran and A2 is the FIRST MATCHED row this tree has ever had
+
+SECTION R.  The recursion the cross-repository run forced
+  PASS  R2 over THIS tree the recursive and flat censuses are identical field-for-field (115 rows each), because this tree is flat -- so making recursion the default cannot alter any existing finding
+  PASS  R2b and that comparison HAS to be by field: Row keeps object identity for equality, so census_repo() == census_repo() is False for two runs over one unchanged tree.  Recorded as a check because a regression test written the obvious way would fail for a reason that has nothing to do with the census
+  PASS  R1 THE FINDING ABOUT THE INSTRUMENT: run flat over the sibling repository the census reads 0 Python files and returns 0 rows, while recursively it reads 48 and returns 6.  An empty census is indistinguishable from a clean one, so this would have been reported as 'no tolerance defects'
+  PASS  X1 the sibling repository's actual census: 6 rows over 48 files, verdicts NO_QUOTE, and ZERO adjudicated -- its suites compare against exact expected values far more often than against tolerances
+  PASS  X2 SCORING THIS MODULE'S OWN 2026-11-11 PREDICTION (3): it said the run would return 'more NO_QUOTE rows than this tree has in total, and zero adjudicated ones'.  HALF RIGHT -- zero adjudicated is right, and 6 NO_QUOTE rows against this tree's 102 is wrong by a factor of 17, in the opposite direction
+  PASS  X3 SCORING THE SIBLING'S 2026-11-11 PREDICTION (2): it said zero adjudicated rows but NOT more NO_QUOTE rows than 102, because its suites check exact values.  BOTH SUBSTANTIVE HALVES RIGHT, including the reason.  Its meta-claim that this tree's prediction was 'right in its first half and wrong in its second' is INVERTED: the first half was the NO_QUOTE count, which failed, and the second was zero adjudicated, which held
+  PASS  X3b AND THE SCORED FIGURES ARE FROZEN, WHICH IS THE REPAIR: X3 required this tree's NO_QUOTE count to EQUAL the 102 it was scored against, so the first module added after the scoring would turn a correct verdict red.  The live count may only differ from the frozen one by GROWTH
+  PASS  X4 and BOTH predictions were unscorable as posed until today: each named a population in a run that, with the instrument as it then stood, returned the empty set.  The prediction pair is scored above against the recursive run, which is the only run either could have meant
+
+==============================================================================
+TOTAL: 83 passed, 0 failed
+==============================================================================

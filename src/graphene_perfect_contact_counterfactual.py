@@ -280,7 +280,7 @@ def at_literature_geometry(fn, W=None, N_fingers=None, rc_per_width=None):
 # purpose, because the whole second result of this module is that they are
 # separate code paths and that setting only one of them inverts the answer.
 # ---------------------------------------------------------------------------
-def small_signal_at(V_g, N_fingers, Vds=VDS_REF, saturate=True,
+def small_signal_at(V_g, N_fingers, Vds=None, saturate=True,
                     rc0=False, rs0=False, dVg=1e-4, **kw):
     """f_T, f_max, g_m, g_ds, C_gs at ONE bias, at whatever geometry is set.
 
@@ -288,6 +288,8 @@ def small_signal_at(V_g, N_fingers, Vds=VDS_REF, saturate=True,
     np.gradient on a sweep, so a single-bias call cannot raise IndexError
     (the crash 2026-10-04 and 2026-10-05 both recorded in reporting paths).
     """
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     if rc0:
         kw["Rc_total"] = RC_ZERO
     Vb = np.array([V_g - dVg, V_g, V_g + dVg])
@@ -310,7 +312,9 @@ def small_signal_at(V_g, N_fingers, Vds=VDS_REF, saturate=True,
                 Id=float(Id[1]))
 
 
-def sweep(Vg, N_fingers, Vds=VDS_REF, saturate=True, rc0=False, **kw):
+def sweep(Vg, N_fingers, Vds=None, saturate=True, rc0=False, **kw):
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     if rc0:
         kw["Rc_total"] = RC_ZERO
     gm, Id = vsat.gm_saturated(Vg, Vds=Vds, saturate=saturate, **kw)

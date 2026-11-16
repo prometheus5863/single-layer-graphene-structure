@@ -102,6 +102,13 @@ separation `d ≈ 3.3 Å`". **It is borrowed from a sentence about a different
 quantity** (the non-rigid-shift correction the paper then neglects), and the
 table exists so that nothing here rests on that borrowing.
 
+> **ANNOTATED 2026-10-18.** Kept as written; the row marker "← the paper's own
+> scale" above is wrong and is also kept. The paper quantifies no `ε` at 5.0 Å,
+> so **no row is privileged** — and "a different quantity" is too weak: the
+> `∼0.08 eV` is at `d ≈ 3.3 Å`, the separation about which the same sentence
+> says Eq. (1) *holds*, and it measures the failure of the rigid-shift picture
+> that `Δ_c` is. See `notes/2026-10-18-the-caveat-was-in-the-docstring-and-the-claim-was-in-the-transcript.md`.
+
 ## 4. The result that matters: two thirds of the swept range is excluded, and the committed default survives
 
 The committed sweep is `ELL_RANGE = [0.3, 1.5] Å` with

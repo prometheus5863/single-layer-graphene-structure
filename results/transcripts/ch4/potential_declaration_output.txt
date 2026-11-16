@@ -72,11 +72,19 @@ SECTION 2.  What the declaration costs, in the quantity that is quoted
 
   2d  A numerical limit of (D2), found while doing 2a, measured:
       quantum_capacitance() returns a finite value up to dV =
-      18.3493 V and NaN/inf above 18.3493 V, because
+      40.0000 V and NaN/inf above 40.0000 V, because
       log(2*(1 + cosh(eta))) overflows once eta = dV/(kT/e) passes
-      about 710.  kT/e = 0.025852 V here, so the onset is at eta ~ 710.
-  [PASS] the overflow is far outside every bias this thesis quotes
-         onset 18.35 V against a maximum swept drive of about 2.7 V, so no committed number is affected.  It is still a defect -- the large-eta limit of that expression is |eta| + log 2 and is exact -- and it is left as a new item rather than patched today, because the module owns committed transcripts.
+      about 710.  kT/e = 0.025852 V here, so the onset is at eta ~ 1547.
+      AS OF 2026-10-11 THE OVERFLOW IS REPAIRED.  The bisection
+      above ran to its search ceiling of 40.0 V without finding
+      a non-finite value, so 40.0000 V is the CEILING, not an
+      onset.  The 2026-10-08 transcript of this module reports
+      18.3493 V (eta ~ 710) and was correct for the spelling
+      then installed; see the comment at this line.
+  [PASS] the overflow is outside every bias this thesis quotes -- or gone
+         the bisection reached its ceiling of 40.00 V with no non-finite value: the overflow-free spelling installed 2026-10-11 is in place, and no committed number was ever affected (maximum swept drive about 2.7 V).  The 2026-10-08 onset of 18.3493 V is the pre-repair state and is kept, not overwritten.
+  [PASS] and the two states are distinguishable, not conflated
+         ceiling 40.0 V, lo 40.0000 V, hi 40.0000 V
 
 SECTION 3.  Validation against exactly known values
 ------------------------------------------------------------------------------
@@ -155,5 +163,5 @@ SECTION 5.  What this settles, and what it opens
    - the cosh overflow in 2d, left as a new item.
 
 ==============================================================================
-TOTAL: 10 passed, 0 failed
+TOTAL: 11 passed, 0 failed
 ==============================================================================

@@ -641,12 +641,35 @@ def main():
     print('  FAULT is %d, not %d, and this is the first time the repository has'
           % (len(frozen_rows), len(frozen_rows) + len(live_rows)))
     print('  had that number for a stated reason rather than by coincidence.')
+    print()
+    print('  2026-10-17.  READ THIS NUMBER NARROWLY.  It counts the NAME')
+    print('  spelling, `def f(p=GLOBAL)`, and only that: the arbiter above')
+    print('  resolves a default by looking for an ast.Name in the module\'s')
+    print('  ast.Assign targets, so `def f(p=alias.ATTR)` -- frozen by exactly')
+    print('  the same mechanism, since the default expression is evaluated once')
+    print('  when the `def` executes -- is outside its frame and always has')
+    print('  been.  Thirteen such sites were found on 2026-10-17 and converted;')
+    print('  see graphene_attribute_default_capture.py, whose Section 1 A7')
+    print('  hands the shipped Name census a file containing nothing but that')
+    print('  pattern and measures it reporting zero.  So the inert-knob total')
+    print('  for 2026-10-16 was 20 + 13 = 33, and every "the census reads zero"')
+    print('  from 2026-10-01 onward -- including this line -- was a statement')
+    print('  about one of the two spellings.')
     print('  classify() is amended in the same session to report an')
     print('  unresolvable site by scope instead of discarding it, and the')
     print('  amendment is count-neutral (D4, D5).')
-    print('  NOT done here: converting the %d genuine inert knobs, which is'
-          % len(frozen_rows))
-    print('  ranked first in AUTOMATION_LOG for the next run.')
+    if frozen_rows:
+        print('  NOT done here: converting the %d genuine inert knobs, which is'
+              % len(frozen_rows))
+        print('  ranked first in AUTOMATION_LOG for the next run.')
+    else:
+        print('  The %d genuine inert knobs this module counted on 2026-10-16'
+              % 20)
+        print('  were converted to None sentinels on 2026-10-17, each affected')
+        print('  transcript regenerating byte-identically; this module is now')
+        print('  the standing guard for the Name spelling rather than a count')
+        print('  of an outstanding repair.  The line above is why "0" here is')
+        print('  not a clean bill of health on its own.')
     print('  Validations: %d passed, %d failed' % (passed, failed))
     print('=' * 74)
     return 0 if failed == 0 else 1

@@ -8686,7 +8686,18 @@ Reported as a **family** over `ε`, because the paper quantifies none:
 `ε = 0.08 eV` is **borrowed from a sentence about a different quantity** (the
 non-rigid-shift correction the paper then neglects) — it is the only number
 the paper attaches to "small" nearby, and the table exists so that nothing
-rests on the borrowing. Read forward, the top of the committed sweep puts the
+rests on the borrowing.
+
+> **ANNOTATED 2026-10-18.** The row's marker "← the paper's own scale" is
+> **wrong and is kept in place**, as is every number in the table. The paper
+> quantifies **no** `ε` at 5.0 Å, so no row here is the paper's: the family is
+> the result. And the caveat immediately above understates the borrowing — the
+> `∼0.08 eV` is the deviation at `d ≈ 3.3 Å`, the separation about which the
+> same sentence says Eq. (1) *holds*, and it measures the failure of the
+> rigid-shift picture that `Δ_c` itself is. Wrong separation, wrong kind of
+> quantity. Found while checking why the *transcript* of
+> `graphene_second_anchor_bound.py` carried the attribution and none of this
+> paragraph's qualification; see the 2026-10-18 entry. Read forward, the top of the committed sweep puts the
 5.0 Å crossover **0.2898 eV above `W_G`**, which is not "≈ `W_G`" under any
 reading of the source.
 
@@ -9153,3 +9164,8678 @@ nothing crossed the bridge. Nothing was deleted.
 `classify()`'s scope verdict and the first red transcript; the three
 remaining stale transcripts; the pristine audit's red/crashed conflation; its
 regenerated transcript; the thesis). This AUTOMATION_LOG.md entry makes **7**.
+
+---
+
+## 2026-10-17 — The pattern was also two spellings, the census that could see the other one has been reporting it as "dormant" for sessions, and this session claimed its finding was invisible
+
+**Status:** Item 20 cleared, and the half of the fault class it did not cover
+found, converted, and then found to have been on the record all along.
+
+**Entry point.** Yesterday ranked item 20 first for a measurement reason — the
+baseline carried two deliberately red suites, so a flip run over it would mix
+its own effect with theirs. That ordering held: today is the conversion, and
+the baseline it leaves is clean.
+
+### 1. Item 20, cleared: the 20 inert knobs converted
+
+`def f(p=CONST)` → `p=None` plus a body read, at exactly the 20 FROZEN sites,
+leaving alone the one LIVE capture (`main._R_harmonic`,
+graphene_velocity_saturation_model line 589) that yesterday's module
+separated out. Per file: diffusion_current 5, exact_charge_rederivation 3,
+perfect_contact_counterfactual 2, second_anchor_bound 2,
+velocity_saturation 8 of 9.
+
+**An independent AST pass, written for this session, reproduced the arbiter's
+split before any edit** — 21 total, 20 frozen, the LIVE one at line 589 — so
+the site list the conversion ran on is not the arbiter's output taken on
+trust. Yesterday's requirement was that each affected transcript regenerate
+**byte-identically**, and all five do; the four fast ones were also confirmed
+to reproduce their *committed* transcripts before the edit, so "identical"
+means identical to the claim on disk.
+
+### 2. The same fault in a second spelling, which no census this repository
+reconciles was counting
+
+All three reconciled censuses resolve a default by looking for an `ast.Name`
+whose identifier is a module-level **`ast.Assign`** target in the same file.
+`import x as y` is an `ast.Import`, so `y` is never in that set, and
+
+    import other as o
+    def f(x=o.K): ...
+
+is outside all three — while being frozen by exactly the same mechanism.
+Thirteen such sites, in three files: graphene_sensitivity_audit 8
+(`icm.rho_bulk_uohm_cm`, `p_default`, …), graphene_diffusion_current_model 3
+(`vsat.OMEGA_OP`, `rf.W_RF`, `rf.N_FINGERS_RF`), graphene_velocity_saturation
+2 (`rf.W_RF`, `rf.N_FINGERS_RF`). **So the inert-knob total for 2026-10-16 was
+20 + 13 = 33, not 20**, and the "census reads zero" of 2026-10-01 and
+2026-10-04 — and of this morning's own commit — was a statement about one of
+two spellings.
+
+New suite `graphene_attribute_default_capture.py`, **committed RED (25/2)
+with its transcript before the conversion**, so the before/after is two
+transcripts rather than one claim that a repair worked; green at **34/0**
+after. That was only possible because 2026-10-16 stopped `run_suite`
+reporting a nonzero exit as ERROR with its transcript uncompared — the
+amendment earning its keep one day later.
+
+**The two worst sites are the two whose docstrings deny them.**
+`graphene_velocity_saturation_model._at_literature_geometry` carried
+`W=rf.W_RF, N_fingers=rf.N_FINGERS_RF` under *"Late binding throughout — **no
+module-level name is captured as a default** (the 2026-10-03 frozen-default
+bug, and the 2026-10-04 repeat of it)"*. **True as written and false in
+substance**: no module-level *name* was captured, because what was captured
+was an *attribute*. The claim was audited by spelling, passed, and the thing
+it was auditing for was in the signature it annotates. Its twin in
+graphene_diffusion_current_model says *"Late binding only — the 2026-10-03
+frozen-default fault"* over the same two defaults. Both sentences are **kept
+verbatim** inside the corrected docstrings with the date and the reason.
+Section 4 measures the repaired function taking `W = 7e-06` while a
+reproduction of the old signature keeps `4e-05`, exactly.
+
+### 3. THE RETRACTION — and it is this session's own claim being retracted
+
+The first two commits today state that **no census here has ever been able to
+see the attribute spelling. That is false.**
+`graphene_cross_module_delivery_audit`'s Section 6 has censused exactly this
+pattern since it was written — **16 rows in its committed transcript** — its
+`cross_module_captures()` docstring states the `classify()` frame problem the
+new suite's Section 5 re-derives from scratch, and its own prose already
+reads: *"Dormant is not 'safe': it means no call site rebinds the name TODAY.
+Eight of these are graphene_sensitivity_audit.py, which perturbs by passing
+keywords explicitly; a single future setattr converts all of them at once,
+which is why they are enumerated rather than dismissed."* Three of Section
+5's conclusions were reached independently and claimed as new. It was
+falsified by running the suites this session's own conversion invalidated —
+i.e. by the repository's own standing instruments, not by a review.
+
+**What survives the retraction, which is not nothing:**
+
+1. **The repair.** Those rows were "enumerated rather than dismissed" and then
+   left in place across sessions. 13 are converted today. A census that
+   enumerates a fault indefinitely without it ever being repaired is
+   2026-10-02's fault — a repair built and not connected — in slow motion, and
+   it is the one failure mode this repository has not yet named for itself.
+2. **The two false docstrings.** cross_module_delivery_audit lists
+   `_at_literature_geometry` twice as `dormant` and does not notice that both
+   functions' docstrings explicitly deny being captures.
+3. **The reconciliation nobody did.** 2026-10-16 named three instruments as
+   censusing "the pattern", reconciled 21 against 20 *to the occurrence*, and
+   recorded the third as agreeing at a **different number** — 8 committed, 16
+   live — without reconciling it. 8 and 16 are not reconcilable against 21 and
+   20 **because they count a different spelling**. The session that split the
+   pattern into two *classes* (frozen/live by scope) did not notice it was
+   also two *spellings*, and the 2026-10-04 "agreement" of 0, 0 and 8 was
+   agreement read **across a partition**. New Section 3b asserts it, and T4
+   reconciles the committed 16 exactly: **13 constants + 3 `2.0 / np.pi` rows,
+   no remainder** — the `np.pi` three left alone and named, since nothing
+   rebinds `np.pi`.
+4. **The mechanism.** cross_module_delivery_audit censuses the spelling; it
+   does not establish its semantics. Section 1 does, against exactly known
+   values: module-body attribute capture FROZEN, class-body FROZEN,
+   function-body LIVE, **body read LIVE** — so the fault is the default and
+   not cross-module access, which is what makes the sentinel the right fix —
+   and `setattr` and `mod.attr =` the same mutation. **A7 is the decisive
+   one**: the shipped Name census is handed a file whose only content is this
+   pattern and required to report 0. It does.
+
+### 4. Three defects in this session's own work, all caught by checks
+
+- **R1's first draft** counted the suite's own Section-4 scaffolding in the
+  repository total and **FAILED**. R1 now excludes SELF.
+- **S1's first draft** asserted zero captures in the suite file and **FAILED**
+  on the same two rows.
+- **Section 4's reproduction, written as a nested `def` in the suite file, was
+  a real cross-module captured default in the tree.** Because Section 4
+  rebinds `rf.W_RF`, cross_module_delivery_audit's census classified it **LIVE
+  FAULT** and turned that suite **red, 25/0 → 23/1, on this module's own
+  scaffolding.** It is a temp plant now, and S1b is strengthened from "no
+  FROZEN capture" to "no capture of either class": **passing one's own
+  self-census is not the same as not planting the pattern in the tree other
+  audits read.** That is a new rule, and it generalises past this file.
+- A first Section 5 used a **textual grep** for the rebinding route and
+  reported "no" for all thirteen; the route is `setattr(mod, name, v)` over
+  *computed* mod and name in seven modules here, so the grep answered a weaker
+  question. Replaced by putting the question to the repository's own oracle,
+  on a plant.
+
+### 5. The suite that would have gone vacuous, and the baseline that fixes it
+
+The first draft had, in a sharper form, the exact defect it was written
+about: **once the conversion landed, R1/R2 and the whole of Section 5 passed
+vacuously over an empty row set, and the SUMMARY's "20 + 13 = 33" recomputed
+itself to "20 + 0 = 20"** — a transcript that erases its own finding the
+moment the finding is acted on, which is precisely how the Name census came
+to be read as a clean bill of health for five sessions. Three fixes:
+`BASELINE_2026_10_17` records the 13 by (file, qualname, param, default
+expression) with **no line numbers** (a baseline that goes stale on an
+unrelated edit teaches the operator to ignore it); **R4** requires every one
+to be gone — *a count can be satisfied by the wrong 13* — and **R5** is the
+standing half, no attribute capture may appear that the baseline did not
+name; Section 5 measures the oracle's frame on a **plant**, where it cannot
+evaporate; and R1/R2 say in their own detail lines that they read vacuously
+today.
+
+### 6. Six transcripts regenerated, every one of which changes
+
+| transcript | before | after |
+|---|---|---|
+| mutation_arrival_probe | 32 / 2, "10 site-groups remaining", 8 MIXED | **33 / 1**, 1 site-group, 0 MIXED |
+| cross_module_delivery_audit | 25 / 0, census 16 | 25 / 0, census **3** |
+| figure_provenance_audit | 21 occurrences in 5 files | **1 in 1** |
+| frozen_default_semantics | 21 syntactic / 20 frozen | **1 / 0** |
+| dead_name_sweep | 6 / 2 | 6 / 2, rows changed |
+| log_sensitivity_step_audit | STALE at HEAD | regenerated |
+
+`graphene_frozen_default_semantics.py`'s SUMMARY is **amended rather than left
+to print a stale sentence**: it used to end *"NOT done here: converting the N
+genuine inert knobs, ranked first in AUTOMATION_LOG for the next run"*, which
+at N = 0 reads as an instruction to convert nothing, and its *"all three
+censuses read zero"* line is now followed by **READ THIS NUMBER NARROWLY** and
+the cross-reference to the other spelling. That sentence is the exact form of
+words today's finding is about, sitting in the transcript of the module that
+established the count.
+
+**`graphene_pristine_transcript_audit` was run, twice.** The first run is what
+found five STALE transcripts; after the regenerations it is **13 passed, 0
+failed — 15 suites IDENTICAL, 0 STALE, 0 NUMERIC_DRIFT, 0 ERROR**, the first
+fully clean baseline since 2026-10-04, with the new suite registered in
+`SUITES` in the same commit that created it (the 2026-10-03 wiring rule) and
+IDENTICAL on its first registered run.
+
+### 7. Environment and automation health
+
+Device reachable and folder connected at the **second** firing (10:3x UTC);
+04:30 found it asleep. **Two environment facts worth carrying forward.**
+First, `scipy` was again absent in the device VM and was `pip install`ed
+(1.15.3) — second session in a row, so the 2026-10-15 note that it is present
+should be treated as false. Second, **background processes do not survive a
+`device_bash` call**: `setsid nohup … &` was tried three times and every
+child was reaped at the call boundary, so the 180 s per-call cap is a **hard**
+cap on any single command. `graphene_velocity_saturation_model.py` takes 5
+minutes, so its pristine-vs-converted pair was run in the **cloud sandbox**,
+with the converted sources there confirmed by **sha256** to be the same bytes
+as the ones committed; its pristine run also reproduced the committed
+transcript exactly, on a different scipy (1.18.1). Nothing else crossed the
+bridge and nothing was deleted. **No live web search was used and none was
+needed:** this session touched no physics and made no claim about the
+literature — the second such session, and §7.7's unequal-scrutiny habit is
+therefore untouched rather than cured. One artifact recorded: the clone was
+`--depth 30`, and mutation_arrival_probe's T_HOP measurement reads a pinned
+blob with `git cat-file`, which **failed with CalledProcessError(128) in a
+shallow clone and silently lost four checks behind the failure**. The clone
+was unshallowed before anything was committed.
+
+**Not yet covered (candidates for future runs):**
+
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD — AUDIT EVERY
+  "DORMANT", "ENUMERATED" AND "REPORTED, NOT ASSERTED" ROW IN THE
+  REPOSITORY** — created today and **ranked first**, because it is the
+  generalisation of today's retraction and the one failure mode this
+  repository has not named for itself. cross_module_delivery_audit's 16 rows
+  sat behind a `[PASS]` with the correct diagnosis written beside them, and
+  nothing converted them until a session arrived at the same finding from the
+  other direction and claimed it was new. The work: sweep every suite for a
+  row that is *reported* rather than *checked*, and for each either turn it
+  into a check with a baseline (today's R4/R5 shape) or record a stated reason
+  it must stay a report. Cheapest entry: `grep` for `dormant`, `reported, not
+  asserted`, `enumerated`, `NOTE:` across the suites — the
+  cross_module_delivery_audit NOTE about 20 computed-name `setattr` calls
+  ("the census cannot be complete by construction") is a second instance
+  already visible.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — created today from §4's third defect, and the rule is wider than
+  the file that generated it. Every suite here plants controls; the check
+  should be mechanical, not a habit. Candidate: a guard that runs each
+  suite's *own* arbiter plus every *other* census over the suite files.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, now **ranked second**. Yesterday's
+  reason for ranking it behind item 20 is discharged: item 20 is done and the
+  baseline is clean of staleness *and* of deliberate red, so a flip run's
+  effect is now separable from everything else. Preconditions (i) and (iii)
+  were already discharged; **(ii) — §4.7's prose and §4.10's annotation — is
+  still untouched and is still writing, not plumbing.** "Only Pd gives a
+  small, plausible positive residual" cannot survive a −12.4964 % correction
+  to Pd's `n_contact`. **Cheapest route unchanged: precondition (ii) and the
+  flip in the same session**, and there is now nothing ahead of it on
+  measurement grounds.
+- **A LOWER BOUND ON `ℓ` — THE TWO-SIDED HALF OF THE SECOND ANCHOR** — carried
+  from 2026-10-15, untouched for a third session, and still the top *physics*
+  item. Cheapest route named there: digitise Fig. 4's upper (5.0 Å) point set
+  in `arXiv:0902.1203`. The ar5iv HTML truncated three times, so a **PDF-page
+  read of that figure** remains one of the few genuine reasons to cross the
+  bridge to the cloud sandbox — and today establishes a second: any suite over
+  ~170 s.
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** — their computational results have
+  been complete for weeks. This is the largest remaining block of pure
+  writing and has now gone three sessions without being touched, while four
+  consecutive sessions have gone to instrument work. Worth ranking against
+  item 16 deliberately rather than by default.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried, untouched. (N1) is
+  outside its regime for Ti, Ni and Pd (`d_eq` = 2.05–2.30 Å < `d_0`) whatever
+  `ℓ` is; `W_0(Ni) = 62.5 eV` at `ℓ = 0.3 Å` is (N1) diverging, not a
+  prediction. §7.9 item 2, and contact A of *both* Chapter 6 headline pairs.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, untouched today, and
+  `dead_name_sweep` is still red 6/2 on exactly them.
+  `graphene_potential_census_audit.CHANNEL_POTENTIAL_READINGS` (genuinely
+  DEAD) plus three **hidden** dead names whose CROSS_MODULE resolutions
+  resolved on *spelling*: `graphene_contact_consistent_argument.E_CHARGE`,
+  `graphene_diffusion_current_model.HBAR`,
+  `graphene_quantum_capacitance_argument.A_OX`. The 2026-10-01 precedent
+  applies: give a reader, or declare exempt with a stated reason. **Today
+  sharpens why this one matters:** the hidden three are the same
+  resolve-on-spelling loophole as the docstrings in §2, one layer down.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, untouched for a third session. Today adds a third way a site's
+  conversion can arrive or not: by import, by the scope of its `def`, and now
+  by **spelling**.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried, and it
+  is an instance of the item ranked first above.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twelve sessions
+  overdue**. Today produced no new instance; every check added today is an
+  exact equality.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, a line in item 15's audit rather than a session.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13: a
+  vacuum-like 3.5 Å gap with no interface dipole layer, and one
+  `lambda_decay = 250 nm` for every metal, both plausibly larger than the
+  12.5 % correction already found and neither ever costed.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12; four
+  directions converge on it.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched for a
+  sixth session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  untouched for an **eleventh** session.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the ninth session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for an
+  eighth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twelve sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for a ninth
+  session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  untouched for a ninth session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 5 (the 20-knob conversion; the new suite committed red;
+the 13-site conversion and the two corrected docstrings; the retraction, the
+suite restructure and six regenerated transcripts; the clean pristine
+baseline). This AUTOMATION_LOG.md entry makes **6**.
+
+## 2026-10-18 — The list that ranks the work had never been audited, two of its items denied the tree, and one of them came from outside the repository
+
+**Status:** The artefact every session reads to choose its work was audited for
+the first time. Two of its twenty-five items assert the opposite of what the
+tree contains; one of those was not stale but **revived**, from a wording this
+list had itself retired eleven entries earlier, and its probable source is the
+scheduled brief rather than the repository.
+
+**Entry point, and it was not the ranked-first item.** 2026-10-17 ranked the
+"census that enumerates a fault forever" item first. Before taking it, the two
+items it offered as alternatives were checked against the tree — the cheapest
+possible first act, never previously performed here — and both failed.
+
+### 1. A1: Chapters 2 and 3 have been drafted for nineteen days
+
+The 2026-10-17 list carries **"CHAPTERS 2 AND 3 ARE STILL UNDRAFTED — their
+computational results have been complete for weeks. This is the largest
+remaining block of pure writing"**, closing *"Worth ranking against item 16
+deliberately rather than by default"*. Chapter 2 was drafted **2026-09-28**
+(`5bbd5f3`, eleven sections), Chapter 3 **2026-09-29** (`c1d5abc`, ten
+sections); the tree holds 375 and 330 non-blank lines and 11 and 9 `##`
+sections. So the one item put forward as a competitor for first rank was
+describing writing committed three weeks earlier.
+
+**And the list had already got it right**, which is what makes this a
+different fault from staleness. Measured over every dated entry:
+
+| wording | entries |
+|---|---|
+| "Chapters 2–3 remain / are still undrafted" | 2026-09-17 … 09-27 (12) **and 2026-10-17** |
+| "Chapters 2 and 3 **are drafted**, but §4.8.2's form of error is not audited for elsewhere" | 2026-10-01 … 10-06 (6) |
+| neither | 2026-10-07 … 10-16 (10) |
+
+Every "undrafted" entry to 09-27 was **true when written**. The list tracked
+the drafting correctly for six entries, carried nothing for ten, and the entry
+after those ten returned the pre-09-28 wording. **Staleness is cured by
+re-checking an item; revival is cured by making retirement checkable** — and
+only the second fix would have caught this.
+
+### 2. A2: item 16's precondition (ii) was recorded open the day after it was done
+
+2026-10-17: *"(ii) — §4.7's prose and §4.10's annotation — is still untouched
+and is still writing, not plumbing."* §7.9, 2026-10-14: *"The only precondition
+still open is the one that was never numerical."* Commit **`7604c05`,
+2026-10-13**, is titled *"the two sentences in Sections 4.7 and 4.10 that the
+measurement makes false, annotated in place"*, and both annotations are in
+Chapter 4 carrying −1.2583 % (Cu), +20.8352 % (Ni), +39.2281 % (Au),
+**+47.6925 % (Pd)** and `+51.0 → −203.276`.
+
+**The narrowing matters more than the correction.** Both annotations are
+written in the subjunctive and defer explicitly to the flip ("pending the item
+16 flip"). What remains is the writing only the flip makes possible — the point
+at which that very phrase goes stale, the committed table becomes the
+superseded column, and §4.10's margin-against-input-error becomes a statement
+about a margin already consumed. So **precondition (ii) cannot be discharged
+ahead of the flip**: a session believing it is missing can discharge it by
+asserting a state of the code that does not exist, which is §7.5.4's
+"created by a fix" class in prose. 2026-10-17's operational advice is right and
+its reason is wrong. **Item 16's remaining content is the flip and nothing
+else.**
+
+### 3. The cause is outside the repository, and that is the part no audit here could find
+
+Both items trace to one mechanism: **the standing list is not a closed
+system.** The scheduled brief that drives these sessions carries a frozen
+description of repository state dated **2026-09-17**, containing the A1
+sentence almost verbatim — and, for the other repository, claims about Phase 4
+that `Design-Verification-Roadmap` retired on 09-18 and 09-19. A session that
+reads its own brief as current state will re-derive items the list has retired,
+and will do so **with the authority of an instruction rather than the
+tentativeness of a memory**. That asymmetry is the whole mechanism.
+
+It is recorded as a `NOT_MECHANISABLE` row with its reason rather than
+silently omitted, because the brief is not in the tree. The compensating rule
+splits: **(a) procedural — a claim about the state of the tree arriving from
+outside the tree is re-verified against the tree before it ranks anything;
+(b) mechanical — the audit below.**
+
+**The other repository already had the instrument.**
+`Design-Verification-Roadmap` built `tools/open_item_staleness_audit.py` for
+this failure on 2026-10-13, and on **2026-10-17 used it to retire an item for
+the identical reason** — *"it names work finished before the item started being
+carried"*. It caught its instance on the same day this repository revived its
+instance. The difference between the two days was one module. **An instrument
+built in one place does not protect the other**, which is §7.5.2 across
+repositories instead of across modules, and it generalises to every tool
+either repository has that the other lacks.
+
+### 4. The audit, and why its retired rows are the load-bearing half
+
+`graphene_standing_list_audit.py`, **committed RED (20/1) with its transcript**
+and registered in `SUITES` in the same commit (2026-10-03 wiring rule). Each
+baseline row pairs an item's assertion with a **predicate over the tree**, so a
+verdict is gated on the mechanism it reports rather than on text similarity —
+Design-Verification-Roadmap's 2026-10-16 rule.
+
+The trap this had to avoid is §4.6.15's: a suite that erases its own finding
+the moment the finding is acted on. Once A1 and A2 leave the list, "absent"
+must not read as a pass. A **retired** row therefore asserts two things — that
+the wording stays gone (`REVIVED` otherwise, a fault class, and the check that
+would have caught 2026-10-17 on the day) and that the tree-side fact which
+justified retirement still holds (`RETIREMENT-STALE` otherwise, so truncating
+Chapter 2 later re-opens the item instead of leaving a silent retirement).
+`ABSENT` is also a fault class, so a list the parser cannot read cannot pass as
+clean. Both plant sections force their retirement state explicitly, so the
+controls are invariant under retiring a row.
+
+### 5. The second finding: the caveat was in the docstring and the claim was in the transcript
+
+A literature pass on the top *physics* item — a **lower** bound on `ℓ` — did
+not obtain the lower bound, and found something else. `ε = 0.08 eV`, the
+`graphene_second_anchor_bound` bound's headline scale, has always been
+borrowed, and **four artefacts say so**: the module's docstring ("borrowed from
+a sentence about a DIFFERENT quantity"), the 2026-10-15 notes file, the
+2026-10-15 entry of this log in bold, and — more weakly — thesis §7.9 item 2.
+**The transcript carried none of it.** Zero occurrences of `borrow`,
+`different quantity` or `non-rigid`, while printing the attribution twice in
+stronger words than any prose artefact used: *"ℓ ≤ 0.7024 Å at the paper's own
+0.08 eV scale"*, *"66.5 % of the committed swept range is excluded by the
+source"*, and a row marked `<- paper`.
+
+The transcript is what `pristine_transcript_audit` compares, what a reader of
+results sees, and what the standing item has been quoting for three sessions —
+in the unqualified form. **2026-10-17 found two docstrings that denied what
+their code did; this is that defect inverted, and 2026-10-01's dead-name
+formula inverts with it: not a citation with no code behind it, but a
+qualification with no output behind it.**
+
+**And the caveat was itself too weak**, which is the substantive half. Read
+verbatim, the source sentence is *"while Eq. (1) holds for a relatively large
+separation d = 5.0 Å …, there is a small deviation of ∼0.08 eV at the
+equilibrium separation d ≈ 3.3 Å which can be traced to a perturbation [… that
+cannot be described as a rigid shift]"*. So the number is **(i) attached to the
+other separation** — the one about which that sentence says Eq. (1) *holds* —
+and **(ii) a measure of the failure of the rigid-shift picture, while `Δ_c`
+is a rigid shift.** Wrong separation and wrong kind of quantity, compounding
+rather than cancelling. The consequence none of the four artefacts drew:
+**there is no privileged row.** The family over `ε ∈ [0.02, 0.20] eV` is the
+result; the SUMMARY's single headline number should never have existed.
+
+**No number moved.** `ℓ_max(0.08 eV) = 0.7024 Å` and the 66.5 % exclusion
+stand, and the transcript's numeric multiset is a strict **superset** of its
+predecessor's, verified by diff — every differing line an addition. What
+changed is a printed `PROVENANCE` section giving each sourced number its
+section, verbatim quote, **the separation it applies at** and the quantity it
+measures; `<- paper` → `<- BORROWED, see PROVENANCE`; and the two false
+attributions replaced with the superseded wording **quoted in the transcript**
+rather than deleted. Four new validations, one of which is the rule made
+mechanical: *no `print()` may assert the source attribution unqualified, and
+quoting it as superseded is allowed only within the same string literal.*
+10 passed, 0 failed.
+
+### 6. Three defects in this session's own work, all caught by checks, all one cause
+
+- **`p_item16_ii_untouched`'s first draft FAILED its own plant, on this
+  session's own subject matter.** It tested `phrase in file.read()` for a
+  sentence the markdown **wraps**, and for numbers written with a Unicode
+  minus. It therefore reported §4.10 "untouched" about the file carrying the
+  amendment — it **confirmed the item it was written to contradict**. Fixed by
+  normalising blockquote markers, dashes and whitespace before matching; the
+  FAIL is kept in the commented record above the fix.
+- **The provenance check's first draft FAILED** because it forbade a phrase
+  anywhere in a `print()` argument and so could not tell *asserting* "the
+  paper's own 0.08 eV scale" from *quoting it as retracted* — which
+  `report_provenance()` does deliberately. A check that cannot make that
+  distinction forces a choice between keeping the record and passing the
+  check, i.e. it pushes toward **deleting** the retracted wording, the one
+  move the annotation rule exists to refuse. Scoping the supersession marker
+  to the individual string literal fixes it, and has the right shape: the
+  retraction travels in the same breath as the retracted words.
+- **`graphene_standing_list_audit.py` shipped a DEAD module-level constant.**
+  `PLANT_LOG_TRUE` was written and never read — 2026-10-01's class exactly,
+  introduced by the module whose entire subject is claims nothing checks.
+  Caught by running `dead_name_sweep` before committing. Given a **reader**
+  rather than deleted: as `PLANT_LOG_PARTIAL` it backs new control P3b, which
+  requires A1 `CONTRADICTED` with A2 `ABSENT`, pinning row independence.
+
+**All three are the same cause, and it is three for three today: this
+repository's instruments fail first by answering a weaker question than the one
+asked.** With §4.6.15's two docstrings and 2026-10-17's textual grep, that is
+now five recorded instances of *resolve-on-spelling*, across censuses,
+docstrings, greps and checks. It is the repository's dominant failure mode and
+it has never been given an item of its own. It gets one below.
+
+### 7. Environment and automation health
+
+Device reachable and folder connected at the **first** firing of the day
+(06:5x UTC). `scipy` was absent again and was `pip install`ed (1.15.3) — **third
+consecutive session**, so the 2026-10-15 note that it is present remains false
+and should be treated as a standing fact: it is never there.
+
+**New environment fact, and it closes a route that three sessions have named as
+the cheapest one.** `arxiv.org` is **refused by the egress proxy in both
+shells** — the device VM returns `curl: (56) Received HTTP code 403 from proxy
+after CONNECT`, the cloud sandbox `connect_rejected`. So the PDF of
+`arXiv:0902.1203` cannot be fetched into either place, and *"digitise Fig. 4's
+upper (5.0 Å) point set"* is blocked **by policy rather than by effort**. The
+ar5iv HTML was reachable and truncated for the **fourth** time, ending
+mid-derivation of `Δ_tr(d)` before **Eq. (7)** — the equation Fig. 4's fit
+lines follow. Recovered verbatim nonetheless: Eq. (4)'s form
+`Δ_c(d) = e^(−γd)(a₀ + a₁d + a₂d²)`, the confirmation that `γ, a₀, a₁, a₂` are
+reported nowhere in the text, and the `ε` sentence quoted in §5. A copy of the
+PDF placed in the connected folder would open the item immediately.
+
+`pristine_transcript_audit` was run **before** committing the transcript
+regenerations and is what identified the three STALE ones; after regeneration
+the only non-`IDENTICAL` row is the new suite's own deliberate red. Nothing
+was deleted. One stale-file trap recorded for future sessions: a redirect to
+`/tmp/pta.txt` failed with `Permission denied` while `tail` of that path
+succeeded and returned **a previous session's output**, naming commit
+`3212ed3` — i.e. a file in the device VM's `/tmp` outlived its session and a
+read of it looked like a successful run. Session scratch belongs under `$HOME`.
+
+**Not yet covered (candidates for future runs):**
+
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **ranked first**, and today changes
+  what it contains rather than where it ranks. Precondition (ii) is **not**
+  outstanding writing (§2 above); preconditions (i) and (iii) were discharged
+  on 2026-10-14 and 2026-10-17. **The flip and nothing else is left**, and it
+  is a Chapter 4 operation only — `graphene_contact_argument_blast_radius`
+  measured zero arrivals from Chapters 5 and 6, and two models inside
+  Chapter 4. Two replacements, not one rebinding: the channel takes
+  `bc.rebind()`, the contact needs `bc.rebind_by_operating_point()` because
+  its series capacitance is `C_interface` (65.93× `C_ox`). Costs already
+  measured and committed: `n` −1.0212 %, `I_d` −0.2530 %, `n_contact`
+  −4.7696 % to −12.4964 %, §4.7 `R_extra` −1.2583 % to +47.6925 %, **Pd's
+  residual flips sign** and the additive decomposition fails 4-of-4.
+  **Honest scope warning, which is why it was not started today:** the flip
+  moves ~15 registered transcripts and dozens of quoted numbers across a
+  3100-line chapter, and a half-landed flip leaves the baseline mixed between
+  forms A and B_T — the one state every instrument here is least able to
+  diagnose. Cheapest safe route: land the code change and the transcript
+  regenerations in one session with the thesis numbers annotated-but-not-yet-
+  rewritten, then the prose in the next.
+- **RESOLVE-ON-SPELLING IS THIS REPOSITORY'S DOMINANT FAILURE MODE AND HAS
+  NEVER HAD AN ITEM** — created today, **ranked second**. Five recorded
+  instances: §4.6.15's two docstrings (audited by spelling, passed, while
+  being the thing audited for), 2026-10-17's textual grep for a `setattr`
+  route over computed names, and today's three — a predicate defeated by line
+  wrapping, a check that could not tell assertion from quotation, and (the
+  2026-10-01 original) a `CROSS_MODULE` resolution resolved against a
+  function-local of the same name. The pattern is always the same: a question
+  about *meaning* answered by a test on *text*. The work: enumerate every
+  check in the repository whose predicate is a string operation, and for each
+  either put the question to an oracle (an AST pass, a plant, a runtime
+  identity test) or record a stated reason the textual form is sufficient.
+  Cheapest entry: `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py` over
+  the suites.
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD** — carried from
+  2026-10-17, where it was ranked first, **untouched today and now ranked
+  third**. Today is a second instance of its shape from the other direction:
+  `second_anchor_bound`'s docstring *stated* the borrowing for three sessions
+  and nothing ever acted on it, which is "enumerated rather than dismissed"
+  applied to a caveat instead of to a row. The 2026-10-17 work statement
+  stands verbatim, and today adds its own targets: every `HONESTY`,
+  `NOTE:` and `what this does not claim` paragraph in a module docstring
+  should be checked for whether its qualification reaches that module's
+  output.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, untouched. Today supplies a second
+  instance: `graphene_standing_list_audit.py`'s plant strings are
+  standing-list-shaped text now sitting in the tree, inert only because the
+  parser reads `AUTOMATION_LOG.md` and not `*.py`. That is inertness by
+  coincidence of scope, not by construction.
+- **A LOWER BOUND ON `ℓ`** — carried, **and its status changed today**. Still
+  the top *physics* item and still unobtainable from the paper's text, whose
+  5.0 Å statement is a tilde with no tolerance. It needs Fig. 4's upper point
+  set, which needs the PDF, which needs `arxiv.org` — **refused by the egress
+  proxy in both shells** (§7). The named cheapest route is therefore closed
+  until the allowlist changes or a copy of the PDF is placed in the connected
+  folder, and three sessions of carrying it as "cheapest route: digitise
+  Fig. 4" were carrying a route nothing could take.
+- **IS `ℓ` EVEN THE RIGHT PARAMETER TO BOUND?** — created today. Under the
+  source's Eq. (4) the single-exponential `ℓ` of (N1) is a **chord** decay
+  length over [3.3, 5.0] Å, while `w_cross_for_metal` evaluates `delta_c` at
+  each metal's `d_eq` — 2.05–3.31 Å, mostly *below* the anchor and outside the
+  chord. `graphene_per_metal_crossover_model`'s docstring already records that
+  (N1) drops Eq. (4)'s polynomial prefactor and that "RESULT 2 is precisely
+  where it breaks"; what is not recorded is that the bound and the per-metal
+  evaluation use the parameter over **different intervals**. Not costed. Cheap
+  to cost: the exact relation is `1/ℓ_chord = γ − ln(P(d₂)/P(d₁))/(d₂ − d₁)`.
+- **CHAPTERS 2 AND 3 — RETIRED 2026-10-18, successor named.** The undrafted
+  wording is retired as false (§1) and must not return; `A1` in
+  `graphene_standing_list_audit.py` now fails on its revival. The 2026-10-01
+  form is the live successor: **§4.8.2's form of error is not audited for
+  elsewhere**, created 10-01, untouched since 10-06, and that is the item —
+  not the drafting. Both chapters may of course be *extended*; at 375 and 330
+  lines against Chapter 4's 3100 they are the thinnest substantive chapters,
+  but that is a judgement about depth and is not what the retired item said.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried, untouched. (N1) is
+  outside its regime for Ti, Ni and Pd (`d_eq` = 2.05–2.30 Å < `d_0`) whatever
+  `ℓ` is; `W_0(Ni) = 62.5 eV` at `ℓ = 0.3 Å` is (N1) diverging, not a
+  prediction. §7.9 item 2, and contact A of *both* Chapter 6 headline pairs.
+  **Today's new item above is its upstream half**: if `ℓ` is a chord length,
+  the chemisorbed metals are being evaluated with a parameter fitted over an
+  interval they are not in, independently of the `d_0` regime question.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, untouched for a third
+  session, `dead_name_sweep` still red 6/2 on exactly them.
+  `graphene_potential_census_audit.CHANNEL_POTENTIAL_READINGS` (genuinely
+  DEAD) plus three **hidden** dead names resolved on *spelling*:
+  `graphene_contact_consistent_argument.E_CHARGE`,
+  `graphene_diffusion_current_model.HBAR`,
+  `graphene_quantum_capacitance_argument.A_OX`. Today adds a fourth near-miss
+  caught before commit, and the hidden three are instances of the
+  ranked-second item above.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, untouched for a fourth session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried, and an
+  instance of the ranked-third item.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **thirteen sessions
+  overdue**. Today added five checks and every one is an exact equality or a
+  set membership, so no new instance.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, a line in item 15's audit rather than a session.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13: a
+  vacuum-like 3.5 Å gap with no interface dipole layer, and one
+  `lambda_decay = 250 nm` for every metal, both plausibly larger than the
+  12.5 % correction already found and neither ever costed.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12; four
+  directions converge on it.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched for a
+  seventh session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  untouched for a **twelfth** session.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the tenth session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for a
+  ninth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, thirteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for a tenth
+  session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  untouched for a tenth session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 5 (the audit committed red with its transcript and
+registered; the thesis's §4.6.16 and §7.9 item 21; the second-anchor
+provenance amendment and today's notes; the in-place annotation of the borrowed
+`ε` in all three prose artefacts; the row-independence control and three
+regenerated census transcripts). This AUTOMATION_LOG.md entry makes **6**, and
+retiring A1/A2 in the audit's baseline — which turns the suite green now that
+this entry is the latest — makes **7**.
+
+---
+
+## 2026-10-20 — gamma cancels, and the parameter is right at no metal at all
+
+### 1. What was taken
+
+Not the item ranked first. **FLIP THE DEFAULT TO `B_T`** carries an explicit
+scope warning — ~15 transcripts and dozens of quoted numbers across a
+3100-line chapter, with a half-landed flip leaving the baseline mixed between
+forms A and `B_T`, the one state every instrument here is least able to
+diagnose. Today's session began under a device bridge that had already proved
+unreliable (§7), and starting a flip that must land whole in one session under
+those conditions is how the mixed state gets created. Taken instead:
+**IS `ℓ` EVEN THE RIGHT PARAMETER TO BOUND?**, created 2026-10-18, never
+costed, with its entry point already named. The choice is recorded because
+skipping a ranked-first item needs a reason and "it looked big" is not one.
+
+### 2. Gamma cancels, which is what makes the item costable
+
+(N1) is a single exponential; Khomyakov et al.'s Eq. (4) is
+`e^(−γd) P(d)` with `P` quadratic. (N1) therefore has one decay length where
+Eq. (4) has a different one at every separation, and `γ, a₀, a₁, a₂` are
+reported nowhere in the paper's text — four extraction passes, with
+`arxiv.org` refused by the egress proxy in both shells since 2026-10-18, so
+Fig. 4 cannot be digitised either. The obvious objection is that the item
+cannot be costed without the numbers.
+
+It can. With `L = ln P`,
+
+```
+1/ℓ_chord(d₁,d₂) = γ − ⟨L'⟩        1/ℓ_local(d) = γ − L'(d)
+1/ℓ_chord − 1/ℓ_local(d) = L'(d) − ⟨L'⟩
+```
+
+**`γ` cancels exactly**, and since `L' = P'/P` is scale-invariant `a₀` cancels
+with it. **Two of the four unreported coefficients leave the question
+entirely**, and the gap is computable from `P`'s two shape ratios, which can
+be swept. The relative error needs no `γ` either: `ℓ_chord` **is** the
+quantity (N1) calls `ℓ`, so `ℓ_local/ℓ = 1/(1 − ℓ·Δ)`.
+
+### 3. The result is an exact separation, and it is stronger than the item
+
+By the mean value theorem `ℓ_chord = ℓ_local(ξ)` at one interior separation.
+Measured over 204 admissible quadratic shapes:
+
+```
+ξ ∈ [3.8482, 4.4952] Å      largest tabulated d_eq = 3.41 Å (Al)
+                            margin +0.4382 Å
+```
+
+**`ξ` lies above every tabulated metal, for every admissible shape.** So the
+swept parameter is the local decay length at **no metal in the table**, and
+the four physisorbed metals that sit *inside* the chord interval are not
+spared: the gap vanishes only at `ξ`, not across the interval.
+
+**The item was wrong in both directions.** Its `d_eq` range "2.05–3.31 Å" is
+wrong at the top — Al sits at 3.41 Å — and its "outside the chord" is wrong
+for Al, Ag, Au and Pt, which sit inside `[3.3, 5.0]`. But the correct charge
+is a **universal over all nine metals**, not the partial one it made. Both
+corrections are printed by `report_intervals()` and pinned by Validation 6c.
+
+The cost, with `Δ` `ℓ`-independent by construction:
+
+| metal | d_eq (Å) | Δ range (1/Å) | ℓ_local/ℓ @ 0.6 Å | bad @ 1.5 Å |
+|---|---|---|---|---|
+| Al | 3.41 | −0.182 … 0.767 | 0.90–1.85 | 3 |
+| Au | 3.31 | −0.202 … 0.797 | 0.89–1.92 | 5 |
+| Cu | 3.26 | −0.212 … 0.811 | 0.89–1.95 | 5 |
+| Pd | 2.30 | −0.389 … 0.988 | 0.81–2.45 | 14 |
+| Ni / Co | 2.05 | −0.433 … 1.056 | 0.79–2.73 | 19 |
+
+"bad" counts shapes whose `ℓ_local` at that metal is **infinite or negative** —
+Eq. (4)'s step is not decaying there, which no single exponential represents
+at any `ℓ`. **None at `ℓ = 0.3` or `0.6 Å`; 92 at `ℓ = 1.5 Å`**, the top of
+the committed sweep, and they reach the physisorbed metals too. It **compounds
+with** the `d₀` regime failure rather than replacing it: Ti, Ni, Co and Pd now
+fail for two independent reasons.
+
+**15 validations, all against exactly known values**: a pure exponential gives
+a bitwise-zero gap over two different chord intervals; `γ` cancels to 1e-13
+across four orders of magnitude, recomputed through the two length formulae
+rather than through the cancelled form; the MVT root is bracketed with a zero
+residual and `1/ℓ_chord` lies between the extremes of `1/ℓ_local`; the
+`d₂ → d₁` limit is first order with monotone ratios reaching 2; and
+`Eq. (4)|P=const` reproduces the existing `delta_c` **bitwise**. Transcript
+byte-identical across two consecutive runs.
+
+### 4. Annotated in place, not rewritten
+
+Thesis §7.9 item 2 listed three independent failures for the chemisorbed
+metals; the fourth is annotated beside them as **widening** the item, since
+unlike the other three it indicts the physisorbed metals too. The per-metal
+model's docstring already conceded that (N1) drops Eq. (4)'s prefactor and
+that RESULT 2 is where that breaks; what it did not say — and now says beside
+the existing concession — is that dropping the prefactor changes what the
+surviving parameter **means**. No number in either artefact is revised, and
+item 1's bound stands: it is correct as arithmetic about the chord, and what
+today adds is that the bounded quantity is not the one the per-metal
+evaluation uses.
+
+### 5. Five defects in this session's own work, all one shape
+
+- **Validation 5 claimed `BITWISE` and got `2.13e-14 eV`.** The algebra is
+  exact; the arithmetic is not the same arithmetic — `delta_c()` divides in
+  metres, this file multiplied by a reciprocal in Å. Bitwise was never
+  available and **the claim was the error**. Split into `5a` (matched
+  arithmetic, bitwise) and `5b`, which **measures** the units route at
+  **12 ULP** rather than hiding it behind a tolerance.
+- **Validation 4 demanded an asymptotic order at a finite step**, requiring
+  every error ratio within 0.05 of 2 and getting 2.286 at `h = 0.4 Å` — a
+  textbook first-order sequence. The assertion's **shape** changed to monotone
+  convergence, not its tightness; loosening the tolerance would have passed
+  anything.
+- **Validation 3 silently skipped an inadmissible planted shape**, reporting
+  on two cases while claiming three.
+- **The cost table contradicted its own prose**: `diverges = 0` on all nine
+  rows while the paragraph beneath said the divergences "cluster at the SMALL
+  separations". Now swept over `ℓ`, where they actually appear.
+- **Validation 6c's first draft expected a shape-dependent third verdict** for
+  the four metals inside the chord interval, on the strength of a throwaway
+  probe reporting `ξ` reaching 3.3000 Å. **The probe was wrong** — it counted
+  an endpoint where `Δ` evaluates to exactly 0.0 as an interior root, so its
+  minimum was the interval's own lower bound. Computed properly `ξ ≥ 3.8482 Å`
+  and there is no third verdict. **The correction made the result stronger
+  than the draft assumed**, which is the rarer direction.
+
+**All five are the same shape and it is this repository's recorded dominant
+failure mode: a check or a claim answering a weaker question than the one it
+was written to ask.** With the sibling repository's two today, that is seven
+instances in one day across both repositories, and the ranked-second item
+*resolve-on-spelling* is the general form of it.
+
+**And a sixth, which only looking could catch.** The figure was unreadable
+twice. Admissibility only requires `P > 0` on `[2.0, 5.2] Å`, so a shape may
+approach a zero of `P` just inside the right edge where `L' = P'/P` diverges;
+one such shape drove the left panel's autoscale to `−100 1/Å` and flattened
+every other curve onto the axis. Fixed, then the metal labels overprinted the
+x-axis label with Ni clipped to read "li". **Neither defect was reachable from
+the transcript, which said `15 passed, 0 failed` throughout.** Both views are
+clipped now with the clipping stated on the axis; nothing is dropped from the
+computation, only from the view. This is the first session to render a figure
+and inspect it rather than trusting the validation count, and it found two
+defects on the first try — worth making routine.
+
+### 6. Environment and automation health
+
+**The bridge dropped mid-session and the session survived, which is the
+operational finding of the day and is shared with the sibling repository's
+entry.** Three sibling-repository commits in, the device went offline while a
+command was running and did not return across ~6 minutes of retries. Nothing
+had been pushed; the work was in the session's scratch clone under `$HOME`,
+invisible to the user and lost with the session. When the bridge returned the
+clone was intact and the first action was `git push`, before any further work.
+**Every commit after that point was pushed immediately rather than batched to
+the end of the session**, and that is now the recommended pattern: a push per
+commit costs nothing and bounds the loss at one commit instead of a session.
+
+`scipy` was absent again and was `pip install`ed (1.15.3) — **fifth
+consecutive session**. It is never there; the 2026-10-15 note that it is
+present remains false. One new detail worth recording: backgrounding the
+install with `&` in a `device_bash` call does **not** survive the call's
+return, so three attempts earlier in this session produced an empty log and no
+package. Installs must run in the foreground.
+
+A figure was copied into the connected folder to be staged and inspected, and
+`_figcheck_chord.png` could not be deleted afterwards — deletion inside
+connected folders is blocked and requesting permission was denied by the
+safety classifier on 2026-09-17. It has been moved to `_to_delete/` for Harsh
+to remove. `arxiv.org` was not retried; it is refused by policy and the
+2026-10-18 finding stands. No live web search was used and none was needed —
+today's result is algebra plus the repository's own tables.
+
+**Not yet covered (candidates for future runs):**
+
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **still ranked first**, and
+  untouched for a second session. Preconditions (i)–(iii) are all discharged;
+  the flip and nothing else is left, and it is a Chapter 4 operation only.
+  Two replacements, not one rebinding: the channel takes `bc.rebind()`, the
+  contact needs `bc.rebind_by_operating_point()`. Costs already measured and
+  committed: `n` −1.0212 %, `I_d` −0.2530 %, `n_contact` −4.7696 % to
+  −12.4964 %, §4.7 `R_extra` −1.2583 % to +47.6925 %, **Pd's residual flips
+  sign**, additive decomposition fails 4-of-4. Cheapest safe route unchanged:
+  land the code change and the transcript regenerations in one session with
+  the thesis numbers annotated-but-not-yet-rewritten, then the prose next.
+  **Added today: it needs a session with a stable bridge, because a
+  half-landed flip is the one state the instruments cannot diagnose.**
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18, **ranked second**, and
+  today adds five more instances (§5) for a running total of ten across both
+  repositories. The work is unchanged: enumerate every check whose predicate
+  is a string operation and either put the question to an oracle or record a
+  stated reason the textual form suffices. Cheapest entry:
+  `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py` over the suites.
+  **The sibling repository worked an instance of it today and found the same
+  pattern in a control written to repair that very pattern.**
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — created today, **ranked
+  third**. §5's sixth defect: two unreadable figures, neither visible in a
+  transcript reading `15 passed, 0 failed`, both found in one look. This
+  repository has ~60 committed PNGs and no session on record has looked at
+  one. The work: a pass that renders each figure-producing module and
+  inspects the output, starting with the ones whose data can diverge
+  (anything sweeping an admissible family). Cheap, and the first sample had a
+  100 % hit rate.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — created today. Today's
+  sweep takes `p₁ ∈ [−0.60, 0.30] Å⁻¹`, `p₂ ∈ [−0.10, 0.12] Å⁻²` with 24 of
+  228 refused for `P ≤ 0`, and **the box has no justification from the
+  paper** — it is wide enough to contain plausible shapes and no argument says
+  it is the right width. The `ξ ≥ 3.8482 Å` margin is the headline and it is a
+  **minimum over this box**. Work: either derive a constraint on `P`'s shape
+  from something the paper does state, or report the headline's sensitivity to
+  the box, which is a one-line sweep of the box's corners.
+- **A LOWER BOUND ON `ℓ`** — carried. Still blocked on Fig. 4, which is
+  blocked on `arxiv.org`, refused by the egress proxy. A copy of the PDF in
+  the connected folder opens it immediately. **Today changes its value:** a
+  lower bound on a chord length constrains a quantity that, per §3, is the
+  local decay length at no tabulated metal — so the item is worth less than
+  its ranking suggested and should be read alongside the `Δ_c` form item
+  below rather than ahead of it.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried, and **promoted in
+  practice by today's result.** The two items are now one question seen from
+  two ends: (N1) is outside its regime for Ti, Ni, Co and Pd because
+  `d_eq < d₀`, *and* its parameter is a chord length no metal sits on. The
+  honest fix for both is a form with the polynomial prefactor retained, which
+  needs Eq. (4)'s coefficients, which needs the PDF.
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD** — carried from
+  2026-10-17, untouched for a third session.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, untouched here, but **the sibling
+  repository supplied the first worked instance of avoiding it today**, by
+  planting control cases as text passed to a predicate rather than as files.
+  That technique transfers directly.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1`
+  in `graphene_standing_list_audit.py` fails on its revival. The live
+  successor is **§4.8.2's form of error is not audited for elsewhere**,
+  created 10-01, untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, untouched for a fourth
+  session; `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, untouched for a fifth session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **fourteen sessions
+  overdue**, and today supplies its first real instance rather than another
+  clean sheet: Validation 4's `0.05` was a tolerance standing in for a
+  statement about convergence order, and replacing the tolerance with the
+  order is exactly what this item asks for. One worked example now exists.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, and today adds a sibling measurement: the metres/Å conversion
+  route costs **12 ULP** in `delta_c`. Both belong in item 15's audit.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, untouched for an
+  eighth session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  untouched for a **thirteenth** session.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — untouched for the eleventh session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, untouched for a
+  tenth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, fourteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, untouched for an
+  eleventh session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  untouched for an eleventh session.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the chord/local module with its transcript and
+figure; today's notes; the in-place annotations of thesis §7.9 item 2 and the
+per-metal model's docstring). This AUTOMATION_LOG.md entry makes **4**. Each
+was pushed immediately after commit rather than batched, for the reason in §6.
+
+---
+
+## 2026-10-21 — Item 16's two halves do not compose, and the composition failure is a third delivery-fault mode
+
+**Ranked-first item worked:** item 16, "flip the default to form `B_T`",
+untouched for two sessions. The 2026-10-20 entry recorded that "the flip and
+nothing else is left". That sentence was wrong, and what it left out is worth
+more than the flip.
+
+### 1. The result
+
+`qca.on_consistent_argument()` (channel) and
+`blast.contact_on_consistent_argument()` (contact) are each committed, each
+validated and each correct **alone**. Installing both at once does **not**
+give form `B_T` everywhere. `n_contact` lands **4.86× (Ni) to 10.77× (Cu)**
+past the effect item 16 exists to install — −51.3850 % to −61.9143 % against
+the committed contact-only form `B_T`, where the item's own effect is
+−4.7696 % to −12.4964 % — **and in the same direction**, so it is not a sign
+error, not a `nan`, and not out of range for a quantity in units of 10¹⁶ m⁻².
+A session that landed the flip and regenerated transcripts would have
+committed it as the answer.
+
+The cause is **one attribute read**. `blast.cq_shipped_of_n` builds the
+contact solve on the SHIPPED `gfet.quantum_capacitance` — a choice that is
+right, for two measured reasons its own docstring gives — and reads that name
+by attribute lookup at call time. The channel half rebinds exactly that name.
+So with both installed, the contact's self-consistency is solved against a
+`C_q` that has itself already been solved, against the wrong series
+capacitance.
+
+### 2. The general form, and why neither existing guard sees it
+
+- **2026-10-14, `bc.rebind()`**: the set a patch must reach is the name's
+  runtime identity class. Guarantees *no binding of a rebound name is stale*.
+- **2026-10-17, `bc.rebind_by_operating_point()`**: a class can span two
+  operating points, so it must be partitioned, and an unassigned member
+  raises. Guarantees *no class member is left at the shipped object*.
+
+Both are statements about **which names move**. Neither says anything about a
+**replacement that reads one of the moved names**. Such a replacement is
+**neither stale nor unassigned** — it is correctly installed, computed by the
+right mechanism, reported as installed by that mechanism's own report, and it
+reads a different object than the one it was validated against. **That is a
+third failure mode beside the two those mechanisms were built for, and it is
+invisible to both.**
+
+### 3. Two mechanisms, and they partially cancel
+
+(i) the inner `C_q` is the channel's `B_T` solve; (ii) that inner solve
+reaches `qca.series_factor`, which reads `gfet.C_ox` at call time, and the
+contact solve has `C_ox` substituted by `C_interface` for its duration.
+Isolated, (i) alone is −52.4054 % to −64.2107 % and **(ii) offsets it by
++1.0204 to +2.2965 percentage points for every metal**. (ii) is the more
+obviously wrong-looking of the two — a module global mutated across a nested
+call is visible on inspection — so **repairing the conspicuous part alone
+would have been a regression**, and the only thing distinguishing that from
+progress is having measured both parts separately.
+
+### 4. The repair, and what did NOT happen
+
+Bind the contact replacement to the shipped object **captured at manager
+entry**. `graphene_default_flip.on_default_flip()` then installs the whole
+flip through the two managers the 2026-10-20 note named, and is the **first
+caller ever to give `rebind_by_operating_point` a non-`None` contact
+assignment** — until 2026-10-17 the contact had no replacement of its own and
+the exclusion was correct exactly as long as that was true.
+
+**18 validations, 0 failures, all against exactly known values**: the identity
+assignment is bitwise neutral on all nineteen committed numbers; the contact
+half reproduces the committed contact-only `B_T` **bitwise** on all seven
+metals; the channel half reproduces `on_consistent_argument()` **bitwise** on
+all eight census entries; `n_contact(ΔW_F = 0)` is exactly `0.0`; the
+antisymmetry is bitwise; an incomplete assignment raises and rebinds nothing;
+an assignment with no stated reason is refused; interleaved channel/contact
+calls under one flip leave both bitwise (the stated reentrancy hazard,
+measured rather than assumed); and **V8 is a positive control on the repair**
+— it asserts the unrepaired flip *does* differ, so if the two ever agree the
+premise is known to have expired rather than silently satisfied. Transcript
+byte-identical across two consecutive runs.
+
+**Every cost item 16 has ever quoted is reproduced exactly** by the composed
+flip: `n` −1.0212 %, `I_d` −0.2530 %, `n_contact` −4.7696 % to −12.4964 %,
+§4.7 `R_extra` −1.2583 % to +47.6925 %, Pd's residual +50.9489 → −203.2764
+Ω·µm, additive decomposition 4-of-4 negative. That reproduction is the
+evidence the defect lives in the composition and in neither half.
+
+**`graphene_fet_model.py` is unedited and the chapter default is still
+(4.29).** The flip is now a single installable validated costed object, so
+what remains is a decision about what the thesis claims rather than a build.
+
+### 5. Annotated in place, not rewritten
+
+§4.6.17 is new. §4.6.9(g) item 1 and Chapter 7 item 16 are **annotated beside
+their existing text**, with no number revised — which is the right call here
+in a stronger sense than usual, since the composed flip reproduces every one
+of those numbers exactly.
+
+### 6. Three defects in this session's own work
+
+- **An unpaired ratio.** §1's first draft divided the smallest-magnitude
+  unrepaired deviation by the **largest**-magnitude committed effect and the
+  other way round, quoting "4.1× to 13.0×" from two pairs of numbers
+  belonging to different metals. The per-metal answer is 4.86× to 10.77×.
+  **Same shape as this repository's recorded dominant failure mode** — a
+  claim answering a weaker question than the one it was written to ask.
+- **Two literal `%%` leaks** in `print` calls carrying no `%` operator.
+- **A FALSE FIGURE TITLE.** Panel (a) read *"overshoots the effect it installs
+  by 4-5x"* — the figure of the superseded unpaired calculation. The prose was
+  repaired and the title was not, **because a title is not in the transcript
+  and nothing reads it.** It is now computed from the same `ratios` the table
+  prints. Beside it, panel (b)'s legend sat on top of Cu's two tallest bars
+  and its `R_tr` annotation.
+
+All three were caught by **reading the transcript and looking at the figure**,
+not by any check in the file. This is the **second consecutive session** in
+which rendering a figure and inspecting it found defects on the first try, and
+the first in which one of them was a **false claim** rather than an
+unreadable one.
+
+### 7. Environment and automation health
+
+The bridge was stable throughout, unlike 2026-10-20. Every commit was pushed
+immediately after commit regardless; that is now the standing pattern and it
+cost nothing. `scipy` absent again and `pip install`ed (1.15.3) — **sixth
+consecutive session**; the 2026-10-15 note that it is present remains false.
+`numpy` 2.2.6, `matplotlib` 3.10.9 present. No live web search was used and
+none was needed — today's result is this repository's own code measured
+against itself. `arxiv.org` was not retried; the 2026-10-18 finding stands. A
+figure was copied into the connected folder to be staged and inspected, then
+moved to `_to_delete/` for Harsh to remove, since deletion inside connected
+folders is blocked and requesting permission was denied by the safety
+classifier on 2026-09-17.
+
+**Not yet covered (candidates for future runs):**
+
+- **DOES ANY REPLACEMENT READ A NAME ITS OWN FLIP REBINDS?** — created today,
+  **ranked first**, and it is ranked first because today's defect was found by
+  accident rather than by a guard. The two existing mechanisms answer *which
+  names move*; nothing answers *what the replacements read*. The work is one
+  question per replacement — which module-level names does this function read
+  at call time, and does any flip that installs it rebind one of them — and
+  the repository has only a handful of replacements, so it is **cheap**.
+  Cheapest entry: the replacements are `qca._carrier_density_consistent`,
+  `qca._quantum_capacitance_consistent`, `blast._cq_consistent_contact` and
+  `flip.make_contact_cq`; `blast._cq_consistent_contact` is the known
+  positive, and the question is whether it is the only one.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, now **ranked second** rather than
+  first, and for the first time the demotion is not a deferral. Every
+  precondition is discharged, composition is repaired, the flip is one
+  installable object and all costs are reproduced. What is left is editing
+  `graphene_fet_model.py`, which moves committed Chapter 4 numbers and is a
+  decision about what the thesis claims. **It should not be landed in the
+  same session as the item ranked first**, because a flip landed over an
+  unaudited replacement set is exactly the state today showed is
+  undiagnosable from a green transcript.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried from 2026-10-20,
+  **ranked third**, and **upgraded today**: the question is no longer only
+  "is the figure legible" but "does the figure assert anything the text no
+  longer says". Today's false title is the first instance of the second kind,
+  and it is the more dangerous one, since an unreadable figure announces
+  itself and a confidently wrong one does not. ~62 committed PNGs, two
+  sessions of sampling, a 100 % hit rate on both. **Any figure carrying a
+  number in its title or annotations should derive it from the computation
+  rather than from a string literal**, which is one mechanical sweep.
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18, and today adds three more
+  instances (§6) for a running total of thirteen across both repositories.
+  Unchanged work: enumerate every check whose predicate is a string operation
+  and either put the question to an oracle or record why the textual form
+  suffices. Cheapest entry: `grep -n "in _src\|in txt\|\.find(\|re\.search"
+  *.py`.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  untouched. `p₁ ∈ [−0.60, 0.30] Å⁻¹`, `p₂ ∈ [−0.10, 0.12] Å⁻²` with no
+  justification from the paper; the `ξ ≥ 3.8482 Å` headline is a minimum over
+  that box. Work: derive a constraint on `P`'s shape, or report the
+  headline's sensitivity to the box — a one-line sweep of its corners.
+- **A LOWER BOUND ON `ℓ`** — carried, still blocked on Fig. 4, which is
+  blocked on `arxiv.org`. A copy of the PDF in the connected folder unblocks
+  it immediately. Worth less than its old ranking suggested, per 2026-10-20.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried, and read alongside
+  the item above: both need Eq. (4)'s coefficients, which need the PDF.
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD** — carried from
+  2026-10-17, untouched for a fourth session.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17; the sibling repository's technique of
+  planting controls as text passed to a predicate transfers directly.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1` in
+  `graphene_standing_list_audit.py` fails on its revival. The live successor
+  is **§4.8.2's form of error is not audited for elsewhere**, created 10-01,
+  untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, untouched for a fifth
+  session; `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, untouched for a sixth session, and **today raises its value**:
+  a hand-listed site is one more place a replacement can read a rebound name
+  unnoticed.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, fifteen sessions
+  overdue; 2026-10-20 supplied its first worked example.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, and belongs in item 15's audit with 2026-10-20's 12-ULP
+  metres/Å measurement.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, ninth session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **fourteenth** session untouched, and **today is an instance of it**: §6's
+  unpaired ratio is exactly the fault this item exists to find.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — twelfth session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, eleventh session.
+- **MECHANISE the magnitude item** — created 2026-10-03, fifteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, twelfth session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** — twelfth
+  session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the flip module with its transcript and figure; the
+thesis annotations and §4.6.17; today's notes). This AUTOMATION_LOG.md entry
+makes **4**. Each was pushed immediately after commit.
+
+---
+
+## 2026-10-22 — The item's own wording clears the defect that created it, and a capture is one level deep
+
+**Ranked-first item worked:** *does any replacement read a name its own flip
+rebinds?* — created 2026-10-21 and ranked first because that session's defect
+was found **by accident**. The item is now discharged, and two of this
+session's three results are things the item did not ask about.
+
+### 1. The item, answered as asked
+
+Of the four replacements the item names, **exactly one** reads a name that is
+rebound while it is installed: `blast._cq_consistent_contact`. So the
+2026-10-21 diagnosis was **complete as well as correct** — the accident found
+the whole of the exposure as the item framed it. That is now a measurement
+rather than a hope, and it is the least interesting of the three results.
+
+### 2. THE ITEM'S OWN WORDING ANSWERS *EMPTY* FOR THAT SAME REPLACEMENT
+
+The item, and §4.6.17(c) it came from, both ask whether **the flip that
+installs it** rebinds a name it reads. For `blast._cq_consistent_contact`:
+
+```
+installed by      : blast.contact_on_consistent_argument()
+that flip rebinds : cd.quantum_capacitance
+it reads          : gfet.quantum_capacitance
+intersection      : EMPTY
+```
+
+**A guard written to the item's own wording would have passed the composed
+flip and reported nothing.** The defect is **cross-flip**: the name read is
+rebound by a *different* manager, concurrent only because item 16 composes
+them. The relation is replacement × every flip installable **concurrently**,
+and the composed column is the one that answers the question.
+
+Same shape as this repository's recorded dominant failure mode — a check
+answering a weaker question than the one it was written to ask — reached this
+time through **the scope of a quantifier** rather than through a ratio. The
+sentence in §4.6.17(c) is annotated beside and left unrevised, since it is the
+record of what was asked.
+
+### 3. Three readers, and the controls earned their place
+
+**A** static bytecode closure over live lookups, with closure cells resolved
+from the real function object so *captured* is told apart from *live*;
+branch-insensitive. **B** identity sentinels at each rebind-set member
+(object substitution). **C** module-type `__getattribute__`/`__setattr__`
+interception, which sees non-callables and **writes**.
+
+B and C are blind in opposite directions — a read made from inside a name's
+own module is a globals-dict lookup that never reaches the module type — and
+agree **exactly** on all five replacements. **Three of the four planted
+controls are flagged by B and invisible to C.** The five real replacements do
+not exercise that path, so without the controls C would have looked
+interchangeable with B and the blind spot would have been invisible. Two
+readers agreeing because neither was asked a question it could fail is not
+corroboration.
+
+Rebind sets are derived from each manager's own `setattr` calls (entering it
+under reader C), not re-derived by calling `identity_class()` again — so a
+manager that grows a name is reported with it and the audit is not edited.
+
+### 4. NEW: a write/read relation, outside every existing question
+
+All five replacements **read** `gfet.C_ox` at call time; **three write it**.
+`gfet.C_ox` is in no identity class, so it is invisible to `bc.rebind()`, to
+`bc.rebind_by_operating_point()`, **and** to this item's own question — all
+three are about names a flip *rebinds*. What governs composition is therefore
+not a set of names but a **bipartite relation between what replacements write
+and what replacements read**; 2026-10-21's mechanism (ii) is one edge of it.
+
+### 5. 2026-10-21's two mechanisms are ONE
+
+Channel-replacement arrivals during the contact census, with `gfet.C_ox`
+recorded at each arrival: **repaired flip 0**; **unrepaired flip 192, of which
+181 with `C_ox` already substituted**. (ii) cannot occur without (i) — it is a
+property of the context (i)'s arrivals land in. One cause, two consequences,
+181/192 carrying both. That is *why* one change repairs both, which the
+percentage table of 2026-10-21 could not have said and which was being read
+as a coincidence. No percentage is revised; the reading is.
+
+### 6. NEW: CAPTURE IS ONE LEVEL DEEP
+
+A cell protects the **name** it holds, not the names the held **object** reads
+at call time.
+
+| captured object | its own live reads | safe? |
+|---|---|---|
+| `gfet.quantum_capacitance` | `{gfet._thermal_rounding}` | **yes** |
+| `gfet.carrier_density` | `{gfet._thermal_rounding, gfet.quantum_capacitance}` | **no** |
+
+The two captures are the *same construction*, indistinguishable at the call
+site. **§4.6.17's repair is correct and its correctness is contingent**: had
+the contact needed the shipped charge relation rather than the shipped
+capacitance, the same repair would have been written, would have looked right,
+and would have left the defect in place. A planted captured-leaky control
+holding `gfet.carrier_density` is still flagged, which demonstrates the limit
+rather than arguing it.
+
+The family, in the form its members take:
+
+- **10-14** a repair to one binding is not a repair to the class.
+- **10-17** a class can span two operating points, so it must be partitioned.
+- **10-21** a replacement that *reads* a rebound name is neither stale nor
+  unassigned.
+- **10-22** a capture that fixes one name does not fix the names the captured
+  object reads. The safe criterion is the **transitive live-read set of the
+  captured object**.
+
+Second limit, from reader A: the live read is still *in* `make_contact_cq` on
+the `live=True` branch, and that function is public. **A default is not a
+removal.**
+
+### 7. Validation
+
+**30/30, all against exactly known values.** Both instruments bitwise neutral
+on the seven committed contact densities, checked before any count was used;
+the repaired flip reproduces the committed contact-only form `B_T` **bitwise**
+on all seven metals and the unrepaired one does not (positive control,
+51.3850 %–61.9143 %); Cr's exact `0.0` at ΔW_F = 0 is **excluded from the
+ratio rather than quietly divided by**, after the first draft raised
+`ZeroDivisionError` on it; planted positive, negative, recursive, captured-
+clean and captured-leaky controls; and V17, which re-measures reader C with
+reader B's sentinels installed so that neither reader is creating the read it
+reports. Transcript byte-identical across two consecutive runs.
+
+### 8. Three defects in this session's own work — all in the figure
+
+1. Panel (a)'s legend sat on the tallest bar (y-limit set after the legend).
+2. **A FALSE LEGEND.** Panel (b)'s swatch for the "inside the `C_interface`
+   window" overlay was green; the overlay it labelled was drawn dark red.
+   **Second consecutive session with a figure asserting something the data
+   does not say.** 2026-10-21's prescription — *derive any number in a title
+   or annotation from the computation* — was followed and held; what got
+   through was a **colour**, which that prescription does not cover. Repaired
+   by building the legend from the bar **artists** so the two cannot drift.
+   Generalisation: **any property of a mark that the legend restates should be
+   read from the mark.**
+3. An exact zero drawn as a zero-height bar, indistinguishable from missing
+   data, in the panel whose whole point is that the repair gives exactly 0.
+
+**Third consecutive session in which rendering a figure and looking at it
+found a defect on the first try.**
+
+### 9. Environment and automation health
+
+Bridge stable. Every commit pushed immediately after commit and verified
+against the GitHub API rather than against git's own output. `scipy` absent
+again and `pip install`ed (1.15.3) — **seventh consecutive session**; the
+2026-10-15 note that it is present remains false and should be treated as
+settled. `numpy` 2.2.6, `matplotlib` 3.10.9 present. No live web search used
+and none needed — today's subject is this repository's own code measured
+against itself. A figure was copied into the connected folder to be staged and
+inspected, then moved to `_to_delete/`, since deletion inside connected
+folders is blocked and requesting permission was denied by the safety
+classifier on 2026-09-17.
+
+**Not yet covered (candidates for future runs):**
+
+- **GUARD THE WRITE/READ RELATION, DO NOT JUST REPORT IT** — created today,
+  **ranked first**. §4 found that `gfet.C_ox` is written by three
+  replacements and read by all five, and that it is in no identity class, so
+  no existing mechanism can see it. Today's audit *reports* that relation; it
+  does not refuse a composition that contains an edge. The work is to turn
+  the bipartite relation into a check that fails: enumerate (writer, reader)
+  pairs reachable under a given flip and require each to be either impossible
+  or stated with a reason, in the vocabulary `bc.rebind_by_operating_point()`
+  already uses for assignments. Cheapest entry: reader C already returns the
+  write set; the missing piece is reachability, and §5's arrival probe is
+  the mechanism.
+- **AUDIT THE CAPTURES, NOT JUST THE READS** — created today, **ranked
+  second**, and it is the direct consequence of §6. Every capture in the
+  repository should be checked against the **transitive live-read set of the
+  captured object**, which reader A computes today for free. There are few
+  captures; `flip.make_contact_cq`'s `shipped_cq` is the only one audited.
+  Cheapest entry: `grep -n "def make_\|= gfet\.\|= qca\." *.py` and run
+  `static_reads` on each captured object.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **ranked third**. Every
+  precondition is discharged, composition is repaired, the audit that was
+  not to share a session with the flip is **done as of today**, and all
+  costs are reproduced. What is left is editing `graphene_fet_model.py`,
+  which moves committed Chapter 4 numbers and is a decision about what the
+  thesis claims rather than a build. It is below the two items above only
+  because both bear directly on whether the composed flip is sound, and
+  §6 showed its repair is contingent in a way nobody had stated.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, **ranked fourth**,
+  and today extends it: the question is not only "is it legible" and "does it
+  assert a number the text no longer says" but "**does any property of a mark
+  that the legend restates disagree with the mark**". ~63 committed PNGs,
+  three sessions of sampling, 100 % hit rate on all three. Two mechanical
+  sweeps are available: derive every number in a title from the computation,
+  and build every legend from the artists.
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18; running total thirteen
+  across both repositories, unchanged today. Cheapest entry:
+  `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py`.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  untouched for a second session. `p₁ ∈ [−0.60, 0.30] Å⁻¹`,
+  `p₂ ∈ [−0.10, 0.12] Å⁻²` with no justification from the paper; the
+  `ξ ≥ 3.8482 Å` headline is a minimum over that box. One-line corner sweep.
+- **A LOWER BOUND ON `ℓ`** — carried, still blocked on Fig. 4, which is
+  blocked on `arxiv.org`. A copy of the PDF in the connected folder unblocks
+  it immediately.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried; needs the same PDF.
+- **A CENSUS THAT ENUMERATES A FAULT FOREVER IS NOT A GUARD** — carried from
+  2026-10-17, fifth session, and **today is the strongest instance yet**:
+  §4's write/read relation is currently a census, which is exactly why the
+  item ranked first above exists.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17. Today's module plants four controls as
+  *functions*, not as text, so it does not add to the exposure.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1`
+  in `graphene_standing_list_audit.py` fails on its revival. Live successor:
+  **§4.8.2's form of error is not audited for elsewhere**, created 10-01,
+  untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, sixth session;
+  `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, seventh session, and today raises its value again: a
+  hand-listed site is a place a replacement can read a rebound name
+  unnoticed, and today's audit explicitly does **not** cover them.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, sixteen sessions
+  overdue.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, tenth session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **fifteenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — thirteenth session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, twelfth session.
+- **MECHANISE the magnitude item** — created 2026-10-03, sixteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, thirteenth session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  thirteenth session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the audit module with its transcript and figure; the
+thesis annotations and §4.6.18; today's notes). This AUTOMATION_LOG.md entry
+makes **4**. Each was pushed immediately after commit and verified against the
+GitHub API.
+
+## 2026-10-23 — Two findings are two edges of one relation, and a refusal nothing reaches is not a refusal
+
+**Ranked-first item worked:** *guard the write/read relation, do not just
+report it* — created 2026-10-22 §4. It is discharged, and with it the
+standing item carried since 2026-10-17, *a census that enumerates a fault
+forever is not a guard*, whose strongest instance 2026-10-22 recorded as §4
+itself. Module: `graphene_write_read_guard.py`, 21/21.
+
+### 1. The vocabulary is deliberately not new
+
+This repository already had the refusal twice. `bc.rebind()` refuses an
+exclusion **without a stated reason**; `bc.rebind_by_operating_point()`
+refuses an **unassigned class member**, raises before anything is rebound,
+and makes the reason mandatory for *left alone* as well as for *replaced*.
+The guard is that same refusal applied to an **edge**: every
+`(writer, name, reader)` carries a verdict from
+`{GOVERNED, IMPOSSIBLE, OCCURS}` and a mandatory reason, and an unadjudicated
+edge raises with nothing run.
+
+### 2. WHAT IS NEW: EVERY VERDICT IS MEASURED, AND IN BOTH DIRECTIONS
+
+Completeness is static — `rebind_by_operating_point` can check it because it
+knows the identity class. A verdict is a claim about **reachability**, which
+no static set contains, so a guard that *accepted* the claim would be a
+census with a stricter tone, i.e. the item not discharged. Each verdict is
+therefore checked against an order probe:
+
+| verdict | refused when |
+|---|---|
+| `GOVERNED` | the name is in **no** rebind set |
+| `IMPOSSIBLE` | the probe **observes** the edge |
+| `OCCURS` | the probe **never** observes the edge |
+
+**The third row is the half a census cannot have.** A guard that only catches
+a wrongly-*permissive* claim answers a weaker question than it was written to
+ask — this repository's recorded dominant failure mode. An `OCCURS` reason
+describing an edge that has stopped occurring is a sentence about nothing,
+and it looks true indefinitely because nothing ever asks it the opposite
+question.
+
+### 3. THE TWO FINDINGS ARE ONE RELATION, AND ONE CHANGE REMOVES BOTH
+
+A name is written either by a **replacement** (10-22's `gfet.C_ox`) or by the
+**flip itself**, which is every member of the rebind set (10-21's rebound
+names). Two findings, two sessions — **two sources of writes into one
+relation**, and composing them makes the composed column computable rather
+than argued. Measured, reads traced and each edge derived from the read:
+
+```
+unrepaired (live_contact=True), 3 observed
+    THE FLIP          --gfet.quantum_capacitance--> make_contact_cq   [10-21]
+    make_contact_cq   --gfet.C_ox--> qca._quantum_capacitance_consistent [10-22]
+    make_contact_cq   --gfet.C_ox--> itself
+repaired   (live_contact=False), 1 observed
+    make_contact_cq   --gfet.C_ox--> itself
+```
+
+The survivor is the contact substituting `C_ox` for `cd.C_interface` and
+reading it back **inside its own call** — same operating point, restored
+before return — so it is the substitution, not a leak. **Both
+cross-replacement edges go away with one change.** That is 10-22 §5's "one
+cause, two consequences" as a measurement instead of a reading of a
+coincidence, and it is why 181/192 was never two phenomena. No number from
+10-21 or 10-22 is revised; what is revised is the relation's status.
+
+### 4. THE ITEM, ANSWERED (V21)
+
+The repaired composition's adjudication — **the same stated reasons,
+unchanged** — is **accepted** for `live_contact=False` and **refused** for
+`live_contact=True`, naming three disagreeing verdicts. The difference
+between the two compositions is now a `raise`, not a percentage table a
+reader has to interpret.
+
+### 5. Validation, 21/21, anchored to exactly-known values
+
+**V4–V6** reproduce the 10-22 arrival counts rather than citing them: **0**
+repaired, **192** unrepaired, exactly **181** with `C_ox` already
+substituted — an exact zero a symmetry requires plus two integers measured by
+a previous session independently of this code. **V8** exact zero: no
+cross-replacement edge survives the repair. **V9** the unrepaired composition
+has exactly 2, and they are the two reported defects. **V7** every observed
+edge lies inside the static relation, so the static set is a sound
+over-approximation and not a different answer. **V2–V3** the probe is
+deterministic — census and edge set bitwise identical across consecutive
+runs — checked before any count was used.
+
+**V10–V13 put the DERIVER under exactly-known traces**, because a deriver
+that returns few edges and a repository that *has* few are indistinguishable
+otherwise: write-then-read gives the one edge, read-**before**-write gives
+none (ordered, not a set intersection), a nested reader is attributed to
+itself, a write outside every replacement is attributed to `THE FLIP`.
+**V14–V20** are the refusals, one planted control each.
+
+### 6. Two defects in this session's own work
+
+1. **THE FIRST PROBE DID NOT TRACE READS.** It closed an edge on every
+   *arrival* of a reader following a write — *did this replacement run after
+   that name moved*, which is weaker than *did it read that name*, and wrong
+   in the permissive direction. It reported **twelve** observed edges under
+   the unrepaired flip, four on names the reader does not read at all, and
+   the observed set was **not even a subset** of the relation. A probe whose
+   over-report must be corrected by intersecting it with a static set has not
+   measured reachability. Same shape as the dominant failure mode, reached
+   this time through **the choice of which events to instrument** — not a
+   ratio (10-22), not a quantifier's scope (10-21), but an instrument never
+   asked whether it could see the thing its verdict named.
+2. **A PLANTED CONTROL FOUND A CRASH IN A REFUSAL PATH THAT HAD NEVER RUN.**
+   V18 — a false `GOVERNED` — raised `TypeError` instead of
+   `FalseEdgeVerdict`: a name is a `(module, attr)` **tuple** and the message
+   interpolated it into a single `%s`. Nothing else reaches that branch, so
+   without the control the guard would have shipped with one of its three
+   refusals unable to report itself **while looking correct**, because the two
+   refusals the live subject exercises both work.
+
+The family, in the form its members take:
+
+- **10-14** a repair to one binding is not a repair to the class.
+- **10-17** a class can span two operating points, so it must be partitioned.
+- **10-21** a replacement that *reads* a rebound name is neither stale nor
+  unassigned.
+- **10-22** a capture that fixes one name does not fix the names the captured
+  object reads.
+- **10-23** **a refusal that nothing reaches is not a refusal.** Every verdict
+  in a vocabulary needs its own planted control, not only the verdicts the
+  live subject happens to exercise.
+
+### 7. No figure, stated rather than silent
+
+The result is a 3-edge set and a 1-edge set; a table carries that exactly and
+a plot would decorate it. The last three sessions each found a defect in a
+committed figure, two of them figures asserting something the data did not
+say. Adding a fourth opportunity for a result this small is not worth it.
+**This does not discharge the standing render-and-inspect item**, which is
+about the ~63 figures already committed.
+
+### 8. Environment and automation health
+
+`scipy` absent again and installed (1.15.3) — **eighth consecutive** session;
+the 2026-10-15 note that it is present remains false and is settled. `numpy`
+2.2.6, `matplotlib` 3.10.9 present. **Two new environment faults, both of
+which blocked the documented working pattern and both worked around:** the
+device VM's `/sessions` filesystem is **100 % full** (9.3 G of 9.8 G, ~100
+stale session directories owned by `nobody`, unreadable and undeletable from
+here), so `git clone` into `$HOME/work` fails with *No space left on device*
+and `pip install` fails even with `--target`, because pip builds under
+`TMPDIR`, which also points there. Both are fixed by using `/tmp`, a separate
+filesystem (`/dev/sda1`, 4.4 G free): clone into `/tmp`, and
+`TMPDIR=/tmp/piptmp pip install --no-cache-dir --target /tmp/pylibs scipy`
+with `PYTHONPATH=/tmp/pylibs`. Also: **`pgrep -f` is unusable in this VM** —
+the agent proxy puts a base64 copy of the running command into `HTTP_PROXY`,
+so `pgrep -f <anything>` matches its own wrapper and always reports RUNNING.
+The bridge dropped once mid-session and the session resumed with `/tmp`
+intact. Every commit pushed immediately after commit and verified against the
+GitHub API. No live web search used and none needed — today's subject is this
+repository's own composition measured against itself.
+
+**Not yet covered (candidates for future runs):**
+
+- **AUDIT THE CAPTURES, NOT JUST THE READS** — carried from 2026-10-22, now
+  **ranked first**, and today raises its value rather than leaving it where
+  it was. §6 of 10-22 showed a capture protects the name it holds and not the
+  names the held object reads at call time, and that `§4.6.17`'s repair is
+  therefore *correct and contingent*. Today's guard covers **reads of written
+  names**; a captured object's own live reads are reached by neither the guard
+  nor `bc.*`, so this is now the largest remaining unguarded surface rather
+  than a tidy-up. Cheapest entry unchanged:
+  `grep -n "def make_\|= gfet\.\|= qca\." *.py` and `static_reads` on each
+  captured object — and the natural shape is a fourth verdict in today's
+  vocabulary rather than a separate module.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — created
+  today, **ranked second**, and it is the generalisation of §6.2 rather than
+  a repeat of it. V18 found a crash in the one refusal path the live subject
+  never exercises. The question is not about this module: it is **which
+  refusal branches anywhere in the repository have never been reached by a
+  test**. `bc.UnassignedClassMember` has three raise sites and the
+  not-a-pair and no-reason ones are plausibly unexercised; `bc.rebind()`'s
+  bare-set refusal likewise. Cheapest entry:
+  `grep -n "raise " *.py` and, for each, ask what reaches it.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **ranked third**, unchanged in
+  content and strengthened in precondition. Every precondition was already
+  discharged; today adds that the composition is not merely repaired but
+  **guarded**, so the flip can no longer reintroduce either cross-replacement
+  edge silently. What is left is editing `graphene_fet_model.py`, which moves
+  committed Chapter 4 numbers — still a decision about what the thesis
+  claims, not a build.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, **ranked fourth**.
+  ~63 committed PNGs, three sessions of sampling, 100 % hit rate on all
+  three. Today produced no figure, so the backlog is unchanged and the two
+  mechanical sweeps are still available: derive every number in a title from
+  the computation, and build every legend from the artists.
+- **ADJUDICATE THE RELATION FOR THE FLIPS THIS SESSION DID NOT COMPOSE** —
+  created today. The guard was exercised on `flip.on_default_flip` at both
+  settings. `qca.on_consistent_argument()` and
+  `blast.contact_on_consistent_argument()` have rebind sets and appear in
+  `rra.FLIPS`, but no adjudication was written for compositions headed by
+  them. Stated so today is not read as having guarded every composition.
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18; running total **fourteen**
+  across both repositories, and today's instance is in the sibling repository
+  rather than this one. Cheapest entry:
+  `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py`.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **third** session untouched. `p₁ ∈ [−0.60, 0.30] Å⁻¹`,
+  `p₂ ∈ [−0.10, 0.12] Å⁻²` with no justification from the paper; the
+  `ξ ≥ 3.8482 Å` headline is a minimum over that box. One-line corner sweep.
+- **A LOWER BOUND ON `ℓ`** — carried, still blocked on Fig. 4, which is
+  blocked on `arxiv.org`. A copy of the PDF in the connected folder unblocks
+  it immediately.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried; needs the same PDF.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17. Today's module plants its controls as
+  synthetic **traces**, not as functions or text, so it does not add to the
+  exposure at all — the cleanest instance yet.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1`
+  in `graphene_standing_list_audit.py` fails on its revival. Live successor:
+  **§4.8.2's form of error is not audited for elsewhere**, created 10-01,
+  untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **seventh** session;
+  `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, **eighth** session. Today raises it again: a hand-listed site is
+  a place a replacement can read a written name unnoticed, and today's guard
+  derives its relation from measured writes and reads, so it does **not**
+  cover a site that is never entered.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried, and
+  today is a worked reference for exactly that conversion.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **seventeen**
+  sessions overdue.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12, and today
+  gives it a concrete hook: `gfet.n_puddle` is read by
+  `qca._carrier_density_consistent` and is in no rebind set, so it sits in the
+  same structural position `gfet.C_ox` did before §4 of 10-22 — read across a
+  composition and governed by nothing. It has no writer today, which is the
+  only reason it is not an edge.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **eleventh**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — three requirements, three worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **sixteenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **fourteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **thirteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, seventeen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **fourteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **fourteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched,
+  and the name is now awkward: today's module uses *unadjudicated* for an
+  edge with no verdict. Worth renaming one of the two.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 3 (the guard module with its transcript; today's notes;
+the thesis §4.6.19 and the 4.6.18 annotation). This AUTOMATION_LOG.md entry
+makes **4**. Each was pushed immediately after commit and verified against the
+GitHub API.
+
+---
+
+## 2026-10-24 — The capture surface: a counterfactual, and a twin with the same leverage
+
+**Subject:** the 2026-10-23 **ranked-first** item, *audit the captures, not
+just the reads*. Discharged. Four commits plus this entry.
+
+### 1. The instrument the item named cannot answer the question
+
+The item's own cheapest entry was `rra.static_reads` on each captured object.
+On the two objects the whole 2026-10-21 repair is the difference between,
+that reader returns **the same 8 names**, symmetric difference **zero**, both
+containing `gfet.quantum_capacitance` as a *live* read — `cq_of_n` carries
+both branches in its bytecode and a bytecode walk cannot know which runs. The
+reader is sound and over-approximate exactly as designed, and therefore
+**cannot distinguish the repaired contact replacement from the unrepaired
+one at all**. §4.6.17's correctness argument and §4.6.18 (d)'s table are both
+written in that vocabulary, so the argument was never checkable where it was
+made.
+
+Every verdict in `graphene_capture_surface_guard.py` is therefore a
+**counterfactual**: rebind the name to a wrong stand-in (×1.5), call the
+holder, compare **bitwise**. No tolerance anywhere — *does a rebind of this
+name reach this object* has an exact answer. An **identity** rebind of all
+nine surface names moves the result by exactly zero, checked before any
+verdict is used (C1).
+
+### 2. The result
+
+Contact replacement at `V = 0.5 V`, base `0x1.0c835a6063492p-4` F/m²:
+
+| name | verdict | repaired | unrepaired |
+|---|---|---|---|
+| `gfet._thermal_rounding` | EXPOSED | **+58.3421 %** | +58.3421 % |
+| `qca.A_FERMI` | EXPOSED | +58.3417 % | +58.3417 % |
+| `qca.series_factor` | EXPOSED | +26.1720 % | +26.1720 % |
+| `qca._fixed_point` | EXPOSED | +22.4740 % | +22.4740 % |
+| `cd.C_interface` | EXPOSED | +18.1154 % | +18.1154 % |
+| `gfet.T` | EXPOSED | +0.0034 % | +0.0034 % |
+| `cd.quantum_capacitance` | UNREACHED | exact 0 | exact 0 |
+| `gfet.C_ox` | PROTECTED | **exact 0** | exact 0 |
+| `gfet.quantum_capacitance` | PROTECTED | **exact 0** | **+58.3421 %** |
+
+The two differ on **exactly one** of nine names — that is the repair,
+measured. **And a rebind of `gfet._thermal_rounding` moves the REPAIRED
+replacement to `0x1.a92b527d6852cp-4`, bitwise the value a rebind of
+`gfet.quantum_capacitance` moves the UNREPAIRED one to.**
+`gfet._thermal_rounding` is the *sole* live read of the captured object, so
+the route is the capture itself: §4.6.17 closed one path to that number and
+left an exactly equally powerful one open **through the object it captured**.
+It is in no rebind set and written by no replacement, so
+`bc.rebind_by_operating_point`, the 2026-10-23 write/read guard and
+§4.6.17's argument reach it equally — not at all.
+
+**This reverses the reading of a committed thesis table without changing a
+number in it.** §4.6.18 (d)'s row `gfet.quantum_capacitance` / own live reads
+`{gfet._thermal_rounding}` / *in the rebind set?* **no — safe to capture** is
+correct in every entry and wrong in its conclusion: the column answers
+whether a flip over the name exists *today*, and it was read as answering
+whether the name can move the result. Annotated in place; numbers unrevised.
+
+### 3. A second result, the other way
+
+Walking the closure cells on **object identity** recovers the held object's
+whole **identity class** — `{gfet.quantum_capacitance,
+cd.quantum_capacitance}` — reproducing `bc.identity_class(gfet,
+'quantum_capacitance')` exactly and independently (C5b: the validation
+against the existing implementation in the overlapping limit). So the capture
+neutralises a rebind of **both** members, including
+`blast.contact_on_consistent_argument()`'s — **stronger** than §4.6.17
+claimed. But only one is ever looked up, so calling both PROTECTED would
+credit the capture with work it did not do: §4.6.18 (d)'s conflation with the
+sign reversed. `UNREACHED` keeps them apart, using the one judgement
+`static_reads` **can** make soundly — an over-approximate read set has
+reliable *negatives*.
+
+### 4. An argument became a bitwise zero, and it is device physics
+
+The 2026-10-23 guard's single surviving `OCCURS` edge was adjudicated *the
+substitution itself and not a leak* on an argument. Measured: the
+**external** value of `gfet.C_ox` reaches the contact replacement's output
+**not at all**, for both variants. **The contact self-consistency is
+referenced to `C_interface` and is exactly independent of the oxide
+capacitance**, so no §4.6 contact number inherits an oxide-thickness error
+through that path. The sensitivity ranking of the contact `C_q` —
+`_thermal_rounding` and `A_FERMI` ≈ +58 %, `C_interface` +18 % — is new
+chapter content, not only a software fact.
+
+### 5. Four defects in this session's own work
+
+All four are checks that asked a question **adjacent** to the one they were
+written to ask, and none was found by reading the code.
+
+1. **The literal-number check was a regex over source text** and reported
+   three violations that were *code*: a regex has no notion of where a string
+   literal ends, so the code *between* two literals was scanned as if it were
+   one. **Resolve-on-spelling, running total fifteen.** Replaced with `ast`.
+2. **The `ast` version walked every argument** and flagged `color='0.35'`
+   inside `arrowprops`. `TEXT_ARGS` now names which argument is the text.
+3. **It then flagged the precision in `'%+.4f %%'`** — a digit in a
+   `%`-conversion specifier is a formatting instruction.
+4. **The figure was committed in its third render**, each earlier one having
+   passed every check it had. Render 1 (linear) made `gfet.T`'s +0.0034 % bar
+   indistinguishable from the exact zeros — *the one distinction the figure
+   exists to make* — and `F3` passed because it asked whether the zeros were
+   a different **artist**, not whether a reader could see the difference; it
+   also clipped its own title and x-label. Render 2 put the legend box on top
+   of the `quantum_capacitance` row, the single row the figure is about, and
+   `F2` passed because counting legend entries says nothing about where the
+   box lands.
+
+Each is now a check naming its render (`F7` clipping, `F8` small-move
+visibility, `F9` legend occlusion, `F10` label overrun), and `F0a`–`F0e` are
+planted controls for all five boundaries of the literal-number check.
+
+### 6. A figure, after yesterday declined one
+
+Yesterday's result was a 3-edge set and a plot would have decorated it.
+Today's is a 9 × 2 table whose *point* is a coincidence between two rows, and
+a reader has to hunt for that among hex floats. `capture_surface_leverage.png`
+is committed, and is a worked reference for the two mechanical sweeps the
+standing render-and-inspect item asks for. **It does not discharge that item**
+— ~63 PNGs remain — but it is the **fourth consecutive** session to find a
+defect in a figure by rendering it, and the first where the figure was made
+the same session, which raises the item rather than lowering it.
+
+### 7. Mutation test
+
+7/7 injected defects detected, control clean. M1 (undo §4.6.17's repair) →
+23/29. M2 (bitwise → 1 × 10⁻³ relative tolerance) caught, so the suite
+depends on exactness and not on a threshold.
+
+### 8. Environment and automation health
+
+`scipy` absent again and installed (1.15.3) — **ninth consecutive** session;
+the 2026-10-15 note that it is present remains false and is settled. `numpy`
+2.2.6, `matplotlib` 3.10.9 present. The device VM's `/sessions` filesystem is
+**still 100 % full** (9.3 G of 9.8 G, other sessions' directories, unreadable
+and undeletable from here), so the 2026-10-23 workaround was needed again and
+worked unchanged: clone into `/tmp` (`/dev/sda1`, 4.4 G free),
+`TMPDIR=/tmp/piptmp pip install --no-cache-dir --target /tmp/pylibs scipy`,
+`PYTHONPATH=/tmp/pylibs`. **This is now a standing environment fact, not an
+incident, and a future run should start with `/tmp` rather than discover it.**
+One new operational note: inspecting a figure requires copying it into the
+connected folder so it can be staged, and deletion there is blocked, so the
+copies accumulate — three went into `_to_delete/` today, joining three from
+earlier sessions. **A future run should reuse a single filename** (e.g.
+`_figcheck.png`) instead of a new one per figure. Every commit pushed
+immediately after commit and verified against the GitHub API. No live web
+search used and none needed.
+
+**Not yet covered (candidates for future runs):**
+
+- **AUDIT THE CAPTURE SURFACE OF THE OTHER THREE REPLACEMENTS** — created
+  today, **ranked first**, and it is the direct continuation rather than a
+  new thread. Today adjudicated the capture surface of
+  `flip.make_contact_cq` only. `qca._carrier_density_consistent`,
+  `qca._quantum_capacitance_consistent` and `blast._cq_consistent_contact`
+  hold no closure cells, so they have no *held* names — but they all have a
+  read surface, and the counterfactual on it is exactly the sensitivity
+  ranking §4 above gives the contact. Cheapest entry:
+  `require_capture_adjudication` already takes any callable; run it on the
+  other three and adjudicate. The interesting question is whether
+  `gfet._thermal_rounding` and `qca.A_FERMI` carry ≈ +58 % there too, which
+  would make them repository-wide levers rather than a contact fact.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — created today,
+  **ranked second**, and it is the actionable half of today's finding rather
+  than a restatement. It moves the contact `C_q` by 58.3421 %, is in no
+  identity class anyone flips, and is written by nothing. The question is
+  whether it should be *in* one: `bc.identity_class(gfet,
+  '_thermal_rounding')` is a one-line probe, and if the answer is a class
+  spanning channel and contact then it is the next
+  `rebind_by_operating_point` candidate. Blocked on nothing.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried from
+  2026-10-23, **ranked third**, and today is the second worked instance
+  (every verdict and every refusal branch of the new vocabulary has one,
+  which is what caught corrections 2 and 3 of §5). The repository-wide
+  question is untouched: **which refusal branches anywhere have never been
+  reached by a test**. `bc.UnassignedClassMember` has three raise sites and
+  the not-a-pair and no-reason ones are plausibly unexercised;
+  `bc.rebind()`'s bare-set refusal likewise. Cheapest entry:
+  `grep -n "raise " *.py` and, for each, ask what reaches it.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, **ranked fourth**, unchanged in
+  content and strengthened again in precondition: the composition is
+  repaired (10-21), guarded (10-23), and the capture that repairs it is now
+  adjudicated rather than argued (today). What is left is editing
+  `graphene_fet_model.py`, which moves committed Chapter 4 numbers — still a
+  decision about what the thesis claims, not a build.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, **ranked fifth**,
+  and raised by today rather than discharged. ~63 committed PNGs, four
+  sessions, 100 % hit rate on all four. Today supplies the two mechanical
+  sweeps as *working code* (`literal_numbers_in_text_calls`, the legend
+  built from artists, `F7`–`F10`), so the next run can point them at the
+  backlog instead of writing them.
+- **A CLIPPING AND OCCLUSION SWEEP OVER THE COMMITTED FIGURES** — created
+  today, and narrower than the item above: `F7`, `F9` and `F10` are generic
+  (text outside the canvas, legend over a bar, label past the spine) and need
+  only each figure's script re-run under them. Unlike the full inspection
+  item this one is mechanical and needs no judgement.
+- **ADJUDICATE THE RELATION FOR THE FLIPS 10-23 DID NOT COMPOSE** — carried
+  from 2026-10-23, untouched. `qca.on_consistent_argument()` and
+  `blast.contact_on_consistent_argument()` have rebind sets and appear in
+  `rra.FLIPS` but no adjudication was written for compositions headed by
+  them.
+- **RESOLVE-ON-SPELLING** — carried from 2026-10-18; running total **fifteen**
+  across both repositories, today's instance being §5.1, in this
+  repository and in this session's own new code. Cheapest entry:
+  `grep -n "in _src\|in txt\|\.find(\|re\.search" *.py`.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **fourth** session untouched. `p₁ ∈ [−0.60, 0.30] Å⁻¹`,
+  `p₂ ∈ [−0.10, 0.12] Å⁻²` with no justification from the paper; the
+  `ξ ≥ 3.8482 Å` headline is a minimum over that box. One-line corner sweep.
+- **A LOWER BOUND ON `ℓ`** — carried, still blocked on Fig. 4, which is
+  blocked on `arxiv.org`. A copy of the PDF in the connected folder unblocks
+  it immediately.
+- **A `Δ_c` FORM FOR THE CHEMISORBED METALS** — carried; needs the same PDF.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17. Today's controls are synthetic *holders*
+  defined in the guard module itself, which do add two functions reading
+  `gfet.T` to the tree; smaller exposure than a text pattern, not zero.
+- **CHAPTERS 2 AND 3** — the undrafted wording stays retired as false; `A1`
+  in `graphene_standing_list_audit.py` fails on its revival. Live successor:
+  **§4.8.2's form of error is not audited for elsewhere**, created 10-01,
+  untouched since 10-06.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **eighth** session;
+  `dead_name_sweep` still red 6/2 on exactly them.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, **ninth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried; two
+  worked references now (10-23 and today).
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **eighteen**
+  sessions overdue, and today is a worked argument *for* it: M2 shows a
+  suite that swaps a bitwise comparison for a 1 × 10⁻³ tolerance stops
+  measuring what it claims.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12. `gfet.n_puddle`
+  is read by `qca._carrier_density_consistent` and is in no rebind set; the
+  ranked-first item above would give it a counterfactual number, which is
+  the first thing this item has ever had.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, costed at
+  +0.1527 % in `n`.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **twelfth**
+  session, and today raises it sharply: the rounding form *is*
+  `gfet._thermal_rounding`, which today measures as the single largest lever
+  on the contact `C_q`. This item and the new ranked-second one are the same
+  name approached from two directions.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **seventeenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **fifteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **fourteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, eighteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **fifteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **fifteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched;
+  the naming clash noted on 10-23 is now three-way, since this session uses
+  *unadjudicated* for a capture-surface name as well.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 4 (the guard with its transcript and mutation report;
+the leverage figure with its own provenance checks; today's notes; thesis
+§4.6.20 and the §4.6.18 (d) annotation). This AUTOMATION_LOG.md entry makes
+**5**. Each was pushed immediately after commit and verified against the
+GitHub API.
+
+---
+
+## 2026-10-25
+
+**Status:** The 2026-10-24 ranked-first item is discharged, and it contradicts
+the sentence it was written under. 6 commits.
+
+### 1. What the item asked, and the answer
+
+"Audit the capture surface of the other three replacements … the interesting
+question is whether `gfet._thermal_rounding` and `qca.A_FERMI` carry ≈ +58 %
+there too, which would make them repository-wide levers rather than a contact
+fact." **The two halves answer opposite ways**, and the reason one of them
+answers at all is the finding:
+
+| name | charge repl. | capacitance repl. | contact repl. |
+|---|---|---|---|
+| `gfet._thermal_rounding` | **exact 0** | **exact 0** | +58.3421 % |
+| `qca.A_FERMI` | +0.0121 % | **+29.8900 %** | +58.3417 % |
+
+`gfet._thermal_rounding` is a **contact fact** — and the zero is a *measured
+bitwise counterfactual*, which matters because after §2 below an *absence*
+would have proved nothing. `qca.A_FERMI` is **repository-wide**, and it was
+**off the read surface of both channel replacements**, which is how it went
+eight sessions unmeasured.
+
+### 2. THE 2026-10-24 GUARD RESTS ON A FALSE SENTENCE
+
+Its Section 0 grounds the `PROTECTED`/`UNREACHED` split on *"an
+over-approximate read set has reliable **negatives**, so 'not in the static
+read surface' is trustworthy even though 'in it' is not."* False.
+`rra.static_reads` records a `(module, attr)` pair only for a **qualified
+module read** (`qca.A_FERMI`) or a **bare global resolving to a repo
+function** (`cq_thermal`). A bare global resolving to a module-level
+**scalar**, read inside the module that defines it — how every constant here
+is read by its own functions — is recorded **nowhere**. A negative means *not
+read in a spelling the walker can see*.
+
+The exhibit is one name, and it is an exact binary prediction:
+`qca.A_FERMI` is **off** the old surface for both `qca` holders and **on** it
+for both contact holders, because `blast` spells it qualified. **One name,
+one value, one mechanism, and its visibility to every audit in this
+repository is decided by the spelling at the read site.** Sixteenth running
+instance of *resolve-on-spelling*, and the first with the sign reversed: the
+**audited surface** resolves on spelling, not a test.
+
+### 3. The 18 levers nothing could ever adjudicate
+
+Completing the surface over the four holders adds **18 (holder, name)
+pairs**, 8 distinct names, and **every one moves the value** — largest
+`gfet.e` at **+278.4911 %**, largest derived prefactor `qca.CQ_PREFACTOR` at
+**+50.4145 %**. None had ever carried a verdict, because a guard can only
+demand one for a name its surface *names*: the transcript shows the
+2026-10-24 guard **accepting** an adjudication of all three replacements with
+every one of them omitted. Repository-wide, **75 of 90 module-level scalars
+(84 %)** are in the blind class; `gfet.t_ox` and `gfet.epsilon_0` are scalars
+*outside* it (read only at import to build `C_ox`), which pins the census
+from the other side, and 15 of 91 sit outside in all.
+
+`require_complete_capture_adjudication` is a **strict strengthening** — it
+enters the 2026-10-24 guard unchanged at the end, so every refusal of that
+guard still applies. `UNREACHED` is unavailable on an added name and refused
+outright: the walk that produced the name contradicts what `UNREACHED`
+asserts.
+
+### 4. The device-physics half: `v_F` is two names, not one knob
+
+`C_q` carries the Fermi velocity as `CQ_PREFACTOR = 2e³/(π ħ² v_F²)` and as
+`A_FERMI = ħ v_F √π / e`, so a consistent change by *k* must move one as
+*k*⁻² and the other as *k*⁺¹. The two families do not share a name:
+
+| holder | `gfet.v_F` | `qca.CQ_PREFACTOR` | `qca.A_FERMI` |
+|---|---|---|---|
+| `qca._carrier_density_consistent` | **exact 0** | +0.000671 | +0.000247 |
+| `qca._quantum_capacitance_consistent` | **exact 0** | +1.008232 | +0.519524 |
+| `blast._cq_consistent_contact` | −2.323463 | **exact 0** | +1.161680 |
+
+*(d ln value / d ln name.)* The contact replacement reads `gfet`'s **live**
+prefactor; both channel replacements read `qca.CQ_PREFACTOR` and
+`qca.A_FERMI`, which `graphene_exact_charge_rederivation` computed from
+`gfet.v_F` **at import time** and copied in. **A `v_F` sensitivity study done
+by editing `gfet.v_F` would have reported channel insensitivity to the Fermi
+velocity as a RESULT.** The 2026-10-14 delivery fault in a new place: the
+name is neither stale nor unassigned but **precomputed**, which no audit here
+looks for and `bc.identity_class` cannot see, because the two values are not
+the same object — a float and a float derived from it.
+
+**And the probe's default perturbation turns out to be the physical case.**
+Hwang *et al.* measure, by ARPES, 1.15 ± 0.02 (SiC, ε = 7.26), 1.49 ± 0.08
+(BN, ε = 4.22) and 2.49 ± 0.30 (quartz, ε = 1.80), ×10⁶ m s⁻¹, against a
+fully screened *ab initio* 0.85 × 10⁶ [Sci. Rep. **2**, 590 (2012),
+doi:10.1038/srep00590]. The committed 1.00 × 10⁶ sits just above the **bare**
+value; §4.2's 90 nm SiO₂ stack has ε ≈ 3.9, putting the
+substrate-appropriate value near 1.5 × 10⁶ — exactly the ×1.5 the probe
+applies. So the **−63.5273 %** it reports for the contact `C_q` is not
+synthetic: it is the SiO₂-screened Fermi velocity, and **Chapter 4 quotes the
+contact `C_q` at a `v_F` its own substrate does not have.** Recorded as §7.9
+item 22, deliberately split into the mechanical half (i) and the *decision*
+half (ii), with (i) ranked first regardless of how (ii) goes.
+
+### 5. Exact-value anchors, and a defect in today's own checks
+
+The whole of §4 rests on a probe, so the probe is anchored to a value known
+in advance: `gfet.hbar` and `gfet.v_F` must have **bitwise identical**
+leverage, since the prefactor depends on them only through `(ħ v_F)²` — and
+both move the contact `C_q` to `0x1.87bc5bc0c26d0p-6`. A probe reaching the
+value by any other route would not reproduce that coincidence. Fourth session
+running in which an **exact** check rather than a plausible-range one is what
+made the result trustworthy.
+
+**And the mutation test caught a tautology in a check written today.** The
+first V10c read `(blind - b_ex) == set(_PLANTED_APPARATUS)`; since `b_ex` is
+`blind - _PLANTED_APPARATUS` by construction, that is true for **any** value
+of the exclusion. M7 widens the exclusion to swallow `qca.A_FERMI` and
+`qca.CQ_PREFACTOR` — hiding the day's two findings behind the apparatus
+carve-out the 2026-10-17 item warned about — and the first draft scored
+**31/31** against it. V10c now compares the exclusion against the census's
+own result for this module and V10f requires every excluded name to belong to
+this module *as named by `__file__`*; neither can be satisfied by editing the
+exclusion. Also fixed while writing: keying the module table on `m.__name__`
+rather than on the table's own key made the script module unresolvable, so
+the isolated control could not be written at all; M4 regression-tests it.
+
+Final: **36/36 checks, 9/9 injected defects detected, control clean.** One
+refusal branch has no control and the transcript says so — `EXPOSED` on an
+added name with exact-zero leverage, unreachable because no added pair has
+exact-zero leverage. Sixth instance of *every verdict needs a planted
+control*, in this session's own code.
+
+### 6. A red suite's SCORE is not its content
+
+Found only because today's work had to be checked against the existing
+suites. `graphene_dead_name_sweep.py` has been red at **6/2 for eight
+sessions** and the standing item has said "still red 6/2 on exactly them"
+throughout. Today it is still 6/2 — with a **DEAD count of 2, not 1**.
+`graphene_capture_leverage_figure.py`, committed **yesterday**, carries
+`TEXT_CALLS = tuple(sorted(TEXT_ARGS))`, which nothing reads; and
+`dead_name_sweep_output.txt` was last regenerated **2026-10-18**, six days
+before that module existed, so the transcript in the tree never showed it. A
+stale transcript plus an unchanged score is how a new dead name hid for a day
+in a repository that runs a dead-name sweep. `TEXT_CALLS` is deleted, the
+transcript refreshed, DEAD back to 1 — and the deletion is **verified, not
+assumed**: the figure module's transcript is byte-identical across it.
+
+The sweep also caught **one of today's own names** in the same run: the first
+draft of the new module defined `CDQC` and never used it, was classed
+CROSS_MODULE (alive) because `graphene_capture_surface_guard.py` uses the
+same spelling, and was then flagged UNSUPPORTED by Section 2b — the
+hidden-dead-name loophole 2b exists for, firing on a name created the same
+session. Removed.
+
+### 7. No figure this session, deliberately
+
+Four consecutive sessions found a defect by rendering a figure, and yesterday
+supplied `F7`–`F10` as working code for the mechanical half. Today's result
+is a 36-check transcript whose load-bearing content is **exact hex values and
+bitwise zeros**, which a bar chart would blur rather than sharpen; the one
+plottable object (the 18 leverages over four decades) is a ranking already
+legible as a table. The standing render-and-inspect item is therefore
+**neither advanced nor discharged** today, and still has ~63 PNGs behind it.
+
+### 8. Environment and automation health
+
+**`/tmp` first, as the 2026-10-24 entry asked.** The device VM's `/sessions`
+filesystem is **still 100 % full** (9.3 G of 9.8 G, other sessions'
+directories, unreadable and undeletable from here) and the first clone
+attempt into `$HOME/work` failed with *"could not create work tree dir …
+No space left on device"* after partially checking out. Cloning into `/tmp`
+(`/dev/sda1`, 4.1 G free) worked unchanged. `scipy` absent and installed
+(1.15.3) — **tenth consecutive** session, via
+`TMPDIR=/tmp/piptmp pip install --no-cache-dir --target /tmp/pylibs scipy`,
+`PYTHONPATH=/tmp/pylibs`; `numpy` 2.2.6 and `matplotlib` 3.10.9 present.
+**A future run should clone straight into `/tmp` and not re-discover this.**
+One new operational note: `python3 -I` cannot be used for this repository's
+scripts — `-I` discards `PYTHONPATH`, so the scipy shim vanishes and every
+import of `graphene_fet_model` fails. Live web search **was** available; one
+search and one fetch, both successful, no retries and no blocked hosts.
+PubMed/PMC not attempted, per the standing note. Every commit pushed
+immediately and verified against the GitHub API.
+
+**Not yet covered (candidates for future runs):**
+
+- **COMPLETE THE SURFACE FOR EVERY REPLACEMENT IN `rra.FLIPS`, NOT FOUR
+  HOLDERS** — created today, **ranked first**, and the direct continuation.
+  Today completed the surface of four holders and found 18 levers, 100 %
+  of them real. The blind class is 75 names and the audited holders are a
+  handful; the question is how many of the remaining 67 are levers on
+  something committed. Cheapest entry: `value_reads` already takes any
+  callable, and `rra.FLIPS` already enumerates the managers — walk every
+  rebind-set member and adjudicate. Blocked on nothing.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — created today, **ranked
+  second**, §7.9 item 22 (i). Mechanical, blocked on nothing, and it is the
+  precondition for item 22 (ii) being answerable at all. Note the general
+  shape while doing it: **a precomputed copy is unreachable from the name it
+  was computed from**, and `graphene_exact_charge_rederivation` is where the
+  copies are made. A census of *every* precomputed cross-module constant is
+  the generalisation, and `A_OX` and `HBAR` in the non-blind list are
+  candidates for the same defect read from the other end.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — created today
+  from §6, **ranked third**, and cheap. `dead_name_sweep` hid a new dead
+  name for a day behind an unchanged 6/2. The repair is a committed
+  expected-failure set per suite, so a new member is a diff; the same
+  argument applies to every suite in this repository that is permanently
+  red, and `graphene_standing_list_audit.py` is the natural home.
+  **Related and now sharper: regenerate every committed transcript as part
+  of a session, not only the ones the session touched** — a transcript six
+  days stale is how §6 happened.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from
+  2026-10-24, **ranked fourth**, and today narrows it usefully: it is a
+  *contact* lever and bitwise dead on the channel, so
+  `bc.identity_class(gfet, '_thermal_rounding')` is still the one-line probe,
+  but the expected answer is now a contact-only class, and a class spanning
+  channel and contact would be the surprise.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried
+  from 2026-10-23, and today is the **sixth** instance, found in this
+  session's own code (the `EXPOSED`-with-exact-zero branch). Repository-wide
+  question still untouched: which refusal branches anywhere have never been
+  reached. `bc.UnassignedClassMember`'s not-a-pair and no-reason raise sites
+  and `bc.rebind()`'s bare-set refusal remain the named candidates.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **nineteen**
+  sessions overdue, and today is another argument for it: M3 shows that
+  swapping the bitwise comparison for a 1 × 10⁻³ relative tolerance makes
+  `gfet.kB`'s +0.0242 % read as an exact zero, i.e. the tolerance would have
+  deleted a lever rather than blurred one.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged in content. Still a
+  decision about what the thesis claims, not a build; and item 22 (ii) is now
+  a second decision of the same kind, so the two should be taken together.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs, four
+  sessions at a 100 % hit rate, explicitly **not** advanced today (§7).
+  `F7`/`F9`/`F10` are generic and mechanical; the narrower **clipping and
+  occlusion sweep** created 2026-10-24 is still the cheapest entry.
+- **ADJUDICATE THE RELATION FOR THE FLIPS 10-23 DID NOT COMPOSE** — carried
+  from 2026-10-23, untouched. `qca.on_consistent_argument()` and
+  `blast.contact_on_consistent_argument()` have rebind sets and appear in
+  `rra.FLIPS` but no adjudication was written for compositions headed by
+  them. Today's ranked-first item would pass straight through this.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **fifth** session untouched. One-line corner sweep.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on Fig. 4 of a paper behind `arxiv.org`.
+  A copy of the PDF in the connected folder unblocks both immediately.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, and today is the first session to
+  **engage** it rather than note it: `_PLANTED_BARE` is a genuine member of
+  the class this module censuses, so the census reports both numbers, V10b
+  requires it to find its own plant, and V10c/V10f make the exclusion
+  uneditable. That is a worked pattern, not a discharge — the plant still
+  adds one member to a class other audits read.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12, and it now
+  has **its first number**: +49.2125 % on the charge replacement, comparable
+  to the solved density itself at V = 0.5. What the name means is not a
+  low-bias detail.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried, and now
+  has a number on the outside too: `X.floor_total` at +50.0000 %.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **ninth** session;
+  `dead_name_sweep` red 6/2, and see §6 for why that score is not evidence.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried
+  from 2026-10-14, **tenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried;
+  three worked references now.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — the live
+  successor to the retired Chapters 2–3 wording (which stays retired; `A1` in
+  `graphene_standing_list_audit.py` fails on its revival, and the audit is
+  22/22 today). Created 10-01, untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **thirteenth**
+  session, and today bounds it: the rounding form is a contact-only lever.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **eighteenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **sixteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **fifteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, nineteen sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **sixteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **sixteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched;
+  the naming clash is now four-way, since this session adds
+  `UnadjudicatedValueRead`.
+- **A self-heating term** — created 2026-10-06.
+
+**Commits this run:** 5 (the module with its transcripts and mutation report;
+the `v_F` section; today's notes; thesis §4.6.21 with the two §4.6.20
+annotations and §7.9 item 22; the dead-name repair). This AUTOMATION_LOG.md
+entry makes **6**. Each was pushed immediately after commit and verified
+against the GitHub API.
+
+## 2026-10-26 — A verdict measured in isolation, and the transcripts that hid a repository that no longer exists
+
+**Status:** the 2026-10-25 ranked-first and ranked-third items are both
+discharged, and each one found something its own wording did not predict.
+6 commits.
+
+### 1. The ranked-first item, and the question it did not ask
+
+"COMPLETE THE SURFACE FOR EVERY REPLACEMENT IN `rra.FLIPS`, NOT FOUR
+HOLDERS." Enumerating the population — `rra.FLIPS` × `rra.rebind_set`, **8
+(flip, site) pairs and 6 distinct installed objects** — exposes a property of
+the **measurement** rather than a gap in coverage.
+
+A replacement is a function a flip manager *installs*; it only ever runs with
+that manager entered. All three instruments are relative to the namespace at
+the moment of use: `csg.capture_surface` and `vrs.value_reads` are static
+walks resolving each name to *the object bound now*, and `csg.leverage` calls
+the holder in the current namespace. **Every committed leverage figure —
+2026-10-22's, 2026-10-24's, 2026-10-25's — was taken in isolation, the one
+configuration in which the replacement never runs.** Nothing had asked
+whether that mattered. Two of the six objects (the arrival-counting wrappers
+`flip._counting` builds, i.e. what `gfet.carrier_density` and
+`gfet.quantum_capacitance` *actually become* under the default flip) had never
+had a read surface computed at all.
+
+### 2. The answer, measured over all 6 × 3 cells, and it mostly vindicates the instruments
+
+**All six installed objects are BITWISE flip-invariant under their own
+flip** — every name on the surface, every counterfactual, and the holder's own
+value. *That proposition is what licenses every leverage figure this
+repository has committed*, and it had never been stated, let alone checked.
+It is now check `A1`. Five of the six are invariant under all three flips.
+
+`A1` is the sentence 2026-10-25 would have needed and did not have. The
+pattern is the fourth running instance of *an audit's ground was asserted and
+not measured*, and the first in which the measurement came out in the audit's
+favour.
+
+**A surface change is not a verdict change**, and the table separates them:
+four of the six objects gain surface names in some configuration (the
+counting wrapper for `carrier_density` goes 15 → 17 under
+`qca.on_consistent_argument()`) while every counterfactual stays bitwise
+identical.
+
+### 3. The one row that moves, and what it does NOT revise
+
+`blast._cq_consistent_contact` under `flip.on_default_flip(live_contact=False)`:
+`0x1.0c835a6063492p-4` → `0x1.4ef081d146707p-7`, **a factor of 6.4134**, and
+**11 of 15 names cross the exact-zero boundary**:
+
+| going bitwise DEAD as installed | isolated | | coming ALIVE as installed | installed |
+|---|---|---|---|---|
+| `gfet.e` | **+278.4911 %** | | `qca.cq_thermal` | **+52.4103 %** |
+| `gfet.hbar` | −63.5273 % | | `qca.cq_thermal_of_n` | +52.4103 % |
+| `gfet.v_F` | −63.5273 % | | `qca.CQ_PREFACTOR` | +52.4103 % |
+| `gfet.kB` | +0.0242 % | | `qca.KB` | +35.8863 % |
+| `gfet._thermal_rounding` | +58.3421 % | | `qca.n_arg_EF_thermal` | +9.0738 % |
+| | | | `gfet.C_ox` | **+7.8110 %** |
+
+**The value change is NOT a new result** and is not reported as one: it is
+2026-10-21's *"the two halves do not compose"*, which measured this exact
+composition and costed it at −51 % to −62 % in `n_contact`. What is new is
+that the same non-composition appears as a change in the **read surface**, the
+object every guard here demands adjudication over. The standing *ADJUDICATE
+THE RELATION FOR THE FLIPS 10-23 DID NOT COMPOSE* item is therefore **partly
+discharged**: the relation is measured over all 6 × 3 cells and exactly one
+row is non-composing.
+
+**One reason revised, no number withdrawn.** `gfet.C_ox`'s 2026-10-25
+PROTECTED verdict is correct in the configuration it was measured in. Its
+*stated reason* — "the zero is a property of the contact model and not of the
+2026-10-21 repair" — generalised from that one configuration, and the same
+holder gives +7.8110 % under the default flip. The reason is corrected in
+place with the superseded wording kept.
+
+**And then `G9`, exhaustive over the vocabulary:** for `gfet.C_ox` on this
+holder, `PROTECTED` is admissible in isolation and refused as installed;
+`EXPOSED` is refused in isolation and admissible as installed; `UNREACHED`
+and `GOVERNED` are refused in both. **Exactly one verdict is admissible in
+each configuration and they are different ones.** So non-composition is *not
+dischargeable by adjudication at all* in the present four-verdict vocabulary,
+which is the structural reason that item has survived three sessions of being
+noted rather than worked. §7.9 item 23 (ii) records the repair — a verdict
+indexed by configuration — as a change to the 10-24/10-25 guards rather than
+an addition to them.
+
+### 4. Second finding: `flip._counting` is a capture, and nothing had noticed
+
+Each counting wrapper's surface adds exactly one name — the replacement it
+wraps — and a rebind of it is **bitwise zero**, because `_counting` holds the
+function object in a cell. Third capture in this repository, and its
+consequence is that the channel replacement **name** is immune under the
+default flip. `UNREACHED`, not `PROTECTED`, by `csg`'s own 2026-10-24
+argument for `CDQC`: the wrapper never *looks the name up*. **This module's
+first draft said `PROTECTED` and the 2026-10-24 guard refused it** — fourth
+time a rule planted on an earlier day caught a claim written on a later one.
+`W3`/`W4` then transfer 2026-10-25's verdicts onto the wrappers *with proof*:
+the wrapper's value is bitwise equal to the wrapped replacement's and every
+shared name has bitwise identical leverage on both.
+
+### 5. Exact anchors, and two of today's own checks passing for the wrong reason
+
+Fifth consecutive session in which an **exactly known** value rather than a
+plausible range is what made the result trustworthy: `gfet.hbar` and
+`gfet.v_F` move the capture holder to the bitwise identical
+`0x1.87bc5bc0c26d0p-6` in all four configurations (the prefactor depends on
+them only through `(ħ v_F)²`); the identity control flip leaves value *and*
+surface bitwise unchanged; and — sharpest — **the repaired and unrepaired
+contact replacements are bitwise indistinguishable in isolation**, both
+`0x1.0c835a6063492p-4`, so the entire content of the 2026-10-21 repair appears
+*only* as installed. Five sessions measured both holders in the one
+configuration in which they cannot be told apart.
+
+**The mutation runner found two of today's checks passing for the wrong
+reason**, and both are repaired in the suite under test rather than in the
+runner:
+
+- **N4** (delete the new PROTECTED-must-be-exact-as-installed refusal) scored
+  **26/26 undetected**. The first draft's `G6` planted its false verdict on a
+  holder whose adjudication was *incomplete in that configuration*, so the
+  missing-name refusal fired first and the branch under test was never
+  entered — green, and incapable of being anything else. The refusals are now
+  reachable through an extracted `installed_verdict_errors`, `G6`/`G7` fire
+  on the real names (`gfet.C_ox` PROTECTED, `gfet.e` EXPOSED) and `G8` is the
+  negative half. **Sixth** instance of *every verdict needs a planted
+  control*, and the first where the unreachable control sat in the same file
+  as the branch.
+- **N8** (compare the holder's own value with a relative tolerance) also went
+  undetected: `A4` asserted two hex values and never the invariance **flag**
+  computed from them, so a factor of 6.4 could read as flip-invariant.
+
+Final: audit **30/30**, mutation **9/9 on their own terms**, `N0` clean.
+
+### 6. The ranked-third item, discharged, and it was worse than one session
+
+"REGENERATE EVERY COMMITTED TRANSCRIPT AS PART OF A SESSION, NOT ONLY THE ONES
+THE SESSION TOUCHED." **Six of the fifteen registered transcripts were
+STALE**, and only part of that was today: they were generated against a tree
+with **55 Python files against today's 66**, so they predate whole modules and
+were reporting on a repository that no longer exists. What they hid, all of it
+inside the audit modules the figure-provenance audit's own closing note named
+as "the next run's top item":
+
+- **`graphene_chord_decay_length.py`** (added 2026-10-20) carries **three
+  MIXED names** — `D1_CHORD` (3 frozen / 9 live), `D2_CHORD` (3/4), `D_SPAN`
+  (1/3) — and **7** frozen-vs-live numeric-literal occurrences. MIXED is
+  described by the arrival probe's own transcript as *"the worst class, not a
+  middle one"*, and the committed transcript reported `{'LIVE': 1}` — **no
+  MIXED name anywhere** — for six sessions.
+- **`graphene_capture_surface_guard.py`** (added 2026-10-24) carries
+  `PERTURBATION` and `PROBE_V` as MIXED (2 frozen / 1 live each) and 4
+  provenance occurrences. Those are the two names every counterfactual in
+  this repository is taken with.
+- the cross-module captured-default census goes **3 → 7**, the
+  attribute-default capture census **1 → 12** shipped plus **0 → 4** of its
+  own form, and the computed-name `setattr` note **20 → 28** call sites.
+- the standing-list audit was reading an AUTOMATION_LOG it recorded as
+  latest-entry **2026-10-18** against **27** bullets; it is 2026-10-25 and 31.
+
+**None of it is repaired here.** All of it is reported with its numbers and
+ranked first for the next run: regenerating a transcript and fixing what it
+then says are different pieces of work, and conflating them is how the stale
+state lasted six sessions. The pristine-transcript audit is then **13/13 with
+all 17 registered suites IDENTICAL**, and today's suite is registered in its
+table in the commit that writes it, per the 2026-10-03 wiring rule.
+
+**Three dead names in today's own module**, caught the same way —
+`CTRL_ROUTE`, `DEPENDENCE`, `REVERSING`, defined and never read, exactly the
+2026-10-25 fault. All three are now **asserted on** rather than deleted, and
+the assertion turned up a real fact: `CTRL_ROUTE` is invisible to
+`csg.capture_surface` because the script module is outside
+`rra.repo_modules()` — the gap `vrs._modules()` was written for on 2026-10-25,
+and the reason these controls must measure through `vrs.leverage_here`. DEAD
+count back to 1.
+
+### 7. No figure this session, deliberately
+
+Second consecutive session without one, and for the same reason: the
+load-bearing content is **exact hex values, bitwise zeros and a 6 × 3
+dependence table**, which a bar chart blurs rather than sharpens. The
+standing render-and-inspect item is therefore **neither advanced nor
+discharged**, and still has ~63 PNGs behind it.
+
+### 8. Environment and automation health
+
+**Three operational facts, all consequences of the device VM's `/sessions`
+filesystem being 100 % full** (9.3 G of 9.8 G, other sessions' directories,
+unreadable and undeletable from here) — and all three belong in the next
+session's first command rather than its debugging:
+
+1. **Clone into `/tmp`** (`/dev/sda1`, 3.7 G free). As the 2026-10-25 entry
+   asked. The first attempt into `$HOME/work` failed with *"could not create
+   work tree dir … No space left on device"* after a partial checkout.
+2. **`export TMPDIR=/tmp`.** NEW. `graphene_pristine_transcript_audit.py`
+   clones the commit into `$TMPDIR`, which defaults onto `/sessions`; it
+   aborted with *"fatal: sha1 file … index.lock write error. Out of
+   diskspace"* after a partial checkout, as a `RuntimeError` rather than a
+   verdict, so nothing was audited and the transcript on disk recorded a
+   traceback. The suite does not fail honestly when this happens.
+3. **`export MPLCONFIGDIR=/tmp/mplcache`.** NEW. matplotlib cannot create its
+   cache under `/sessions` and prints **two warning lines into the head of
+   every transcript that imports it**. Those lines are not suite output but
+   are indistinguishable from it to a byte-comparing audit, so without the
+   override every such transcript is committed with two lines of environment
+   noise and every later comparison reads STALE.
+
+`scipy` 1.15.3 was already present in `/tmp/pylibs` from a previous session —
+**first session in eleven that did not have to install it**, because `/tmp`
+survives between sessions on this VM. `numpy` 2.2.6, `matplotlib` 3.10.9.
+`python3 -I` still unusable here (it discards `PYTHONPATH`, so the scipy shim
+vanishes). **Live web search was not used**: today's subject is this
+repository's own instruments measured against themselves, and there is no
+external source for it. PubMed/PMC not attempted, per the standing note.
+Every commit pushed immediately and verified against the GitHub API.
+
+**Not yet covered (candidates for future runs):**
+
+- **FIX THE FIVE MIXED NAMES AND THE 12 FROZEN/LIVE LITERALS §6 EXPOSED** —
+  created today, **ranked first**, and the direct continuation. `D1_CHORD`,
+  `D2_CHORD`, `D_SPAN` in `graphene_chord_decay_length.py` and
+  `PERTURBATION`, `PROBE_V` in `graphene_capture_surface_guard.py` are MIXED,
+  the class that module's own transcript calls the worst one, and the last
+  two are the names every counterfactual in this repository is taken with —
+  so an oracle/measurement split on them is a defect in the instrument, not
+  in a model. Blocked on nothing; the numbers are already in the refreshed
+  transcripts. **Do this before any new measurement**, because it is the
+  instrument the new measurements would use.
+- **A VERDICT INDEXED BY CONFIGURATION** — created today, **ranked second**,
+  §7.9 item 23 (ii). `G9` shows exhaustively that no member of
+  {PROTECTED, UNREACHED, EXPOSED, GOVERNED} is true in both configurations
+  for `gfet.C_ox` on the live contact replacement, so the long-standing
+  "adjudicate the non-composing compositions" item is **not satisfiable in
+  the present vocabulary**. The repair is a verdict naming its configuration,
+  with the guard requiring one per (holder, flip) cell. This is a CHANGE to
+  the 10-24 and 10-25 guards and should be costed before being built.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  created today, **ranked third**, §7.9 item 23 (i). `live_contact=True` is
+  the unrepaired contact replacement *as the default flip installs it*, which
+  is the configuration 2026-10-21 actually costed, and it is not in the 6 × 3
+  table. Mechanical: the table is built from `rra.FLIPS`, so the work is
+  adding managers and supplying verdicts.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  2026-10-25, **ranked fourth**, and today is a second argument for it from
+  the other side: three new DEAD names appeared in a module written today and
+  the sweep's score would have been 6/2 either way. A committed
+  expected-failure set per suite makes a new member a diff.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — created today. The
+  strongest claim of this session (`A1`, all six objects bitwise invariant
+  under their own flip) is asserted at **one** probe point with **one**
+  perturbation. A sweep turns it from a measurement at a point into a
+  measurement over a box, and it shares its cheapest entry with the standing
+  *IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?* item — the two should be done
+  together.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  2026-10-25. Today completed the *population of holders*; the blind class is
+  still 75 names and only the ones reachable from the audited holders have
+  verdicts. Unchanged in content.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 2026-10-25, §7.9
+  item 22 (i), and today narrows it usefully rather than doing it: the
+  −63.5273 % **survives** on `flip.make_contact_cq(live=False)`, the holder
+  the default flip actually installs, in every configuration measured, and
+  `gfet.hbar` carries the bitwise identical figure as `(ħ v_F)²` requires. It
+  does **not** survive on `blast._cq_consistent_contact` composed with either
+  other flip, where `gfet.v_F` is bitwise dead. Still mechanical, still
+  blocked on nothing, and now with its scope stated.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from
+  2026-10-24, and today bounds it further: it is a contact lever *in
+  isolation* and **bitwise dead on the live contact replacement as
+  installed**, so `bc.identity_class(gfet, '_thermal_rounding')` should now be
+  expected to return a class that is configuration-dependent, which
+  `identity_class` cannot express.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **sixth** instance (§5, N4). Repository-wide question still
+  untouched: which refusal branches anywhere have never been reached.
+  `bc.UnassignedClassMember`'s not-a-pair and no-reason raise sites and
+  `bc.rebind()`'s bare-set refusal remain the named candidates.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twenty**
+  sessions overdue, and today is another argument: N8 shows a relative
+  tolerance in the invariance comparison would report a factor of **6.4** as
+  invariant.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged; a decision, not a
+  build, and still to be taken together with item 22 (ii).
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs,
+  explicitly not advanced (§7). The narrower **clipping and occlusion sweep**
+  created 2026-10-24 is still the cheapest entry.
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **sixth** session untouched; now pairs with the corner-sweep item above.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on Fig. 4 of a paper behind `arxiv.org`. A
+  copy of the PDF in the connected folder unblocks both immediately.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, and today adds an instance from the other
+  end: today's module plants `_ctrl_route`/`_CTRL_A`/`_CTRL_B` in the tree the
+  dead-name sweep and the delivery audit read, and the delivery audit's
+  captured-default census grew partly because of it.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12; its
+  +49.2125 % is confirmed configuration-independent today.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried;
+  `X.floor_total` at +50.0000 %, also configuration-independent.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **tenth** session;
+  `dead_name_sweep` red 6/2, DEAD count 1.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, **eleventh** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried; four
+  worked references now, counting today's 6 × 3 table.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — the live
+  successor to the retired Chapters 2–3 wording (which stays retired; `A1` in
+  `graphene_standing_list_audit.py` fails on its revival, and the audit is
+  22/22 today). Created 10-01, untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **fourteenth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **nineteenth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **seventeenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **sixteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twenty sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **seventeenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **seventeenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched.
+- **A self-heating term** — created 2026-10-06.
+- **Chapters 2–3 are still undrafted** — the largest remaining block of pure
+  writing; their computational results have been complete for weeks.
+
+**Commits this run:** 6 (the installed-surface audit with its transcript; the
+mutation runner with its 9/9 transcript; today's notes; thesis §4.6.22 with
+the two in-place annotations and §7.9 items 22-annotation and 23; the
+six-transcript regeneration with the dead-name repair and the
+pristine-audit registration; the pristine audit's own 13/13 transcript).
+This AUTOMATION_LOG.md entry makes **7**. Each was pushed immediately after
+commit and verified against the GitHub API.
+
+## 2026-10-27
+
+**Subject: the 2026-10-26 ranked-first item — the five MIXED names and the
+twelve frozen/live capture sites — repaired, measured against the pinned
+pre-repair blobs, and the measurement refuted the prediction the measuring
+suite was written with. Twice.**
+
+### 1. The repair
+
+Eleven of the repository's twelve syntactic capture sites converted to the
+2026-09-30 sentinel form, in two commits, one module each:
+
+| module | names | before |
+|---|---|---|
+| `graphene_chord_decay_length.py` | `D1_CHORD`, `D2_CHORD`, `D_SPAN` | 3/9, 3/4, 1/3 frozen/live |
+| `graphene_capture_surface_guard.py` | `PERTURBATION`, `PROBE_V` | 2/1 each |
+
+`PERTURBATION` and `PROBE_V` are the two names **every counterfactual in this
+repository is taken with**, so the oracle/measurement split on them was a
+defect in the instrument and not in any model the instrument measures. Both
+affected transcripts are **bitwise unchanged** by the conversion — the
+standard the 09-30 and 10-01 conversions were held to, and the only available
+evidence that a repair to an instrument did not move the measurement.
+
+### 2. What the measurement actually said
+
+`graphene_mixed_capture_repair_audit.py`, **33/33**, registered in the
+pristine audit's `SUITES` table in the same commit that creates it (the
+2026-10-03 wiring rule). It imports the two pre-repair blobs out of the object
+store by hash — `4ef1e3c8`, `8f74a649`, a blob hash and not `HEAD~1`, per the
+Section 8 guard — under prefixed module names, so both states are live in one
+process. `B1`–`B5` reproduce the 10-26 census exactly (3/9, 3/4, 1/3, 2/1,
+2/1) before; `A1`–`A5` are LIVE after.
+
+Section M predicted the textbook `MIXED` signature on `D1_CHORD` — live reader
+moves, captured reader freezes. **It failed.** `mean_dlogP` captured `d1` as a
+default, but its body calls `poly_P`, which reads `D1_CHORD` *live* to
+re-centre the polynomial at `d − D1_CHORD`. Under a rebind the pre-repair code
+therefore averaged `L'` over the **old** interval while evaluating a
+polynomial centred on the **new** `d₁`:
+
+```
+d1 3.3 -> 3.9 A      default path        new interval          pre-rebind
+before          -3.156428052855e-01  off by 1.617099e-02  off by 3.838368e-02
+after           -3.318137959586e-01  BITWISE equal        (and not this one)
+```
+
+The pre-repair number lies **between** the two coherent values and equals
+neither: it corresponds to no consistent choice of `d₁` at all. **Incoherent,
+not frozen — and strictly worse,** because a frozen number is at least one the
+model once produced. The quantity carrying it is Eq. (D), the γ-free
+discrepancy §7.9 item 2's 10-20 annotation quotes.
+
+Restating the check as **coherence** rather than movement then caught a second
+draft error of the same shape: the "old interval" reference was first taken
+*with the rebind still in place*, making it the same incoherent quantity, and
+it agreed with the pre-repair default path to `0.000000e+00`. **A reference
+value has to be taken in the state it claims to describe.** Both wrong drafts
+are kept in the section's docstring; they are the result.
+
+A third error was caught by the suite's own control rather than by reading it:
+the pinned blobs were first registered in `sys.modules` under their **real**
+module names, shadowing the repaired modules, so every "after" lookup returned
+the "before" module and nine checks failed at once. `P2` and the new `P3` make
+that a check rather than a memory.
+
+### 3. The residual, and a conflict between two standing requirements
+
+The twelfth site is `n_quad=N_QUAD` in `graphene_velocity_saturation_model.py`
+— a `def` inside a function **body**, so the default is re-evaluated per call
+of the enclosing function and a rebind arrives. `live_by_scope`, not frozen,
+and measured as live by `graphene_frozen_default_semantics.py`'s own Section 1
+V2. It is also that suite's **only real** demonstration site: its Section 4
+`D1`–`D5` exist to show a static pass finding a capture its confirmation step
+then silently discards, on a site that exists.
+
+So Section 7b splits:
+
+- *"and in particular none is MIXED"* — **GREEN for the first time since it
+  was written on 2026-10-01**;
+- *"no module-level constant is captured as a default anywhere"* — red at one
+  site-group, and **cannot** go green while that demonstration keeps its site.
+
+Reported, not resolved. The conflict is in 7b's **vocabulary**, not in the
+tree: it counts syntactic captures and names the class it cares about only in
+the second check.
+
+### 4. The full regeneration found three more stale transcripts, one of them false in substance
+
+Per the 2026-10-25 standing item, every committed transcript was regenerated,
+not only the ones this session touched.
+
+- **`potential_declaration_output.txt` asserted a defect that had been
+  repaired three days after the transcript was written, and carried the claim
+  for nineteen days.** Written 2026-10-08 (`89b6219`): *"quantum_capacitance()
+  returns a finite value up to dV = 18.3493 V and NaN/inf above 18.3493 V ...
+  It is still a defect ... left as a new item rather than patched today."* The
+  overflow-free spelling was installed 2026-10-11 (`7019f61`, "Item 13
+  CLOSED"). Measured today: finite at 18.3, 18.4, 25, 40, 80 and 200 V. The
+  module is not in `SUITES`, so nothing checked it. **10-26 found transcripts
+  that understated the tree; this one overstated it,** which is the worse
+  direction — a false claim of a defect sends a session to work that is
+  already done. Annotated in place: 18.3493 V and η ≈ 710 are kept as the
+  pre-repair state. The bisection now runs to its search **ceiling**, and a
+  bisection reporting its ceiling is not an onset, so `SEARCH_LO`/`SEARCH_HI`
+  are named rather than written twice and a second check requires the two
+  states to be distinguishable. 11/11.
+- **`import_binding_sweep_output.txt`** — 56 modules parsed against 71;
+  from-imports 158 → 179, `import M as a` aliases 70 → 124.
+- **`potential_census_output.txt`** — 86 names across 25 modules against 133
+  across 35; `COLLECTED_NO_ROLE` 60 → 99, `DUAL_ROLE_TERMINAL` 10 → 16, and
+  eleven new unadjudicated `V_dirac` rows, which is a queue and not a count.
+- **`frozen_default_semantics_output.txt`** — reading 58 python files against
+  71; it predates thirteen modules.
+
+The transcripts the repair moves: `mutation_arrival_probe` 32/2 → **33/1**,
+`attribute_default_capture` 31/3 → **32/2** with `R3` green, `figure_provenance`
+census 12 occurrences across 3 files → 1 across 1, plus line-number shifts in
+`cross_module_delivery_audit` and `dead_name_sweep`.
+
+**Pristine-transcript audit 13/13 after the regeneration: 17 of 17 registered
+suites IDENTICAL, 0 STALE.** Before the regeneration commits it reported 5
+STALE, which is the before-half of that result.
+
+### 5. Environment and automation health
+
+Four facts, and the first is in the repository's own source rather than the
+environment:
+
+1. **Two mutation suites could not create their own working tree, and printed
+   a green control before dying.** `graphene_value_read_mutation.py` and
+   `graphene_installed_surface_mutation.py` built their mutated copies under
+   the **fixed** paths `/tmp/vrs_mut` and `/tmp/isa_mut`. `/tmp` is shared
+   between sessions on this VM and survives them, and another session owned
+   both directories mode 700 under a different uid. So
+   `rmtree(ignore_errors=True)` silently did nothing, `makedirs` on the
+   existing parent succeeded, and `copytree` died with `PermissionError` —
+   **after** the unmutated control had printed PASS. A mutation suite that
+   cannot create its working tree reports **no** score, which is not `0/9` and
+   must not be read as it. Both now use `mkdtemp` under `TMPDIR`. Both
+   transcripts bitwise unchanged at 9/9.
+2. **Transcripts are stdout only.** Capturing stderr puts four numpy
+   `RuntimeWarning` lines at the head of every transcript whose suite imports
+   `graphene_quantum_capacitance_argument.py`, which made three transcripts
+   read STALE on environment noise alone — the 10-26 `MPLCONFIGDIR` fault in a
+   new place, same signature.
+3. **Three modules write their own transcript into the working tree** —
+   `graphene_import_binding_sweep.py`, `graphene_default_flip.py`,
+   `graphene_contact_argument_blast_radius.py`. Running one in place
+   overwrites the file the byte comparison is taken against, so the verdict is
+   **circular** unless taken against the object store. That is how the
+   import-binding staleness was caught and how it was nearly missed.
+4. **Three suites cannot be regenerated here at all.**
+   `graphene_perfect_contact_mutation.py`,
+   `graphene_velocity_saturation_model.py` and
+   `graphene_velocity_saturation_mutation.py` each exceed 170 s; a shell call
+   is capped at 180 s and **no background process survives it** — `nohup` and
+   `setsid` are both killed when the call returns. None is in `SUITES`; their
+   transcripts are left untouched rather than half-written.
+
+`/sessions` is still 100 % full (9.3 G of 9.8 G, other sessions', unreadable
+and undeletable), so the clone goes into `/tmp` on `/dev/sda1` as the 10-25
+and 10-26 entries ask; `TMPDIR=/tmp` and `MPLCONFIGDIR` set per 10-26, except
+that `/tmp/mplcache` is now owned by another session and a differently-named
+directory is needed. `scipy` 1.15.3 already in `/tmp/pylibs`; numpy 2.2.6,
+matplotlib 3.10.9. **Live web search not used:** today's subject is this
+repository's own instruments measured against themselves and there is no
+external source for it. PubMed/PMC not attempted, per the standing note. Every
+commit pushed and verified against the GitHub API.
+
+### 6. No figure this session, and a new entry point for the oldest item
+
+Four committed PNGs do not re-render byte-identically even where their
+transcripts do: `differential_crossover.png` (−38724 B),
+`log_sensitivity_step_audit.png` (−80248 B),
+`perfect_contact_counterfactual.png` (−26968 B) and `import_binding_sweep.png`
+(+5715 B). The first three are **reverted** — their transcripts are bitwise
+identical, so there is no content change to track. The fourth is committed,
+because its transcript genuinely changed and figure and transcript should stay
+in step. "Render and inspect every committed figure" has been carried six
+sessions with ~63 PNGs and no entry point; this is one, with four named files,
+a measured delta each, and a hypothesis a single rendered comparison settles.
+
+**Not yet covered (candidates for future runs):**
+
+- **SPLIT THE 7b GUARD, OR MOVE THE DEMONSTRATION SITE** — created today,
+  **ranked first**, and the direct continuation. 7b's first check cannot go
+  green while `graphene_frozen_default_semantics.py` keeps its only real
+  `live_by_scope` demonstration site; its second check now can. Two repairs:
+  (i) split 7b into FROZEN-or-MIXED (achievable today) and syntactic (not), or
+  (ii) move the demonstration onto a planted fixture — which trades a real
+  site for a synthetic one, the trade that suite exists to argue against.
+  **Cost (i) first.** Blocked on nothing.
+- **REGISTER THE UNREGISTERED TRANSCRIPTS** — created today, **ranked
+  second**, and today is the argument. Four transcripts were stale, and all
+  four are outside `SUITES`; the one that was *false in substance* had been so
+  for nineteen days precisely because nothing checked it. The table has 18
+  rows against roughly 40 committed transcripts. Mechanical for most of them;
+  three are blocked by item 4 of §5 (they exceed the shell's call limit) and
+  that is the honest reason to leave those three out and say so in the table.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — created today, **ranked
+  third**, from the potential census's 86→133 refresh. A real queue, in a
+  census that nothing had regenerated for weeks, and it should be worked
+  before the census grows again.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 2026-10-26, §7.9 item
+  23 (ii), unchanged in content: no member of {PROTECTED, UNREACHED, EXPOSED,
+  GOVERNED} is true in both configurations for `gfet.C_ox`, so the item is not
+  satisfiable in the present vocabulary. **Note that today found the same
+  shape in a second place** — 7b's two checks disagree because one names a
+  class and the other counts syntax — so the repair may be one change rather
+  than two, and that is worth establishing before either is built.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 2026-10-26, §7.9 item 23 (i). Mechanical: the table is built
+  from `rra.FLIPS`.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  2026-10-25, and today is a third argument: `mutation_arrival_probe` went
+  from 2 failures to 1 and `attribute_default_capture` from 3 to 2, both for
+  the right reason — but a count moving the right way is indistinguishable
+  from one failure being fixed while another appears.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from
+  2026-10-26, and **cheaper now than when it was created**: both names are
+  LIVE as of today, so a sweep over them actually reaches the code it sweeps.
+  Pairs with *IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?*
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs, and §6
+  above is the first concrete entry point in six sessions.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  2026-10-25, unchanged.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 2026-10-25, §7.9
+  item 22 (i), still mechanical, still blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from
+  2026-10-24, unchanged.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **seventh** instance (`P1`). The repository-wide question —
+  which refusal branches anywhere have never been reached — is still
+  untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twenty-one**
+  sessions overdue. Today adds an argument from the other side: every claim in
+  the new suite is bitwise, and the coherence finding of §2 would have been
+  invisible to a relative tolerance of 1e-3 (the gap is 1.6e-02 on a quantity
+  of order 3e-01, i.e. 5 %).
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged; a decision, to be taken
+  with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 2026-10-20,
+  **seventh** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on Fig. 4 of a paper behind `arxiv.org`. A
+  copy of the PDF in the connected folder unblocks both immediately.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 2026-10-17, and today adds an instance: the new
+  suite's planted mixed module is written under `TMPDIR` and imported by path
+  rather than into the repository, which is the right shape — so the item now
+  has a worked positive example, not only violations.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 2026-10-16, **eleventh** session;
+  `dead_name_sweep` red, DEAD count 1.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  2026-10-14, **twelfth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01,
+  untouched since 10-06. The retired Chapters 2–3 wording stays retired;
+  `graphene_standing_list_audit.py` is IDENTICAL and green today.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **fifteenth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **twentieth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **eighteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **seventeenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twenty-one sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **eighteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **eighteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched,
+  and now joined by eleven more (see the ranked-third item).
+- **A self-heating term** — created 2026-10-06.
+- **Chapters 2–3 are still undrafted** — the largest remaining block of pure
+  writing; their computational results have been complete for weeks.
+
+**Commits this run:** 8 (the chord-decay conversion; the capture-surface-guard
+conversion; the repair audit with its 33/33 transcript and its registration;
+the two mutation suites' fixed working-tree path; the nineteen-day false claim
+annotated in place; the full transcript regeneration with the three further
+staleness finds; the pristine audit's 13/13; notes and thesis §4.6.23). This
+`AUTOMATION_LOG.md` entry makes **9**. Each was pushed immediately after
+commit and verified against the GitHub API.
+
+## 2026-10-28 — three claims nothing checked, and the guard that is blind to its own source
+
+**Subject: the 2026-10-27 ranked-first and ranked-second items, worked in
+order. The second caught the first committing the fault it guards against,
+on the same day; and registering the two names the first introduced exposed
+a third unchecked claim, false in one row of thirteen for twenty-one days.**
+
+### 1. The ranked-first item: Section 7b split into its two vocabularies
+
+Option (i) of the two the 10-27 entry named. 7b carried two checks over one
+census, and they asked different questions: one counted **syntactic** capture
+sites, the other named the delivery **class** it cared about. On 10-27 the
+second went green and the first stayed red at one site-group — and the same
+entry recorded that the first *cannot* go green, because the site is the only
+real `live_by_scope` capture in the tree and
+`graphene_frozen_default_semantics.py` takes its Section 4 `D1`–`D5`
+demonstration from `live_rows[0]`.
+
+A red check that cannot go green has stopped being a guard, and it had lost
+two properties: it is indistinguishable from a red check nobody has read in a
+month, and its report (`1 site-groups remaining`) is indistinguishable from a
+**new** capture appearing while the known one was removed — the standing
+"pin a red suite's failing membership, not its count" item, inside one check.
+
+Three checks now:
+
+| | statement | exemptions | state |
+|---|---|---|---|
+| **7b-i** | no capture site anywhere **FREEZES a read** (`FROZEN`, `MIXED`, `IMPORT_FAILED` — unknown is not green) | **none, by construction** | GREEN |
+| **7b-ii** | no capture site in the tree is **unregistered** | one, with class and reason | GREEN |
+| **7b-iii** | every registry entry still **describes the tree**: `VANISHED` (delete it) and `DRIFTED` (its claim is now false) reported separately | — | GREEN |
+
+Eight planted controls (`C7c`). Seven require a predicate to fire on a
+planted census; the eighth requires one *not* to. The load-bearing arm is the
+seventh: **the registered site, planted as `FROZEN`, must still fire 7b-i** —
+so `census_semantic_faults()` does not take the registry as a parameter and
+no caller can supply one. The eighth is the positive control without which
+arm 4 would be green for the wrong reason (every row unregistered, exemption
+path never reached).
+
+What the split gives up is the claim that the syntactic count is zero, which
+was never true of this tree. What it gains is three statements that can each
+be false, where there was one that could not become true.
+
+Suite **33/1 → 43/0**, transcript diff confined to the 7b block and `TOTAL`.
+`graphene_mixed_capture_repair_audit.py`'s closing note — which named the two
+available repairs and said "Not resolved here" — is annotated **in place**,
+verbatim, with the resolution appended under it; 33/0 before and after, and
+the residual it measures is still one site and still the same site.
+
+### 2. And then the split committed the fault it guards against
+
+`graphene_figure_provenance_audit.py`'s Section C repository-wide census of
+the inert-knob pattern went from **1 occurrence in 1 file to 4 in 2**. The
+three new ones were written an hour earlier, in this session:
+
+```
+def census_semantic_faults(rows, faults=SEMANTIC_CAPTURE_FAULTS):
+def census_unregistered_sites(rows, registry=SYNTACTIC_CAPTURE_EXEMPTIONS):
+def registry_hygiene_faults(rows, registry=SYNTACTIC_CAPTURE_EXEMPTIONS):
+```
+
+Module-level constants captured as function defaults, in the module that
+implements the guard against exactly that. Converted to the 2026-09-30
+late-bound sentinel form; **43/0 and the transcript bitwise unchanged**, the
+standard the 09-30, 10-01 and 10-27 conversions were held to.
+
+**Section 7b did not catch it, and cannot.** `repo_wide_frozen_census()`
+skips four modules by name and one of them is
+`graphene_mutation_arrival_probe` — the module that defines the census. The
+exclusion is defensible (that module is full of capture patterns planted
+deliberately for its own controls); its **consequence** had never been
+stated. The only reason today's three were found on the day they were written
+is that a *different* suite censuses the whole tree. New standing item, and a
+sharper instance of §4.6.8 than the `fmax` one it echoes, because here the
+module committing the capture is the module defining the class.
+
+### 3. The ranked-second item: the queue was nine larger than the estimate
+
+10-27 wrote "18 rows against roughly 40 committed transcripts". Counted
+mechanically: **49 committed transcripts, 17 compared.** Understated by nine,
+which is the argument for counting rather than eyeballing.
+
+**`SUITES` 17 → 35 compared transcripts.** Every added row was measured first
+— run from a clean tree at HEAD, compared byte-for-byte — with its measured
+seconds in the comment beside it, because Section 2 spent ~70 s of a 180 s
+shell cap before today and now spends ~105 s.
+
+Three things fell out of the counting that a row-by-row pass would not have
+produced:
+
+1. **A row that said `None` for a transcript that exists.**
+   `graphene_covariance_probe_audit.py` was registered with
+   `transcript=None` — "no committed transcript to compare" — from the day
+   the table was written. Its transcript is
+   `default_scale_probe_audit_output.txt`; the filename does not contain the
+   module's name, which is why nobody paired them, and it is byte-identical
+   to the module's stdout today. **A `None` row is worse than an absent one:**
+   an absent row is a gap, while this one printed `RAN` every session and
+   looked like coverage.
+2. **A fifth stale transcript, stale by a month, overstating the tree.**
+   `audit_output.txt` claims `exact zeros : 3/3`. The code has printed
+   `BITWISE zeros : 2/3   zeros within the derived floor 5.7e-11 : 3/3` since
+   **2026-09-27**, when the stepping was corrected to symmetric — and the
+   source's own annotation says one of the three exact zeros was
+   floating-point luck. Same direction as 10-27's nineteen-day false claim.
+   Verified deterministic run-to-run before registering, then regenerated.
+3. **Section 5, new: the gap is now a number the suite prints.**
+   `49 = 35 registered + 14 excluded + 0 UNACCOUNTED`, and the suite fails if
+   any committed transcript is in neither table. Two of the four exclusion
+   classes are **checked, not declared**: `SELF_WRITING` (9 — the module
+   opens that transcript `'w'` in its own tree, so the pristine comparison
+   would read the file the run just wrote; `writes_own_transcript()` confirms
+   all nine, `C5.2` is the negative control) and `SELF` (1). `NOT_A_STDOUT`
+   (1 — a hand-written excerpt with its own header and date) and `UNMEASURED`
+   (3 mutation suites) are declared, and said to be. Plus the hygiene check
+   today's 7b work argues for: no exclusion may name an uncommitted
+   transcript, and none may be excluded *and* registered.
+
+**Pristine audit 13/0 → 19/0: 35 of 35 IDENTICAL, 0 STALE, 0 NUMERIC_DRIFT.**
+Three suites exit nonzero (`attribute_default_capture`, `dead_name_sweep`,
+`potential_census_audit`) and their transcripts agree with their exit codes,
+which is the consistency check and not a fault. **103 s wall against a 180 s
+cap — measured, not estimated — so 77 s of headroom**, and the three
+`UNMEASURED` exclusions are mutation suites that could each be large.
+
+### 4. The third unchecked claim, found by accident
+
+The 7b exemption carries its reason in full, and the reason spells the
+signature it is about: ``def _R_harmonic(V_g, V_hi, n_quad=N_QUAD)``.
+`graphene_potential_census_audit.py`'s `_string_names_in()` collects
+potential-like tokens out of string constants **by design** ("deliberately
+over-wide; every match must be adjudicated"), so two names in **prose**
+entered the census: **133 names across 35 modules → 135 across 36, within one
+commit of the same session,** and nothing would have caught it because that
+transcript was not in `SUITES` either. **Today's own first commit is the
+ranked-second item's argument, restated.**
+
+Both are `DISPLAY_ONLY`. Which raised: what checks a `DISPLAY_ONLY` row?
+Nothing, from 2026-10-07 until today.
+
+- **One false row in thirteen.**
+  `graphene_photodetector_collection_model.py::V_bias` read `DISPLAY_ONLY,
+  imported and printed only`; line 72 is `E_BIAS = V_bias / L_channel`, the
+  uniform bias-driven drift field its own docstring describes and the
+  `TRANSPORT_MARKER_RE` shape. Re-adjudicated `TRANSPORT_ONLY`, the reading
+  its sibling `graphene_photodetector_model.py::V_bias` already carries for
+  the same stated reason. Old reading kept above the new one.
+- **And the first form of the check was wrong, which is worth more than the
+  row.** Comparing the scopes the census already records reported **two**
+  violations; the second,
+  `graphene_photodetector_two_contact_model.py::V_bias`, is not one — its uses
+  are `{V_bias}` inside f-strings, and an f-string interpolation is a real
+  `ast.Name` inside the enclosing function, so the census files it under
+  `make_plots()` rather than under `<format string>`. **The scope vocabulary
+  cannot express "displayed inside a function"** — the same
+  two-vocabularies-over-one-census fault the 7b split repaired this morning,
+  in a third place on the same day. The shipped form is lexical.
+- **And the planted controls' first draft failed too,** and that failure was
+  the control's: both planted modules opened with `V_probe = 1.0`, and an
+  assignment target is an `ast.Name` in `Store` context. The controls now
+  have the shape every real row has (a LaTeX fragment, or an imported name),
+  and the behaviour that tripped them is pinned as `P-DO3` rather than
+  patched away.
+
+14/2 → **18/2**, same two failures; `UNREGISTERED` 47 before and after,
+because the two names this session introduced are adjudicated by the session
+that introduced them.
+
+### 5. What the day was actually about
+
+| claim | unchecked for | how it failed |
+|---|---|---|
+| 7b's syntactic count | 2026-10-01 → today | could not go green; its count hid membership |
+| a `SUITES` row's `None` | since the table was written | printed `RAN`, looked like coverage |
+| a `DISPLAY_ONLY` adjudication | 2026-10-07 → today | 1 of 13 was false |
+
+Each repair is the same shape: **a registry entry carries its reason, and a
+check confirms the reason is still true of the source.** Implemented three
+times today — `7b-iii`, `writes_own_transcript()`,
+`display_only_violations()` — which is the first time this repository has had
+the *pattern* rather than instances of it. The counter-lesson is §2's.
+
+### 6. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, other sessions', unreadable and
+undeletable) for the fourth consecutive session, so the clone goes to `/tmp`
+on `/dev/sda1` (4.0 G free) per 10-25..10-27. **New:** `pip` fails there too,
+because its build and cache directories default under `$HOME` —
+`TMPDIR=/tmp/pt PIP_CACHE_DIR=/tmp/pipcache --no-cache-dir` installs `scipy`
+1.15.3 into `/tmp/pylibs`. **`/tmp/pylibs` did not survive from 10-27**, so
+`/tmp` is per-VM and not per-machine and the install is a cost every session
+pays. `numpy` 2.2.6, `matplotlib` 3.10.9, `MPLCONFIGDIR=/tmp/mplcache_1028`
+(a fresh name, per 10-27). Two PNGs (`differential_crossover.png`,
+`log_sensitivity_step_audit.png`) re-rendered with byte differences beside
+unchanged transcripts and are **reverted**, per 10-27 §6; the ~63-PNG item is
+otherwise untouched. **Live web search not used:** today's subject is this
+repository's own instruments measured against themselves and there is no
+external source for it. PubMed/PMC not attempted, per the standing note.
+Every commit pushed and verified against the GitHub API.
+
+**Not yet covered (candidates for future runs):**
+
+- **SECTION 7b IS BLIND TO ITS OWN MODULE** — created today, **ranked
+  first**, and the direct continuation. `repo_wide_frozen_census()` skips
+  `graphene_mutation_arrival_probe` by name, so the guard cannot see captures
+  in the module that defines the guard — and today it committed three. The
+  repair is not simply to stop skipping it: that module plants capture
+  patterns deliberately for `C7b` and its before/after sections, so the honest
+  form is a **registry of planted sites** (the same shape as 7b-ii's
+  exemptions, and the third use of the day's pattern) with everything else in
+  the module censused. Blocked on nothing.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — created today, **ranked
+  second**, and now a short, bounded list rather than a vague queue:
+  `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`. Each is a mutation suite that builds a working tree,
+  so time them against the 77 s of headroom Section 5 measured *before*
+  adding them, and quote the seconds the way the new rows do. If one does not
+  fit, the honest outcome is an `OVER_CALL_LIMIT` exclusion class with a
+  measured number in it.
+- **THE SIX `SELF_WRITING` TRANSCRIPTS NEED `run_suite` TO READ THE OBJECT
+  STORE** — created today, **ranked third**. Nine transcripts are excluded
+  because their modules overwrite the file the comparison is taken against;
+  three of those nine are also over the call limit, so six are reachable. The
+  change is to `run_suite`: compare against `git show <commit>:<transcript>`
+  rather than the clone's working copy. That is one change that moves six
+  rows, and it also removes the circularity the 10-27 entry called "nearly
+  missed".
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 2026-10-27,
+  where it was ranked third, and **now cheaper**: the census is registered in
+  `SUITES` as of today, so a session that works the queue will have its
+  transcript compared instead of silently going stale. `UNREGISTERED` is 47.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii). The 10-27 entry noted 7b's two checks were the same shape; **that half
+  is now resolved**, so the item is back to being about `gfet.C_ox` alone, and
+  the split is the worked precedent for how to resolve it.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, §7.9 item 23 (i). Mechanical; built from `rra.FLIPS`.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, and today is a **fourth** argument from a new direction: 7b's own
+  single red check was a count that could not distinguish its known site from
+  a new one, which is the same defect one level down. Three suites exit
+  nonzero today and the pristine audit reports only the exit code.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26,
+  both names LIVE since 10-27. Pairs with *IS THE ADMISSIBLE SHAPE BOX THE
+  RIGHT ONE?*
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs. 10-27 §6
+  named four files with measured deltas; two of them churned again today and
+  were reverted again, which is the second occurrence and makes the
+  hypothesis (nondeterministic rasterisation, not content) cheaper to settle.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25, unchanged.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **eighth** instance (`C7c` ×8, `C5.1`–`C5.3`, `P-DO1`–`P-DO3`
+  — fourteen new controls in one session). The repository-wide question —
+  which refusal branches anywhere have never been reached — is still
+  untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twenty-two**
+  sessions overdue. Today adds an argument: `audit_output.txt`'s stale claim
+  was `exact zeros : 3/3` against a real `2/3 bitwise, 3/3 within 5.7e-11`,
+  i.e. the difference between the two was *exactly* a tolerance question.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged; a decision, to be taken
+  with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **eighth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on Fig. 4 of a paper behind `arxiv.org`. A
+  copy of the PDF in the connected folder unblocks both immediately.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 10-17, and today adds a **second** positive example
+  (`P-DO1`–`P-DO3` write their planted modules under `TMPDIR`) and, via the
+  ranked-first item, the first case where the rule's *cost* is visible: the
+  arrival probe's planted patterns are why it is excluded from its own census.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twelfth** session;
+  `dead_name_sweep` red, DEAD count 1, and today it moved for an unrelated
+  reason (LIVE 322 → 325, a line number 310 → 338).
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **thirteenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01,
+  untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **sixteenth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **twenty-first** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **nineteenth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **eighteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twenty-two sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **nineteenth** session.
+- **ASYMMETRIC ELECTRON/HOLE MOBILITY** — created 2026-10-09, untouched.
+- **The hole-branch sign of Chapter 4's branch-asymmetric results** —
+  **nineteenth** session untouched.
+- **The seven `UNADJUDICATED` census rows** — created 2026-10-08, untouched,
+  joined by eleven more; see the `V_dirac` item.
+- **A self-heating term** — created 2026-10-06.
+- **Chapters 2–3 are still undrafted** — the largest remaining block of pure
+  writing; their computational results have been complete for weeks, and both
+  chapters' suites (`transport_optical_audit`, and as of today
+  `frozen_default_semantics` and `exact_charge_rederivation`) are registered
+  and IDENTICAL, so the numbers to draft from are certified.
+
+**Commits this run:** 7 (the 7b split with its eight controls; the 10-27
+conflict annotated in place as resolved; the `DISPLAY_ONLY` check with its
+false row re-adjudicated; the 18 transcript registrations with Section 5's
+coverage census, the `None`-row repair, the month-stale `audit_output.txt`
+and the self-committed-capture conversion; the pristine audit's 19/0; notes
+and thesis §4.6.24). This `AUTOMATION_LOG.md` entry makes **8**. Each was
+pushed and verified against the GitHub API.
+
+---
+
+## 2026-10-29 — The floor is a geometric mean, and a correction that came back three times
+
+**Subject: the ASYMMETRIC ELECTRON/HOLE MOBILITY item, created 2026-10-09 and
+carried untouched for twenty sessions — the only item on the standing list
+that had been deferred *in writing inside the source*. Closing it produced a
+closed-form correction of record, and the session's second finding was that a
+list item this repository had already refuted had been silently re-imported
+three sessions running.**
+
+### 1. Why this item and not the ranked-first one
+
+The 10-28 list ranked **SECTION 7b IS BLIND TO ITS OWN MODULE** first. It was
+not taken. The reason is worth stating because it is a judgement about the
+repository rather than about the item: the 7b item is the fourth consecutive
+ranked-first item about the behaviour of this repository's own audit
+instruments, and the tree now holds roughly eighty Python modules of which a
+large fraction audit other modules in it. The item is real and stays ranked
+first. But the thesis's subject is the device physics of single-layer
+graphene, and the largest *physics* item on the list had been carried for
+twenty sessions with a designed interface already waiting for it.
+
+That interface is the distinguishing feature.
+`graphene_fet_signed_carrier_model.sheet_conductivity_two_carrier` was written
+on 2026-10-07 with `mu_e` and `mu_h` parameters, both defaulted to the single
+shipped `gfet.mu`, and a docstring saying in as many words that the asymmetry
+"is NOT introduced here ... logged as a follow-on item instead". No other
+standing item comes with its own signature.
+
+### 2. The result: the minimum conductivity is a geometric mean
+
+Mobility is a transport parameter and does not enter the charge relation, so
+the electrostatics were left untouched and the asymmetry put only into the
+two-carrier Drude sum on the 10-07 signed species split:
+
+```
+  σ(n_net) = e(μ_e n_e + μ_h n_h) = e(μ̄ S + (Δμ/2) n_net),  S = sqrt(n_net²+n_p²)
+```
+
+`S` is even in `n_net` and `n_net` is odd in the overdrive, so this is a clean
+even/odd split: the even part is the conductivity the repository already had,
+and the whole effect of the asymmetry is an odd part linear in `Δμ`.
+Minimising gives
+
+```
+  n_net* = -n_p r/sqrt(1-r²),   r = (μ_e-μ_h)/(μ_e+μ_h)
+  σ_min  = e n_p μ̄ sqrt(1-r²) = e n_p sqrt(μ_e μ_h)
+```
+
+and the last equality is an **identity**, since `1-r² = 4μ_eμ_h/(μ_e+μ_h)²`.
+The floor is set by the **geometric** mean of the two branch mobilities.
+
+The reason it is geometric is visible in `n_net*`, not in `σ_min`: the minimum
+is **not at charge neutrality**: it is displaced onto the low-mobility branch,
+at the density where the slow species' extra carriers exactly pay for the fast
+species' lost ones, and evaluating the sum at that displaced point is what
+turns an arithmetic mean into a geometric one. Recorded because I went looking
+for the arithmetic mean; the surprise is the part worth keeping.
+
+### 3. Correction of record, and why no number moves
+
+`sigma_min_ch4()` returns `e·μ·n_puddle` and its docstring calls that
+**EXACTLY**. On the `μ_e = μ_h` diagonal — where the shipped model lives and
+where that function evaluates — it is exact, and the general form reproduces
+it to **1 ulp**, checked. Off the diagonal the sentence fails in two
+distinguishable ways: `e·μ·n_puddle` **overestimates** the floor by
+`μ̄/sqrt(μ_eμ_h)`, and the accompanying "at `dV = 0`" is no longer *where the
+minimum is*.
+
+So the 2026-10-09 Chapter 3 / Chapter 4 floor adjudication stands exactly as
+written, and nothing is recomputed or deleted. What was wrong was the **scope
+of a word**. Annotated in place in both docstrings and in Chapter 3 §3.3.2 and
+Chapter 4 §4.11.3, with the numbers left where they are.
+
+**This is the fourth consecutive session whose finding has the same shape, and
+the shape now has a name: A CLAIM EVALUATED ON A DIAGONAL, ASSERTED OFF IT.**
+`sigma_min_ch4` evaluates at `μ_e = μ_h`; `C7b`'s verdict (10-26) evaluated at
+one `gfet.C_ox`; the §7b census (10-28) evaluated on a tree with its own module
+skipped. In all four the evaluation was right and the **quantifier** was
+missing. That is a sharper statement than "claims nothing checked", which is
+what the previous three entries called it, and it suggests the generic repair:
+a claim should carry the set it is quantified over, not just its value.
+
+### 4. The device result: first order against second order
+
+```
+  apparent Dirac-point shift :  ∝ r                       FIRST order
+  floor change               :  sqrt(1-r²) = 1 - r²/2     SECOND order
+```
+
+Inverting `n_net*` through the repository's own series-factor charge relation
+at the shipped 90 nm back gate:
+
+| `μ_e/μ_h` | `r` | apparent `ΔV_dirac` | fraction of the shipped 0.80 V | misattributed density |
+|---|---|---|---|---|
+| 1.10 | 0.0476 | −0.1011 V | 0.126 | 2.42 × 10¹⁰ cm⁻² |
+| 1.20 | 0.0909 | −0.1922 V | 0.240 | 4.60 × 10¹⁰ cm⁻² |
+| 1.30 | 0.1304 | −0.2763 V | **0.345** | 6.62 × 10¹⁰ cm⁻² |
+| 1.50 | 0.2000 | −0.4278 V | 0.535 | 1.02 × 10¹¹ cm⁻² |
+
+A 30 % asymmetry — inside the range both papers in §5 report — moves the
+resistance maximum 0.276 V to lower `V_g`, **34.5 %** of the `V_dirac` the
+model attributes entirely to built-in doping. The practical statement is a
+caveat on an extraction, not a defect in a model: **reading a doping level off
+a transfer-curve minimum assumes `r = 0`, and nothing in a two-terminal
+transfer curve tests that assumption.** The split of orders also explains,
+without invoking sample quality, why reported minimum conductivities cluster
+tightly while reported Dirac offsets scatter: the floor moves −0.88 % at
+`μ_e/μ_h = 1.3` and −2.02 % at 1.5, inside anybody's error bar.
+
+### 5. Live search: two mechanisms, and they disagree about sign
+
+Both papers were reached and read this session.
+
+| | channel origin | contact origin |
+|---|---|---|
+| source | Zion *et al.*, arXiv:1801.03565 | Huard *et al.*, arXiv:0804.2040 |
+| finding | `μ_h < μ_e`, asymmetry shrinking with `\|n\|` | `ρ_e/ρ_h = 1 ± 0.03` away from the metal, ≈ 1.20 through it |
+| mechanism | beyond-Born scattering off negatively charged acceptors, ≈ 1.5 × 10¹² cm⁻² in the SiO₂ | the metal pins the graphene p-type, so the junction is p–n for an n-type channel and p–p′ for a p-type one |
+| scales with | the channel | the metal/graphene **interface width** |
+| worse branch | holes | electrons |
+
+Two Huard numbers land on this repository's own calibration: `λ = 135 Ω·µm`
+sits at the bottom of the 110–500 Ω·µm band `Rc_total` is calibrated against,
+and their 4600 cm²/V·s is within 15 % of the shipped 4000.
+
+The conflict is **not adjudicated**, and could not be from a model. What is
+shown instead is that the two are distinguishable exactly: the odd part of the
+two-terminal resistance is exactly linear in channel length, slope carrying
+the channel asymmetry and intercept the contact asymmetry, neither absorbable
+into the other. Planting `μ_e/μ_h = 1.3` and `ΔRc = 120 Ω` and solving two
+points of a 25-length sweep recovers the slope to **2.2 × 10⁻¹⁶** relative and
+the intercept to the printed digit. The cost is stated with it: at the shipped
+`L = 200 nm` the two mechanisms sit a factor **1.48** apart in `R_odd`, so a
+single-length measurement — which is what this repository models — is blind
+between them.
+
+**The arxiv item is two different items.** Since 2026-10-18 the list has
+carried "blocked on Fig. 4, which is blocked on `arxiv.org`, refused by the
+egress proxy". Today `arxiv.org/pdf/0804.2040` fetched cleanly. The 10-18
+refusal was the **device VM's** egress proxy; the web tool runs cloud-side on a
+different path with a different allowlist. The items do **not** become
+actionable, because Fig. 4 is a plotted curve and text extraction cannot read
+a value off one — but the reason has changed from "the domain is refused" to
+"the datum is a picture", and the remedy the item already names (a copy of the
+PDF in the connected folder, where a page can be rendered and looked at)
+addresses the second reason and would not have addressed the first. Reworded
+in the list below.
+
+### 6. The second finding: a correction that did not hold
+
+On 2026-10-18, item A1 of that entry refuted the list's claim about Chapters 2
+and 3, naming `5bbd5f3` (2026-09-28) and `c1d5abc` (2026-09-29). **The refuted
+claim then came back**, absent from 10-18 through 10-25 and present again in
+the "Not yet covered" lists of 10-26, 10-27 and 10-28 — three consecutive
+sessions re-asserting, against files in this tree, something this repository
+had already shown to be false.
+
+This is a defect class the previous entries have not seen. The others are
+claims nothing checked. **This one was checked, and the check did not
+survive**, because the correction lived in a log entry and nothing in this
+repository reads log entries. The authority for the claim is outside the tree
+— which the 10-18 entry's own title already said — so every session that
+rebuilds the list from outside re-imports it, and no quantity of prose
+corrections closes a one-way channel.
+
+So the correction became a check: `graphene_chapter_status_audit.py` measures
+each chapter's state from the file and refuses a latest log entry that
+describes a measured-drafted chapter as not yet written. 12/13 green on the
+10-28 entry, the one red being the regression itself; the red transcript is
+committed as the evidence, and this entry turns it green. Two planted controls
+(a fabricated Chapter 5 claim must be flagged; a stub written under `TMPDIR`
+must classify as a stub), per the standing requirement.
+
+**The metric was wrong on its first run**, and this is recorded in the source
+rather than replaced quietly. Version one counted lines of ≥ 40 characters and
+required 5 `##` sections; it misclassified `01-introduction.md` at 3 sections
+and 97 such lines. Chapter 1 is **5340 words — more than Chapters 2, 3 and
+5** — written unwrapped in 120 lines averaging ~314 characters, with three
+sections because an introduction legitimately has three. The metric was
+measuring the author's line-wrapping. It now counts words outside code fences,
+and §5 of the module is the check that would have caught it: re-wrap a real
+chapter two ways and require the count not to move. That check then failed by
+exactly +1 word, because `textwrap`'s default `break_on_hyphens` splits
+"device-physics" across lines — fixed in the harness, not absorbed into a
+tolerance, since an off-by-one is exactly what a tolerance would have hidden.
+
+### 7. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, other sessions', unreadable and
+undeletable) for the **fifth** consecutive session, so the clone goes to `/tmp`
+on `/dev/sda1` (4.0 G free) per 10-25..10-28. `/tmp/pylibs` again did not
+survive, confirming 10-28's conclusion that `/tmp` is per-VM: `scipy` 1.15.3
+reinstalled with `TMPDIR=/tmp/pt PIP_CACHE_DIR=/tmp/pipcache --no-cache-dir
+--target /tmp/pylibs`, `numpy` 2.2.6, `matplotlib` 3.10.9,
+`MPLCONFIGDIR=/tmp/mplcache_1029`. **New data point on the ~63-PNG item:**
+annotating the signed-carrier module re-ran it 19/19 with a **byte-identical
+transcript and a byte-identical figure**, so the nondeterministic-rasterisation
+hypothesis is now constrained — the churn is per-figure, not per-run, since
+this figure does not churn while 10-27's two named ones do. No PNG was
+reverted today. The new figure was **not visually inspected** (it is verified
+as a well-formed 1950×1425 PNG and by its underlying numbers only), which is
+the standing ~63-PNG item and is stated rather than glossed. Every commit
+pushed and verified against the GitHub API.
+
+**Not yet covered (candidates for future runs):**
+
+- **SECTION 7b IS BLIND TO ITS OWN MODULE** — carried from 10-28, where it was
+  ranked first, and **still ranked first**, explicitly passed over today for
+  the reason in §1 rather than by default. `repo_wide_frozen_census()` skips
+  `graphene_mutation_arrival_probe` by name, so the guard cannot see captures
+  in the module defining it, and 10-28 committed three. The repair is a
+  registry of planted sites with everything else censused. Blocked on nothing.
+- **A DENSITY-DEPENDENT MOBILITY PAIR** — created today, **ranked second**, and
+  the direct continuation of today's work. `μ_e` and `μ_h` are constants in
+  `graphene_branch_asymmetric_mobility.py`, and Zion *et al.*'s central
+  observation is that the asymmetry **dies off as `|n|` grows** (hole crossover
+  at `p ≈ 3 × 10¹² cm⁻²`) as the long-range potential screens. A constant pair
+  cannot represent that, and the module says so in its own docstring. The
+  honest form is `μ(n)` per branch with the crossover as a parameter, and the
+  check that matters is that it reduces to today's constant pair in the
+  unscreened limit — the same diagonal-versus-general structure as §3.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — carried from 10-28, ranked
+  second there: `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`, each to be timed against the 77 s of headroom, with
+  an `OVER_CALL_LIMIT` exclusion class and a measured number if one does not
+  fit. Today adds two more unregistered transcripts
+  (`branch_asymmetric_mobility_output.txt`, `chapter_status_audit_output.txt`),
+  so `UNREGISTERED` is **49**.
+- **`run_suite` SHOULD READ THE OBJECT STORE, NOT THE WORKING COPY** — carried
+  from 10-28, ranked third there. One change to `run_suite` (`git show
+  <commit>:<transcript>`) moves six of the nine `SELF_WRITING` rows and removes
+  the circularity.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — created today. The new
+  module is a guard whose own transcript nothing compares, which is the exact
+  defect it was built to fix, one level up. Mechanical; register it.
+- **THE ONE-WAY CHANNEL ITSELF** — created today, and the general form of §6.
+  Any list item whose authority is outside this tree will regress, and today's
+  check covers exactly one such claim (chapter drafted-ness). The other
+  externally-sourced claims in the standing list have never been enumerated,
+  let alone checked. Enumerating them is cheap and is the item.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii), about `gfet.C_ox`; today's §3 is a **fourth** worked precedent for the
+  shape, and the strongest, since it names the general form of the defect.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** — carried
+  from 10-26, §7.9 item 23 (i). Mechanical; built from `rra.FLIPS`.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from 10-25,
+  and today is a **fifth** argument for it from a new direction: the new
+  chapter-status check exits nonzero with a *named membership* (`[2, 3]`), which
+  is what the item asks for, so it is now a worked precedent rather than only a
+  complaint. Three other suites still exit nonzero reporting only a code.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~63 PNGs, now ~65.
+  Today's new figure is among the uninspected, and today's byte-identical
+  re-render narrows the hypothesis (see §7).
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25, unchanged.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **ninth** instance (two new controls in the chapter-status
+  module). The repository-wide question — which refusal branches anywhere have
+  never been reached — is still untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 2026-10-09, **twenty-three**
+  sessions overdue, and today adds two arguments from opposite directions: a
+  `C1` threshold that was 1 ulp because 1 looked strict and failed at 3, and a
+  `+1` word discrepancy that a tolerance would have hidden. Both were
+  thresholds chosen rather than counted.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, unchanged; a decision, to be taken
+  with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20, **ninth**
+  session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, and both **reworded today**: they are blocked on reading a
+  value off *Fig. 4*, i.e. on a datum that is a picture, **not** on the
+  `arxiv.org` domain, which fetched cleanly cloud-side today. The 10-18 "refused
+  by the egress proxy" finding was about the device VM's path. A copy of the PDF
+  in the connected folder still unblocks both, now for the right reason.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 10-17, and today adds a **third** positive example (the
+  chapter-status stub is written under `TMPDIR`).
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 2026-10-12, and today
+  sharpens it: under asymmetry the Chapter-3-matched `n_puddle` is an
+  underestimate by `μ̄/sqrt(μ_eμ_h)`, so the name denotes a quantity that
+  depends on a mobility ratio nothing in the repository measures.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **thirteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **fourteenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01,
+  untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 2026-10-13, and
+  today adds one to the list: the contact resistance is branch-independent in
+  `graphene_fet_model`, which §5 shows is exactly the assumption that makes
+  the contact mechanism invisible.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 2026-10-11, **seventeenth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 2026-10-06,
+  **twenty-second** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twentieth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 2026-10-10, **nineteenth**
+  session.
+- **MECHANISE the magnitude item** — created 2026-10-03, twenty-three sessions
+  overdue.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twentieth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twentieth** session untouched, and **now much cheaper**: today's module
+  supplies branch-resolved mobilities and a signed `n_net*`, which is the
+  machinery that item was missing.
+- **A SELF-HEATING TERM** — created 2026-10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 2026-10-08, untouched.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  Chapter 4 favours high-work-function metals (Ni, Au, Pd) for low contact
+  resistance while Chapter 6 §6.7 finds those same metals worst for symmetric
+  two-terminal photoresponse. Today adds a third strand worth synthesising with
+  them: the same work-function mismatch that pins the contact doping is the
+  mechanism behind the contact-origin branch asymmetry of §5.
+
+**Chapter status, measured rather than asserted** (`chapter_status_audit_output.txt`):
+all seven chapters measure DRAFTED — Chapter 1 at 5318 words / 3 sections,
+Chapter 2 at 3445 / 11, Chapter 3 at 3795 / 9, Chapter 4 at 37686 / 11,
+Chapter 5 at 3240 / 5, Chapter 6 at 16273 / 15, Chapter 7 at 20124 / 10. The
+largest remaining *writing* gaps are therefore not whole chapters: they are
+Chapter 7's synthesis item above and Chapter 6 beyond §6.8.
+
+**Commits this run:** 5 (the new asymmetric-mobility module with its figure and
+transcript; the two superseded claims annotated in place; the notes file; the
+Chapter 4 §4.11 / Chapter 3 §3.3.2 drafting; the chapter-status check committed
+red on purpose). This `AUTOMATION_LOG.md` entry, with the re-run green
+transcript, makes **6**. Each was pushed and verified against the GitHub API.
+
+---
+
+## 2026-10-30 — the census can finally see itself, and four thresholds I got wrong before lunch
+
+**Status:** The item ranked first on 10-28 and again on 10-29 is closed, and
+so is the item ranked second on 10-29. Five commits.
+
+### 1. Section 7b can see the module that defines it
+
+`repo_wide_frozen_census()` skipped `graphene_mutation_arrival_probe` **by
+name**, so the repository-wide capture census was blind to the file defining
+it. Not hypothetical: on 10-28 this module committed three captured defaults,
+7b saw none of them, and what caught them was a *different* module's census.
+A guard that needs another guard to cover its own file is a guard over the
+tree **minus itself**, and nothing said so.
+
+The repair came from noticing the skip existed for **one** reason and was
+doing **two** jobs. The reason is real and applies only to the SEMANTIC arm:
+`classify()` needs the module imported, and importing `main.py`,
+`generate_plots.py` or `initialize_repo.py` runs figures and writes files. The
+job it should never have been doing is hiding capture **sites**, which are
+pure syntax and need no import at all. So:
+
+- `syntactic_capture_sites()` — total AST pass, **73 files, no imports, no
+  exclusions**, and deliberately **no `exclusions` parameter** a caller could
+  narrow. One site found, the registered `N_QUAD`; this file among the 73.
+- `SEMANTIC_CENSUS_EXCLUSIONS` — the former inline 4-name tuple, now a
+  late-bound registry with a reason per entry. The arrival probe is **out** of
+  it: it imports cleanly with no side effects and never belonged there.
+- **7b-iv** COVERAGE: the syntactic pass left no file unvisited, and
+  unparseable files are *reported*, not skipped.
+- **7b-v** EXCLUSIONS: no module excluded from the semantic census carries a
+  syntactic capture site — measured, all three carry zero — so an exclusion
+  now skips an import and **hides nothing**.
+
+**A row count could not have evidenced this**, and that is the part worth
+keeping. This file carries zero captures today (10-28's three were converted
+the same day), so "no new rows" is exactly what the *blind* census also
+reported. **C7d** plants a capture in a COPY of this file under `TMPDIR`
+(never in the tree, per the 10-17 item) and requires the pass to find it, then
+**reinstates the old skip as an exclusion and shows the same planted file
+reports nothing** — the pre-10-30 blindness reproduced as a control rather
+than described. Transcript 43/43 → **51/51**, additions only; the single
+removed line is the total.
+
+### 2. A density-dependent mobility pair, and a closed form
+
+The 10-29 second-ranked item. Zion *et al.* (arXiv:1801.03565) supply no
+mobility function — they supply the two Boltzmann limits with their density
+exponents (`tau ~ n^(+1/2)` for screened Coulomb, so `mu ~ const`;
+`tau ~ n^(-1/2)` for neutral defects, so `mu ~ 1/n`), one crossover density
+(`p ~ 3e12 cm^-2`), and a direction with **no numbers** — their `mu_e/mu_h`
+appears only in Fig. 5, which is a picture. The **opposite signs** are what
+make this a crossover rather than two parallel curves, and they are the only
+input the model needs.
+
+Confining the asymmetry to the long-range channel is **determined by the
+literature, not assumed**: their mechanism is the beyond-Born relativistic
+cross-section, where attraction scatters harder than repulsion, and that is an
+argument *about a charged scatterer*. Neutral defects have no sign for it to
+act on.
+
+Matthiessen on the two channels, `1/mu_b(n) = 1/mu_L,b + |n|/(n_c*mu_L_bar)`.
+The common denominator `(a+s)(b+s)` cancels **exactly**, and using
+`mu_H/mu_bar = 1-r^2` — the same identity that made 10-29's floor a geometric
+mean — the asymmetry parameter is exactly
+
+    r(n) = r0 / (1 + (1 - r0^2) * |n| / n_c)
+
+**hyperbolic** decay, no expansion, no parameter beyond the two already there.
+17/17.
+
+### 3. The device statement, which is the result worth having
+
+`(B3)` turns `n_c` into a crossover gate overdrive, `dV_c = e*n_c/C_ox`, and
+the answer **splits by gate stack**:
+
+| gate stack | `C_ox` (F/m²) | `dV` at `n_c` | reached in operation? |
+|---|---|---|---|
+| 90 nm SiO₂ back gate (shipped) | 3.84e-4 | **12.53 V** | no — every sweep here is inside ±5 V |
+| 10 nm HfO₂ top gate | 2.21e-2 | **0.217 V** | yes, essentially always |
+
+So whether electron–hole mobility asymmetry is a first-order effect or a
+negligible one is **a property of the gate stack, not of the graphene**: large
+in the thick-oxide back-gated devices most transport papers measure, small in
+the thin-oxide top-gated devices a semiconductor process would build. This is
+the device-physics content and it is the kind of statement the thesis angle
+needs.
+
+### 4. Four thresholds I got wrong, corrected on the day
+
+Item 15 ("AUDIT EVERY TOLERANCE", created 10-09) hit a check **on the day it
+was written** rather than twenty-three sessions later, four times:
+
+- **D1 was the wrong currency.** Written as a relative ulp budget by analogy
+  with C1, counted at 12 roundings. It failed at **1042 ulp / 548 eps**. The
+  roundings were not miscounted; the analogy was wrong. C1 compares
+  *conductivities* — sums of positive terms, where relative error is the right
+  currency. `r` is a **difference of nearly equal mobilities** over their sum,
+  so cancellation amplifies relative error by `1/|r|`, **unboundedly**, since
+  `r(n) -> 0` is the whole point. Now an **absolute** budget (12 eps counted,
+  **0.75 eps** measured), with the relative figure and the ulp count reported
+  as *measurements* rather than thresholds.
+- **D3 reused a number from a narrower sweep.** 10-29's `1e-15` was the ±3 V
+  figure; this sweep is ±5 V, and `n_e*n_h = (S^2-n_net^2)/4` loses
+  `(n_net/n_p)^2`. The bound is now **counted from the sweep width**.
+- **D4's residual is not noise, so it gets a prediction instead of a
+  tolerance.** The log-log slope is −0.99996865, off by 3.14e-5, and a
+  tolerance admitting that would be another number chosen to pass. A fit over
+  `ndec` decades through data with relative subleading shortfalls at each end
+  is tilted by exactly `(eps_bot − eps_top)/(ndec*ln 10)`. Both measured from
+  the `A_k` convergence (Richardson-extrapolated): **predicted 3.1351e-5
+  against an observed 3.1353e-5 — accounted for to 0.01 %.** A statement that
+  can be false in a way a tolerance cannot.
+- **D10's `1e-2` was a guess, and it was comparing against the wrong form.**
+
+### 5. Two corrections of record, both percentages rather than reversals
+
+Annotated **where they were made**, numbers left alone:
+
+- 10-29's constant-pair apparent Dirac offset is an **overestimate — by
+  0.07 %** at `mu_e/mu_h = 1.3`. Small because `n_p/n_c = 0.167`: the **Dirac
+  point is unscreened** even where the high-bias branches are not. Annotated
+  in the *transcript* as well as the source, so a reader of the output sees it.
+- 10-29's `sigma_min = e*n_p*sqrt(mu_e*mu_h)`, proved **exact** for a constant
+  pair, is **not exact** here — the derivation's premise is gone once
+  `mu = mu(S)`, because `mu_bar` and `dmu` can no longer be pulled through
+  `d/dn`. D10 measures **1.17e-3** worst and shows the error is **second order
+  in `n*/S*`**: `dev/(n*/S*)^2` is constant to a factor **1.044** across a
+  **48.6x** range in `(n*/S*)^2`, which is what makes "second order" a
+  measurement. Rescoped, not overturned. The plausible misreading —
+  substituting `S*` for `n_p` — is **24x worse**.
+
+The chain on that one number now reads: exact on the diagonal
+(`sigma_min_ch4`), exact for any constant pair ((A5), 10-29),
+second-order-accurate for a density-dependent pair (10-30). **Three
+narrowings, no change to the value**, which is still `e*mu*n_puddle` and still
+what Chapters 3 and 4 are adjudicated on.
+
+### 6. An unlooked-for corroboration, and the complication the same paper makes
+
+Fetching HfO₂ mobility values turned up arXiv:1010.0913, which reports **in
+passing, for an unrelated purpose**, that in its HfO₂-topped devices *"the
+electron and hole mobilities differ by less than 10%"*. That is a prediction
+of §3, made by a paper not asking the question. Weak — one sentence, no
+density resolution, mobility from a σ-vs-V_BG slope averaged over 25 V with
+the Dirac region *excluded* — and its weaknesses are written into the notes
+rather than omitted.
+
+The same paper **cuts against the simple reading of §3's table**: HfO₂
+deposition adds `1.5–4e12 cm^-2` of charged impurities and costs ~50 % of the
+mobility. That is **the same order as `n_c` itself**, so `n_c` is not a
+material constant across those two rows: in `(B1)`, `A = n_c*mu_L_bar` depends
+only on the *neutral* defect density, so halving `mu_L_bar` **doubles** `n_c`.
+The honest top-gate row is `n_c ~ 6e12 cm^-2` and `dV_c ~ 0.43 V`.
+
+**The conclusion survives and the margin is written down rather than waved
+at**: a 10 nm HfO₂ gate at 1 V reaches `1.38e13 cm^-2`, still **2.3x** the
+corrected `n_c`. But the margin is 2.3, not 46, and a thicker or dirtier
+dielectric could eat it.
+
+### 7. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, other sessions', unreadable and
+undeletable) for the **sixth** consecutive session; clone to `/tmp` on
+`/dev/sda1`. `/tmp/pylibs` again did not survive — `scipy` 1.15.3 reinstalled,
+and worth recording against the slow-link history: **the wheel came down at
+11 MB/s today**, one leg, no resuming needed. `numpy` 2.2.6, `matplotlib`
+3.10.9, `MPLCONFIGDIR=/tmp/mplcache_1030`.
+
+**New data point on the ~63-PNG item**, and it is the third consecutive one in
+the same direction: annotating the branch-asymmetry module re-ran it 43/43
+with a **byte-identical figure AND a byte-identical transcript**, and the
+signed-carrier module likewise re-ran 19/19 byte-identical. The
+nondeterministic-rasterisation hypothesis is now narrowed hard: the churn is
+**per-figure, not per-run**, since these figures do not churn while 10-27's
+two named ones do. No PNG was reverted today. Today's **one new figure was not
+visually inspected** (verified as a well-formed 1950×1425 PNG and by its
+underlying numbers only), which is the standing ~63-PNG item, stated rather
+than glossed.
+
+**The device went offline mid-session** with these commits unpushed, and the
+bridge dropped for several minutes. Everything survived because the scratch
+clone is in `/tmp` on the same VM and the VM returned. A session-scoped
+self-reminder was scheduled as the recovery path and proved unnecessary. The
+lesson is the one the three-firing schedule already encodes — **nothing is
+safe until it is pushed** — and it argues for pushing **per commit** rather
+than once at the end of the session.
+
+**Not yet covered (candidates for future runs):**
+
+- **`n_c` SHOULD BE A FUNCTION OF THE CHARGED-IMPURITY DENSITY** — created
+  today, **ranked first**, and the direct continuation of §6. `N_CROSSOVER` is
+  a single module-level constant, and the gate stack that determines whether
+  the device reaches `n_c` **also determines `n_c`**, through the impurities
+  its deposition adds. The 2.3x margin of §6 is computed by hand in a notes
+  file and belongs in the module with a check. Blocked on nothing.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — carried from 10-28, and
+  today adds two more (`density_dependent_mobility_output.txt`, and the
+  arrival probe's own refreshed transcript), so `UNREGISTERED` grows again.
+  The sibling repository is working the identical gap from its own direction.
+- **`run_suite` SHOULD READ THE OBJECT STORE, NOT THE WORKING COPY** —
+  carried from 10-28. One change to `run_suite` (`git show <commit>:<path>`)
+  moves six of the nine `SELF_WRITING` rows and removes the circularity.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — carried from 10-29,
+  mechanical, still unregistered.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29, and the sibling
+  repository produced a **third** instance today from a new direction: its
+  verification plan's status header read `v2` while eleven revisions sat in
+  the table below it. So the stale-claim problem is not only about open-item
+  lists; it is about **any claim a document makes about itself**. Enumerating
+  the externally-sourced claims is still cheap and still undone.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, and today is a **sixth** argument for it: the four threshold failures
+  of §4 were each diagnosable only because the detail string carried the
+  measured quantity next to the budget. Three suites still exit nonzero
+  reporting only a code.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~65 PNGs, now ~66.
+  Today's byte-identical re-renders narrow the hypothesis (see §7).
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii); today's §4 is a **fifth** worked precedent for the shape.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **tenth** instance (C7d's six arms). The repository-wide
+  question — which refusal branches anywhere have never been reached — is
+  still untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. **Four new arguments
+  today, all from checks written today** (§4), which is the strongest form the
+  item has taken: the failures were not in old code, they were in the code
+  written while the item was open.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, to be taken with item
+  22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **tenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on **a datum that is a picture** (Huard
+  Fig. 4), not on the `arxiv.org` domain, which fetched cleanly cloud-side
+  again today. Zion Fig. 5 joined them today for the same reason. A copy of
+  either PDF in the connected folder unblocks all three.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 10-17, and today adds a **fourth** positive example
+  (C7d's five planted files, all under `TMPDIR`).
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12, and today sharpens
+  it again: `n_p/n_c = 0.167` is now the quantity that decides whether the
+  Dirac point is screened, so `n_puddle` carries weight in a second
+  independent argument.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **fourteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **fifteenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01,
+  untouched since 10-06.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **eighteenth** session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-third** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-first** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twentieth** session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-first** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-first** session untouched, and **cheaper again**: today's module
+  supplies branch-resolved density-dependent mobilities on top of 10-29's
+  signed `n_net*`.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and **explicitly passed over today** in favour of the two ranked
+  items rather than by default. Chapter 4 favours high-work-function metals
+  (Ni, Au, Pd) for low contact resistance while Chapter 6 §6.7 finds those
+  same metals worst for symmetric two-terminal photoresponse. Today adds a
+  **fourth** strand worth synthesising with them: §3's gate-stack result says
+  the thin-oxide stacks a device process would choose are exactly the ones
+  where branch asymmetry is screened away, so the contact-origin asymmetry of
+  10-29's §5 is itself gate-stack-dependent. **No chapter is undrafted**, so
+  this synthesis and Chapter 6 beyond §6.8 remain the largest writing gaps.
+
+**Commits this run:** 4 before this entry (the §7b self-blindness repair with
+its 51/51 transcript; the density-dependent mobility module with its figure
+and transcript; the three in-place annotations; the notes file), and this
+`AUTOMATION_LOG.md` entry makes **5**. Each pushed and verified against the
+GitHub API.
+
+## 2026-11-02 — the crossover density was a charged-impurity density all along, and the hand arithmetic it corrects was right
+
+**Status:** The item ranked **first** on 10-30 is closed. Four commits.
+
+### 1. The product is the constant, not either factor
+
+`N_CROSSOVER = 3e16` was a module-level constant used for **both rows** of
+10-30's gate-stack table, and that entry's own §4 had already said in prose
+why it cannot be: the short-range term of `(B1)` is written `n_c*mu_L_bar`
+and **only the product** is a neutral-defect property. The other factor is the
+long-range mobility, which charged impurities change. So
+
+    A == n_c * mu_L_bar            [V^-1 s^-1]                          (C1)
+
+is the material constant and `n_c` alone is a constant of nothing. This
+session moved that from prose into code, with checks — and then found the hand
+calculation's *input* was the wrong one of the two the source offers.
+
+### 2. One paper closes it, and the caveat is load-bearing
+
+Chen, Jang, Adam, Fuhrer, Williams and Ishigami (Nature Physics **4**, 377
+(2008), arXiv:0708.2408) dose graphene with potassium **in situ** and measure
+mobility against *deliberately added* charged-impurity density — `n_imp` a
+**controlled** variable, not a fitted one, which is the strongest form this
+input could take. `mu*n_imp = C`, `C = 5e15 V^-1 s^-1`, stated as the relation
+tested, with the dosing rate measured independently and `C` cross-checked
+against the `V_g,min` shift. Eliminating `mu_L_bar` between it and (C1):
+
+    n_c(N_imp) = (A/C) * N_imp == KAPPA * N_imp,    KAPPA = 2.40        (C3)
+
+The crossover density is a **fixed dimensionless multiple of the
+charged-impurity density**, and the multiple is a **ratio of two literature
+constants** — Zion's crossover over Chen's scaling law. No fitted parameter
+enters anywhere.
+
+**The caveat is stated rather than buried.** Chen's mobility is the TOTAL
+mobility, not the long-range channel alone, so `N_imp` read off as
+`C/mu_total` is overstated by `(1 + |n|/n_c)` at whatever density they
+measured — **and they do not state it**. D7 measures the size of the effect
+here: the long-range channel carries **86 %** of `1/mu` at the puddle density
+and **71 %** at 5 V on the back gate, so (C2) is used inside its regime there.
+At the top-gate operating point it carries **32 %** — not a defect but a
+restatement of `M > 1`.
+
+### 3. Two consequences, both checked rather than asserted
+
+- **`r0` is invariant under `N_imp`** (D2, 1.4e-16 over seven decades).
+  Scaling the impurity density scales **both** branch mobilities equally,
+  because the beyond-Born asymmetry is a per-scatterer cross-section ratio and
+  carries no density.
+- **A dirtier device is MORE asymmetric** (D4-i, strictly monotonic over eight
+  decades). More charged impurities push `n_c` up, so at fixed density the
+  device sits further *below* the crossover. Right sign, and a consistency
+  check on the whole decomposition: the asymmetry lives in the
+  charged-impurity channel, so more of them must mean more of it.
+
+### 4. The reference point is a PAIRING, and D5 measures what carries it
+
+    A_ref     = n_c,Zion * mu_this-repo = 1.20e16 V^-1 s^-1
+    N_imp,ref = C / mu_this-repo        = 1.25e16 m^-2  (1.25e12 cm^-2)
+
+`A` is **not measured anywhere**: it pairs Zion's crossover, measured on
+*their* CVD samples, with *this* repository's mobility. Trying to resolve it
+today reached **the abstract only** — arXiv:1801.03565's abstract page carries
+the asymmetry statements and the T/B ranges but no mobility, substrate or
+impurity number. Recorded as a fetch outcome, not worked around.
+
+D5 then measures, rather than argues, which reported numbers carry it: under a
+**x4** perturbation of `A_ref` every **ratio** is **bitwise unchanged** and
+every **absolute** `n_c` moves by **exactly 4**. A factor of 4 rather than a
+round 3 precisely so the perturbation is exactly representable and the
+invariance is bitwise instead of tolerated.
+
+### 5. The correction of record: the arithmetic was right, the input was not
+
+**D9 reproduces the 10-30 hand calculation from its own stated input before
+correcting it** — `n_c = 6.000e12 cm^-2`, `dV_c = 0.4343 V`, `M = 2.303`, to
+three decimals. A correction that cannot reproduce what it corrects is not a
+correction. So nothing in that paragraph was arithmetically wrong; what was
+wrong was the **choice of input**. arXiv:1010.0913 reports *two* numbers about
+HfO₂ deposition and 10-30 used the mobility loss where the added-impurity
+density is the more direct route:
+
+| channel | `N_imp` (e12 cm⁻²) | `n_c` (e12 cm⁻²) | `dV_c` (V) | `M` at 1 V |
+|---|---|---|---|---|
+| reference, no deposition | 1.250 | 3.000 | 0.2171 | 4.605 |
+| +1.5e12 (paper, clean end) | 2.750 | 6.600 | 0.4777 | **2.093** |
+| mobility-halved (10-30's route) | 2.500 | 6.000 | 0.4343 | 2.303 |
+| +4.0e12 (paper, dirty end) | 5.250 | 12.600 | 0.9120 | **1.096** |
+
+**The conclusion survives and the margin does not.** 10-30 reported 2.3x; the
+honest range is **1.10–2.09x**, and at the dirty end the device clears the
+crossover by **10 %** — not a margin a process would design to. Annotated in
+all three places the superseded numbers were printed (the notes table row, the
+notes hand calculation, the DDM docstring bullet), **numbers left alone**.
+`N_CROSSOVER` itself is annotated but **not changed**: every function there
+already takes `n_c` as an argument, so the value is right as the reference
+default and the newer module supplies the others.
+
+### 6. The source's own two numbers disagree, and the escape is left open
+
+Given `C`, the paper's "~50 % of the mobility" implies
+`dN_imp = 1.25e12 cm^-2` — **below even the bottom of its own stated
+1.5–4e12 range** by a factor of 1.2, and below its top by **3.2**. So the
+paper's mobility datum selects the **clean end of the paper's own impurity
+range** (D10). **The escape is real and is not assumed away:** if HfO₂
+deposition also adds *neutral* defects then `A` grows too, the mobility loss
+is shared between channels, and a larger `dN_imp` becomes consistent. That
+would change `A`, which this module holds fixed. The dirty end is
+**disfavoured, not excluded**, and the difference is logged rather than
+modelled.
+
+### 7. The design rule, which is the device statement
+
+    N_imp* = C * C_ox * V / (e * A)
+
+| gate stack and overdrive | `N_imp*` (e12 cm⁻²) | vs. the reference channel |
+|---|---|---|
+| 10 nm HfO₂ at 1 V | 5.757 | 4.61x dirtier allowed |
+| 90 nm SiO₂ at 5 V | 0.499 | **0.40x — needs to be 2.5x CLEANER** |
+
+**(i) The deposition budget is real but thin.** `dN_imp <= 4.51e12 cm^-2`
+against the paper's reported maximum of `4.0e12`: **12.7 % headroom**. Since
+`N_imp* ~ C_ox*V ~ V/t_ox`, the budget tightens **linearly** with oxide
+thickness at fixed drive, so a process thickening the dielectric for leakage
+spends it directly. This is the falsifiable form of 10-30's "a thicker or
+dirtier dielectric could eat it".
+
+**(ii) Cleaning the channel moves `n_c` DOWN**, so a cleaner channel reaches
+the asymmetry-killing regime at **lower** gate voltage. The back-gated device
+misses `n_c` at 5 V not for being too dirty but for being too **clean for its
+own weak gate** — it would need to be 2.5x cleaner still. For electron–hole
+symmetry, material quality and gate strength act in the **same** direction,
+and the thick-oxide device is short of both. This inverts the usual intuition
+and it is the kind of statement the device-physics angle needs.
+
+### 8. The check that failed, and it failed the useful way
+
+**D4-ii was written as a single tolerance and failed at 83x its counted
+budget.** The budget was not miscounted: at `N_imp = 1e12 x ref` the
+dimensionless group `n/n_c` is still **4.6e-12**, so the shortfall from `r0`
+is a **real first-order term** and a tolerance loose enough to admit it would
+have been a number chosen to pass. Split in two: the limit is taken where it
+genuinely **is** the limit (`1e20 x ref`, where the short-range term is
+4.6e-20 of `1/mu_L` and cannot move the float at all, 3 ulp), and the
+finite-`N_imp` residual gets a **prediction**, `r0*u/(1+u)` — **accounted for
+to 9.7e-5 relative**. Same lesson as 10-30's D4, reached the same way, on the
+day the check was written. **Item 15, third consecutive session of catching
+its own fresh code.**
+
+The other three exact checks: **D1** requires the new model to *be* the 10-30
+model at the reference point rather than approximate it (**0 ulp** on `n_c`,
+**2** on the mobility pair, **0** on sigma over a 401-point sweep; the
+asymmetry on an **absolute** eps budget, for 10-30's own D1 reason). **D3**
+checks the asymptote against `A*X/(1+X)`, an exact consequence of `(B1)` whose
+predicted value **contains no `N_imp`** — the sharpest statement of (C1),
+worst 1 ulp over seven decades. **D6** is a **true bitwise symmetry**:
+`r(2n, 2*N_imp) == r(n, N_imp)` to the last bit, because scaling by a power of
+two is exact and commutes with rounding at every step; it says the model has
+exactly **one** dimensionless group. **D11** reinstates the pre-correction
+model as a **control** and requires D3 to fail against it — it fails by ~3e16
+ulp away from the reference and passes *at* the reference, where the two
+coincide by construction. **21 checks, 21 passing.**
+
+### 9. A figure was LOOKED AT, and one render found two defects
+
+The standing ~66-PNG item got its **first actual instance**. Today's figure
+passed the well-formed-PNG check (1950x712) and passed on its underlying
+numbers — and rendering it and *looking* showed **two colliding labels** in
+panel (a): the "after HfO₂ deposition" annotation sat underneath the legend
+box, and the reference-pairing callout overlapped the green dashed line's
+label. Both fixed, re-rendered, re-inspected clean. **One render, two real
+defects that two passing checks could not see** — an argument for the item
+rather than against it. The inspection copy went to
+`_review/2026-11-02-impurity_limited_crossover.png` in the connected folder,
+which already held one such file from 09-17, so the convention is reused
+rather than invented.
+
+**A fifth data point on the PNG-churn hypothesis**, same direction as the last
+three: re-running the annotated `graphene_density_dependent_mobility.py`
+re-rendered its figure **byte-identically** (17/17, and `git status` showed the
+PNG unmodified). The churn stays narrowed to **per-figure, not per-run**.
+
+### 10. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, other sessions', unreadable and
+undeletable) for the **seventh** consecutive session. New this session and
+worth recording: the clone **failed outright** this time rather than being
+merely tight — `fatal: write error: No space left on device` from `git clone`
+with only **1.8 M** free — and `pip` failed the same way until `TMPDIR` was
+pointed at `/tmp` as well, since pip stages wheels in `$TMPDIR` on the full
+filesystem. Clone to `/tmp` on `/dev/sda1` (3.8 G free), and **set
+`TMPDIR=/tmp/piptmp` for pip**, not just `--target`. `scipy` 1.15.3 installed
+with `--no-cache-dir`; `numpy` 2.2.6, `matplotlib` 3.10.9,
+`MPLCONFIGDIR=/tmp/mplcache_1102`.
+
+Each of the four commits was **pushed immediately** rather than batched at the
+end, which is the 10-30 entry's own recommendation acted on.
+
+**Not yet covered (candidates for future runs):**
+
+- **RESOLVE THE `A` PAIRING** — created today, **ranked first**, and the direct
+  continuation of §4. Every absolute number in today's module carries the
+  pairing of Zion's `n_c` with this repository's `mu`, and D5 shows exactly
+  which ones. Blocked on **a datum in the full text of arXiv:1801.03565** —
+  the abstract page does not carry a mobility. This now joins the two items
+  already blocked on Zion Fig. 5 and Huard Fig. 4; **a copy of either PDF in
+  the connected folder unblocks four items at once**, which makes it the
+  cheapest unblocking action available to a human reader.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — created today, §6,
+  **ranked second**. It is the named escape from D10's inconsistency, it would
+  make `A` gate-stack-dependent as well as `n_c`, and it is the difference
+  between the dirty end being disfavoured and being excluded. Blocked on a
+  literature datum separating the two channels for HfO₂-topped graphene.
+- **`n_c(N_imp)` SHOULD REACH THE CHAPTERS** — created today. Chapters 3 and 4
+  are adjudicated on `sigma_min` and on branch asymmetry, and both now depend
+  on a quantity the thesis text still treats as a material constant. The
+  annotations today are in the *notes and the module*, not in the chapters.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — carried from 10-28, and
+  today adds one more (`impurity_limited_crossover_output.txt`), so
+  `UNREGISTERED` grows again. The sibling repository is working the identical
+  gap from its own direction.
+- **`run_suite` SHOULD READ THE OBJECT STORE, NOT THE WORKING COPY** — carried
+  from 10-28. One change (`git show <commit>:<path>`) moves six of the nine
+  `SELF_WRITING` rows and removes the circularity.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — carried from 10-29,
+  mechanical, still unregistered.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29. Today adds a **fourth**
+  instance and it is this repository's own: the DDM docstring's Section 3
+  asserted a gate-stack table that the *same file's* Section 4 contradicted,
+  and nothing linked the two. Enumerating the externally-sourced claims is
+  still cheap and still undone.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, and today is a **seventh** argument: D4-ii was diagnosable in one
+  reading only because the detail string carried the measured 5.9e-13 next to
+  the 7.1e-15 budget. Three suites still exit nonzero reporting only a code.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~67 PNGs, **one now
+  actually inspected** (§9). The hit rate on the first attempt was two defects
+  per figure, which is the strongest argument this item has had.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii); today's D5 (bitwise under a x4 perturbation) is a **sixth** worked
+  precedent for the shape.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **eleventh** instance (D11). The repository-wide question —
+  which refusal branches anywhere have never been reached — is still
+  untouched.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. **A third consecutive
+  session in which it caught code written the same day** (§8), which remains
+  the strongest form the item takes.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, to be taken with item
+  22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **eleventh** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both still blocked on **a datum that is a picture** (Huard
+  Fig. 4; Zion Fig. 5 joined them 10-30, and today's pairing item joins them
+  too). `arxiv.org` itself fetched cleanly again today, so the blocker is the
+  figure, not the domain.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES IN THE TREE OTHER AUDITS
+  READ** — carried from 10-17.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12, and today sharpens
+  it a third way: `n_p/n_c` now depends on the **charged-impurity density**, so
+  whether the Dirac point is screened is itself gate-stack-dependent.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **fifteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **sixteenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **nineteenth** session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-fourth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-second** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-first**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-second** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-second** session untouched.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and **explicitly passed over today** in favour of the ranked item
+  rather than by default. Chapter 4 favours high-work-function metals (Ni, Au,
+  Pd) for low contact resistance while Chapter 6 §6.7 finds those same metals
+  worst for symmetric two-terminal photoresponse. 10-30 added a third strand
+  (the gate stack decides whether branch asymmetry is screened); **today adds
+  the fourth and sharpens it into a process statement**: the dielectric that
+  provides the strong gate *also* raises `n_c` through the impurities its
+  deposition adds, so the screening that removes the asymmetry and the damage
+  that restores it come from the same process step. **No chapter is
+  undrafted**, so this synthesis and Chapter 6 beyond §6.8 remain the largest
+  writing gaps.
+
+**Commits this run:** 3 before this entry (the `n_c(N_imp)` module with its
+inspected figure and transcript; the three in-place annotations; the notes
+file), and this `AUTOMATION_LOG.md` entry makes **4**. Each pushed and
+verified against the GitHub API.
+
+---
+
+## 2026-11-03 — the datum the ranked-first item wanted does not exist, the bound that replaces it excludes the repository's own value, and the screening conclusion turns out to be conditional
+
+### 1. The ranked-first item is closed, and not the way it was posed
+
+11-02 ranked **RESOLVE THE `A` PAIRING** first, blocked on "a datum in the
+full text of arXiv:1801.03565 — the abstract page does not carry a
+mobility." The full text was reached today via
+`ar5iv.labs.arxiv.org/html/1801.03565`, cleanly, first attempt.
+
+**It contains no mobility value anywhere.** Mobility appears only as curves
+against `|n|` in Fig. 5 and as the proportionality of their Eq. 4; the only
+mobility statement in words is "at high temperatures, mobility increases
+with decreasing T, but become temperature-independent below 100 K"
+(Section III c).
+
+So the item **as posed is unresolvable from this source**. That is a
+definite finding, not another blocked fetch — the text is exhausted and must
+not be fetched again. It also **corrects 11-02's own advice**: that entry
+said "a copy of either PDF in the connected folder unblocks four items at
+once", and for Zion that is now wrong. A PDF would help only with **Fig. 5**,
+which is a different blocker.
+
+### 2. What is there instead, and it is strictly better
+
+Zion estimate the charged-acceptor density in the oxide beside **their own**
+channel: `N_A^(S) = C_ox·V_NP/e ≈ 1.5e12 cm⁻²`, with `C_ox = 1.15e-4 F/m²`,
+`V_NP ≈ 20 V`, `t = 300 nm`, `ε = 3.9` (Sections II and III a). That is a
+charged-impurity density for the **same sample** whose crossover density this
+repository has used as `N_CROSSOVER` since 10-30. So
+
+&nbsp;&nbsp;&nbsp;&nbsp;`κ = n_c/N_imp`
+
+is readable off **one** device, from **two** numbers, in **one** paper — no
+mobility, no Chen constant, no assumption that Zion's device resembles this
+one. All three of those were what made the 11-02 pairing the weakest link.
+
+### 3. The source's own two numbers disagree by 4.3 %
+
+Their `C_ox` reproduces **exactly** at their stated precision from `ε₀ε/t`.
+Their `N_A^(S)` does **not**: their own formula and inputs give **1.4362e12
+cm⁻²**, and 1.4362 does not round to 1.5 at any precision. Their "≈" is a
+rounding-**up**.
+
+The **recomputed** value is used, because it is smaller and therefore gives
+the **looser** bound — so the conservative choice is also the one that cannot
+manufacture §4's result. Both are reported and **D2 pins the disagreement**
+rather than silently adopting a side, which is the standing one-way-channel
+item's own prescription.
+
+### 4. `κ = 2.4` is excluded
+
+`N_A^(S)` is a **lower** bound on the charged-scatterer density for three
+reasons, all Zion's own: it is a **net** charge inferred from a compensating
+voltage, while scattering counts centres; their `N_t` oxide-defect density is
+acknowledged and **never given a value**; and the film is transferred CVD.
+Hence `N_imp ≥ N_A^(S)` and
+
+&nbsp;&nbsp;&nbsp;&nbsp;**`κ ≤ 2.089`** (recomputed), or `≤ 2.000` at Zion's rounded figure.
+
+11-02's `κ = 2.4` exceeds the conservative bound by **14.9 %**. Not
+uncertain — **excluded**. The direction is the one 11-02 itself flagged as
+its risk, so this is a flagged failure mode occurring and being quantified.
+
+**D11 mutates the inequality**: read `N_A^(S)` as an *upper* bound and the
+verdict reverses. The exclusion therefore rests on the three reasons above,
+not on the arithmetic, which is identical either way.
+
+**By-product: the mobility the paper never prints, bounded by its other two
+numbers.** `μ_L,Zion ≤ 0.348 m²/Vs = 3481 cm²/Vs`. An ordinary
+long-range-limited value for transferred CVD monolayer on 300 nm SiO₂, which
+is the only external check available and which it passes. The repository had
+paired `gfet.mu = 0.4 m²/Vs` onto Zion's device: **15 % too generous**, the
+same 14.9 % from the other side.
+
+### 5. What moves, and nothing reverses
+
+| quantity | 11-02 | corrected | change |
+|---|---|---|---|
+| `n_c` at `N_imp,ref` (e12 cm⁻²) | 3.0000 | 2.6111 | −12.96 % |
+| `ΔV_c`, 10 nm HfO₂ (V) | 0.2171 | 0.1890 | −12.96 % |
+| `M`, HfO₂ at 1 V, dirtiest case | **1.0965** | **1.2598** | +14.89 % |
+| `N_imp*`, HfO₂ at 1 V (e12 cm⁻²) | 5.7566 | 6.6140 | +14.89 % |
+| `N_imp*`, 90 nm SiO₂ at 5 V (e12) | 0.4989 | 0.5732 | +14.89 % |
+
+Every **ratio** is bitwise unchanged (D8), which is 11-02's D5 collected on a
+correction it did not anticipate. The one 11-02 conclusion that was
+*marginal* — a top-gated device at **1.10x** its own crossover at the dirty
+end of the HfO₂ range — becomes **1.26x**, and the deposition headroom goes
+from 12.7 % to 34.1 %. The correction moves the fragile verdict to safety,
+by replacing the weakest input rather than by widening a tolerance.
+
+### 6. The finding that outranks all of the above
+
+Zion read their `3e12 cm⁻²` off the **hole** branch (Section III c). DDM's
+(B1) applies **one** `n_c` to **both**. Written per branch with a split
+`n_c,e/h = n_c(1 ± s/2)`, the bracket factorises at `s = 2r₀` and the common
+`(1+|n|/n_c)` cancels out of the asymmetry ratio:
+
+&nbsp;&nbsp;&nbsp;&nbsp;**if `n_c,b ∝ μ_L,b`, then `r(n) = r₀` at EVERY density, exactly, and
+the asymmetry does not screen at all.**
+
+| branch split `s` | `r` at `\|n\|/n_c = 5.29` |
+|---|---|
+| 0 | 0.0160 — the shipped answer, `r₀` screened 6.2x |
+| 0.10 | 0.0580 |
+| `2r₀` = 0.20 | **0.1000 = `r₀` exactly: no screening** |
+
+So DDM's central **qualitative** conclusion — that density screens the
+electron-hole asymmetry away — rests entirely on the **neutral-defect channel
+being branch-symmetric while the charged channel is not**. That was never
+argued; it was made by writing a single `n_c`. And the symmetric case is not
+the safe default: `r₀` is derived from a beyond-Born cross-section ratio, a
+property of scattering off a potential of a given sign, and vacancies and
+grain boundaries are also potentials.
+
+A 20 % split moves `r` by **524 %**, and the endpoint is not a perturbation
+of the shipped answer but its **negation**. **This ranks above §§2–5**: they
+move absolute numbers by 13–15 %, this decides whether a conclusion of
+Chapters 3 and 4 holds at all.
+
+### 7. One check was wrong, and failed the same day it was written
+
+**D3 was written as "bitwise" and FAILED at 1 ulp on first run.** `(n_c/N_A)·N_A`
+rounds twice, so the exactness predicted is not available. It was **split,
+not loosened**: D3a asserts the 1 ulp floating point guarantees, D3b recovers
+bitwise exactness where it genuinely holds (`N_A` a power of two times `n_c`,
+`κ` exactly 4.0), isolating the double-rounding as the whole of D3a's 1 ulp.
+
+**Fourth consecutive session in which item 15 caught code written the same
+day**, and the pattern across those four is now consistent enough to state:
+**the checks that fail on first run are the ones predicting exactness**, and
+they fail by one or two ulp in a direction that is a theorem about rounding
+rather than a defect in the model. That is an argument for writing them.
+
+**16 checks, 16 passing**, six against values known exactly in advance. D9b
+checks §6's identity against `r₀` itself — known exactly *and independent of
+density*, which is what makes it a target rather than a band — worst **56
+ulp** over four `r₀` values and 401 densities.
+
+### 8. A figure was looked at, and the inspection paid again
+
+Second instance of the standing ~67-PNG item. The first render put two labels
+within ~20 px of a curve, in panels (b) and (c); both moved, re-rendered,
+re-inspected clean. **Two renders, two sessions, four label defects** — a hit
+rate that keeps arguing for the item. Inspection copy in
+`_review/2026-11-03-kappa_impurity_bound.png`, alongside 11-02's.
+
+### 9. The result reached the chapters
+
+11-02's item **`n_c(N_imp)` SHOULD REACH THE CHAPTERS** is discharged, and the
+survey found the gap narrower and sharper than the item assumed: **Chapter 3
+does not mention `n_c` at all**, and in Chapter 4 the claim lives in exactly
+one place, §4.11.5. New **§4.11.5a** annotates it in place — the superseded
+`3e12` left standing — on both counts: the number is ≥13 % high, and "dies off
+as the long-range impurity potential screens" is conditional on §6's
+unexamined assumption. **§7.9 items 24 and 25** record the branch-split
+question (ranked first in that chapter) and the closure of the pairing, with
+the note that §7.5's failure taxonomy **has no class for it**: it is not a
+claim that failed but a question that was mis-posed.
+
+### 10. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G) for the **eighth** consecutive
+session; `git clone` failed outright at **1.7 M** free, as on 11-02. Clone to
+`/tmp` on `/dev/sda1` (3.5 G free) with `TMPDIR=/tmp/piptmp` for pip.
+
+**New `/tmp` gotcha, and it cost a confusing minute.** `/tmp` is sticky and
+shared between sessions: `mkdir -p /tmp/gwork` **succeeded** against a
+directory left by 11-02's session and owned by another uid, and the very next
+write failed `Permission denied` — which reads as a disk problem and is not.
+**Use a uid-qualified scratch path** (`/tmp/gw-$(id -u)`). The sibling
+repository hit and recorded the same thing today.
+
+`scipy` 1.15.3 installed in ~3 s with `--no-cache-dir --target`; numpy 2.2.6,
+matplotlib 3.10.9, `MPLCONFIGDIR=/tmp/mplcache_1103`. Each commit pushed as it
+landed rather than batched.
+
+**Not yet covered (candidates for future runs):**
+
+- **IS `n_c` BRANCH-DEPENDENT?** — created today, §6, **ranked first**, and it
+  displaces everything below because it is the only open item that can
+  overturn a *qualitative* conclusion rather than move a number. **Blocked on
+  reading the ELECTRON branch's transition density off Zion Fig. 5** — the
+  same picture the *lower bound on ℓ* and *`Δ_c` for the chemisorbed metals*
+  items already need, so **one figure read discharges three items**. That is
+  now the cheapest high-value unblocking action available to a human reader,
+  displacing 11-02's full-text-fetch suggestion, which is closed.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02,
+  ranked second. Today's correction does not touch it: it moves `A`, and this
+  item asks whether `A` is gate-stack-dependent at all. Still blocked on a
+  literature datum separating the two channels for HfO₂-topped graphene.
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  created today, §3. The `V_NP ≈ 20 V` is read from a saturation curve; if the
+  true value is 20.9 V their quoted density is right and the bound tightens to
+  exactly 2.000. Same figure-reading blocker as the ranked-first item, and it
+  would come free with it.
+- **REGISTER THE THREE `UNMEASURED` TRANSCRIPTS** — carried from 10-28, and
+  today adds `kappa_impurity_bound_output.txt`, so `UNREGISTERED` grows again.
+  The sibling repository added **four** today from its own direction.
+- **`run_suite` SHOULD READ THE OBJECT STORE, NOT THE WORKING COPY** — carried
+  from 10-28. One change (`git show <commit>:<path>`) moves six of nine
+  `SELF_WRITING` rows and removes the circularity.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — carried from 10-29,
+  mechanical, still unregistered.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29. Today is the **fifth**
+  instance and the most expensive yet: 11-02's "a PDF unblocks four items"
+  was wrong about Zion and nothing would have caught it except trying.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, and today is an **eighth** argument: D3's 1-ulp failure was
+  diagnosable in one reading only because the detail string carried both
+  floats.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~68 PNGs, **two now
+  inspected** (§8), four defects found in two attempts.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii); today's D5 and D8 are a **seventh** worked precedent for the shape.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **twelfth** instance (D4's 1.9 control, D11's flip).
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. §7 is a **fourth**
+  consecutive session of it catching same-day code, now with a stated pattern.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **twelfth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both blocked on Huard Fig. 4 / Zion Fig. 5, and both now
+  **joined to the ranked-first item by the same picture**.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **sixteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **seventeenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twentieth** session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-fifth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-third** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-second**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-third** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-third** session, and §6 makes it **sharper and more urgent**: if
+  `n_c` is branch-dependent then the hole-branch sign question and the
+  screening question are the same question.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and **passed over again today**, deliberately and in favour of the
+  ranked item. §7.2 already handles the retracted form of the tension; what is
+  still unwritten is the four-strand process synthesis. Chapter 6 beyond §6.8
+  and this synthesis remain the largest writing gaps, with **no chapter
+  undrafted**.
+
+**Commits this run:** 3 before this entry (the `κ` bound module with its
+inspected figure and transcript; the chapter annotations; the notes file), and
+this `AUTOMATION_LOG.md` entry makes **4**. Each pushed and verified against
+the GitHub API.
+
+## 2026-11-04 — the audit was reading the file it had just written, and the first row that read unblocked had been stale for eight sessions
+
+### 0. This entry was written by a later firing than the work it describes
+
+The three commits below landed at 14:53–14:56 UTC. **No log entry was
+appended and the sibling repository was never touched**, so the session was
+cut off between its last code commit and its bookkeeping. The 19:30 firing
+found `git log --since=midnight` non-empty and `AUTOMATION_LOG.md` with no
+`2026-11-04` heading — the "interrupted part-way" case — and completed the
+entry rather than starting new physics work on top of three commits that were
+already a full day's worth.
+
+**Nothing here is reconstructed from the commit messages alone.** §3's
+byte-identity was re-measured today in a fresh pristine clone, out of band,
+and the numbers in §§1–2 are read out of the committed transcript.
+
+### 1. `run_suite` reads the object store — the standing item from 10-28, discharged
+
+Section 2 used to read each committed transcript out of the pristine clone's
+**working tree**. Sound for a transcript captured by shell redirection;
+**circular** for one the module writes itself, because the suite's own run
+overwrites the file moments before it is read, so the comparison is
+`stdout == stdout` and **can only ever return IDENTICAL**. Nine transcripts
+carried a `SELF_WRITING` exclusion for exactly that reason, and the exclusion
+was *correct given the read*.
+
+`read_committed_blob` reads the blob at the resolved commit instead — bytes,
+not text, and deliberately not through the `git()` wrapper, which strips its
+output and therefore cannot carry a byte-for-byte comparison. The object store
+is immutable, so the circularity is removed at the root rather than sequenced
+around.
+
+### 2. The change was adjudicated against the read it replaces, not asserted over it
+
+New **Section 2b**, because a replacement read owes two things: agreement with
+the old read everywhere the old read was sound, and disagreement *somewhere*,
+or it changed nothing.
+
+| check | result |
+|---|---|
+| **E1** 39 suites that do not write their own transcript | **0 differing bytes** — exact, not a tolerance |
+| **E2** a registered self-writing suite whose transcript the run had overwritten | 1 (`import_binding_sweep`), plus 3 rewritten *identically* — which the old read could not tell from soundness |
+| **E3** every changed verdict is the **stricter** one | 1 changed, `IDENTICAL → STALE` |
+
+E1 is the overlapping-limit check the standing rules ask for, and it is
+available **exactly** here rather than as a band: a pristine checkout of a
+commit and that commit's blobs are the same bytes, so any nonzero difference
+would mean the clone is not pristine. E3 is signed — a read that disagreed by
+being *more lenient* fails it rather than passing it.
+
+### 3. The row the new read unblocked first was stale, and in the direction that hides work
+
+`import_binding_sweep_output.txt`: **IDENTICAL** through the working tree,
+**STALE** through the object store. Regenerated 2026-10-27 by the session that
+regenerated every transcript in the tree; 28 commits later it described a
+repository with **71 modules where the tree has 76**.
+
+| claim | transcript | tree |
+|---|---|---|
+| modules parsed | 71 | **76** |
+| `import M as a` aliases (SAFE) | 124 | **136** |
+| modules imported | 57 of 57 | **61 of 61** |
+| transitive (renaming) aliases | 16 | **18** |
+| static / runtime / agreed edges | 195 / 212 / 195 | **197 / 214 / 197** |
+
+**The two missing transitive rows are the 11-03 kappa module's own:**
+
+&nbsp;&nbsp;&nbsp;&nbsp;`graphene_kappa_impurity_bound.KAPPA_ILC ← graphene_impurity_limited_crossover.KAPPA`
+&nbsp;&nbsp;&nbsp;&nbsp;`graphene_kappa_impurity_bound.N_C_ZION ← graphene_density_dependent_mobility.N_CROSSOVER`
+
+— precisely the renaming rebindings this sweep exists to find, in precisely
+the module whose numbers 11-03 had to correct. A reader asking whether
+yesterday's `κ` bound rebinds anything under a new name would have read this
+transcript and found **nothing**; the answer is **two**. Same failure mode as
+10-27's nineteen-day false claim: the artefact **understating** the tree, which
+hides work, rather than overstating it, which makes noise.
+
+It was committed **STALE first** (`082fc63`) and repaired after (`1e81a2c`) —
+the 10-17/10-18 precedent for registering a row while it is red, so the repair
+has a BEFORE state to be measured against. The sweep itself was never
+defective: its numbers today are correct and self-consistent. **The defect was
+that nothing read the committed one.**
+
+**Verified today, out of band:** a fresh pristine clone at `1e81a2c` runs
+`graphene_import_binding_sweep.py` and `cmp` against `git show
+1e81a2c:import_binding_sweep_output.txt` reports **byte-identical**. So the
+repair holds — but see the ranked item below: the audit's *own* committed
+transcript is the BEFORE state and still prints `STALE 10`.
+
+### 4. "Six of nine" was an estimate; four is a stopwatch
+
+The standing list has said since 10-28 that one change "moves six of nine
+`SELF_WRITING` rows". **Each of the six was timed in a pristine clone today
+and only four can move:** `default_flip` 1.3 s,
+`contact_argument_blast_radius` 3.1 s, `import_binding_sweep` 9.3 s,
+`diffusion_current` 18.6 s. `diffusion_mutation` (>80 s) and
+`perfect_contact_counterfactual` (119.7 s) are over the one-call budget as
+surely as the three rows 10-27 measured, so they keep an exclusion — with the
+**reason changed to `OVER_CAP`**, since `SELF_WRITING` no longer excuses
+anything. Six came off the exclusion table; four came off a clock. Same shape
+as 10-27's "18 rows against roughly 40" against a real 49 / 17.
+
+### 5. The coverage census is green for the first time since it was written
+
+| | 10-28 → before today | after |
+|---|---|---|
+| committed `*_output.txt` | 54 | 54 |
+| registered in `SUITES` | 35 | **43** |
+| excluded **with a reason** | 14 | **11** |
+| `UNACCOUNTED` | **5** | **0** |
+
+Four of the five `UNACCOUNTED` transcripts joined green — `impurity_limited_crossover`,
+`kappa_impurity_bound`, `branch_asymmetric_mobility`, `density_dependent_mobility`
+— each measured, each byte-reproducible. The fifth, `chapter_status_audit_output.txt`,
+gets a **new exclusion class rather than a row**: it prints every chapter's prose
+word count, so it goes stale the moment any session writes a sentence (**37686
+committed against a tree holding 38305**). `DRIFTS_BY_MEASUREMENT` is the honest
+name, and unlike `UNMEASURED` it is **not a promise to add a row later** — the
+remedy is to give that module a stable projection.
+
+Section 5 now **checks** the time budget instead of carrying it in prose:
+**130.0 s of a 180.0 s one-call cap, 50.0 s headroom**, and every
+cost-excluded module must be re-measured against the remaining budget. An
+exclusion whose reason is a number nobody recomputes is a declaration, which
+the 10-28 table itself calls the weak class.
+
+**Suite total: 22 passed, 2 failed**, against 16 / 3 before today. The two
+failures are the pre-existing `STALE` set (now **10**, with `import_binding_sweep`
+a newly *visible* member rather than a newly stale one) and the
+summary/exit-code disagreement. Neither is touched by this change, and
+neither is new.
+
+### 6. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G) for the **ninth** consecutive
+session, and `git clone` failed outright again — this time at **0 bytes**
+free. `du` over `/sessions` accounts for only 29 M of the 9.3 G, so the
+consumption is in sibling session directories this uid cannot read: **not
+something a session can clean up, and not worth another minute of trying.**
+Clone to `/tmp` on `/dev/sda1` (3.6 G free).
+
+11-03's uid-qualified-scratch gotcha was applied preemptively and held
+(`/tmp/pylibs_$(id -u)`, `MPLCONFIGDIR=/tmp/mplcache_$(id -u)`,
+`TMPDIR=/tmp/piptmp_$(id -u)`); `scipy` 1.15.3 installed in ~4 s with
+`--no-cache-dir --target`, numpy 2.2.6, matplotlib 3.10.9. **One new wrinkle:**
+matplotlib's *default* config path is under `$HOME`, so on a full `/sessions`
+the import emits an `Errno 28` warning and silently relocates its cache —
+harmless, but it reads like a failure in the middle of unrelated output.
+Set `MPLCONFIGDIR` before the first import and it never appears.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-RUN THE AUDIT SO ITS OWN CENSUS SEES THE REPAIR** — created today,
+  **ranked first**, and it is cheap, mechanical and blocked on nothing. The
+  committed `pristine_transcript_audit_output.txt` is deliberately the BEFORE
+  state: it prints `STALE 10` and `22 passed, 2 failed` at a commit whose
+  successor fixed one of those ten. Today verified the repaired module
+  byte-identical **out of band**, with `cmp` in a throwaway clone — which is
+  evidence, but it is not the audit's own measurement, and the distinction is
+  exactly the one this repository keeps insisting on. Expect `STALE 9`. If it
+  is anything else, that is the finding.
+- **IS `n_c` BRANCH-DEPENDENT?** — carried from 11-03, where it was ranked
+  first, and it keeps that standing among the *physics* items: still the only
+  open item that can overturn a **qualitative** conclusion rather than move a
+  number. **Blocked on reading the ELECTRON branch's transition density off
+  Zion Fig. 5** — the same picture the *lower bound on ℓ* and the *`Δ_c` form
+  for the chemisorbed metals* items need, so **one figure read discharges
+  three items**, and with the 11-03 discrepancy item below, four. Still the
+  cheapest high-value action available to a human reader.
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  carried from 11-03. If `V_NP` is really 20.9 V their quoted density is right
+  and the bound tightens to exactly 2.000. Comes free with the figure read.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02.
+  Blocked on a literature datum separating the two channels for HfO₂-topped
+  graphene.
+- **GIVE `chapter_status_audit` A STABLE PROJECTION** — created today, §5, and
+  it **replaces** the part of the 10-28 transcript item that today closed. A
+  module that prints prose word counts can never hold a transcript; one that
+  prints *chapter present / drafted / section count* can. Until then its
+  exclusion is honest but permanent, which is the thing `DRIFTS_BY_MEASUREMENT`
+  was named to admit.
+- **REGISTER THE THREE REMAINING `UNMEASURED` TRANSCRIPTS** — carried from
+  10-28 with its **scope corrected**: the five `UNACCOUNTED` are gone, and what
+  is left is exactly three mutation suites — `capture_surface_mutation`,
+  `installed_surface_mutation`, `value_read_mutation`. Each needs a
+  stopwatch, not an argument, and §5's 50.0 s headroom is the budget they
+  compete for.
+- **THE CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — carried from 10-29, and
+  today explains *why* in a way 10-29 could not: it is the same module as the
+  projection item above. These two should be done together or not at all.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29. Today is the **sixth**
+  instance: "six of nine" (§4) had been carried in the standing list for seven
+  sessions and was wrong by a third, and nothing but trying it with a clock
+  would have caught that.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, **ninth** argument: Section 4's `STALE 10` names its ten members, and
+  that is the only reason §3 above could be written at all.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~68 PNGs, two
+  inspected, four label defects found in two attempts.
+  `import_binding_sweep.png` was regenerated today from the corrected census
+  and **was not inspected** — the first figure to go in uninspected since the
+  item was created.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii). Today's E1/E3 are an **eighth** worked precedent: a verdict indexed by
+  *which read produced it* is the shape, and Section 2b is it in miniature.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25, and the module count moving 71 → 76 (§3) means this number is itself
+  probably stale.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **thirteenth** instance: §3's C1–C6 and §5's C5.1–C5.3 both
+  plant their inputs, and C5.2 is the rare *refutation* control.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. **Not exercised today**,
+  which breaks a four-session streak of it catching same-day code; today's new
+  checks are byte comparisons and set arithmetic, which have no tolerance to
+  audit. Worth noting as the reason rather than as a lapse.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **thirteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same picture.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17,
+  and today is the sharpest instance yet in a different key: a module must not
+  *read the file it writes*. Same disease, one level up.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **seventeenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **eighteenth** session, and §3 is now a concrete argument for it: the
+  two rebindings the stale transcript was missing are of exactly this kind.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-first**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-sixth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-fourth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-third**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-fourth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-fourth** session, and 11-03's §6 still makes it the same question
+  as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+- **CHAPTERS 2 AND 3 ARE UNDRAFTED** — the largest block of pure writing in
+  the repository, with their computational results complete. **Passed over
+  today by circumstance rather than by choice**, since the session that ran
+  was an infrastructure session that never reached the writing step.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and passed over for the same reason. §7.2 handles the retracted
+  form of the tension; the four-strand process synthesis is still unwritten.
+  With Chapter 6 beyond §6.8, these remain the largest writing gaps.
+
+**Commits this run:** 3 code/artefact commits at 14:53–14:56 UTC, each pushed
+and verified against the GitHub API by the session that made them, and this
+`AUTOMATION_LOG.md` entry — written by the 19:30 firing — makes **4**.
+
+---
+
+## 2026-11-05 — the ranked item discharged its prediction exactly, and both instruments it touched turned out to be red or blind for reasons that had nothing to do with the physics
+
+Three pieces of work, all of them in the instrument layer, and the second and
+third were not planned: each was found by running the first.
+
+### 1. The ranked-first item, discharged, and its prediction was exact
+
+The 11-04 list ranked first: **re-run the audit so its own census sees the
+repair.** The committed `pristine_transcript_audit_output.txt` was deliberately
+the BEFORE state — it printed `STALE 10` and `22 passed, 2 failed` at a commit
+whose successor had already repaired `graphene_import_binding_sweep`. 11-04
+verified that repair out of band, with `cmp` in a throwaway clone, and said so:
+evidence, but not the audit's own measurement.
+
+It is now the audit's own measurement. **Predicted `STALE 9`; got `STALE 9`,**
+and the named membership settles which one left:
+
+```
+STALE  9  attribute_default_capture, dead_name_sweep, figure_provenance_audit,
+          frozen_default_semantics, log_sensitivity_step_audit,
+          mixed_capture_repair_audit, mutation_arrival_probe,
+          potential_census_audit, standing_list_audit
+```
+
+`import_binding_sweep` is off the list; the other nine are the same nine.
+That is **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** paying for
+itself a tenth time — a count moving 10 → 9 is consistent with one leaving and
+one arriving, and only the membership excludes that.
+
+### 2. E2 went red because the repository got healthier
+
+The same run turned up a failure the item did not predict. **E2** — "at least
+one registered self-writing suite has overwritten its transcript in the clone,
+so the old read would have been circular" — **FAILED**, where 11-04 counted it
+among that day's 22 passes. Its evidence line says why: *every registered
+self-writing suite rewrote its transcript byte-identically.*
+
+Nothing broke. E2 passed on 11-04 because some self-writing suite's output was
+drifting that day, and failed on 11-05 because none is. **Its pass condition
+requires the tree to be unhealthy.** E2's own comment states the reasoning it
+was built on — "if none of them differ, the repair is cosmetic and this check
+says so" — and that reasoning is wrong in a specific way: the circularity the
+object-store read removes is **structural**. The old read compared a transcript
+against a file the suite's own run had just written, whether or not those bytes
+happened to differ. Whether they differ is a property of the day. `E1` is what
+shows the new read is a read of the same thing (39 transcripts, 0 differing
+bytes, **exact**); `E3` is what shows a disagreement, where there is one, is
+adjudicated in the strict direction. Neither needs a drifting tree.
+
+So E2 is recast, and the superseded comment is annotated in place rather than
+deleted:
+
+- the occurrence is **reported and not scored** — `E2r`, `CONFIRMED` /
+  `NOT_EXERCISED`. Today it reads `NOT_EXERCISED`, 4 suites rewriting
+  byte-identically, which is what a healthy tree looks like.
+- the possibility it guards against is established by **planting both
+  branches** instead of waiting for one to arrive: `E2c1` the predicate is
+  TRUE on bytes differing by one word, `E2c2` FALSE on byte-identical input.
+  Both exact, both independent of repository state — which is precisely what
+  the 11-04 form lacked.
+- `E2` itself now checks the one requirement that survives and **can still
+  fail for a real reason**: that every suite registered self-writing actually
+  leaves its transcript behind, so the predicate has something to read. 4 such
+  suites, all present.
+
+Validated against a value known before the change: **the `STALE` census must
+not move.** It does not — `STALE 9`, same nine names, byte-identical census
+line before and after. Totals **21/3 → 24/2**, and the two standing failures
+(the summary/exit-code disagreement, and `STALE` being nonzero at all) are
+untouched.
+
+### 3. The revival detector was matched on a phrase, and the 11-04 list walked straight past it
+
+`graphene_standing_list_audit.py` is in the `STALE 9`, so it got read. `A1`'s
+trigger required the literal word **"still"**. The 11-04 list carries:
+
+> **CHAPTERS 2 AND 3 ARE UNDRAFTED** — the largest block of pure writing in the
+> repository, with their computational results complete.
+
+That is `A1`'s assertion exactly, in a wording **one word shorter**, and the
+trigger does not match it. The row read `CLEARED`, `R2` and `R4` passed green,
+and the item this module was created on 2026-10-18 to catch sat at the bottom
+of the live list for a day with the instrument reporting no fault.
+
+**And it is false.** Chapter 2 was drafted 2026-09-28 (`5bbd5f3`, eleven
+sections) and Chapter 3 on 2026-09-29 (`c1d5abc`, ten sections). Both are in
+the tree — 3811 and 3938 words, each with a correction-of-record section and
+follow-on items of its own. The list has now described **five-week-old
+committed writing** as the largest remaining writing block, for the **second**
+time, **17 days after a module was built for the first time.**
+
+The repair:
+
+- `A1_TRIG` is **one** module-level constant read by both the `BASELINE` row
+  and Section 3. They were two separate regexes and had **already drifted apart
+  from each other** — the row's lacked the en-dash alternative, Section 3's
+  lacked `&`. Two spellings of one predicate, again.
+- It matches `(?:are|remain)(?:\s+still)? undrafted`, i.e. the **assertion**
+  rather than a phrasing. `A1_TRIG_PRE_1105` is kept, unused by the audit, as
+  the control's reference.
+- `PLANT_LOG_REWORDED` carries the 11-04 bullet **verbatim**, so the escape
+  cannot be re-introduced by a later regex edit without a control going red.
+
+Four controls, every answer known before the code ran:
+
+| id | claim | verdict |
+|----|-------|---------|
+| `P5d` | the 11-04 wording **is** matched by the broadened trigger | PASS |
+| `P5e` | and was **not** matched by the pre-11-05 trigger | PASS |
+| `P5f` | the "still" wording matches **both**, so this is a superset, not a replacement | PASS |
+| `P5g` | end to end — the reworded plant classifies `A1` `REVIVED` | PASS |
+
+`P5e` is the load-bearing one: it is the measured reason `R2`/`R4` were green
+on 11-04 with the item live. Against the live 11-04 list the module now exits
+1, `A1 = REVIVED`, and Section 3's revival history grows from four entries to
+**five**: 10-17, 10-26, 10-27, 10-28, **11-04**. `V1`–`V3` still pass on the
+same evidence. **22/0 → 24/2.**
+
+### 4. A fragility found and deliberately not fixed
+
+`revivals()` computes "`trig` later than the **last** `antitrig` entry". So a
+single later entry carrying the corrected wording **erases every earlier
+revival from the record** and would flip `V2`/`V3` red. Today's entry therefore
+words its chapters-2-and-3 bullet the way the 10-18..11-03 entries did —
+matching neither regex — rather than as "chapters 2 and 3 are drafted". That
+the instrument constrains how this entry may be written is itself the finding,
+and it goes on the list below rather than being patched in the same session
+that discovered it.
+
+### 5. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G) for the **tenth** consecutive
+session; `mkdir` itself failed at 0 bytes free. `du` accounts for 29 M of the
+9.3 G, the rest being sibling session directories this uid cannot read — still
+not something a session can clean, and still not worth a minute. `/dev/sda1`
+had 3.3 G free and all work was done there.
+
+**Two new wrinkles, both costing a call:**
+
+1. **`/tmp/gwork` from the 11-04 run is owned by `nobody:nogroup` and this
+   session's uid cannot delete it.** The device VM hands out a different uid
+   per session, so the conventional scratch path is **not reusable across
+   runs** — `rm -rf` fails file by file. Use a uid-qualified scratch root
+   (`/tmp/gwork$(id -u)` or similar), the same lesson 11-03 learned for
+   `pylibs`/`mplcache`/`piptmp`, one directory level up.
+2. **A `nohup ... &` background job does not survive the end of a
+   `device_bash` call.** The PID was reported, the call returned, and the next
+   call found the process gone and the output file at 0 bytes. The audit was
+   run in the foreground under `timeout 172` inside a 180 s call instead, which
+   worked — Section 2 is ~130 s and the whole module ~150 s, so it fits, but
+   with little margin.
+
+`scipy` 1.15.3 installed in ~4 s with `--no-cache-dir --target`; numpy 2.2.6,
+matplotlib 3.10.9. `MPLCONFIGDIR` set before first import, and the `Errno 28`
+warning 11-04 described never appeared.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-RUN `graphene_standing_list_audit.py` AFTER THIS ENTRY LANDS** —
+  created today, **ranked first**, cheap, mechanical, blocked on nothing, and
+  it comes with a **prediction to falsify**: this entry's bullet below matches
+  neither regex, so the re-run should show `A1 = RETIRED`, `R2`/`R4` green,
+  exit 0, and the revival list unchanged at five entries including 11-04. The
+  module reads the log it is committed beside, so it will be stale again by
+  exactly one entry date and should **stay** in the pristine census: expect
+  `STALE 9`, **not** 8. **If it reads 8, the self-reading structure is not what
+  §3 says it is.** This is the same shape as the item discharged in §1, and §1
+  is the argument that the shape works.
+- **`revivals()` ERASES ITS OWN HISTORY** — created today, §4. The "last
+  antitrig" rule means one corrected entry wipes every prior revival. The fix
+  is to compare each `trig` entry against the last `antitrig` **before it**,
+  not the last one overall, which makes the verdict a property of the entry
+  rather than of the file's end. Mechanical, and the only reason today's
+  wording had to be chosen carefully.
+- **CHAPTERS 2 AND 3** — the undrafted wording **stays retired as false**;
+  `A1` is the row that carries it, and §3 is now the **second** measured
+  revival. Both chapters are drafted (09-28, 09-29), 3811 and 3938 words. What
+  is genuinely outstanding in them is named in their own follow-on sections —
+  a finite-temperature `n(E_F, T)` for §2.7, the angular `cos 3θ` structure of
+  trigonal warping, and whether `t'` can be *excluded* quantitatively as
+  Chapter 4's electron–hole asymmetry — not "drafting".
+- **IS `n_c` BRANCH-DEPENDENT?** — carried from 11-03 and 11-04, still the
+  first-ranked *physics* item and still the only open item that can overturn a
+  **qualitative** conclusion. Blocked on reading the ELECTRON branch's
+  transition density off Zion Fig. 5 — the same figure the *lower bound on ℓ*,
+  the *`Δ_c` form for the chemisorbed metals* and the 1.4362-vs-1.5 item need,
+  so **one figure read discharges four items**. Still the cheapest high-value
+  action available to a human reader.
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  carried. If `V_NP` is really 20.9 V the bound tightens to exactly 2.000.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02,
+  blocked on a literature datum separating the two channels.
+- **GIVE `chapter_status_audit` A STABLE PROJECTION** and **THE CHAPTER-STATUS
+  CHECK IS NOT IN `SUITES`** — both carried from 11-04, the same module, to be
+  done together or not at all. A module printing prose word counts can never
+  hold a transcript; one printing chapter present / drafted / section count
+  can. §3 is a **new argument** for it: a chapter-status *check* in `SUITES`
+  would have caught the 11-04 revival from the other direction, without
+  needing any regex to be right.
+- **REGISTER THE THREE REMAINING `UNMEASURED` TRANSCRIPTS** — carried,
+  `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`. Each needs a stopwatch, not an argument, and the
+  ~30 s of headroom §5 measured is the budget they compete for.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29. Today is the
+  **seventh** instance and §2 and §3 are both of it: neither E2's miscasting
+  nor A1's blind trigger was deducible from the list, and nothing but running
+  the thing found either.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, **tenth** argument, and §1 is the cleanest one yet: the membership
+  line is the entire reason 10 → 9 could be read as a repair rather than as a
+  swap.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~68 PNGs, two
+  inspected, four label defects found in two attempts. No figure was
+  regenerated today, so nothing went in uninspected.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii). `E2r` is a **ninth** worked precedent and the purest one so far: a
+  verdict indexed by *whether the condition it reports on occurred*, scored
+  nowhere.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25; 11-04's 71 → 76 module count means the 67 is itself probably stale.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing. §3's one-constant-two-readers repair is
+  the same operation on a different object and a direct precedent.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **fourteenth** instance: `E2c1`/`E2c2` and `P5d`–`P5g`, six
+  planted controls across two modules, and `P5e` is the rare one that plants a
+  **negative** — the thing that *failed* to match.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. Not exercised again
+  today, and for the same reason as 11-04: today's new checks are byte
+  comparisons and regex matches, which have no tolerance to audit.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **fourteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same picture.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17,
+  and §3 is the sharpest instance yet in yet another key: a module must not
+  **match on a phrasing of the thing it censuses**. Same disease, one level
+  further out.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **eighteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **nineteenth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-second**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-seventh** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-fifth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-fourth**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-fifth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-fifth** session, same question as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried. §7.2 handles the retracted form of the tension; the four-strand
+  process synthesis is still unwritten, and with §3 having removed the bogus
+  chapters-2-and-3 item from contention, **this is now the largest genuine
+  writing gap in the repository.** Passed over today because all three pieces
+  of work were in the instrument layer, which is a choice rather than an
+  accident and is recorded as one.
+
+**Commits this run:** 5 before this entry — the regenerated pristine
+transcript (§1, §2), the E2 recast, its transcript, the `A1_TRIG` broadening
+with four planted controls (§3), and its deliberately-red transcript — and this
+`AUTOMATION_LOG.md` entry makes **6**.
+
+## 2026-11-06 — the ranked item's prediction held on both halves, the same run found the census calling a crash a stale transcript and its own failures a success, and then two of today's own new checks turned out to assert coincidences
+
+Six commits, all in the instrument layer again. The first was the ranked item.
+Everything after it was found by running the first — and the last two are
+defects **in checks written earlier the same session**, both caught only by
+running the suite against this entry before committing it.
+
+### 1. The ranked-first item, discharged, and both halves of the prediction held
+
+The 11-05 list ranked first: **re-run `graphene_standing_list_audit.py` after
+that entry lands**, with a prediction in two parts. Part one: the entry's own
+chapters-2-and-3 bullet matches neither regex, so `A1` should read `RETIRED`,
+`R2`/`R4` should be green, exit 0, and the revival list should be unchanged at
+five entries including 11-04. Part two: the module reads the log it is
+committed beside, so its transcript is stale again by exactly one entry date
+and the pristine census should still read **`STALE 9`, not 8** — "if it reads
+8, the self-reading structure is not what §3 says it is".
+
+Both held. **24/2 → 26/0.** Against the committed transcript the diff is
+exactly four things: the latest-entry line 11-04 → 11-05, the `A1` row
+`REVIVED` → `RETIRED`, and `R2`/`R4` `FAIL` → `PASS`. Nothing in Section 3
+moved. And the census, run at `94b019c` with a **clean tree** — `tracked files
+modified in the WORKING TREE : 0`, where the 11-05 run had 1 — read `STALE 9`
+with `graphene_standing_list_audit.py` in the set at `line count 115 -> 116`.
+Membership identical to 11-05's, not merely the count, which is the thing the
+standing membership item has been asking for since 10-25.
+
+That census (`4220acd`) is committed **before** any of today's repairs, so the
+pre-repair reading stays on the record rather than being reconstructed from
+this entry.
+
+### 2. The census was reporting a crashed suite as a stale transcript
+
+The same run printed two rows the prediction did not name. The first:
+
+    graphene_mixed_capture_repair_audit.py   STALE   1.1s   line count 153 -> 158
+
+against 11-05's
+
+    graphene_mixed_capture_repair_audit.py   STALE   0.0s   line count 153 -> 5
+
+The 11-05 row was **not a stale transcript at all.** That suite printed its
+four banner lines and died on `ModuleNotFoundError: No module named 'scipy'`,
+raised from `graphene_contact_doping_model.py`, an import three modules deep.
+Reproduced today in a pristine clone at `94b019c` with scipy off the path:
+stdout is exactly the four banner lines, **five by `split("\n")`** — which is
+the `-> 5` the census printed — and the exit code is 1. The literal bytes are
+now `CRASH_STDOUT_NO_SCIPY`, so the reproduction is a control and not a memory.
+
+**And the same run passed "no suite fails to complete in a pristine clone".**
+Two readings, one event, both wrong, in opposite directions.
+
+The cause is the 2026-10-16 amendment's blind side. That change rightly
+stopped discarding stdout on a nonzero exit — every suite here ends `return 0
+if failed == 0 else 1`, so a red guard is a nonzero exit by design, and C7 is
+its control. But the test it left behind for *did this run work at all* is
+`if not p.stdout`: **emptiness.** A suite that crashes before its first print
+is `ERROR`; a suite that crashes one line later has stdout, so it is compared,
+and the verdict then names the wrong object entirely. The transcript was fine.
+The run never happened.
+
+The two readings could not see each other. `STALE` fed a check that was already
+red for eight genuine rows, so this one rode along invisibly among them; the
+completion check reads only the `ERROR` bucket, which was empty, so it went
+green. A crash was reported as a documentation defect and as a clean bill of
+health simultaneously.
+
+The repair is a **mechanism-gated verdict**, which is the 2026-10-16 rule
+turned on itself: a suite here announces its own completion by printing
+`TOTAL: n passed, m failed`. New class `INCOMPLETE`, placed in
+`COMPLETION_FAULTS` — named once — so the completion check picked it up with
+no edit at the call site. The expectation is **self-calibrating**: it comes
+from the suite's *own committed transcript*, not from a hard-coded list of
+which modules print a summary, so a suite that never printed one makes no
+completion claim and is compared exactly as before (`C8e`). `SUMMARY_RE` is now
+one constant read by both this test and Section 5, which carried the regex
+inline — two spellings of one predicate has cost this repository two sessions
+already, and this one started as a constant rather than becoming one after the
+drift.
+
+Eight controls, `C8a`–`C8h`, every answer known before the code ran. `C8b` is
+load-bearing: it is the measured reason the 11-05 census called a crash a stale
+transcript.
+
+**Both of C8b's first two drafts failed, and neither failure was the code's.**
+The first built a committed-transcript fixture with the same line count as the
+crash stdout, so `classify()` never reached its line-count branch and reported
+`line 1 is not a numeric difference` instead of `line count N -> 5`; the
+control went red against correct code. The second miscounted ten trailing
+newlines as ten lines, when `split("\n")` gives eleven. The fixture now
+carries a **runtime assert** rather than a comment, and that assert is what
+caught the second one before it could go red for a third unrelated reason.
+Both drafts are recorded in place, as 11-05's `P5` was.
+
+### 3. The census was the one suite its own check exempted
+
+The second unpredicted row: the exit-code consistency check named **three**
+suites where 11-05's named two. The new one was
+`graphene_standing_list_audit.py` — *transcript claims 2 failed, suite exits
+0*. Every prior instance of that class ran the other way, a transcript claiming
+health for broken code; this one claims illness for healthy code, because
+11-05 committed a deliberately-red transcript one commit before the log entry
+that turned the module green. The check caught a direction **its own failure
+message does not describe**, and refreshing the transcript (`df84b5a`) cleared
+it while leaving the staleness row standing. The two instruments decouple
+there, and the decoupling is the information: one was reporting a deliberate
+act, the other a structural fact.
+
+Chasing that row down found something worse. Section 5 asks, of every
+registered suite, whether the transcript's pass/fail summary agrees with the
+suite's exit code — on the stated grounds that a transcript saying "0 failed"
+beside code that exits nonzero "is the exact state this repository shipped from
+2026-10-04 to 2026-10-15". `main()` of `graphene_pristine_transcript_audit.py`
+ended in a bare **`return 0`**.
+
+So the census exited 0 on every run, whatever it found, and its committed
+transcript has read `TOTAL: 24 passed, 2 failed` beside an exit code of 0 since
+at least 11-04 — the mirror image of the state the check exists to catch, in
+the file that does the checking. Measured, not inferred: two `FAIL`s printed
+and the shell's status variable read 0.
+
+**Nothing could see it, and the reason is a good exclusion overreaching.** The
+module is deliberately absent from `SUITES`, because auditing itself inside its
+own pristine clone would make its transcript a claim only it can check — the
+09-30 self-certification rule, still right. But that exclusion was being read
+as an exemption from *every* property, and this one needs no clone, no second
+run and no self-certification. It is the shape of one function's returns. An
+exclusion justified for one check had quietly acquired the authority of all of
+them.
+
+So the module is still not registered. `C9`/`C9b` ask the question of the
+source by **AST**: every `return` in `main()` must be the convention's
+conditional, none may be a bare constant, and the conditional must be on the
+`_FAIL` list this run actually appends to — a conditional on the wrong name
+would exit 0 while red and still pass the control.
+
+**AST and not a regex, and the regex is why.** A source-level pattern for the
+convention was written first and reported **27 of 43 suites violating it**,
+which is false: five suites were observed exiting nonzero on that very run. A
+measurement that contradicts a direct observation is the measurement that is
+wrong, so it is not reported here as a finding, and the honest consequence is
+that whether every *other* suite obeys the convention is **unmeasured** and
+goes on the list below as such.
+
+The census now reads **34 passed, 2 failed, exit 1**, and the exit code agrees
+with the transcript for the first time. The two standing `FAIL`s are the real
+ones.
+
+### 4. `revivals()` erasing its own history, and the wording that is now safe
+
+11-05's second-ranked item, created the same day and the reason that entry had
+to word its own chapters-2-and-3 bullet to match neither regex.
+
+The rule was "a trig entry strictly later than the **last** antitrig entry is
+a revival". `a[-1]` is the last corrected entry in the whole file, so the
+verdict was a property of the file's **end** rather than of the entry being
+judged: any future session writing *chapters 2 and 3 are drafted* — the true
+and correct wording — would have retroactively erased every earlier revival
+and flipped `V2`/`V3` red.
+
+Now a trig entry is a revival iff some antitrig entry **precedes** it, i.e. iff
+the item had already been corrected when that entry was written. The comparison
+is against the last corrected entry before the entry being judged, which is
+also the date the revival is a revival *of* — something the old rule could not
+name, holding as it did one date for the whole file. Section 3 prints the
+pairing, and all five revivals turn out to revive the **2026-10-06**
+correction. `revivals_pre_1106` is kept, uncalled by the audit, as the
+control's reference.
+
+`P9a`–`P9f`: `P9b`/`P9c` are the divergence on a four-entry plant whose answer
+is known by inspection (`[]` against `['2026-01-03']`); `P9d` is the hazard
+**on the real log** — append one correctly-worded entry and the superseded rule
+drops all five revivals; `P9e` is the new rule unmoved by that same append;
+`P9f` is the zero case, no correction anywhere so nothing to revive, both rules
+empty. `P9a` is discussed in §5: its first draft asserted the wrong thing.
+
+The first draft of these numbered them `P6a`–`P6f` and **collided with the
+existing `P6b`/`P6c`**, shipping a transcript with duplicate labels. Caught by
+listing the labels and checking for duplicates, which is now part of the
+pre-commit pass for this module.
+
+### 5. Two of today's own checks asserted coincidences, and this entry breaks both
+
+`V3` was amended to the entry-local invariant. Its old form,
+`min(revived) > max(a)`, **is the superseded rule's own statement**, and the
+first draft kept it as a `check()` — in the same commit whose docstring calls
+it a coincidence. Asserting a coincidence makes the suite go red the first time
+the coincidence breaks, for no finding, against this repository's standing rule
+that a permanently red check is one nobody reads.
+
+It breaks on the very next entry, and not hypothetically. **This entry words
+the chapters-2-and-3 item correctly** — which §4's repair is precisely what
+makes safe — so 2026-11-06 joins the corrected list, `max(a)` becomes
+2026-11-06, `min(revival)` stays 2026-10-17, and the old form reads `False`
+while all five revivals remain correctly recorded. A correct log entry would
+have turned a check red. `V3b` now prints its value and its reason and nothing
+is gated on it. **32/0.**
+
+**And then the same error turned up again, in `P9a`.** It asserted that
+`revivals()` and `revivals_pre_1106()` return the **same list** on the real
+log. That holds only while no corrected entry follows a revival — so this
+entry breaks it too: the superseded rule drops all five revivals, the current
+rule keeps them, and the suite read **31/1**.
+
+What is actually invariant is **containment**, and provably rather than
+empirically: `a` is built in entry order and the dates are ISO, so `a[-1]` is
+`max(a)`, and `d > max(a)` implies some element of `a` precedes `d`. So the
+current rule's result contains the superseded one's **for any log whatsoever**,
+and the repair can only ever *add* revivals, never drop one — which is the
+entire defect being repaired, and therefore the property worth gating on.
+Equality never was. `P9a2` splits out the rule-independent half (both rules
+read the same dates), because folding it into `P9a` was part of what made the
+old check look like an invariant. The live comparison is now printed with both
+counts and a divergence marker. **33/0.**
+
+Two instances of one error in one session, and the second was written *after*
+the first had been diagnosed. The shared shape: **a check whose expected answer
+is read off the current state of the file it audits.** Both were caught the
+same way — by running the suite against this entry before committing it, which
+is the one thing that distinguishes a prediction from a hope. Neither was
+visible in the diff.
+
+That is also the whole point of §4: for the first time since 10-18, this entry
+did not have to be worded around its own instrument. It is worded correctly,
+and the instrument was made to survive that rather than the wording bent to
+survive the instrument.
+
+### 6. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G) for the **eleventh** consecutive
+session, and `mkdir $HOME/work` failed at 0 bytes free before anything else
+ran. `du` accounts for 28 M of it; the rest is sibling session directories this
+uid cannot read. All work was done on `/dev/sda1` (3.6 G free) under
+`/tmp/gwork`, and 11-05's lesson about uid-qualified scratch paths was not
+needed because this session's uid differs from 11-04's and the old directory
+was not in the way — which is luck, not a fix, so the lesson stands.
+
+`scipy` 1.15.3 installed with `--no-cache-dir --target`, but it took **72 s**,
+not the ~4 s 11-05 measured. `numpy` 2.2.6, `matplotlib` 3.10.9,
+`MPLCONFIGDIR` set before first import. **§2 is the reason this matters**: the
+11-05 census ran its pristine-clone suites without scipy reaching them, and
+that is what the crash was. A session that skips the install does not get a
+quieter census; it gets a census that misreports.
+
+**Two new wrinkles, both in the harness rather than the repository:**
+
+1. **The device bridge dropped mid-session**, between the C8b repair and its
+   re-run, and did not return on the immediate retry. The session was parked
+   with a ten-minute self-check rather than abandoned, and `/tmp/gwork`
+   survived intact, as did the installed scipy — so a drop costs the current
+   call and nothing else, provided the work is on disk and not only in flight.
+   The uncommitted C8b edit was the one thing lost, and it was re-applied from
+   the session's own record of it.
+2. **While the bridge was degraded the per-call timeout cap fell from 180 s to
+   45 s.** The census is ~90 s and does not fit in 45 s, and 11-05 had already
+   recorded that a `nohup ... &` background job does not survive the end of a
+   call — so there is no way to run it at all under that cap. The cap returned
+   to 180 s when the bridge recovered and the run proceeded, but a session that
+   begins in the degraded state cannot run the census and should do the cheap
+   mechanical items instead of discovering this halfway through.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-RUN `graphene_standing_list_audit.py` AND THE CENSUS AFTER THIS ENTRY
+  LANDS** — **ranked first**, cheap, mechanical, blocked on nothing, and it
+  carries three predictions to falsify. (i) Section 3 should report **seven**
+  corrected entries — 2026-10-01..10-06, which is six, and **2026-11-06** —
+  still exactly **five** revivals, each paired against 2026-10-06, `V3` green,
+  `V3b` reading **`False`**, and the rule-comparison line reading *superseded
+  0 revivals, current 5* with the divergence marker. The count is written out
+  because the first draft of this bullet said six, having added 2026-11-06 to
+  a six-entry range and not re-counted. If the revival count moves off five, §4's repair is not
+  what `P9e` says it is. (ii) `A1` should read `RETIRED`: this entry asserts
+  the chapters are **drafted**, which is the anti-trigger, not the trigger.
+  (iii) The census should go back to **`STALE 9`**, not stay at 8 — today's
+  8 is an artefact of refreshing the standing-list transcript and this entry
+  re-stales it by one entry date. **Reading 8 would mean the self-reading
+  structure has changed.**
+- **CENSUS EVERY CHECK WHOSE EXPECTED ANSWER COMES FROM THE LIVE LOG** —
+  created today, and §5 is two instances of it in one session (`V3b`, `P9a`).
+  The shape is a `check()` whose truth depends on the current contents of the
+  artefact being audited, which makes a correct future edit indistinguishable
+  from a defect. Both repairs took the same form: gate on an invariant, print
+  the contingent value. Mechanical to census — every `check()` in this module
+  and in `graphene_pristine_transcript_audit.py` whose condition reads
+  `logtext`, `seen`, or anything derived from them — and ranked above the
+  exit-code census below because it has two worked instances rather than none.
+- **DOES EVERY OTHER SUITE OBEY THE EXIT-CODE CONVENTION?** — created today,
+  **unmeasured**, and §3 is explicit that the one attempt to measure it was
+  wrong. The instrument is an AST census over `SUITES` of the form `C9` uses
+  on itself, not a source regex. Five suites were *observed* exiting nonzero,
+  so the answer is not "16 of 43"; it is unknown.
+- **THE EXIT-CODE CHECK STILL READS THE WORKING TREE** — created today. The
+  11-04 amendment moved the staleness comparison to the object store to remove
+  a circularity, but Section 5's consistency check still opens the transcript
+  from the pristine clone's working tree. For a registered suite that writes
+  its own transcript that read is circular in exactly the way 11-04 described,
+  and the fix is the one-line `pre_blob` read the staleness path already uses.
+- **IS `n_c` BRANCH-DEPENDENT?** — carried from 11-03, 11-04 and 11-05, still
+  the first-ranked *physics* item and still the only open item that can
+  overturn a **qualitative** conclusion. Blocked on reading the ELECTRON
+  branch's transition density off Zion Fig. 5 — the same figure the *lower
+  bound on ℓ*, the *`Δ_c` form for the chemisorbed metals* and the
+  1.4362-vs-1.5 item need, so **one figure read discharges four items**. Still
+  the cheapest high-value action available to a human reader, and now
+  **four** consecutive sessions have gone to the instrument layer instead.
+- **CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE CONTRADICTION** —
+  carried, and with the chapters-2-and-3 item retired as false this is the
+  **largest genuine writing gap in the repository**. §7.2 handles the retracted
+  form of the tension; the four-strand process synthesis is still unwritten.
+  Passed over again today, for the **second** consecutive session, and for the
+  same reason: all five commits were in the instrument layer. That is a choice
+  and is recorded as one. A session that wants to break the pattern should take
+  this before the list's first-ranked item.
+- **CHAPTERS 2 AND 3 ARE DRAFTED** — 09-28 and 09-29, 3811 and 3938 words, and
+  this is the **correct** wording, written deliberately to exercise §4's
+  repair. What is genuinely outstanding in them is named in their own follow-on
+  sections — a finite-temperature `n(E_F, T)` for §2.7, the angular `cos 3θ`
+  structure of trigonal warping, and whether `t'` can be *excluded*
+  quantitatively as Chapter 4's electron–hole asymmetry — not "drafting".
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  carried. If `V_NP` is really 20.9 V the bound tightens to exactly 2.000.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02,
+  blocked on a literature datum separating the two channels.
+- **GIVE `chapter_status_audit` A STABLE PROJECTION** and **THE CHAPTER-STATUS
+  CHECK IS NOT IN `SUITES`** — both carried from 11-04, same module, to be done
+  together or not at all.
+- **REGISTER THE THREE REMAINING `UNMEASURED` TRANSCRIPTS** — carried:
+  `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`. Each needs a stopwatch, not an argument.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29. Today is the **eighth**
+  instance and §2, §3 and §5 are all of it: the crash-as-staleness, the bare
+  `return 0`, and the two miscast assertions were none of them deducible from
+  the list, and nothing but running the thing found any of them. §5 sharpens
+  it: **the second miscast check was written after the first was diagnosed**,
+  so even a session holding the lesson in hand reproduced it one layer over.
+  Reading does not substitute for running, including for the reader who has
+  just finished writing the thing being read.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from 10-25,
+  **eleventh** argument, and §1 is a worked instance in its favour: membership
+  was identical to 11-05's and that is what made `STALE 9` a confirmation
+  rather than a coincidence of counts.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~68 PNGs, two
+  inspected. No figure was regenerated today, so nothing went in uninspected.
+- **ELEVEN NEW UNADJUDICATED `V_dirac` ROWS** — carried from 10-27.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii). `INCOMPLETE` is a **tenth** worked precedent: a class that exists to
+  distinguish two things one word was covering.
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** — carried
+  from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25; the module count has moved since, so the 67 is itself stale.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing. §2's `SUMMARY_RE` hoist is the same
+  operation on a different object and the second direct precedent in two days.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **fifteenth** instance: `C8a`–`C8h`, `C9`/`C9b` and `P9a`–`P9f`,
+  sixteen planted controls across two modules.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. Not exercised again:
+  today's new checks are byte comparisons, AST shapes and date orderings, none
+  of which has a tolerance.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **fifteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same figure.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17, and
+  §3 is a new key again: a module must not **exempt itself from the property it
+  censuses**. Same disease, one level further out.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **nineteenth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twentieth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-third**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-eighth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-sixth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-fifth**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-sixth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-sixth** session, same question as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched.
+
+**Commits this run:** 6 before this entry — the clean-tree census at `94b019c`
+(§1, §2, §3), the refreshed standing-list transcript (§1), the census repair
+with `C8` and `C9` (§2, §3), the `revivals()` repair with `P9` (§4), V3b's
+demotion from check to report (§5), and `P9a`'s replacement by the containment
+invariant (§5) — and this `AUTOMATION_LOG.md` entry makes **7**.
+
+---
+
+## 2026-11-07 — the ranked item discharged all three predictions, and running it found the census can no longer run at all; then the largest writing gap in the repository was closed
+
+Three commits before this entry. The ranked-first item was taken first, as the
+list asked; the writing item was taken second, which is what the 11-06 entry
+said a session wanting to break the three-session instrument-layer pattern
+should do.
+
+### 1. The ranked item: three predictions, three confirmations, no surprises
+
+The 11-06 entry ranked the re-run first and wrote out three falsifiable
+predictions. All three hold, and the first holds in the written-out form
+rather than the first-draft form the entry warned about:
+
+- **Section 3 reports seven corrected entries** — `2026-10-01..10-06`, which
+  is six, and `2026-11-06` — and **exactly five revivals**, `2026-10-17`,
+  `10-26`, `10-27`, `10-28`, `11-04`, each paired against `2026-10-06`. `V3`
+  green. `V3b` reads `False`. The rule-comparison line reads *superseded 0
+  revivals, current 5* with the divergence marker, against 11-05's *superseded
+  5, current 5 (equal, for now)* — so `P9d`'s prediction that one future
+  corrected entry would erase all five under the superseded rule is now a
+  measurement rather than a forecast. The 11-06 repair is what `P9e` says it
+  is.
+- **`A1` reads `RETIRED`**, with the tree still contradicting the retired
+  wording, so the retirement stands. The anti-trigger fired as designed.
+- **The census returns to `STALE 9`, not 8.** 11-06's 8 was the artefact it
+  was diagnosed as. Membership is the nine of 11-05 and the count is a
+  confirmation rather than a coincidence of counts — which is the eleventh
+  argument for the standing "pin membership, not count" item and the second
+  worked instance in its favour.
+
+`graphene_standing_list_audit.py`: **33 passed, 0 failed**.
+
+### 2. And the census cannot run. The budget check was silent, twice over
+
+The re-run did not complete. `graphene_pristine_transcript_audit.py` was
+killed at **179 s**, the largest timeout this harness permits, **inside
+Section 3** — four sections before the budget block.
+
+Measured rather than estimated:
+
+- Section 2 spends **176.4 s over 43 suites**: 169.5 s for the 40 a capped run
+  reports, plus 2.2 + 2.2 + 2.5 s for `kappa_impurity_bound`,
+  `branch_asymmetric_mobility` and `density_dependent_mobility` — the three no
+  capped run has ever reached. All three are `IDENTICAL`, so the `STALE 9`
+  above is the complete count and not a partial one.
+- With `SUITES` truncated to one suite the whole module runs in **0.7 s**, of
+  which Section 2 is 0.2 s. So the tail is ~0.5 s on a one-suite result set
+  and **more than that on a 43-entry one** — the 179 s run died inside Section
+  3 with Section 2 complete, which bounds the tail *below* at ~2 s rather than
+  above. That function has not been measured and is on the list.
+
+**The 11-04 budget check said nothing about any of this, for two independent
+reasons, and they are the finding rather than the slowness.**
+
+1. **It is printed last**, after Sections 2b/3/4/5. It is reached only by a
+   run that finished, and a run finishes only if the whole module fits in the
+   call. *The one condition the check exists to detect is also the condition
+   that guarantees the check is never printed.* Today was the first time the
+   answer was "no" and the output was empty.
+2. **The quantity is a part and the cap is the whole.** `spent` sums
+   `run_suite`'s timers only — not the clone build, not the loop's own
+   overhead, not Sections 1/2b/3/4/5. Against `CALL_CAP_S` it reports **3.6 s
+   of headroom** on a run that cannot finish. The same `spent` drove the
+   re-admission test for modules excluded for cost, so that test was deciding
+   against a budget which had already overstated what was free; it now uses
+   `elapsed`.
+
+The repair is the same repair twice — *measure the quantity the cap is about,
+and evaluate it where it can still be printed*:
+
+- `section2_crossing(durations, allowance)`, pure and strictly `>`, returning
+  the index of the first suite whose cumulative spend exceeds the allowance.
+- The Section 2 loop evaluates it after each suite and prints a **flushed**
+  warning naming the crossing suite. **Verified in the condition it was built
+  for**: a full run killed at 174 s prints *crossed its 150.0 s allowance at
+  `graphene_diffusion_current_model.py`, cumulative 168.2 s, elapsed 168.7 s*
+  at line 68 and dies 40 lines later. The old check printed nothing at all.
+- The end-of-module verdict is gated on `elapsed`. `spent` is kept and printed
+  beside it with both headroom figures and their difference, so the two
+  diverge **on the record** instead of one silently replacing the other. That
+  is the 11-06 repair of `V3b` and `P9a` applied a **third** time: gate on an
+  invariant, print the contingent value.
+
+The invariant is containment, and it is the exact overlapping limit between
+the new quantity and the old: `elapsed` includes every second `run_suite`
+charges, so **`elapsed >= spent` must hold on every run**, on any machine, for
+any suite table. That inequality is asserted; the difference between the two
+(2.8 s on a three-suite run) is reported.
+
+`C10.1`–`C10.7` plant the crossing on **exactly known integer answers** rather
+than plausible ranges, both sides of the boundary included: `[1,2,3]` against
+10 must give `None`; `[4,4,4]` against 8 must give exactly **2**, because 8 is
+not `> 8`, and a `>=` slip would give 1; `[1.5,2.5]` against 4.0 must give
+`None`, and all three values are exact in binary so this is a statement about
+the comparison and not about float error; `[999]` against 150 must give 0;
+`[]` against 0.0 must give `None`.
+
+`pristine_transcript_audit_output.txt` is **deliberately not refreshed**: no
+complete run exists today to refresh it from, and a transcript from a
+truncated suite table would be a claim no run supports.
+
+### 3. The four-strand synthesis, and it contains a reversal
+
+Chapter 7 §7.3a, **1,901 words**, taking the chapter from 21,179 to 23,080.
+Carried since 2026-09-17 and explicitly passed over on 11-04, 11-05 and 11-06.
+It was the largest genuine writing gap in the repository and it is closed.
+
+The content is that the four strands are **not** four facts about graphene —
+each follows from one of two process steps, and only one of the three
+couplings between them is a real trade-off:
+
+- **Coupling 1 is not a trade-off at all.** `m` and `s` are independent
+  coordinates on the metallisation choice and `N` is exactly even in `m` and
+  odd in `s`, so `R_c` and the photoresponse can be optimised at once. The
+  09-17 contradiction was a single-junction criterion applied to a
+  two-junction quantity; resolving it costs one extra metallisation step, not
+  a device-physics penalty.
+- **Coupling 2 is the price of that freedom**: maximising `|s|` drives toward
+  the chemisorbed metals, and the four smallest reversal margins are exactly
+  the four pairs §6.12 refuses.
+- **Coupling 3 is the one real constraint, and it reverses the conclusion
+  strand 3 was logged with.**
+
+**The reversal, which is a new result and not a restatement.**
+`graphene_screening_overdrive_invariance.py` (13/13) closes the open item
+logged at the foot of the 10-30 note. 10-30's Section 3 evaluated
+`ΔV_c = e·n_c/C_ox` for two gate stacks using **one** `n_c` for both rows —
+12.53 V for 90 nm SiO₂ against 0.217 V for 10 nm HfO₂ — and concluded the
+asymmetry is screened away in the thin-oxide stacks a process would build.
+Substituting the committed `n_c = κ·N_imp` (11-02) with
+`N_imp ≥ N_A^(S) = C_ox·V_NP/e` (11-03), **the `C_ox` in `n_c` cancels the one
+in the denominator exactly**:
+
+&nbsp;&nbsp;&nbsp;&nbsp;`ΔV_c = κ·f·V_NP`, independent of oxide thickness and
+permittivity alike.
+
+The two stacks then need the same overdrive — difference measured as exactly
+`0.0` V, not small — and the 57.69× spread is **exactly the inverse `C_ox`
+ratio**, which is what identifies it as a statement about the oxide rather
+than about the graphene. With the bounded `κ ≤ 2.0889` and `V_NP = 20 V`,
+`κ·V_NP = 41.78 V`, which **neither** stack reaches. At 1 V of overdrive on
+the top gate the fixed-`n_c` reading gives `r = 0.0180` and the scaled reading
+gives `r = 0.0977` — **97.7 % of the unscreened `r₀ = 0.10`**, a factor of 192
+in `x`. The asymmetry is essentially *unscreened* in exactly the stack 10-30
+said would screen it.
+
+The exact checks are exact rather than tolerant: bitwise `C_ox` invariance
+over six decades (`E1`, `E2`); bitwise `κ` invariance over four decades
+(`E2b`), so the conclusion does **not** inherit the unresolved κ dispute and
+only the 41.78 V does; `x = 0.0` exactly at the neutrality point and
+`r(0) = r₀` exactly through the committed `ddm.r_closed` rather than a local
+copy (`E3`); the predecessor reproduced in its own terms to 3 d.p. **before**
+being contradicted (`E4a`); **the overlapping limit bitwise** at
+`C_ox = 1.1505e-4 F/m²` — which is Zion's own 300 nm stack, as it must be,
+since κ was defined on that sample (`E5`); `f ≥ 1` strictly raising `dV_c`,
+lowering `x` and **raising** surviving `r`, so the bound is conservative in
+the safe direction (`E6`); and a mutation taking `N_A^(S) ∝ C_ox²` that breaks
+the cancellation and turns both invariance checks red (`E7`).
+
+**Annotated in place, not rewritten**, in both places the superseded claim
+lives — the module's Section 3 docstring and the 10-30 note. Every measured
+number is kept; what is withdrawn is the conclusion drawn from them. The
+module's own 17/17 transcript is unchanged, the docstring not being printed.
+
+**A cost the synthesis found that the module could not see.** The 10-30 note
+cited arXiv:1010.0913's HfO₂-topped devices, whose electron and hole
+mobilities differ by less than 10 %, as independent corroboration of screening
+in a thin-oxide stack. If `ΔV_c` is ~42 V whatever the stack, those devices
+are not past their crossover either, so **the observation stands and its
+attribution does not** — most plausibly a smaller `r₀` from a contact or
+interface difference. Withdrawn as corroboration and logged as an open item
+rather than resolved.
+
+§7.3a.5 also names a **shape** rather than only a result, because this is the
+second time it has decided a device question here: in both cases the knob a
+process engineer would reach for enters the quantity of interest in a way that
+cancels. `m` enters `N` evenly; `C_ox` enters `x` in both numerator and
+denominator. Both were found by asking what a quantity is **exactly** even or
+invariant in, rather than by surveying values.
+
+### 4. The figure was inspected, not merely written
+
+`screening_overdrive_invariance.png` was rendered, copied out and **looked
+at**. The first render clipped the `κ·V_NP` marker at the axis edge, because
+the x-range stopped at 40 V and the marker is at 41.78 V; the range now runs
+to `1.25·κ·V_NP` and both the marker and the `r₀` reference line are in-plot.
+That is a defect no check would have caught and only inspection did, which is
+the whole argument of the standing figure item. Two of ~69 committed figures
+had been inspected before today; three now.
+
+### 5. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, 0 bytes free) for the **twelfth**
+consecutive session, and `mkdir $HOME/work` failed before anything else ran.
+`du` accounts for 29 M; the rest is sibling session directories this uid
+cannot read. All work was done on `/dev/sda1` (3.2 G free) under `/tmp/work`.
+
+**`scipy` did not need installing.** `/tmp/pylibs1131` survived from an
+earlier session with `numpy` 2.2.6, `matplotlib` 3.10.9 and `scipy` 1.15.3
+already in it, so `PYTHONPATH=/tmp/pylibs1131` replaced the 72 s install
+11-06 measured. That is luck rather than a fix — the directory is uid-tagged
+and a session with a different uid will not find it — but it is worth
+recording that the install is *skippable when the directory is there*, which
+is not the same as 11-06's warning that skipping the install silently corrupts
+the census. The check is: confirm the three imports before trusting it.
+`MPLCONFIGDIR` had to be redirected twice, the first choice not being
+writable by this uid.
+
+The device bridge did **not** drop this session and the per-call cap stayed at
+180 s throughout.
+
+**One artefact left on the user's machine.** Inspecting a figure requires it
+to be inside a connected folder before it can be staged, so
+`screening_overdrive_invariance.png` was copied to
+`_figure_inspection/` under the connected folder. Deletion inside connected
+folders is blocked and requesting permission for it was refused by the safety
+classifier on 09-17, so **the folder is left there deliberately** rather than
+cleaned up. A future session inspecting a figure should reuse that folder
+rather than create a second one.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-RUN `graphene_standing_list_audit.py` AFTER THIS ENTRY LANDS** —
+  **ranked first**, cheap, mechanical, blocked on nothing, and it carries
+  three predictions to falsify. (i) Section 3 should report **eight**
+  corrected entries — the seven above plus **2026-11-07**, this entry wording
+  the chapters correctly — and still exactly **five** revivals, each paired
+  against 2026-10-06, since this entry revives nothing. (ii) `A1` should still
+  read `RETIRED`. (iii) The census's `STALE` count should **fall to 8**, not
+  stay at 9, because the standing-list transcript is refreshed in this
+  session's last commit and no other transcript is re-staled by this entry —
+  **and that is the opposite direction from 11-06's prediction**, which is
+  worth stating because the two are easily confused: 11-06 re-staled by
+  refreshing, this one de-stales by refreshing *after* the entry rather than
+  before it. If the count stays at 9 the ordering did not do what is claimed.
+- **THE CENSUS NO LONGER FITS IN ONE CALL, AND THE REPAIR ABOVE ONLY REPORTS
+  THAT** — created today, **ranked second**, and the honest statement is that
+  §2 fixed the *reporting* and not the *problem*. 176.4 s of suite time
+  against a 180 s cap leaves no room, and the next registered suite of any
+  size makes the module unrunnable rather than slow. The fix is a split:
+  Section 2 must run in parts across calls, with per-suite verdicts persisted
+  to a small JSON that Sections 2b–5 read, so that no single call has to hold
+  the whole table. That is a real change to the module's shape and should not
+  be started as a side errand.
+- **THE WARNING FIRES AFTER THE CROSSING SUITE, NOT BEFORE IT** — created
+  today, cheap. `section2_crossing` is evaluated once a suite's `dt` is known,
+  so a single expensive suite can carry the run from inside the allowance to
+  past the cap in one step: today it crossed at
+  `graphene_diffusion_current_model.py` with the cumulative jumping 150 → 168.2
+  s. A predictive form — refuse to *start* a suite whose last measured cost
+  would cross — needs a per-suite cost table, which `MEASURED_OVER_CAP_S`
+  already is for two modules and could be for all 43.
+- **THE TAIL'S COST AS A FUNCTION OF RESULT-SET SIZE** — created today, and
+  `SECTION2_ALLOWANCE_S = 150.0` is a guess until it is measured. The
+  one-suite measurement (0.5 s) and the 43-suite lower bound (~2 s) are the
+  only two points there are. Three truncations at 1, 10 and 25 suites would
+  settle it in one call.
+- **IS `f` STACK-DEPENDENT?** — created today, and it is the single assumption
+  §7.3a.5 rests on. The cancellation holds under
+  `N_imp = f·C_ox·V_NP/e` with `f` not systematically different between
+  stacks. A dielectric whose deposition damage were uncorrelated with the net
+  charge it leaves would break it. This is a literature question and it is now
+  **the highest-value literature item**, having replaced the κ dispute, which
+  `E2b` showed the result does not inherit.
+- **WHAT EXPLAINS arXiv:1010.0913's <10 % ASYMMETRY, IF NOT SCREENING?** —
+  created today by §3's withdrawal. The observation stands; the attribution
+  does not. A smaller `r₀` from a contact or interface difference is the
+  plausible candidate and it is checkable against that paper's contact stack.
+- **IS `n_c` BRANCH-DEPENDENT?** — carried from 11-03 through 11-06, still the
+  first-ranked *physics* item and still the only open item that can overturn a
+  **qualitative** conclusion. Blocked on reading the ELECTRON branch's
+  transition density off Zion Fig. 5 — the same figure the *lower bound on ℓ*,
+  the *`Δ_c` form for the chemisorbed metals* and the 1.4362-vs-1.5 item need,
+  so **one figure read discharges four items**. **Five** consecutive sessions
+  have now gone elsewhere. §3 raises its stakes: if it resolves toward a
+  branch-asymmetric neutral channel the asymmetry does not screen at *any*
+  density, which would make §7.3a.5's conclusion stronger, not weaker.
+- **THE POTENTIAL CENSUS TRANSCRIPT HAS GROWN FROM 135 NAMES / 36 MODULES TO
+  200 / 40** — carried from 10-27 as "eleven new unadjudicated `V_dirac` rows"
+  and **it is much larger than that wording now**: `DUAL_ROLE_TERMINAL` 16→20,
+  `DETERMINED` 16→42, `COLLECTED_NO_ROLE` 101→136. The item's own name is
+  stale, which is the fault the standing-list audit exists to catch, in the
+  list the audit reads.
+- **CENSUS EVERY CHECK WHOSE EXPECTED ANSWER COMES FROM THE LIVE LOG** —
+  carried from 11-06, two worked instances, still not mechanised.
+- **DOES EVERY OTHER SUITE OBEY THE EXIT-CODE CONVENTION?** — carried from
+  11-06, still **unmeasured**; the instrument is an AST census over `SUITES`,
+  not a source regex.
+- **THE EXIT-CODE CHECK STILL READS THE WORKING TREE** — carried from 11-06,
+  one-line fix, the `pre_blob` read the staleness path already uses.
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  carried. If `V_NP` is really 20.9 V the bound tightens to exactly 2.000 —
+  and §3 makes this *more* interesting than it was, since `V_NP` now appears
+  directly in `ΔV_c = κ·V_NP` rather than only inside κ.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02,
+  blocked on a literature datum separating the two channels, and joined to the
+  `f` item above: both ask what the deposition leaves behind.
+- **GIVE `chapter_status_audit` A STABLE PROJECTION** and **THE CHAPTER-STATUS
+  CHECK IS NOT IN `SUITES`** — both carried from 11-04, same module, together
+  or not at all.
+- **REGISTER THE THREE REMAINING `UNMEASURED` TRANSCRIPTS** — carried:
+  `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`. Each needs a stopwatch, not an argument — **and the
+  census budget item above now says a stopwatch is not free**, so these should
+  be measured and then deliberately *excluded* if they do not fit.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29, **ninth** instance, and
+  §2 is the strongest one yet: that the census could not run was not deducible
+  from the list, from the module, or from 11-06's own measurement of it. Only
+  running it found it. Reading does not substitute for running.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, **twelfth** argument, and §1 is a second worked instance in its
+  favour.
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~69 PNGs, **three**
+  inspected, one defect found by inspection today. The cost is now known:
+  a copy into the connected folder plus a stage plus a read, about three calls
+  per figure.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii).
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25; the 67 is itself stale and the census item above says by how much.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **sixteenth** instance: `C10.1`–`C10.7` and `E1`–`E8b`.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. Today's new checks are
+  ulp counts, exact equalities and strict orderings, so again not exercised —
+  though `E4a`'s `< 0.3 V` and `< 0.02 V` against 10-30's quoted figures **are**
+  tolerances, and are the first in some days that belong to this item.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **sixteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same figure.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twentieth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-first** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-fourth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **twenty-ninth** session untouched, and §3 is an argument for it: `x` is a
+  ratio and its whole content today was what cancels inside it.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-seventh** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-sixth**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-seventh**
+  session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-seventh** session, same question as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, untouched, and
+  subsumed by the grown-census item above.
+
+**Retired from the list this session:**
+
+- **RETIRED:** CHAPTER 7's SYNTHESIS OF THE CONTACT/PHOTORESPONSE
+  CONTRADICTION — written as §7.3a, 1,901 words. Carried since 09-17 and
+  passed over on 11-04, 11-05 and 11-06. What remains of Chapter 7 is §7.9's
+  numbered items, which are their own bullets.
+- **RETIRED:** CHAPTERS 2 AND 3 ARE DRAFTED — the correct wording, kept on the
+  list since 10-18 only to exercise the standing-list audit's anti-trigger.
+  §1 confirms the anti-trigger works and `A1` reads `RETIRED`, so the bullet
+  has discharged its purpose and carrying it further would be carrying a
+  decoy. **Removing it is itself a test**: if `A1` changes class next session,
+  the trigger was reading this bullet rather than the tree.
+
+**Commits this run:** 3 before this entry — the census budget repair with
+`C10`; `graphene_screening_overdrive_invariance.py` with its inspected figure
+and transcript; Chapter 7 §7.3a with the two in-place annotations — and this
+`AUTOMATION_LOG.md` entry makes **4**, with the refreshed standing-list
+transcript making **5**.
+
+---
+
+## 2026-11-08 — the census was split and completed, and the first thing it found once it could run was a verdict that had been answering the wrong question for five sessions
+
+Three commits before this entry. The list's ranked-first item was taken first
+and cost nothing; the ranked-second item is the session.
+
+### 1. The ranked item was already discharged, and the transcript proves it
+
+11-07 ranked `graphene_standing_list_audit.py`'s re-run first and wrote three
+predictions. **All three hold, and the run produced no new content at all**:
+`md5sum` of today's output and of the committed
+`standing_list_audit_output.txt` are the same 16 bytes. That is not a
+coincidence — 11-07's own last commit refreshed the transcript *after* its
+entry landed, which is exactly what the item asked a later session to do. The
+item was discharged by the session that created it, one commit later, and
+today's run is a confirmation rather than work.
+
+- **Eight corrected entries**, `2026-10-01..10-06` plus `11-06` and `11-07`,
+  as predicted, against the predicted **five** revivals each paired to
+  `2026-10-06`. `V1`/`V2`/`V3` green, `V3b` reads `False`.
+- **`A1` reads `RETIRED`**, the tree still contradicting the retired wording.
+- **33 passed, 0 failed.**
+
+**One thing worth recording about how this was nearly misread.** The first
+attempt redirected to a path on the full `/sessions` filesystem, the redirect
+failed, and `tail` printed a **stale file left by an earlier session** — which
+reported **seven** corrected entries and so looked like a falsified prediction.
+The real run reports eight. A transcript read without checking that the run
+that wrote it succeeded is the same fault this repository has a whole module
+about, committed here by the session reading it rather than by the one writing
+it.
+
+### 2. The split: Section 2 no longer has to fit in one call
+
+11-07's honest statement was that its budget repair fixed the *reporting* and
+not the problem. The problem is fixed.
+
+`--part i/n` runs a contiguous block of the suite table and persists its
+per-suite verdicts, exit codes, stdout and **post-run transcript bytes** to a
+JSON part file outside the repository; `--assemble` reads every part, restores
+those bytes into its own pristine clone, and runs Sections 2b–5 **unchanged**.
+A plain invocation is untouched.
+
+**The post-run bytes are the one place the split could have silently hollowed
+out a check**, and they are why this is a change of shape rather than a loop
+refactor. Sections 2b/3 compare, for every self-writing suite, the bytes its
+own run left in the clone against the committed blob — bytes that exist only
+inside the call that ran the suite. An assemble phase rebuilding a fresh clone
+would find the *committed* bytes there, and every one of those comparisons
+would come back green: numerous, and about nothing. That is the 11-07 budget
+check's fault class exactly, which is why it was anticipated rather than
+discovered.
+
+So `graphene_census_split_equivalence.py` (**12/12**) compares **output**
+rather than arguing about code. It runs the census both ways on a three-suite
+table and requires Sections 2b/3/4, Section 5's coverage checks and every
+planted control to be **byte-identical** after masking elapsed times, while
+**declaring** the three regions that must differ — and checking that they do,
+so the declaration is not a blanket. Region B is additionally gated on
+**content** (29 check lines, 8348 bytes), because a region can be identical by
+being empty.
+
+**Three of today's controls failed, each before its claim could be believed.**
+This is the session's best argument for the standing "give every verdict a
+planted control" item, and the sixteenth and seventeenth instances of it.
+
+- **`C12.4` failed on its first run.** `table_fingerprint` used a
+  `t or ""` idiom, mapping `None` (no committed transcript) and `""`
+  (registered as empty) to the same bytes, so a registry change between those
+  states left the fingerprint unmoved. The control existed only because the
+  comment above it claimed the separator kept them apart. It did not.
+- **`C9` failed, and its *form* was the defect.** `not _consts and
+  len(_ifexps) == 1` reads as *main() has exactly one exit and it is
+  conditional* — a statement about **shape**. The property is narrower: **no
+  path out of `main()` reports success unconditionally.** Replaced by
+  `C9`/`C9b`/`C9c`, strictly stronger where it matters — the old form
+  inspected only `_ifexps[0]`, so today's part-mode exit would have been
+  unchecked by it — and weaker only in permitting a **nonzero** constant exit
+  for a refusal to run, which must be distinguishable from a clean run. A
+  check that encodes the shape of the code it guards goes red on a legitimate
+  change and teaches the operator to edit the check; this one did, and the
+  edit was the finding.
+- **`S0b` failed on the first run, and it is why `M2` moved.** The first suite
+  table was the three cheapest suites and **none of them writes its own
+  transcript**, so Region B's self-writing comparisons were empty and the `M2`
+  mutation was undetectable *by construction*. With `default_flip` swapped in,
+  `M2` was **still** not caught end to end — because every self-writing suite
+  in this tree rewrites its transcript byte-identically (the 11-05 state). If
+  post bytes equal the committed blob, restoring them and not restoring them
+  are the same operation and no healthy tree can tell them apart. `M2` is now
+  run against a divergence **planted into the part file**: restoration intact
+  gives `[CONFIRMED] E2r` naming the transcript, restoration removed gives
+  `[NOT_EXERCISED]`. **A control that requires the tree to be unhealthy is not
+  a control** — the ground 11-05 retired the old `E2` on, reached again from
+  the other direction.
+
+**The budget necessarily means something else once the census is split.**
+`elapsed >= spent` is a statement about **one** call; the assembled totals span
+several, and asserting it there would be the 11-07 fault inverted — a whole
+compared against a part. `--assemble` checks that **every call fits**: each
+part's recorded elapsed clock contains its own suite time (re-read from the
+part files, not recomputed, so a part written by a call that mis-timed itself
+is caught here too), each part fitted the cap, and the assemble call fits. The
+whole-census figure is a report and is deliberately not compared against one
+cap.
+
+The partition is by **count**, not cost: the only per-suite cost table that
+exists had two rows of 43, and a partition built on an estimate of the thing it
+bounds is the shape of fault the 11-07 check was. `--assemble` emits the
+measured table instead, so the next session can pack by cost and say what it is
+packing against. `C11.1`–`C11.6` plant the partition on exact integers —
+`43→4` giving `11,11,11,10`; the concatenation equal to `range(43)` exactly;
+three suites into five parts; zero suites; a 30×7 grid of 210 cases; and an
+out-of-range index **raising** rather than returning a silently empty block,
+which is the failure mode that would make a census miss a third of its suites
+and still print a summary.
+
+### 3. And then it ran, and found a verdict that had been about the wrong thing since 11-03
+
+`graphene_mixed_capture_repair_audit.py` came back `INCOMPLETE` at **0.0 s** —
+*"the suite did not reach its own end — this is a failed RUN, not a stale
+transcript"*. It had not failed. It died on
+
+&nbsp;&nbsp;&nbsp;&nbsp;`OSError: [Errno 28] No space left on device`
+
+building its scratch directory under `$TMPDIR`, which on this VM points into
+the `/sessions` filesystem that has been 100 % full for **thirteen consecutive
+sessions** and is logged as such in every one of them. Re-run with `TMPDIR` on
+a filesystem with room, the suite completes — **and its verdict is `STALE`**.
+
+**The staleness was real and it was five sessions old**, and today's own
+contribution is separated from it rather than mixed in. At the parent commit
+the suite reports **six** capture sites where `R1` requires exactly one, five
+of them introduced by `graphene_kappa_impurity_bound.py` on **2026-11-03**
+against a transcript last refreshed on **10-28**. So `R1` and `R2` have been
+**red in the tree since 11-03** and the census said `INCOMPLETE` instead, every
+session. (This session's first draft of the equivalence module added two more
+sites, eight in the working tree, and that same census caught them the day the
+module was written — the instrument working, once it could run.)
+
+`INCOMPLETE` is a verdict about the **code**. It is read as *this suite is
+broken*, and it **ends the chain**: the transcript is never compared, so what
+the transcript would have said is not merely unreported but unobtainable from
+it. A verdict that absorbs an environment fault into a code fault is the same
+shape as a budget check reporting headroom that does not exist — the instrument
+answers, and its answer is about something else.
+
+So **`ENVIRONMENT` is now its own verdict**, asked **before** `INCOMPLETE`,
+because an ENOSPC death also fails the completion test and asking the weaker
+question first is precisely what produced five sessions of the wrong answer.
+It is in `COMPLETION_FAULTS`, so it cannot read as a clean run, and it is kept
+distinct from `INCOMPLETE` because the two call for different actions: a defect
+to fix versus a machine to give room to. The classifier is a short list of
+**literal kernel messages**, not a pattern over `OSError` text — the risk is
+asymmetric and calling a real defect `ENVIRONMENT` would hide one.
+`C14.1`–`C14.4` plant both directions on exact inputs, including the
+must-give-nothing direction on the **actual stdout** of the suite whose
+`INCOMPLETE` masked the `STALE`.
+
+**And it is exercised in anger, not only planted.** Re-run with `TMPDIR`
+pointed back at the full filesystem, the census prints
+`graphene_mixed_capture_repair_audit.py  ENVIRONMENT  0.0s  exit 1 (No space
+left on device)`. The verbatim run and its command are in
+`census_environment_verdict_in_anger.txt`, which is deliberately **not** named
+`*_output.txt` because Section 5's coverage sweep globs that suffix. A check
+exercised in the condition it was built for, on the day it was built, is rare
+enough here to be worth naming.
+
+The five captured defaults are converted to the `None` sentinel the module
+already used at six other sites, and **validated bitwise**: the module's stdout
+is byte-identical before and after, and identical to its committed transcript,
+so this is a change of binding time and of nothing else. The one caller that
+passes `BRANCH_SPLIT_D9` by name is left explicit on purpose — it is the
+implicit capture in a *signature* the census objects to, not naming a constant
+at a call site.
+
+### 4. The first complete census since it outgrew the cap
+
+Four parts plus an assemble: **147.9 s of suite time over 44 suites**, largest
+part **46.7 s**, assemble **2.1 s**, whole census **152.0 s across five calls**.
+No call came within 130 s of the cap. **63 passed, 1 failed**, the one red
+being the standing `STALE` check.
+
+**11-07's third prediction, discharged.** It predicted the `STALE` count would
+**fall to 8** and not stay at 9, because the standing-list transcript was
+refreshed in its own last commit — the opposite direction from 11-06, which
+re-staled by refreshing *before* its entry. It reads **8**, and **membership is
+pinned rather than the count**: `attribute_default_capture`, `dead_name_sweep`,
+`figure_provenance_audit`, `frozen_default_semantics`, `import_binding_sweep`,
+`log_sensitivity_step_audit`, `mutation_arrival_probe`,
+`potential_census_audit`. That is 11-05's nine less
+`graphene_standing_list_audit.py`, now `IDENTICAL` — so the count fell **for the
+stated reason** and not for some other one arriving at the same number. Twelfth
+argument for the "pin membership, not count" item and its third worked instance.
+
+**`UNACCOUNTED` is now 0, and this is the finding nobody predicted.**
+`screening_overdrive_invariance_output.txt` was created on 11-07 and never
+registered: neither compared nor excluded, so nothing in this repository could
+say whether it was stale — and nothing reported *that*, because the census
+could not run. Registered (measured 1.2 s) and `IDENTICAL`. Registering a 44th
+suite is also the first time since 10-27 that adding one was not a budget
+decision. The split's stated goal was completion; this was sitting behind it.
+
+**The committed transcript is now an `--assemble` transcript, and that is said
+plainly rather than slipped in.** Every previous version was one call's output,
+and commit 1 was careful that the single-call path stays byte-identical so that
+claim would stand. But no single call can produce a complete transcript any
+more. What licenses reading the new file as the same claim is not an assertion:
+the equivalence module requires Regions B and D byte-identical and declares the
+three that differ, and those three — provenance header, budget block, summary's
+list of budget-check names — are exactly where this file now reads differently
+from its predecessors. They are differences about the **run**, not about the
+repository.
+
+One honest residual: the committed census transcript describes the tree
+**before** this entry, since the entry is written after the run. The same was
+true on 11-07 and it is why the standing-list transcript is refreshed in this
+session's last commit rather than this one.
+
+### 5. Environment and automation health
+
+`/sessions` **100 % full** (9.3 G of 9.8 G, 0 bytes free) for the
+**thirteenth** consecutive session; `mkdir $HOME/work` failed before anything
+else ran and all work was done under `/tmp` on `/dev/sda1` (2.9 G free). §3 is
+the first session in which that fact stopped being a logistical nuisance and
+became a **measurement error** — it had been corrupting a verdict for five
+sessions, and the entries that recorded the full disk every time did not
+connect the two.
+
+`scipy` did not need installing: `/tmp/pylibs1131` survived again with numpy
+2.2.6, matplotlib 3.10.9 and scipy 1.15.3, and the three imports were confirmed
+before being trusted, per 11-07. `MPLCONFIGDIR` and `TMPDIR` both had to be
+redirected off `/sessions` — `TMPDIR` for the first time, and that redirection
+is §3.
+
+A second stale-read hazard worth naming beside §1's: `/tmp` on this VM is
+shared and sticky, so a redirect to a path an earlier session's uid owns fails
+with `Permission denied` while leaving that session's file in place to be read.
+Both of today's near-misreads were one filesystem being out of room and another
+being shared.
+
+The device bridge did not drop and the per-call cap stayed at 180 s.
+
+**Not yet covered (candidates for future runs):**
+
+- **RE-RUN `graphene_standing_list_audit.py` AFTER THIS ENTRY LANDS** —
+  **ranked first**, cheap, mechanical, blocked on nothing, and it carries the
+  test 11-07 set up deliberately. 11-07 removed the decoy `CHAPTERS 2 AND 3
+  ARE DRAFTED` bullet and recorded that **removing it is itself a test**: if
+  `A1` changes class next session, the trigger was reading that bullet rather
+  than the tree. **This entry carries no chapters-2-and-3 bullet in either
+  wording**, so the prediction is (i) `A1` still reads `RETIRED`; (ii)
+  corrected entries stay at **eight** and revivals at **five**, this entry
+  wording the item neither way; (iii) the `STALE` count stays at **8** with the
+  same membership, the standing-list transcript being refreshed after this
+  entry as 11-07's was.
+- **PACK THE PARTITION BY COST** — created today and now **unblocked by a
+  measurement rather than by an argument**: `--assemble` emits the full 44-row
+  per-suite cost table, so `MEASURED_OVER_CAP_S`'s two rows of 43 are no longer
+  the only data. A cost-packed `plan_parts(costs, allowance)` would (a) balance
+  the parts — today's four ran 34.4 / 46.7 / 25.0 / 43.9 s, a 1.9× spread from
+  partitioning by count — and (b) make the part count a consequence of the
+  allowance instead of an operator's guess. The control to plant first is the
+  one `block_slice` does not need: **a single suite more expensive than the
+  whole allowance must get a part of its own and not be dropped.**
+- **THE SPLIT HAS CHANGED THE EXCLUSION CRITERION AND NOTHING HAS RE-DECIDED
+  IT** — created today. Both `OVER_CAP` modules
+  (`graphene_diffusion_mutation.py` 80 s, `graphene_perfect_contact_
+  counterfactual.py` 119.7 s) fit inside a per-part allowance, so **cost is no
+  longer a sound reason to exclude either**. `--assemble` now says so in a
+  `NOTE` rather than silently re-admitting them, because re-admission is a
+  registry decision and this was not the session to make it. The three
+  `SELF_WRITING` and three `UNMEASURED` exclusions should be re-read in the
+  same light.
+- **THE TAIL'S COST IS NOW MEASURED AT ONE POINT AND THE ALLOWANCE IS STILL A
+  GUESS** — carried from 11-07 and **half discharged**. `--assemble` runs
+  Sections 2b–5 with no suite execution at all, and on a 44-entry result set it
+  costs **2.1 s** — against 11-07's lower bound of "~2 s" and its one-suite
+  measurement of 0.5 s. So the tail is nearly flat in result-set size, which
+  is the opposite of what the 11-07 reserve was set against:
+  `SECTION2_ALLOWANCE_S = 150.0` leaves 30 s for a 2.1 s tail. The three
+  truncations at 1, 10 and 25 suites would settle the shape, and the allowance
+  should then be derived rather than declared.
+- **`ENVIRONMENT` HAS NO MUTATION SUITE, ONLY PLANTS AND ONE ANGRY RUN** —
+  created today. `C14` plants the classifier and
+  `census_environment_verdict_in_anger.txt` records the verdict firing, but
+  nothing requires that the verdict **keeps** firing: deleting the
+  `ENVIRONMENT` branch would turn today's angry run back into `INCOMPLETE` and
+  no committed suite would go red. The equivalence module is the natural home
+  and the mutation is one line.
+- **WHAT ELSE HAS THE FULL `/sessions` FILESYSTEM BEEN CORRUPTING?** — created
+  today and the sharpest of the new items. §3 is one measured instance of an
+  environment fault read as a code fault, and the disk has been full for
+  thirteen sessions. Every other module that writes under `$TMPDIR` or
+  `$HOME` is a candidate, and the instrument is a census of scratch-path
+  construction across the tree — `tempfile.*`, `os.environ.get('TMPDIR')`,
+  literal `/tmp` — against which of them a run would notice.
+- **IS `f` STACK-DEPENDENT?** — carried from 11-07, still **the
+  highest-value literature item**, and still the single assumption §7.3a.5
+  rests on. Untouched today; today was instrument work.
+- **WHAT EXPLAINS arXiv:1010.0913's <10 % ASYMMETRY, IF NOT SCREENING?** —
+  carried from 11-07. The observation stands, the attribution does not.
+- **IS `n_c` BRANCH-DEPENDENT?** — carried from 11-03, still the first-ranked
+  *physics* item and still the only open item that can overturn a
+  **qualitative** conclusion. Blocked on reading the ELECTRON branch's
+  transition density off Zion Fig. 5 — the same figure the *lower bound on
+  ℓ*, the *`Δ_c` form for the chemisorbed metals* and the 1.4362-vs-1.5 item
+  need, so **one figure read discharges four items**. **Six** consecutive
+  sessions have now gone elsewhere, and the figure is now the oldest
+  cheap-and-unblocked item on this list.
+- **THE POTENTIAL CENSUS TRANSCRIPT HAS GROWN FROM 135 NAMES / 36 MODULES TO
+  200 / 40** — carried from 10-27, and `graphene_potential_census_audit.py` is
+  one of the eight pinned `STALE` members above, so the item now has a verdict
+  behind it rather than only a count.
+- **CENSUS EVERY CHECK WHOSE EXPECTED ANSWER COMES FROM THE LIVE LOG** —
+  carried from 11-06, two worked instances, still not mechanised.
+- **DOES EVERY OTHER SUITE OBEY THE EXIT-CODE CONVENTION?** — carried from
+  11-06, still **unmeasured**; the instrument is an AST census over `SUITES`,
+  not a source regex. `C9`'s amendment today is an argument for doing it: the
+  convention turned out to be three requirements and not one, so a census
+  asking the old question would have asked the wrong one.
+- **THE EXIT-CODE CHECK STILL READS THE WORKING TREE** — carried from 11-06,
+  one-line fix, the `pre_blob` read the staleness path already uses.
+- **THE 1.4362 vs 1.5 DISCREPANCY SHOULD BE CHECKED AGAINST ZION FIG. 2** —
+  carried; joined to the branch item by the same figure.
+- **DOES HfO₂ DEPOSITION ADD NEUTRAL DEFECTS TOO?** — carried from 11-02,
+  blocked on a literature datum separating the two channels, joined to the `f`
+  item.
+- **GIVE `chapter_status_audit` A STABLE PROJECTION** and **THE
+  CHAPTER-STATUS CHECK IS NOT IN `SUITES`** — both carried from 11-04, same
+  module, together or not at all.
+- **REGISTER THE THREE REMAINING `UNMEASURED` TRANSCRIPTS** — carried:
+  `capture_surface_mutation`, `installed_surface_mutation`,
+  `value_read_mutation`. 11-07 noted a stopwatch is not free; **the split is
+  what makes it free**, so this item has lost its blocker and should be read
+  with the exclusion-criterion item above.
+- **THE ONE-WAY CHANNEL ITSELF** — carried from 10-29, **tenth** instance, and
+  §3 is the strongest yet: that a verdict had been answering the wrong question
+  for five sessions was not deducible from the list, from the module, or from
+  the thirteen entries that recorded the full disk. Only running it found it.
+- **PIN A RED SUITE'S FAILING MEMBERSHIP, NOT ITS COUNT** — carried from
+  10-25, **twelfth** argument and third worked instance (§4).
+- **RENDER AND INSPECT EVERY COMMITTED FIGURE** — carried, ~70 PNGs, **three**
+  inspected. Untouched today; no new figure was produced, which is the first
+  session in some days where that is true.
+- **A VERDICT INDEXED BY CONFIGURATION** — carried from 10-26, §7.9 item 23
+  (ii).
+- **THE MISSING CELLS: `live_contact=True` AND TWO MANAGERS AT ONCE** —
+  carried from 10-26, mechanical, built from `rra.FLIPS`.
+- **A CORNER SWEEP OVER `PROBE_V` AND `PERTURBATION`** — carried from 10-26.
+- **COMPLETE THE SURFACE FOR THE REMAINING 67 BLIND NAMES** — carried from
+  10-25; the 67 is stale and the census item above says by how much.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **seventeenth** instance and the strongest: three of today's
+  controls went red and each red was a real defect in the claim beside it
+  (`C12.4`, `C9`, `S0b`).
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. Today's new checks are
+  set identities, exact integers and literal substring matches, so again not
+  exercised.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **seventeenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same figure.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17,
+  and today is a near-instance from the other side: the equivalence module
+  added two capture sites to a population another module censuses, and was
+  caught by it.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-first** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-second** session, and §3 converted **five** sites of a
+  related population today, which is the first movement this item's
+  neighbourhood has seen.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-fifth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirtieth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-eighth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-seventh**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-eighth**
+  session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-eighth** session, same question as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, subsumed by the
+  grown-census item above.
+
+**Retired from the list this session:**
+
+- **RETIRED:** THE CENSUS NO LONGER FITS IN ONE CALL, AND THE 11-07 REPAIR
+  ONLY REPORTS THAT — created 11-07 and ranked second there. Split, run to
+  completion across five calls, and the equivalence licensed by output
+  comparison rather than by argument. What remains of it are the two successor
+  items above (pack by cost; re-decide the exclusions), both of which are new
+  questions rather than the same one carried.
+- **RETIRED:** THE WARNING FIRES AFTER THE CROSSING SUITE, NOT BEFORE IT —
+  created 11-07, and the split **removes its premise** rather than fixing it.
+  The warning existed so that a run which could not finish would say so before
+  being killed; with no call now running more than 47 s of a 180 s cap, there
+  is no kill to pre-empt. `section2_crossing` and its `C10` controls are kept
+  — the allowance is still a real bound inside a part — but *predicting* the
+  crossing is work with no beneficiary. Retiring an item because its problem
+  was dissolved rather than solved is worth distinguishing in writing from
+  retiring one because it was done.
+
+**Commits this run:** 3 before this entry — the split with its equivalence
+module; the `ENVIRONMENT` verdict with the five capture-site conversions and
+the refreshed `mixed_capture_repair_output.txt`; the first complete census
+transcript — and this `AUTOMATION_LOG.md` entry makes **4**, with the
+refreshed standing-list transcript making **5**.
+
+### 6. Addendum, written after the entry above landed: the ranked item ran, and prediction (ii) is FALSIFIED BY THIS ENTRY ITSELF
+
+The standing-list audit was re-run against the committed 11-08 entry, as the
+ranked-first item asks. **33 passed, 0 failed.** Of the three predictions
+written four paragraphs up:
+
+- **(i) HOLDS, and it is the one that was a deliberate test.** `A1` reads
+  `RETIRED` with the tree still contradicting the retired wording. 11-07
+  removed the decoy bullet and recorded that if `A1` changed class the trigger
+  was reading the bullet rather than the tree. It did not change class. **The
+  trigger reads the tree.**
+- **(iii) HOLDS.** The `STALE` membership is unchanged at the same eight.
+  Checked cheaply rather than by re-running the whole census: the only
+  transcripts an `AUTOMATION_LOG.md` edit can move are those of suites that
+  read it, which is **eight** of the 44 registered. Three of them
+  (`figure_provenance_audit`, `attribute_default_capture`,
+  `frozen_default_semantics`) are already in the stale eight and stay there;
+  `standing_list_audit` is refreshed in this commit; the remaining four were
+  re-run and are byte-identical. One of those four,
+  `contact_argument_blast_radius`, *appeared* to differ by four lines until the
+  capture was fixed — they are `RuntimeWarning`s on **stderr**, which
+  `run_suite` does not capture. A stderr/stdout confusion in the checker, not
+  a drift in the tree, and the second stale-read near-miss of the day.
+- **(ii) IS FALSIFIED, AND THIS ENTRY IS WHAT FALSIFIED IT.** The prediction
+  was that corrected entries would stay at **eight**, "this entry wording the
+  item neither way". They read **nine**: `2026-11-08` is now counted among the
+  entries asserting the item is DRAFTED.
+
+**The cause is worth the whole addendum, because it is not a typo.** The entry
+above contains no chapters-2-and-3 bullet. What it contains, inside the
+ranked-first item, is a **quotation** of the decoy wording while describing its
+removal — and the quotation is **line-wrapped across two source lines**:
+
+&nbsp;&nbsp;&nbsp;&nbsp;`11-07 removed the decoy ` + "`CHAPTERS 2 AND 3`"
+&nbsp;&nbsp;&nbsp;&nbsp;`  ARE DRAFTED` + "` bullet and recorded that ...`"
+
+So the phrase the anti-trigger matches **exists on no line of the file**.
+`grep -n 'CHAPTERS 2 AND 3 ARE DRAFTED' AUTOMATION_LOG.md` returns two hits,
+both in the 11-07 entry, and none in this one. The phrase comes into existence
+only inside `bullets()`, which flattens each top-level bullet with
+`' '.join(cur.split())` before the regexes see it.
+
+Two distinct faults, and they compose:
+
+1. **A MENTION IS A USE, to this instrument.** The audit cannot distinguish
+   *asserting* a wording from *quoting* it in order to discuss it. This is the
+   same loophole 10-01 found in `graphene_dead_name_sweep.py` and fixed only
+   the mention-vs-use half of, and the module's own `SELF` comment records
+   walking into the same-spelling half of it. Third occurrence, in the third
+   module.
+2. **THE AUDIT READS A NORMALISED FORM THE FILE DOES NOT CONTAIN.** A session
+   checking its own entry with `grep` — the obvious check, and the one a human
+   reviewer would run — gets the right answer about the file and the wrong
+   answer about what the audit sees. The flattening is correct and necessary;
+   what is missing is that nothing reports it, so the two readings can diverge
+   silently. This is the shape of 11-07's `elapsed` vs `spent`: two quantities,
+   one printed, the other gating, and the divergence invisible until it
+   mattered.
+
+**Not patched today, deliberately.** The prediction is left falsified and the
+entry is left as written, for the reason 11-05 recorded when it hit the same
+constraint from the other side: an instrument that dictates how the log may be
+written is a finding, and a session that quietly rewords its own entry to make
+its prediction come true has destroyed the measurement. The repair belongs in
+the next session with a control, and it is on the list below.
+
+What this does change in the record: 11-05 reported that it had to word its
+chapters bullet to match **neither** regex to avoid tripping the superseded
+revival rule, and treated that as the instrument constraining the log. Today
+shows the constraint is **stronger than 11-05 stated** — it is not enough to
+avoid asserting the wording, one must avoid *quoting* it, and one cannot verify
+that by reading the file.
+
+**Added to the list by this addendum:**
+
+- **THE ANTI-TRIGGER CANNOT TELL A QUOTATION FROM AN ASSERTION** — created
+  today by this entry falsifying its own prediction. **Ranked first for the
+  next session**, cheap, blocked on nothing, with its evidence already on
+  disk. The fix is not a better regex: it is that `bullets()` should strip
+  inline-code spans before the triggers see them, or that a bullet whose match
+  falls inside backticks should be classified `QUOTED` rather than counted.
+  The control to plant is exact and both-sided — a planted bullet asserting
+  the wording must count, and a planted bullet quoting it inside backticks
+  must not — and the live log has **three** real instances to check against
+  (11-06 asserts it plainly; 11-07 asserts it inside a `RETIRED:` bullet,
+  which is arguably a third class; 11-08 only quotes it).
+- **AND `bullets()` SHOULD SAY WHAT IT NORMALISED** — the sibling, and the
+  more general of the two. Today's phrase exists only after flattening, so
+  `grep` and the audit disagree about the file and neither says so. A
+  `--show-normalised` mode, or the matched **flattened** bullet printed beside
+  each counted date, would have made this a one-line read instead of a
+  falsified prediction.
+
+**Commits this run:** 5, as the entry above predicted — but the fifth now
+carries this addendum as well as the refreshed transcript, which the entry did
+not predict and which is the honest reason the count is right for the wrong
+reason.
+
+## 2026-11-09 — the ranked item was discharged and the quotation turned out to be the smallest of five ways to mention a wording, four of which carry the whole revival record; then the session's own new checks would have gone red on this entry
+
+Four commits before this one. The ranked-first item cost about what 11-08
+predicted; the session is what looking at it properly turned up.
+
+### 1. The ranked item: a MENTION is not a USE, repaired and measured
+
+11-08 ranked this first, left it deliberately unpatched so its own falsified
+prediction would survive as a measurement, and named the fix: strip inline-code
+spans before the triggers see a bullet. Done.
+
+`strip_code_spans` replaces each span's **content**, not merely its
+delimiters — removing the backticks alone leaves the phrase intact and fixes
+nothing, and `delims` is one of the four mutants below. `bullets()` applies it
+by default; `bullets(raw=True)` is the old flattened-only reading, which the
+controls compare against and the report needs.
+
+**The measurement, on the real log, as a set identity rather than a count.**
+The repair removes exactly `{2026-11-08}` from the anti-set — eight dates, not
+nine — and changes **no** revival: the same five, 10-17 / 10-26 / 10-27 /
+10-28 / 11-04. `P10h` gates that. 11-08's prediction (ii) is now true, and the
+honest framing is that it was made true by a repair rather than by a
+rewording, which is the distinction 11-05 asked future sessions to preserve.
+
+**The direction of failure is proved rather than hoped.** An unterminated
+backtick matches nothing and leaves the bullet unstripped, so a malformed span
+reads as an **assertion**. Therefore this repair can only ever *remove* anti
+dates, and removing an anti date can only ever *add* revivals, never drop one.
+That is the 11-06 `revivals()` containment argument one layer out, and `P10f`
+gates it.
+
+Ten controls, both-sided by construction, because a repair that stopped
+counting quotations by also stopping counting assertions would pass a
+one-sided test and destroy the instrument. `P10g` is the one worth naming: a
+**wrapped assertion must still count**, which forbids the tempting wrong fix
+of abandoning flattening so that grep and the audit agree by both missing it.
+
+**Mutation testing found a gap in my own controls, twice.** Four mutants on
+the strip, four detections — but the mutant in which `bullets()` simply stops
+*calling* `strip_code_spans` was caught by `P10h` alone, 1 of 41, because
+`P10b`–`P10g` all exercise the function directly and none tested the join.
+`P10i` was added for it. The same thing happened again in §2 below. A gap
+invisible to reading and visible to mutation, in a control set written by a
+session that knew to expect it.
+
+### 2. The sibling repair, and running it corrected its own first draft
+
+`--show-normalised` prints all three readings of a bullet — source, flattened,
+stripped — and says when they disagree. It gates nothing on purpose.
+
+**Its first draft reported the opposite of the finding it exists to display.**
+It asked "would `grep` miss this?" of the whole **entry body**, and on the
+real 11-08 entry that answers *grep finds it* — because the 11-08 addendum
+quotes the `grep` command itself, several hundred lines below the bullet. True
+about the entry, and the wrong question. `bullet_source_lines` asks it per
+**bullet**, which is the granularity the claim was always about, and the mode
+now reproduces the diagnosis in four lines: `flattened=True`,
+`stripped=False`, `any single SOURCE LINE of this bullet=False`. `P10j` gates
+the two walks staying in step by an exact identity over all 1328 bullets.
+
+Committed as `standing_list_normalisation_1108.txt`. A reader who had that file
+on 11-08 would have spent a minute on what cost a falsified prediction and a
+whole addendum.
+
+### 3. THE SESSION: the quotation is the smallest of five classes, and four of them carry the entire revival record
+
+Having built the classifier, I asked what else is in the anti-set. **The
+quotation was the least of it.**
+
+`_trig_anti_dates` asks *does any bullet of this entry contain this phrase
+anywhere*. `revivals()` — which drives `V2`, `V3` and `R4` — uses the answer
+to mean *did the list CARRY the corrected item when that entry was written*.
+On this log those questions have very different answers.
+
+| class | n | dates | what it is |
+|---|---|---|---|
+| `CARRIED` | 1 | 11-06 | the bullet's own title **is** the item |
+| `RETIRED` | 1 | 11-07 | a `**RETIRED:**` bullet — the item taken *off* the list |
+| `SUBORDINATE` | 4 | 10-01…04 | "Chapters 2 and 3 are drafted **but** §4.8.2's form of error is not audited for elsewhere" — the bullet's subject is §4.8.2 |
+| `INCIDENTAL` | 2 | 10-05, 10-06 | the phrase ~800 chars into a long roll-up bullet listing other items |
+| `QUOTED` | 1 | 11-08 | inside backticks — §1's defect |
+
+**The list carried the corrected item as its own bullet in exactly one entry.**
+
+The consequence, computed rather than feared:
+
+| anti-set restricted to | anti | revivals |
+|---|---|---|
+| `CARRIED` | 1 | **0** |
+| `CARRIED`+`RETIRED` | 2 | **0** |
+| +`SUBORDINATE` | 6 | 5 |
+| everything (today) | 9 | 5 |
+
+**The whole five-revival record rests on the `SUBORDINATE` class** — four
+bullets whose subject is a different item and which mention the chapters as a
+premise. Narrow the anti-set to the honest reading and `V2` goes red, `R4`
+stops meaning anything, and five revivals leave the record.
+
+**Not narrowed, deliberately.** Whether a subordinate assertion counts as the
+list carrying the item has two defensible answers, and the session that finds
+the question is the worst placed to settle it — 11-05's rule, and the reason
+11-08 left its own falsified prediction standing. Ranked below instead.
+
+**And it bounds the 11-06 containment argument, which is the part worth
+keeping.** That amendment proved the revival rule can only *add* revivals and
+never drop one. **The proof holds the anti-set fixed.** It says nothing about
+narrowing the anti-set, and narrowing it drops five. The reassurance does not
+cover this change — recorded now rather than rediscovered later by a session
+that trusted it. Stating the scope of a proof is cheaper than rediscovering
+its limit.
+
+`V1`'s gloss is **annotated in place with its number kept**: §3 printed "the
+list then tracked the drafting correctly for N entries", which is true of
+exactly one of the eight. The count stays as printed — it is what `a` contains
+and what `V1`/`V2`/`V3` are computed from — and the wording is corrected
+beside it rather than the number quietly changed.
+
+### 4. And then the new checks would have gone red on this very entry
+
+`S5b` and `S5g` were committed in §3 as exact statements about the **whole
+log**: `CARRIED == ['2026-11-06']`, `QUOTED == ['2026-11-08']`. Both true when
+written. **Both would have failed on the next entry** — because this entry
+describes the repair, describing it means quoting the retired wording inside
+backticks, and that adds 2026-11-09 to `QUOTED`.
+
+So I had written a check that goes red *because the log was written* — the
+exact fault this module exists to find, forbidden by its own 2026-10-17 rule
+sitting fifteen lines above the `BASELINE` table. This is the **third**
+instrument-constrains-the-log instance in five sessions (11-05 had to word a
+bullet matching neither regex; 11-08 was falsified for quoting one) and the
+**first caught before it bit**.
+
+`HISTORICAL_PARTITION_THROUGH = '2026-11-08'` gates the exact membership over
+a closed window; later entries are reported and gated on nothing. The window
+is a literal date, not a bound computed from the file — computing it from the
+file would make the check vacuous the moment the file grows, the same defect
+one layer in. And the window is itself controlled both-sidedly on plants,
+because a window that silently became an exemption would be worse than the
+landmine: `S5h` a future entry quoting the wording classifies `QUOTED` and
+leaves the gated partition intact; `S5i` a future entry *asserting* it still
+classifies `CARRIED`.
+
+`S5h` is precisely the check whose absence falsified 11-08: **asking what the
+entry will do to the suite before committing the entry.** It is now mechanical
+rather than something a session must remember.
+
+### 5. Count
+
+33 checks at the start of the session, **52** at the end, 0 failed. Eight
+mutants across two control sets, eight detections, two gaps found in controls
+written today.
+
+### 6. The prediction I first wrote was already false, and correcting it found a THIRD source of the grep/audit divergence
+
+The draft of this entry predicted that the census would classify
+**2026-11-09 as `QUOTED`**, on the reasoning that the entry quotes the retired
+wording while describing the repair. Running the suite against the entry
+before committing it — the discipline §4 had just mechanised — says otherwise:
+**`Entries after the gated window (2026-11-08): none`.**
+
+The phrase occurs **once** in this entry, in the `SUBORDINATE` row of §3's
+table, and it is neither inside backticks nor inside a bullet. So:
+
+- it is not `QUOTED`, because `strip_code_spans` never sees it;
+- it is not in the anti-set **at all**, because `bullets()` reads only the
+  `Not yet covered` list and the table is prose.
+
+**So the divergence between `grep` and the audit has a third source, and it is
+not normalisation.** 11-08 found the *flattening* source (the phrase exists
+only after joining wrapped lines). §1 today found the *code-span* source. This
+is **scope**: `grep -n 'CHAPTERS 2 AND 3 ARE DRAFTED' AUTOMATION_LOG.md` now
+reports a hit inside the 11-09 entry, and the audit's anti-set correctly does
+not. Both are right about their own question. Nothing says so, which is the
+same shape as the other two and the reason `--show-normalised` reports
+greppability **per bullet** — a choice that is correct for bullets and silent
+about prose.
+
+That is a real limit rather than a bug: the audit's question *is* whether the
+**list** carries the item, so reading only the list is right. What is missing
+is that a reader cannot tell which of the three reasons a `grep` hit failed to
+become an anti date. On the list below.
+
+**Predictions for the next session**, corrected to what the tree actually
+says, so this entry can be scored the way 11-08 was:
+
+1. The census assigns **2026-11-09 no class at all** and the after-window
+   report still reads `none` — the phrase in §3's table is prose, outside
+   every bullet.
+2. The anti-set stays at **eight** and revivals at **five**; `S5b`/`S5g` stay
+   green, their window being closed at 11-08.
+3. `A1` still reads `RETIRED`.
+4. `grep` finds the phrase in this entry while the audit does not, and
+   prediction 1 is what makes that consistent rather than alarming.
+
+The live instance of `S5h` therefore did **not** arrive today; `S5h` remains
+planted-only, and saying so is worth more than quietly rewording §4 to claim
+it did.
+
+**Not yet covered (candidates for future runs):**
+
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  created today by §3, **ranked first for the next session**, and it is a
+  decision rather than a repair. The measurement is already on disk: admitting
+  the class gives five revivals, excluding it gives zero. Both answers are
+  defensible and the consequence is large, so what is wanted is a recorded
+  judgement with its reason, not a quiet change to `_trig_anti_dates`. If the
+  answer is "no", `V2`/`V3`/`R4` need rewriting around a record of zero
+  revivals, and that rewrite is the work.
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** —
+  created today by §6, cheap, ranked second. A phrase can appear in the file
+  and not in the anti-set for three distinct reasons — it is inside a code
+  span, it is outside the `Not yet covered` list, or it is in a bullet whose
+  class is not counted — and all three are correct behaviour. A reader cannot
+  currently tell them apart, which is how 11-08 lost a prediction and how this
+  entry nearly lost another. `--show-normalised` should take a whole-file mode
+  that lists every `grep` hit with the reason it did or did not become an anti
+  date. The 11-09 entry is the worked example and the test fixture.
+- **`INCIDENTAL` IS NOT ONE CLASS** — created today, cheap, ranked third.
+  10-05 and 10-06 are roll-up bullets that list many prior items
+  semicolon-separated; a mention inside one is arguably not a mention by the
+  list at all but a mention by a *summary of the list*. Splitting it would not
+  move today's numbers (both dates are later than 10-01, so the revivals do
+  not depend on them) which is exactly why it is cheap to get right now rather
+  than when it does matter.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01 and now the **fourth** occurrence of the shape. `graphene_dead_name_sweep.py`
+  fixed only the mention-vs-use half in 10-01 and its own `SELF` comment
+  records walking into the same-spelling half; today repaired the third module
+  but touched neither of the others. `strip_code_spans` is now importable, so
+  this is mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried, and
+  today is the **eighteenth** instance.
+- **AUDIT EVERY TOLERANCE** — item 15, created 10-09. Today's checks are set
+  identities, exact counts and literal matches, so again not exercised.
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item 22
+  (i), mechanical, blocked on nothing.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **eighteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried, both joined to the ranked physics item by the same figure.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17,
+  and today is an instance from a third side: `S5h`/`S5i` plant entries
+  carrying the very wording the census counts, into a *copy* of the log text
+  rather than the file, which is why it is safe. That the safe form and the
+  unsafe form differ by one word in the call is worth a check of its own.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08, both successors of the retired split item.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-second** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-third** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01, and
+  today it acquires a second reason to be read: its bullet's wording is what
+  the entire revival record rests on.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-sixth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-first** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **twenty-ninth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-eighth**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **twenty-ninth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **twenty-ninth** session, same question as the branch-split item.
+- **A SELF-HEATING TERM** — created 10-06.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08, subsumed by the
+  grown-census item.
+
+**Retired from the list this session:**
+
+- **RETIRED:** THE ANTI-TRIGGER CANNOT TELL A QUOTATION FROM AN ASSERTION —
+  created 11-08 and ranked first there. Repaired, measured as a set identity,
+  ten both-sided controls, four mutants detected. Done rather than dissolved.
+- **RETIRED:** AND `bullets()` SHOULD SAY WHAT IT NORMALISED — created 11-08.
+  `--show-normalised`, plus the committed artefact for the 11-08 bullet. Its
+  first draft was wrong in the direction of reassurance, which is recorded in
+  §2 rather than smoothed over.
+
+**Commits this run:** 4 before this entry — the quotation repair with its ten
+controls; Section 5 with the partition and the annotated gloss; the two
+transcripts; the windowing of `S5b`/`S5g` with its two planted controls — and
+this `AUTOMATION_LOG.md` entry makes **5**.
+
+---
+
+## 2026-11-10 — the 34-session item was a physics item all along, and closing it moved the conclusion the other way
+
+**Commits before this entry:** 4 — the research note with the two
+hand-computed benchmarks; the model with 41 checks; the mutation harness;
+the Chapter 4 / Chapter 7 annotations.
+
+### 0. A ranking judgement, recorded because it changed what this session did
+
+11-09 ranked **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING
+THE ITEM** first. This session did not take it. That is a deliberate
+departure and it gets stated rather than glossed.
+
+The reason: **A SELF-HEATING TERM** was created 2026-10-06 *with a measured
+number attached* — 65 → 40 GHz in `f_max` — and the entry that created it
+said the number "bounds every absolute frequency in Chapter 4". It then sat
+for **34 consecutive sessions** while items about the log's own bookkeeping
+were ranked above it. Eight of the last ten entries are about the audit
+instruments; the chapters they audit have not acquired a new physical
+mechanism since 10-30.
+
+That is a mis-ranking, and the test is cheap to state: the standing list
+exists to serve a thesis on the electronic properties and device
+applications of single-layer graphene. An item that changes what the thesis
+*claims about a device* outranks an item that changes how the list *talks
+about itself*, unless the second is blocking the first. The `SUBORDINATE`
+decision blocks nothing. It is kept on the list below, unretired and
+undecided, with its measurement intact — but it is no longer first.
+
+### 1. Why the item was answerable today and not on any of 34 earlier days
+
+The obstacle was never the physics. It was that `R_th` had to come from
+somewhere, and a thermal resistance with no provenance would have been the
+10-01 fault in a new costume: a number with no source, propagating into
+`f_T`/`f_max` and reading like a measurement.
+
+What unblocked it: **the primary source for this repository's *transport*
+parameters carries its own *thermal* budget.** Dorgan, Bae and Pop
+(*APL* 97, 082112 (2010), read as arXiv:1005.2711) is already the source of
+the mobility and saturation-velocity forms used in Chapter 4, and its
+supplement gives Eq. (5)'s three-term network, the geometry it was applied
+to, **and the share each term contributed.** That last part is what makes
+`R_th` checkable instead of asserted.
+
+So the generalisation, worth more than the item: **an item blocked on "a
+number with no provenance" may be unblocked by re-reading a source already
+cited for something else.** Nothing new had to be found. Thirty-four
+sessions of "no thermal model available" were thirty-four sessions of not
+re-reading a paper in the bibliography.
+
+### 2. Two exact external benchmarks, computed by hand before any code
+
+| benchmark | computed | the paper's own |
+|---|---|---|
+| `R_B` / `R_ox` / `R_Si` share, Dorgan's geometry | 3.60 / 84.49 / 11.91 % | **4 / 84 / 12 %** |
+| `R_th` total, same | 9915.6 K/W | **~1e4 K/W** |
+| `n_min` at 160 meV | 9.4043e11 cm⁻² | **9.4e11 cm⁻²** |
+| `n_min` at 55 meV | 1.1113e11 cm⁻² | **1.1e11 cm⁻²** |
+
+Benchmark A is agreement on **three independent ratios**, so no single
+fudged constant buys it. Benchmark B pins `v_F`, `hbar` and the factor
+`2*pi` jointly — a factor error in the `v_sat` prefactor survives A and
+dies here. These were computed in the note and committed **before** the
+model was written, which is the only ordering in which they are a test.
+
+`kappa_ox`'s extracted form `ln(T_ox^0.52) - 1.687` looked garbled and was
+**not**: it is identically `0.52*ln(T_ox) - 1.687`, gives 1.2794 W/m·K at
+300 K, and that is the value Benchmark A's 84 % share requires. Settled by
+arithmetic, with the arithmetic shown.
+
+### 3. THE SESSION'S OWN TWO ERRORS, both caught by the checks before commit
+
+**(i) A tolerance that tested a precision the source never claimed — and it
+is the first live instance of item 15.**
+
+`B2` first compared the computed `1.1113e11 cm^-2` against the paper's
+`1.1e11` with a **1 % relative tolerance**, and failed at 1.03 %. The model
+was right; the check was wrong. The paper quotes **two significant
+figures**, and `1.1113e11` rounds to `1.1e11` exactly as required. A
+relative tolerance is the wrong instrument for comparing against a rounded
+published number.
+
+**AUDIT EVERY TOLERANCE** was created 2026-10-09 and recorded as
+"not exercised" in **thirty-one** consecutive entries, including 11-09's.
+It is now exercised, and it arrived **from the direction the item did not
+anticipate**: not a tolerance too loose to catch a defect, but one too
+*tight* against a number quoted to fewer figures than the comparison
+assumed. The item's own wording — "audit every tolerance" — would have
+found it; the item's implied *motivation*, which was always looseness,
+would not have looked here.
+
+**(ii) A monotonicity claim that was simply false.**
+
+`N1` was first written as *"the isothermal current is monotone in `V_ds`,
+so the turning point is thermal in origin"*. It **failed**:
+`min diff(Id_iso) = -2.0e-07 A`. The isothermal model turns over too, near
+`V_ds` = 1.11 V, from drain-induced density loss — the ordinary GFET
+quasi-saturation kink, nothing to do with temperature.
+
+So the claim is narrowed to the true and smaller one: **self-heating does
+not create the turning point; it moves it 0.28 V earlier and 9.16 % lower**
+(1.11 V / 487.97 µA isothermal → 0.83 V / 443.26 µA self-consistent).
+`N4` additionally gates that the two peaks are separated by more than the
+sweep grid, so `N2`/`N3` are not reporting resolution. Had `N1` been
+written as the weaker "the self-consistent current has an interior maximum"
+— which is **true** — the overclaim would have shipped in the commit
+message and the thesis. The check that failed was the one phrased as the
+*interesting* claim rather than the safe one.
+
+### 4. The suite was blind to two parameters while green, and only mutation found it
+
+10/10 mutants detected, 0 survived. **`M-H` and `M-I` are the point.** The
+first draft of the suite — green at 39/39 — detected **neither** Eq. (4)
+exponent:
+
+- at `T = T_REF` the temperature factor is identically 1 **for any `beta`**;
+- at `n = N_REF` the density factor is identically 2 **for any `alpha`**.
+
+Every exact check was anchored exactly where the parameter it would test is
+invisible. `M4`/`M5` close it with **hand-computed literals**
+(`mu0/(1+2^2.2)` at `2*n_ref`; `mu0/1.125` at 450 K) rather than
+expressions in `ALPHA`/`BETA`, which would have been circular and passed
+for any value. Note `T = 2*T_REF` would **not** pin `beta`, since
+`1^beta = 1`: the anchor had to be chosen to make the parameter visible,
+which is a general lesson about where exact checks are placed.
+
+This is the **nineteenth** instance of *give every verdict a planted
+control*, and the first in which the gap was in the *anchor point* rather
+than the control.
+
+### 5. The physics, with 10-06's prediction scored
+
+| quantity | value |
+|---|---|
+| `R_th`, this device | 4.1582e5 K/W (41.9× Dorgan's, on 140× less area) |
+| term shares | `R_ox` 84.61 %, `R_B` 12.02 %, `R_Si` 3.36 % |
+| Δ*T* at `V_ds` = 50 mV (the RF bias) | **1.0675 K**, current loss 1.8e-06 |
+| Δ*T* at `V_ds` = 1 V | 168.7 K |
+| Dorgan's ~200 K ceiling crossed at | `V_ds` = **1.25 V** |
+
+**10-06 predicted the absolute 56.687 GHz was exposed. It is — in
+principle — and the exposure is 1.8e-06 at the bias it is computed at.**
+The prediction was right about the mechanism and wrong about the
+magnitude, and the reason is a bias difference rather than a disagreement:
+Feijoo's 65 → 40 GHz is measured on a device driven at **volts**. So
+Chapter 4's table is sound and **extrapolation from it is not**, which is
+the usable form of the result and is now written beside the numbers a
+reader would extrapolate.
+
+**A counter-intuitive coupling, recorded because Chapter 4's table invites
+getting it backwards:** self-heating responds to *total* dissipation
+including the contacts, so at a bias where heating matters the **low-`R_c`
+rows heat more** (they pass more current) and partially eat the gain the
+table credits them with. At 50 mV this is 1.8e-06 and ignorable. The sign
+is written down anyway.
+
+**The 160 meV branch is inadmissible here, and that is a result.** At
+`V_g` = 3 V this device's density is 7.26e15 m⁻² against a branch cut of
+9.40e15 m⁻², so **Dorgan's two phonon energies cannot bracket `v_sat(T)`
+at this bias at all**; `V_g` = 4.1277 V would be needed. `v_sat` **refuses**
+rather than clamping, and `C1`–`C4` gate the refusal two-sidedly so the
+guard is distinguishable from a function that always refuses.
+
+**And the ambiguity that looked contentious turned out not to matter.** The
+note deliberately refused to settle Eq. (4)'s product-vs-sum reading and
+implemented both. Measured: **168.717 vs 168.721 K** at `V_ds` = 1 V — 0.002 %
+— because this device sits far below `n_ref`, where the two readings
+coincide. The phonon energy is the real uncertainty (113.97 K at 55 meV vs
+168.72 K at 82 meV). **Refusing to settle it was still right**, and the
+reason is now sharper: the refusal cost nothing *and* the measurement is
+what shows which unsettled choice actually carries the error bar. Guessing
+would have been harmless here and the session would not have learned which
+knob mattered.
+
+### 6. Declared limitations, so no future session mistakes a bound for an estimate
+
+- Eq. (5) assumes `W, L >> t_ox`; this device has `L/t_ox` = **2.22**, so
+  lateral spreading in the oxide is neglected and `R_ox` is
+  **over**-estimated. The error is **directional**: every Δ*T* here is a
+  **worst case**, not a centred estimate of unknown sign.
+- `h` = 1e8 W m⁻² K⁻¹ is a **secondary citation** (Chen *et al.* 2009 *via*
+  Dorgan), labelled as one.
+- Contact dissipation is lumped onto the channel's thermal node. Dorgan
+  supp. 5 measures a probe thermal resistance ~1e6 K/W — two orders above
+  the network — on a **4 µm** device. That justification is **not**
+  re-derived for a 200 nm one.
+- Still **no diffusion current**, the RF thread's binding question since
+  10-06 and untouched today.
+
+**Fetch record.** arXiv preprint + supplement fetched successfully.
+`pubs.aip.org` **not attempted** (known-403 publisher for this repository
+since 10-06; the APL version sits behind it and the preprint carries the
+supplement, so nothing was lost). PubMed/PMC **not attempted** per the
+standing reCAPTCHA note. Chen *et al.* **not fetched**. Dorgan Figs. 2b and
+3c **not read as data** — and that is now the specific blocking step for
+the product-vs-sum question rather than a vague wish for better data.
+
+### 7. Count
+
+41 checks, 0 failed, 10/10 mutants detected. Two session errors caught
+before commit. One 34-session item closed; one 31-session item exercised
+for the first time.
+
+**Not yet covered (candidates for future runs):**
+
+- **CENSUS EVERY COMPARISON AGAINST A PUBLISHED NUMBER AND CHECK IT USES A
+  SIGNIFICANT-FIGURE TEST, NOT A RELATIVE TOLERANCE** — created today by
+  §3(i), **ranked first**, cheap, and the direct generalisation of the only
+  instance item 15 has ever had. Every literature-calibrated constant in
+  this repository was quoted to two or three figures by its source, and any
+  check comparing against one with a relative tolerance is either vacuous
+  or wrong depending on which side of the rounding it lands. `_rounds_to`
+  is now importable. This is item 15 with a handle on it.
+- **A SPREADING-CORRECTED `R_ox`** — created today by §6, ranked second,
+  and it is the one change that would turn today's worst-case bound into an
+  estimate. `L/t_ox` = 2.22 violates Eq. (5)'s own stated validity, the
+  error's sign is known, and its size is not. A closed-form spreading
+  correction would tighten Δ*T* downward by an unknown factor; until then
+  every number in §5 is an upper bound and is labelled one.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — created today, ranked third, and it is now a *joined* item
+  rather than two. Self-heating is negligible at 50 mV and large at 1 V;
+  diffusion is ~40 % of the current at the measured peak-`f_max` bias. Both
+  absences are harmless where Chapter 4 evaluates and both bite where the
+  literature's peak sits. Doing either alone at the higher bias would
+  produce a number wrong for a reason the model cannot see.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — created
+  today, explicitly *blocked on figure reading*, and explicitly **low
+  value** now that §5 measures the consequence at 0.002 %. Recorded so that
+  a future session does not mistake "unsettled" for "important".
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — created today from §5. The
+  160 meV branch cut sits at `V_g` = 4.1277 V on this device, which means
+  Chapter 4's whole gate sweep straddles a validity boundary of the
+  velocity model it uses. Which bias points in which existing figure are on
+  which side of it is not currently known or reported anywhere.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried from 11-09, where it was ranked first; **de-ranked today with the
+  reason recorded in §0**, not dropped. The measurement is still on disk:
+  admitting the class gives five revivals, excluding it gives zero. Still a
+  decision wanting a recorded judgement, still blocking nothing.
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** —
+  carried from 11-09, cheap.
+- **`INCIDENTAL` IS NOT ONE CLASS** — carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, **fifth** occurrence of the shape; `strip_code_spans` is
+  importable, so mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried,
+  **nineteenth** instance (today's was in the anchor point, §4).
+- **FIX `v_F`: THREE NAMES MOVED TOGETHER** — carried from 10-25, §7.9 item
+  22 (i), mechanical, blocked on nothing, and today **adds a fourth name**:
+  `graphene_self_heating_model.V_F`, set independently to 1.0e6 because
+  Dorgan states `v_F ~ 1e8 cm/s` and Benchmark B pins it. A constant now
+  pinned by a published benchmark in one module and hand-set in three
+  others is a sharper version of the same defect.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from
+  10-24, and now ambiguous in a new way: this repository has acquired a
+  *second* thermal quantity, and the name no longer says which.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **nineteenth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** — carried from 10-17.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08.
+- **WHAT `n_puddle` ACTUALLY MEANS** — carried from 10-12, and today it
+  acquires a second reason: `_mean_density` reads `carrier_density`, whose
+  puddle floor is added in quadrature, so the self-heating solve inherits
+  whatever that floor means at low density.
+- **WHETHER THE FLOOR BELONGS INSIDE `C_q`'s ARGUMENT** — carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-third** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried
+  from 10-14, **twenty-fourth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, belongs inside item 15 and is now *second* in that item's queue
+  behind today's ranked-first census.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13, and
+  today adds the contacts' own *thermal* path to it (§6).
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-seventh**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-second** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **thirtieth** session untouched.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **twenty-ninth**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **thirtieth** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **thirtieth** session.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08.
+
+**Retired from the list this session:**
+
+- **RETIRED:** A SELF-HEATING TERM — created 2026-10-06, carried **34
+  sessions**. `graphene_self_heating_model.py`, 41/41 checks, 10/10 mutants,
+  both of Dorgan's published benchmarks reproduced, Chapter 4 and Chapter 7
+  annotated in place with no number deleted. Closed in the direction of
+  *the model was conservative here*, which was not the expected direction.
+- **AUDIT EVERY TOLERANCE** is **not** retired — it has its first instance
+  and its generalisation is now ranked first. One instance is not a census.
+
+**Predictions for the next session**, so this entry can be scored the way
+11-08 and 11-09 were:
+
+1. The ranked-first tolerance census finds **at least one more** relative
+   tolerance compared against a two-or-three-significant-figure literature
+   number, and at least one of those is **vacuous** (tolerance so loose it
+   admits a wrong value) rather than over-tight like `B2`.
+2. The `v_F` item's count is now **four** names, not three, and a session
+   that fixes it without touching `graphene_self_heating_model.V_F` will
+   leave the defect in place while reporting it closed.
+3. `_rounds_to` will be the thing imported, and the first module to import
+   it will be `graphene_standing_list_audit.py`, not a physics module.
+
+---
+
+## 2026-11-11 — the ranked-first item found a vacuous tolerance passing a false equality, and then reading the paper found there was no published number behind it at all
+
+**Commits before this entry:** 4 — the census module and its figure; the A1
+annotation; the retraction of that annotation after reading Dorgan; the
+research note with the 11-10 note annotated in place.
+
+### 0. What was taken, and why it was taken as ranked
+
+11-10 ranked **CENSUS EVERY COMPARISON AGAINST A PUBLISHED NUMBER AND CHECK
+IT USES A SIGNIFICANT-FIGURE TEST, NOT A RELATIVE TOLERANCE** first, called
+it cheap, and noted `_rounds_to` had just become importable. It was taken as
+ranked. No departure to record this session.
+
+### 1. The instrument
+
+`graphene_tolerance_census_audit.py` walks every module's AST, finds every
+tolerance comparison, decides from the enclosing check's **label** whether it
+is a claim about a publication, reads the quoted value's significant figures
+off **how it is spelled**, and adjudicates the coded tolerance against the
+interval those figures license. 60 checks, 0 failed; five verdict mutants and
+one `_sigfigs` mutant all detected.
+
+`graphene_tolerance_census_figure.py` draws the three adjudicated rows on
+their own axes: licensed interval, tested interval, computed value.
+
+### 2. Where the census corrects the item that commissioned it
+
+The item was written as *significant-figure test, **not** a relative
+tolerance*, i.e. as though the operator were the defect. It is not. For `q`
+quoted to `s` figures, `abs(got-q)/q < h_rel` with `h_rel = h_abs/|q|` **is**
+the round-to-`s`-figures test, up to the half-way tie-break. The defect is a
+tolerance whose *number* was not derived from the quoted precision — which is
+every hand-written tolerance in this tree, because none of them was.
+
+This is not pedantry about wording. A session that mechanically rewrote every
+relative tolerance as `_rounds_to()` would have fixed three instances by
+accident and left the class untouched. Verdicts are reported as the ratio
+`licensed/tested`, not as a pass/fail on which function was called.
+
+### 3. The tree: 102 tolerance comparisons, seven of them claims about a source
+
+| row | tolerance | quoted | s.f. | licensed | verdict |
+|---|---|---|---|---|---|
+| `fet_signed_carrier:648` | ±0.01 abs | 6.45 kΩ/sq | 3 | ±0.005 | VACUOUS ×2 |
+| `self_heating:A1` | ±5e-4 abs | 1.2794 W/m·K | 5 | ±5e-5 | VACUOUS ×10 |
+| `self_heating:A2` | ±5 % rel | ~1e4 K/W | 1 | ±50 % | OVER_TIGHT ×10 |
+| `self_heating:A3,A4,A5` | — | 4/84/12 % | — | — | sound (`round(x)==n`) |
+| `kappa_impurity_bound:D2` | — | 1.5e12 cm^-2 | 2 | — | sound (`float('%.2g'%x)`) |
+| `self_heating:V3` | *sign only* | ~20 % | amb. | — | no numeric test |
+
+`A2` is over-tight by exactly ten and currently latent — 9915.6 K/W passes
+both bands with room to spare, but a model change moving `R_th` to 1.1e4
+would fail a check against a paper that would still agree with it. `V3` names
+Dorgan's ~20 % / ~2 % statement and tests only its sign.
+
+### 4. The finding, and the better finding underneath it
+
+A1 read `"kappa_ox(300K) == accepted thermal-SiO2 value 1.2794 W/m.K"`,
+tested to ±5e-4 where five figures license ±5e-5. The formula gives
+`0.52*ln(300) - 1.687 = 1.2789668868`, which rounds to **1.2790**, not
+1.2794. The residual 4.3311e-4 sits between the licensed half-width and the
+coded one — so **A1 was green while the equality in its own label was false**,
+and a tolerance set to what the quotation licenses would have failed it. That
+is 11-10's prediction (1) confirmed in its strong form: vacuous, not merely
+over-tight, and already admitting a wrong value.
+
+The first commit of the day stopped there, annotated A1 in place, and called
+*which of the two numbers is wrong* an open question — offering an intercept
+of 1.686567 or a coefficient of 0.52007593 as candidate roundings of "either
+published coefficient".
+
+**Both branches were wrong, because 1.2794 is not a published number.**
+Dorgan supp. Sec. 6 prints the fit as `κox = ln(Tox^0.52) − 1.687` with 0.52
+and 1.687 its only digits; supp. Sec. 5 prints the only numerical
+conductivity in the paper, `κox ≈ 1.3 Wm-1K-1 ... (at 300 K)`. There is no
+1.2794 anywhere in it at any precision. "Accepted thermal-SiO2 value" named
+an authority that does not exist.
+
+**Provenance, traced.** `notes/2026-11-10-...md` §4 states
+`0.52*ln(300) - 1.687 = 1.2794` — an arithmetic slip in the fourth decimal —
+and calls the result "the accepted value for thermal SiO2". The next day the
+slip was copied into A1's label, where the words *the accepted value* turned
+it into a citation. An arithmetic error in a note became a citation in a test
+in one step, and nothing in the tree could have caught it.
+
+That note also claimed 1.2794 was "the value needed to reproduce the paper's
+84 % share". It was not: 1.2789668868 gives 84.49 %, the same 84 %. The share
+was never evidence for the fourth decimal.
+
+**What survives.** The `ln(x^0.52) ≡ 0.52·ln(x)` identity was resolved
+correctly and the transcription was never in doubt. 1.2789668868 **does**
+round to the 1.3 the paper prints, at the two figures it prints it to — a
+band a thousand times wider than the phantom five-figure value appeared to
+license. A1 is now that comparison and it passes. A1b keeps the five-figure
+arithmetic; A1c keeps 1.2794 with its tolerance untouched and no claim of
+publication. Nothing is deleted. The physics never moved: the 0.0339 %
+propagates to `R_ox` and is far below every margin in Chapter 4, and the
+11-10 note's `R_ox = 3.52e5 K/W` recomputes to 3.5185e5, the same at three
+figures.
+
+### 5. The limit of this instrument, now a check rather than a sentence
+
+The census decides whether a comparison is a literature claim, and to what
+precision, **by reading the label**. It therefore inherits every false
+citation in the tree and cannot detect one. `1.2794` reads as five figures and
+`1.3` as two; both readings are correct and only one of the two has a source.
+This is check 9k, so a clean census is not mistaken for verified citations.
+
+### 6. Five defects the census found in itself
+
+1. Every tolerance compared against the **relative** half-width — wrong for
+   `abs(a-b) < tol`. The 6.45 row was reported vacuous by 12.9 when the true
+   factor is 2. Over-stating a defect is the same error as understating it.
+2. Only **inline** residuals matched, so `rel = abs(a-b)/b` bound to a name
+   was invisible — **44 of 102 rows, 43 %** of the tree.
+3. The cue list included "reported": **16 of 29** cued labels, **55 %**, were
+   cued by that word alone, which here means reported *by an instrument in
+   this tree*. "accepted" needed the phrase "accepted … value" for the same
+   reason — bare, 33 % precision — and requiring the phrase is what brought
+   A1 into the census at all.
+4. "footnote" preceded "footnote-18" in the alternation, so on check B2 the
+   census read the **ordinal of the footnote**, −18, as the published value.
+5. **The mutation harness tested nothing.** `import
+   graphene_tolerance_census_audit as self_mod` loads a *second copy* when the
+   file is run as a script; every monkeypatch landed on a module nothing was
+   using, and all five mutants were "detected" only because the planted
+   expectation for P8 was itself wrong. A mutation suite reporting 5/5 while
+   testing nothing is the 2026-09-17 failure again, inside the tool written to
+   prevent it.
+
+And one non-defect: **P8 was planted VACUOUS and is MATCHED.** 2.5e3 at two
+figures licenses exactly 2 %. The planted expectation was wrong and the
+instrument was right. Left at 0.02 with the arithmetic recorded rather than
+nudged to make the plant look prescient.
+
+### 7. An error this session made in the course of fixing one
+
+The first draft of the A1 annotation reworded "accepted value 1.2794" out of
+the label while making it honest — and the census, which detects a literature
+comparison from the label's words, **immediately stopped seeing the row**. The
+table went from one VACUOUS finding to zero while the defect sat four lines
+below the annotation describing it. An annotation that blinds the instrument
+to the thing it annotates is worse than none, because the absence reads as a
+repair. Caught by re-running the census after editing, not by reading.
+
+(The eventual repair removed the cue *legitimately* — once the citation is
+known to be false, the row is correctly no longer a literature comparison —
+so check 9g, which asserted the row stays censused, was itself retracted
+within the day and replaced by 9h–9k.)
+
+### 8. Two standing items picked up instances, both by running rather than reading
+
+- **A MODULE MUST NOT PLANT THE PATTERN IT CENSUSES** (10-17): the first full
+  run reported three OVER_TIGHT tolerances and two LIT_NO_TEST rows existing
+  only inside this module's own controls, one quoting a "published" value of
+  `0` lifted from the label of a check asserting that 0 licenses nothing. Now
+  excluded by default, with 8f/8g *asserting* the self-plant.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** (nineteenth
+  instance), arriving from the **vocabulary** side: three spellings of the
+  significant-figure test, two senses each of "accepted" and "reported".
+
+### 9. Scoring the 11-10 predictions
+
+1. **Right on substance, wrong on form.** Two further defective tolerances;
+   one vacuous and already admitting a wrong value — the strong form. But
+   neither is a *relative* tolerance against a *two-or-three*-figure number:
+   the vacuous one is **absolute** against a **five**-figure value, the
+   over-tight one **relative** against a **one**-figure value. The prediction
+   generalised the shape of the defect from its single instance.
+2. **Not exercised.** The `v_F` item was untouched; carried at four names.
+3. **Half right.** `_rounds_to`/`_round_sig` were indeed the imports, but the
+   first importer is `graphene_tolerance_census_audit.py` — which did not
+   exist when the prediction was made. An audit module, not a physics one, so
+   the reasoning holds and the named target does not.
+
+### 10. Count
+
+60 checks in the new module, 0 failed, 6 mutants detected; `self_heating` 41
+→ 43 checks, 0 failed. Five defects caught in the new instrument before
+commit, one error made and caught within the session, one same-day retraction
+of one of this session's own commits. One ranked-first item closed.
+
+**Not yet covered (candidates for future runs):**
+
+- **CHECK `R_th` PER UNIT AREA AGAINST THE PAPER'S `~2.8e-7 m^2.K/W`** —
+  created today, **ranked first**, cheap, and the one item today's literature
+  read put on the table with a number already in hand. One significant figure
+  licenses ±1.8 %. It is an *independent* constraint: A2 tests `R_th` alone
+  and therefore tests the area and the conductivity only through their
+  product, while this tests the ratio. Of the two it is the one that can fail
+  for a reason A2 cannot see.
+- **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN** — created today, ranked
+  second. Dorgan's "~20 % / ~2 %" temperature statement is in V3's label and
+  only the sign of the dependence has ever been compared to it. The census
+  classes this `LIT_NO_TEST`, its own worst category, and this is the only
+  instance of that class left in the tree.
+- **REPAIR A2's OVER-TIGHT TOLERANCE, OR DECIDE NOT TO** — created today,
+  ranked third and genuinely a *decision*: ±5 % against a value the paper
+  prints to one figure is a tighter claim than the source supports, but it is
+  also the only thing currently pinning `R_th` to its decade. Widening it to
+  the licensed ±50 % would make it nearly vacuous. The right answer may be a
+  check against the per-unit-area number above *instead*, which is why the
+  two are ranked adjacently.
+- **RUN THE TOLERANCE CENSUS OVER `Design-Verification-Roadmap`** — created
+  today. `census_repo()` takes a `root`, that repository has its own
+  self-checking suites with hand-written tolerances, and nothing has ever
+  audited them. Cheap, and the first cross-repository instrument either side
+  has had.
+- **A CENSUS OF CITATIONS, NOT TOLERANCES** — created today by §5, and the
+  direct generalisation of the day's real finding. Today's defect was a label
+  naming a value its source never printed, and §5 proves no AST-level
+  instrument can catch that class. What *could*: a census of every number in
+  every check label that claims a source, emitted as a worklist for checking
+  against the papers. The tree has 13 such labels. This is item 15's successor
+  in the way item 15 was AUDIT EVERY TOLERANCE's.
+- **FIX `v_F`: FOUR NAMES MOVED TOGETHER** — carried from 10-25, mechanical,
+  blocked on nothing, **untouched again today**, and the count stays four.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried, de-ranked 11-10 with its reason recorded, measurement still on disk.
+- **A SPREADING-CORRECTED `R_ox`** — carried from 11-10, where it was ranked
+  second. `L/t_ox` = 2.22 violates Eq. (5)'s stated validity; the error's sign
+  is known and its size is not, so every number in that entry's §5 is an upper
+  bound and is labelled one.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried from 11-10, still a *joined* item.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — carried from 11-10. The 160 meV
+  branch cut at `V_g` = 4.1277 V means Chapter 4's gate sweep straddles a
+  validity boundary of its own velocity model.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — carried,
+  blocked on figure reading, explicitly low value (consequence measured at
+  0.002 %). Note that today's session *did* reach this paper's text
+  successfully, so the block is specifically on reading a **figure**, not on
+  reaching the source.
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** and
+  **`INCIDENTAL` IS NOT ONE CLASS** — both carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, fifth occurrence, mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried,
+  **twentieth** instance (today's was §8).
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **twentieth** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08.
+- **WHAT `n_puddle` ACTUALLY MEANS** and **WHETHER THE FLOOR BELONGS INSIDE
+  `C_q`'s ARGUMENT** — both carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-fourth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-fifth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13, including
+  the contacts' own thermal path.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-eighth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-third** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **thirty-first** session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **thirtieth** session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **thirty-first** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **thirty-first** session.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08.
+- **CHAPTERS 2 AND 3 ARE DRAFTED; CHAPTER 7's CONTACT-METAL CONTRADICTION IS
+  STILL THE LARGEST ACTIONABLE WRITING ITEM** — carried. No thesis prose was
+  written today; the session went to the ranked item and then to the
+  literature read it opened.
+
+**Retired from the list this session:**
+
+- **RETIRED:** CENSUS EVERY COMPARISON AGAINST A PUBLISHED NUMBER — created
+  2026-11-10, ranked first, closed in one session.
+  `graphene_tolerance_census_audit.py`, 60/60, 6/6 mutants, three defective
+  tolerances found and one of them passing a false equality. It also retired
+  its own framing (§2) and produced the citation census item that supersedes
+  it (§10 list).
+- **AUDIT EVERY TOLERANCE** (item 15, created 2026-10-09) is **retired as a
+  census** and survives only as its successor above. It now has three
+  instances, a mechanical instrument, and a measured population; what it does
+  *not* have, and provably cannot, is any power over false citations.
+
+**Predictions for the next session**, so this entry can be scored the way
+11-08, 11-09 and 11-10 were:
+
+1. The `~2.8e-7 m^2.K/W` check **passes**, and the quantity is a
+   **product**: `R_th * A` = 9915.6 × 2.8e-11 = 2.776e-7 m^2·K/W, which
+   rounds to 2.8e-7 at the two figures the paper prints. The prediction is
+   about the trap, not the result: a session implementing this will first
+   compute `R_th / A` = 3.54e14, because "per unit area" reads as a division,
+   and will have a number seven decades off with no unit check in the tree to
+   catch it. Thermal resistance *times* area is the area-normalised figure of
+   merit precisely because `R_th` scales as 1/A.
+2. The citation census, when built, finds **at least one more** label naming a
+   number that its cited source does not print — and it will be in a module
+   written before 2026-10-20, because the three oldest literature-calibrated
+   modules predate every instrument in this tree.
+3. `graphene_tolerance_census_audit.census_repo(root=...)` run over
+   `Design-Verification-Roadmap` returns **more NO_QUOTE rows than this tree
+   has in total**, and **zero** adjudicated ones, because that repository's
+   suites check an RTL against a specification rather than against published
+   numbers.
+
+## 2026-11-12 — the ranked-first item passed and its stated justification was false; the repair it licensed made the tolerance tighter, not looser; and the cross-repository census returned the empty set
+
+**Commits before this entry:** 4 — the new areal module; A2's repair in
+`graphene_self_heating_model.py`; the recursive census with its first false
+positive recorded; the research note.
+
+### 0. What was taken, and why it was taken as ranked
+
+11-11 ranked **CHECK `R_th` PER UNIT AREA AGAINST THE PAPER'S `~2.8e-7
+m^2.K/W`** first, called it cheap, and said the number was already in hand
+from that day's literature read. It was taken as ranked. Items 2 and 3 of the
+same list (`V3`'s magnitude; A2's tolerance) were adjacent to it by design,
+and item 3 **was decided as a consequence** rather than taken separately —
+see §4. No departure to record.
+
+### 1. The comparison passes
+
+`graphene_areal_thermal_resistance.py`, 20 checks, 20 passing, 7/7 mutants
+detected and all seven by the predicted check.
+
+    R_th * A = 2.776362e-07 m^2.K/W  ->  2.8e-7 at 2 s.f.,  residual -0.844 %
+    R_th / A = 3.541278e+14 m^-2.K/W ->  21.1 decades away
+
+### 2. And the reason it was ranked first was wrong
+
+The 11-11 entry ranked it first because it was *"an **independent** constraint
+... the one that can fail for a reason A2 cannot see"*. It is not independent
+of A2 in any degree. `A = L*W` is given by the stated geometry rather than
+fitted, so `2.8e-7/A` is the paper's own `1.0e4` to within one ulp, and the two
+relative residuals agree to fourteen significant figures:
+
+    R_th*A vs 2.8e-7 : -8.44209690618646577e-03
+    R_th   vs 1.0e4  : -8.44209690618627148e-03
+    difference       : -1.94e-16   (0.9 ulp of 1.0)
+
+Independent constraints would differ at the `8.4e-3` the residuals occupy.
+**The per-area check IS A2**, same centre, licensed width 2.8x tighter. Worth
+having; not what the item said it was. All three clauses of the stated reason
+fail and I1/I2/I2b assert so.
+
+### 3. The new result: the areal figure of merit is scale-free for a factor 1.765 in area
+
+Multiplying Eq. (5) by `A` gives an identity with residual exactly `0.0` (I3):
+
+    R_th*A == 1/h + t_ox/k_ox + sqrt(A)/(2 k_Si)
+              3.60 %   84.49 %      11.91 %        <- only the last is geometry
+
+Inverting it for the edges of the paper's own two-figure band:
+
+    A in [2.3714e-11, 4.1857e-11] m^2 = [0.847x, 1.495x] of Dorgan's area
+
+So "per unit of device area" is transferable within **a factor of about 1.8 in
+area** and no further. This repository's FET is **140x smaller**
+(`A = 2e-13 m^2`, areal value `2.47359e-07`, spreading only 1.13 % of it), and
+reusing `2.8e-7` there would **over-state `R_th` by 13.20 %** against a hard
+worst case of 14.49 % set by the `A -> 0` floor. A bound of known sign and
+finite size, which is the shape this tree prefers.
+
+### 4. The ranked-third item, decided against its own framing
+
+11-11 called A2's `±5 %` "a tighter claim than the source supports" and
+offered widening to `±50 %`. **The dilemma was false**: the paper prints the
+same fact to two figures in the same sentence, licensing `±1.7857 %` on the
+identical constraint. `±5 %` was **2.8x too LOOSE**. A2's defect was its
+citation, not its width — it quoted the one-figure half of a two-figure
+sentence and used a width neither half licenses. A2 is **tightened**, and
+passes with 0.94 % of the licensed width to spare. A2a keeps the old
+comparison (the repair changed the warrant, not the verdict); A2b is the
+per-area check; A2c asserts the two are one constraint, which is exactly the
+inference 11-11 got wrong. `self_heating` 46 -> 47 checks, mutation 10/10.
+
+Third time a census finding here has been about a check's **warrant** rather
+than its arithmetic.
+
+### 5. "One significant figure licenses ±1.8 %" — right width, wrong reason
+
+Said twice on 11-11, in the note and the log, of `2.8e-7`. It carries **two**
+figures. Two license `±1.7857 %`, which *is* the quoted width; one would
+license 16.7–17.9 %, nine to ten times wider, and would have made the check
+nearly vacuous. The number carried forward was right and the arithmetic
+offered for it was not. F1–F4 pin all three widths so it cannot drift back.
+
+### 6. The cross-repository census read zero files
+
+`census_repo(root=Design-Verification-Roadmap)` returned **0 rows from 0
+Python files**, because it was a flat `os.listdir` and all 47 of that tree's
+Python files are under `tools/` or `examples/`. **An empty census is
+indistinguishable from a clean one.** The assumption was invisible in the
+repository the instrument was written for; recursion is now the default,
+because the old default cannot be told from a correct answer by its output.
+R2 asserts this tree's census is identical field-for-field under both (115
+rows) — and R2b records that the comparison must be by *field*, since `Row`
+keeps object identity for equality and `census_repo() == census_repo()` is
+`False` over one unchanged tree.
+
+Recursively: **6 rows over 47 files, all `NO_QUOTE`, zero adjudicated.**
+
+### 7. Two instrument limitations, both found by repairing a check it flagged
+
+- **9l, the census's FIRST FALSE POSITIVE.** It assumes a check's centre and
+  its width come from the same printed number. Repaired A2 takes its centre
+  from the one-figure `~1e4` and its width from the two-figure `~2.8e-7`, so
+  the census licenses `±50 %`, sees `±1.7857 %`, and returns `OVER_TIGHT` at
+  ratio 28. Wrong verdict, right arithmetic. Second stated limit after 9k.
+- **9m, a measured blind spot.** Name-bound *residuals* resolve through
+  `bound_via` (40+ rows); name-bound *tolerances* do not, because `tol` is
+  read only from a literal comparator. **7 such comparisons in 7 modules.**
+  A2 was the eighth for the length of one edit today: binding its half-width
+  to `0.05/2.8` made it `LIT_NO_TEST`, the census's own worst category.
+  Repairing A2's warrant had briefly made it unauditable.
+
+Check **8d** is annotated in place, not restated. It still passes, but the
+genuine `OVER_TIGHT` row it was written to witness was repaired today, and
+the row it now counts is 9l's false positive. Panel (c) of the census figure
+is relabelled for the same reason.
+
+### 8. Five errors made and caught within the session, none by reading
+
+1. **I1 and I2 written as exact equalities, both FAILED on first run.**
+   `4e-6*7e-6` is one ulp below the literal `2.8e-11`, so the identity is
+   exact in algebra and 1-ulp in binary. The wrong claim and its correction
+   both stay in the module.
+2. **P1 was a tautology** (`A == 4e-6*7e-6`, where `A` is computed as `L*W`).
+   It now carries the representability fact that drives I1/I2.
+3. **P2/P3 did not call this module's own public function**, computing the
+   headline product inline instead. Mutant **M1 reported
+   DETECTED-ELSEWHERE**, which is how it was found: the headline check
+   validated an expression and not the path that ships. Same class as the
+   "installed surface" items. Now DETECTED-AS-PREDICTED.
+4. **A2's repaired tolerance was unauditable** (§7, 9m).
+5. **A2d caught a one-ulp error in the literal it guards, on its first run** —
+   `0.017857142857142856` against `0.01785714285714286`. The guard was added
+   in the same edit that introduced the error it caught.
+
+The three-valued mutation reporting (DETECTED-AS-PREDICTED /
+DETECTED-ELSEWHERE / UNDETECTED), borrowed from the sibling repository, is
+what made (3) visible; a two-valued harness would have reported 7/7 and said
+nothing.
+
+### 9. Scoring the 11-11 predictions
+
+1. **Right on the trap, wrong on its size.** The product *is* the right
+   quantity and the check *does* pass at two figures, as predicted. But the
+   predicted "seven decades off" for the quotient matches neither reference:
+   it is 21.1 decades from `2.8e-7` and 10.5 from `1e4`. The prediction had
+   compared the quotient against the wrong one of the paper's two numbers —
+   the same conflation the whole session is about.
+2. **Not exercised.** The citation census was not built; `V3`'s magnitude
+   untouched.
+3. **Half right, and unscorable as posed.** Zero adjudicated rows holds; "more
+   `NO_QUOTE` rows than this tree has in total" is wrong by 17x *in the
+   opposite direction* (6 vs 102). And as posed it named a population in a run
+   that returned the empty set, so it could not have been scored before §6.
+
+The sibling's own 11-11 prediction (2) has **both substantive halves right,
+reason included**; its meta-claim that this tree's prediction was "right in its
+first half and wrong in its second" is **inverted** — the first half was the
+count, which failed.
+
+### 10. Count
+
+New module 20/20 with 7/7 mutants; `self_heating` 46 -> 47, 0 failing, mutation
+10/10; census 66 -> 69, 0 failing. Two items closed (one ranked first, one
+cross-repository), one decided (ranked third), one false positive and one blind
+spot recorded, five self-caught errors. No source fetched: the session ran
+entirely on the datum yesterday's read had already brought back, which is what
+made a ranked-first item cheap.
+
+**Not yet covered (candidates for future runs):**
+
+- **A CENSUS OF CITATIONS, NOT TOLERANCES** — carried from 11-11, **now ranked
+  first**, and today strengthened its case twice. 9k already said no AST-level
+  instrument can catch a label naming a value its source never printed; 9l now
+  adds a second class the AST cannot see — a width whose warrant is a
+  *different* printed number from its centre. Both are citation facts, not
+  arithmetic facts. The tree has 13 labels claiming a source and the worklist
+  is mechanical to emit.
+- **TEACH THE CENSUS THAT CENTRE AND WIDTH CAN HAVE DIFFERENT WARRANTS** —
+  created today by 9l, **ranked second**, and the direct repair of the
+  instrument's first false positive. A2 is the worked instance and the repair
+  is probably a second optional token in the label vocabulary, so the census
+  can read "centre 1e4, width from 2.8e-7". Cheap, and it un-breaks 8d.
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS** — created today by 9m,
+  **ranked third**, mechanical, with a measured population of 7 comparisons in
+  7 modules and `_resolve` already written for the left-hand side. Until it is
+  done, any check whose width is a named constant is silently outside the
+  census, and today showed that is one edit away from happening by accident.
+- **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN** — carried from 11-11 where it
+  was ranked second, **untouched**. Still the only `LIT_NO_TEST` instance in
+  the tree that is a genuine defect rather than today's new false-positive
+  class.
+- **AN AREAL BAND AT THE REPO'S OWN `t_ox`** — created today. §3's factor-1.765
+  band is computed at Dorgan's 300 nm oxide; a different `t_ox` moves the
+  A-independent floor and therefore the band. The repo's own FET sits outside
+  the band at 300 nm, and whether it does at its own oxide thickness is
+  unmeasured. Cheap, and it is the form in which §3's result would enter
+  Chapter 4.
+- **THE 13.20 % BELONGS IN CHAPTER 4** — created today, and the first *writing*
+  item this thread has produced with a number already in hand. Chapter 4's
+  thermal discussion inherits `R_th` from a 4 um device; §3 says the areal
+  shortcut over-states it by 13.2 % at the chapter's own geometry.
+- **A SPREADING-CORRECTED `R_ox`** — carried from 11-10. `L/t_ox` = 2.22
+  violates Eq. (5)'s stated validity; today's identity makes the item sharper,
+  since `t_ox/k_ox` is 84.49 % of the areal value and is exactly the term the
+  violation attacks.
+- **FIX `v_F`: FOUR NAMES MOVED TOGETHER** — carried from 10-25, mechanical,
+  blocked on nothing, **untouched again**, count still four.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried, de-ranked 11-10 with its reason recorded.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried from 11-10, still a *joined* item.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — carried from 11-10.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — carried,
+  blocked on figure reading, explicitly low value (0.002 %).
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** and
+  **`INCIDENTAL` IS NOT ONE CLASS** — both carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, fifth occurrence, mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried,
+  **twenty-first** instance: today's new module plants the quotient form
+  (P4/P5) against its own product verdict.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **twenty-first** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08.
+- **WHAT `n_puddle` ACTUALLY MEANS** and **WHETHER THE FLOOR BELONGS INSIDE
+  `C_q`'s ARGUMENT** — both carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-fifth** session. Note
+  that today's module was written with a fifth (`sigfig_halfwidth`) and it was
+  deleted before commit rather than added to the count.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-sixth** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, and today's I1/I2/A2d make it the third place this session where a
+  one-ulp fact mattered.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **twenty-ninth**
+  session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-fourth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **thirty-second** session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **thirty-first**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **thirty-second** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **thirty-second** session.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08.
+- **CHAPTER 7's CONTACT-METAL CONTRADICTION IS STILL THE LARGEST ACTIONABLE
+  WRITING ITEM** — carried. No thesis prose was written today; the session went
+  to the ranked item, the repair it licensed, and the cross-repository run. Two
+  sessions now with a writing item at the top of the writing queue and no
+  writing done, which is worth saying plainly rather than re-listing.
+
+**Retired from the list this session:**
+
+- **RETIRED:** CHECK `R_th` PER UNIT AREA AGAINST THE PAPER'S `~2.8e-7
+  m^2.K/W` — created 2026-11-11, ranked first, closed in one session. It
+  passed, and it retired its own justification: §2.
+- **RETIRED:** REPAIR A2's OVER-TIGHT TOLERANCE, OR DECIDE NOT TO — created
+  2026-11-11, ranked third. **Decided, in the opposite direction to both
+  options the item offered**: tightened, not widened, because the tolerance was
+  too loose and not too tight.
+- **RETIRED:** RUN THE TOLERANCE CENSUS OVER `Design-Verification-Roadmap` —
+  created 2026-11-11. Closed, and it found a defect in the instrument rather
+  than in the other tree.
+
+**Predictions for the next session**, so this entry can be scored the way
+11-08 through 11-11 were:
+
+1. **The citation census, when built, will find its first finding in
+   `graphene_self_heating_model.py` and not in an older module.** 11-11
+   predicted the first false citation would be in a module written before
+   10-20, on the reasoning that the oldest literature-calibrated modules
+   predate every instrument. That reasoning is now weaker than it looks:
+   `self_heating` is three days old and has already produced *two* citation
+   defects (A1's non-existent 1.2794 source, and A2's width-warrant
+   mismatch), because it is the module with the most published numbers per
+   line. Volume of citation, not age, predicts where a citation census bites.
+2. **Teaching the census that centre and width can have different warrants
+   will turn `MATCHED`, not `OK`, on A2 — and will expose at least one row
+   currently adjudicated `MATCHED` as mis-adjudicated.** A2's width equals the
+   licensed half-width exactly, so the right verdict is the boundary case, and
+   any instrument that newly distinguishes two warrant tokens has to re-read
+   every row where the two coincided. The second half is the risky half.
+3. **The areal band at the repo's own `t_ox` will put this repository's FET
+   INSIDE a band that no longer contains Dorgan's device.** The floor is
+   `1/h + t_ox/k_ox` and the repo's oxide is thinner than 300 nm, which lowers
+   the floor and shifts the whole band down in value and therefore down in
+   area. The prediction is that the two devices are not simultaneously
+   describable by any single areal figure of merit at two figures — which, if
+   it holds, is the sharpest form of §3's result and the one that belongs in
+   Chapter 4.
+
+---
+
+## 2026-11-13 — the published value was a section number, the only false citation credited CODATA for a number this thesis computed, and the module with the most citations per line had none
+
+**Commits before this entry:** 3 — the citation census with the
+`PLANTING_MODULES` generalisation it forced; the split-warrant repair of the
+tolerance census; the research note.
+
+### 0. What was taken, and why it was taken as ranked
+
+11-12 ranked **A CENSUS OF CITATIONS, NOT TOLERANCES** first and **TEACH THE
+CENSUS THAT CENTRE AND WIDTH CAN HAVE DIFFERENT WARRANTS** second, calling the
+second cheap and noting it "un-breaks 8d". Both were taken as ranked, in that
+order, and the order mattered: the first census's findings are what made the
+second's scope obvious, and the second changed 8d in a way the first could not
+have predicted — not by un-breaking it but by making its old form **red for
+the right reason**, which an assertion cannot express.
+
+A source was fetched, which 11-12 did not do. That was not a departure: a
+citation census whose registry rests on this repository's own notes is a
+census of its notes, not of its citations.
+
+### 1. The source, read a second time, independently
+
+[arXiv:1005.2711](https://arxiv.org/pdf/1005.2711) (Dorgan, Bae & Pop, *Appl.
+Phys. Lett.* **97**, 082112), SOM in the same file. The 11-10 session built
+`graphene_self_heating_model` from its own read of this preprint; today's read
+exists to test the module against the text rather than against the note that
+recorded the text.
+
+**Every transcription survived, including the two most at risk.**
+
+- The fit is printed `kappa_ox = ln(T_ox^0.52) - 1.687` with `T_ox =
+  (T_0+T)/2`, the **mean** oxide temperature. The module's docstring already
+  records the ln-identity and `thermal_resistances` already evaluates the fit
+  at `0.5*(T0+T)`. At the 300 K benchmark the distinction is **exactly** inert
+  — the mean of 300 and 300 is 300 with no rounding — so no A-series number
+  depends on it. At 500 K the two readings differ by 2.1 %, which is why it was
+  worth reading for.
+- `kappa_ox ~ 1.3 Wm-1K-1 ... (at 300 K)` is in **supp. Sec. 5 and nowhere in
+  the main text**, exactly as A1's label claims.
+
+**The module with the most published numbers per line has zero false
+citations.** Section 7 of the new module states that as a result rather than
+as a null result, and it refutes this repository's own ranked prediction (§8).
+
+New information the read brought back and the tree does not carry: the
+`~20 %`/`~2 %` `v_sat` statement is bracketed between `~280 K` and `~500 K`,
+and the `~20 %` belongs to the 55 meV SiO2-phonon branch while the `~2 %`
+belongs to the 160 meV graphene-OP branch. `V3` tests only the sign.
+
+### 2. The instrument
+
+`graphene_citation_census_audit.py`, 51 checks, 51 passing, nine verdicts each
+with a planted control (the **twenty-second** instance of that standing item),
+5/5 mutants detected.
+
+The design decision that matters: **the population is not re-derived.** It is
+the tolerance census's own 13 quoted rows, asserted field-for-field (5a/5b), so
+the two instruments cannot disagree about *which* labels claim a source — only
+about what is true of them. The consequence is deliberate: this module
+inherits the old `extract_quote`, misparses included. That is how the misparse
+was found.
+
+The verdicts are warrant classes and are disjoint from the tolerance census's
+vocabulary (5c): `CITED`, `INFLATED`, `AMBIG_PREC`, `DERIVED`, `UNWARRANTED`,
+`ORDINAL`, `RETRACTED`, `UNREGISTERED`, `NO_SOURCE`.
+
+### 3. Finding 1 — the published value was the ordinal of a supplementary section, and it is a defect in the commissioning instrument
+
+    graphene_self_heating_model.py  384  token=5  s.f.=1  dorgan  ORDINAL
+
+A1's label reads *"rounds to the 1.3 W/m.K Dorgan supp. Sec. 5 prints for the
+oxide at 300 K"*. The tolerance census matches a cue and takes the next number
+within forty characters: the cue that wins is `Dorgan` and the next number is
+**the 5 of "Sec. 5"**. Since 2026-11-11 it has reported A1 as a comparison
+against a published value of 5 quoted to one figure, and printed it in its
+table of the tree.
+
+Same class as the footnote-ordinal bug that census fixed on the day it was
+written, surviving in the one position the fix did not cover: **an ordinal that
+follows the cue instead of preceding the number.** Making `footnote-\d+` a
+longer cue does nothing for it. And check 8e cannot see it either — 8e rejects
+a **negative** quoted value, which is what the earlier bug produced, and a
+section number is positive. A guard written against one instance of a class
+caught that instance.
+
+The check A1 performs is sound: `_rounds_to(kappa_ox(300), 1.3, 2)` in the
+code. The defect is entirely in the census's reading of its label.
+
+### 4. Finding 2 — the only false citation in the tree credits CODATA for a number this thesis computed
+
+    graphene_fet_signed_carrier_model.py  648  token=6.45  codata  UNWARRANTED
+
+> `this module reproduces Section 3.3's quoted 6.45 kOhm/sq from CODATA`
+
+CODATA prints `e` and `h`. **6.45 kΩ/□ is `1/(4e²/h)` computed from them, by
+this repository, in Chapter 3.** This is the class 9k said no AST instrument
+could reach, and it is the only instance in the tree.
+
+Its consequence was live, not latent: the tolerance census adjudicated that row
+**VACUOUS by ×0.5** against a three-figure publication interval **that no
+publication licenses**. The three figures came from the spelling of a number
+this tree wrote itself.
+
+The repair is a wording — Chapter 3 for the quantity, CODATA for `e` and `h` —
+and it is deliberately **not applied**: the two censuses are cross-validated
+against each other's populations in this session, and editing the label in the
+same commit would make that validation vacuous. It is ranked first below.
+
+### 5. Finding 3 — a real citation spelled finer than its source printed
+
+    graphene_areal_thermal_resistance.py  374  token=1.0e4  dorgan  INFLATED
+
+I1 writes Dorgan's `R_th` as `1.0e4`. The paper prints `10^4`. Two figures
+claimed, one printed, and exactly a factor of ten in licensed width — `1/2`
+against `1/20`, asserted as exact rationals. `INFLATED` is an integer
+inequality between two spellings with no tolerance anywhere in it, which is the
+one way this instrument is sounder than the tolerance census.
+
+Latent today, because I1 is a `LIT_NO_TEST` row. It is the same defect A2's
+literal had before 11-12, one layer out: in the **label**, which is where the
+tolerance census takes its evidence from.
+
+### 6. Two warrant classes that are not defects, and one measured ambiguity
+
+- **`DERIVED`.** "Dorgan's 2.8e-11 m²" is nowhere in Dorgan: it is `L*W` from
+  the printed geometry, checked to **0 ulp**, and the possessive is doing work
+  the paper did not do. The distinction has teeth — the geometry is *stated*
+  and not fitted, so the derivation inherits no interval, which is exactly why
+  11-12 could show the paper's two numbers are one statement over an exact
+  constant.
+- **`AMBIG_PREC`.** `V3`'s `~20 %` fixes no figure count by its spelling.
+  Dorgan does print `~20%`, so the citation is real and only its precision is
+  unscorable; the mutant that guesses two figures instead of refusing is
+  detected on that control.
+- **One row does not identify its own warrant.** A3's "the paper's 4 %"
+  matches two printed Dorgan values at once — the `~4 %` share of `R_B` and the
+  `4 μm` channel length. The census matches on **value, not meaning**, scores
+  it `CITED`, and counts it. The count is the measurement of the limit (8b),
+  not a dismissal of it.
+
+### 7. The second warrant, and a verdict that turns on one ulp
+
+A2's centre is Dorgan's one-figure `~1e4`; its width is the two-figure
+`~2.8e-7` **from the same sentence**. The repair is the second optional label
+token the item predicted, spelled machine-readably because reading a precision
+claim out of English is the whole defect of the first version:
+
+    ... [width-warrant: 2.8e-7]
+
+A2 goes **`OVER_TIGHT` ×28 → `MATCHED`** with *nothing in the comparison
+changed* — not the tolerance, not the value, not the outcome. Honoured on
+relative forms only: a relative width is dimensionless and transfers across an
+exact constant, an absolute one would need the label to assert two quantities
+share units. A width warrant whose own spelling fixes no precision is refused,
+not guessed (10g).
+
+And the new verdict is a statement about the equality **band**:
+
+    A2's coded 0.05/2.8        = 0.01785714285714285962
+    the census's 0.5e-8/2.8e-7 = 0.01785714285714285615  = float(1/56)
+
+One ulp apart. **At `rel_eps = 0` the verdict is `VACUOUS` by that one ulp
+instead of `MATCHED`.** Third session in three where a one-ulp fact decided
+something.
+
+**8d is rewritten and its old numbers kept.** It asserted the tree still holds
+at least one `OVER_TIGHT` and one `VACUOUS` row; 11-12 annotated it as green
+while witnessing nothing. Today the old form would be red — correctly — so it
+splits: 8d keeps the `VACUOUS` half, now known to be a **real** defect by §4,
+and 8d2 asserts zero `OVER_TIGHT` rows where there was exactly one. 9l becomes
+the record of a repaired false positive, keeping the ×28 and the ±50 % in
+place.
+
+### 8. The 11-12 predictions, scored
+
+1. **Wrong, and wrong in the direction it argued against.** It said the first
+   finding would be in `graphene_self_heating_model` rather than an older
+   module, because volume of citation and not age predicts where a census
+   bites. The only `UNWARRANTED` row is in `graphene_fet_signed_carrier_model`;
+   `self_heating` has none. Its reasoning was half right in a way it did not
+   claim: `self_heating` produced the only `ORDINAL` **and** the only
+   `RETRACTED` row — both citation anomalies that are *not* false citations —
+   which is what a high citation density actually predicts.
+2. **First half right, second half wrong and unscorable as posed.** `MATCHED`
+   on A2, right, and §7 shows the equality holds to one ulp and not better. The
+   risky half — "will expose at least one row currently adjudicated `MATCHED`
+   as mis-adjudicated" — named a population that was **empty**: the tree had
+   zero `MATCHED` rows outside the instrument modules yesterday, and A2 is the
+   first this tree has ever had. **The X4 class for the third time**, and worth
+   stating as a pattern rather than as a third incident: three of this
+   thread's predictions have now failed by naming a population that did not
+   exist when they were written, which is a defect in how predictions are
+   posed and not in the reasoning inside them.
+3. **Not exercised.** The areal band at the repo's own `t_ox` was not built.
+
+### 9. Three self-caught errors
+
+1. **The mutation harness patched a copy of its own subject.** It did `import
+   graphene_citation_census_audit as M` and patched `M`; run as `__main__` the
+   import builds a **second module object**, so every mutation landed on the
+   copy while the controls called the original and all five mutants reported
+   NOT DETECTED. The 2026-09-30 item — *arrival, not response* — in a new
+   disguise. Check 3e is now the arrival check for the harness itself.
+2. **The new module plants the pattern it censuses.** Its labels quote registry
+   tokens because its subject *is* the quoting of registry tokens, so its
+   arrival put 10 planted controls into the tolerance census's table of the
+   tree, including three `ORDINAL` and two `UNWARRANTED` rows. The 2026-10-17
+   standing item, one module over — and a `SELF`-only exclusion cannot see it,
+   because the excluded thing is not "this file" but "a module that plants the
+   pattern it censuses", and there are now two. Hence `PLANTING_MODULES`, with
+   8h/8i measuring what the exclusion removes.
+3. **`_check_labels`' docstring described a tolerance the code does not have.**
+   It listed `_c` among accepted check-function names; the code requires a name
+   ending in `check`. A planted control written with `_c` on the docstring's
+   authority censused to **zero rows with no error**. Corrected in place, and
+   measured: no module in the tree uses `_c` for a check, so nothing was being
+   missed.
+
+### 10. Count
+
+New module 51/51 with 5/5 mutants; `tolerance_census` 71 → 82, 0 failing;
+`self_heating` 47/47 unchanged but for A2's label. Two items closed (both ranked
+first and second), three defects found — one of them in the commissioning
+instrument — two warrant classes separated, one limit measured, three
+self-caught errors, one source fetched and every transcription it was fetched
+to test confirmed.
+
+**Not yet covered (candidates for future runs):**
+
+- **FIX THE CODATA CREDIT ON 6.45 kΩ/□** — created today, **ranked first**,
+  and the only item on this list that is a *known* defect with a *known* fix
+  and nothing blocking it. The label should cite Chapter 3 Section 3.3 for the
+  quantity and CODATA for `e` and `h`. It was held back today only to keep the
+  two censuses' populations cross-validated inside one session; that reason
+  expires with this entry. It also removes the tree's last `VACUOUS` row, so it
+  will break 8d a second time in two days — this time by emptying its
+  population, and the right response will be to retire 8d rather than split it
+  again.
+- **TEACH THE CENSUS THE DIFFERENCE BETWEEN A VALUE AND A QUANTITY** — created
+  today by 8b, **ranked second**. The census matches on value, so A3's "the
+  paper's 4 %" matches both Dorgan's `~4 %` share and his `4 μm` length, and
+  one row in thirteen does not identify its own warrant. The fix is probably a
+  unit token in the registry and a unit cue in the label, which is cheap; the
+  risk is that it is the same "read the meaning out of English" mistake the
+  width-warrant repair was spelled machine-readably to avoid.
+- **CENSUS THE WIDTH WARRANTS THEMSELVES** — created today, **ranked third**.
+  `[width-warrant: 2.8e-7]` is a citation, and the citation census does not
+  read it: it censuses one token per row, the centre. A split warrant whose
+  *width* token is unwarranted is invisible to both instruments today. Exactly
+  one row has one, so the item is cheap now and gets more expensive with every
+  future split warrant.
+- **THE `~20 %`/`~2 %` BRACKET AND ITS TWO BRANCHES** — created today by the
+  source read. `V3` tests only the sign of a statement that is bracketed
+  between `~280 K` and `~500 K` and split between the 55 meV and 160 meV
+  branches. This is **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN** (carried
+  from 11-11, untouched for three sessions) with the paper's own bracket now in
+  hand, so the item is no longer blocked on knowing what magnitude to test
+  against.
+- **AN AREAL BAND AT THE REPO'S OWN `t_ox`** — carried from 11-12, prediction
+  (3) never exercised, still cheap, and still the form in which §3's result
+  would enter Chapter 4.
+- **THE 13.20 % BELONGS IN CHAPTER 4** — carried from 11-12, a *writing* item
+  with its number already in hand.
+- **A SPREADING-CORRECTED `R_ox`** — carried from 11-10.
+- **FIX `v_F`: FOUR NAMES MOVED TOGETHER** — carried from 10-25, mechanical,
+  blocked on nothing, **untouched for nineteen sessions**, count still four.
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS** — carried from 11-12 where
+  it was ranked third, measured population of 7 comparisons in 7 modules.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried, de-ranked 11-10 with its reason recorded.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried from 11-10, still a *joined* item.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — carried from 11-10.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — carried,
+  blocked on figure reading, explicitly low value (0.002 %). Note that today's
+  read confirmed the text but **did not** read Fig. 2b or Fig. 3c as data, so
+  this item is exactly as blocked as it was.
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** and
+  **`INCIDENTAL` IS NOT ONE CLASS** — both carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, sixth occurrence, mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried,
+  **twenty-second and twenty-third** instances today (nine warrant verdicts;
+  W1/W2/W3 for the second warrant).
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20,
+  **twenty-second** session untouched.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08. The second is sharper today: `PLANTING_MODULES` made
+  the exclusion a declared class with two members, so the question "what else
+  belongs in it" now has a place to be answered.
+- **WHAT `n_puddle` ACTUALLY MEANS** and **WHETHER THE FLOOR BELONGS INSIDE
+  `C_q`'s ARGUMENT** — both carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16, **twenty-sixth** session.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14, **twenty-seventh** session.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic, and today's 10d makes it the **fourth** session running in which a
+  one-ulp fact mattered, which is enough occurrences that "cosmetic" is now an
+  assumption rather than an observation.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11, **thirtieth** session.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06,
+  **thirty-fifth** session untouched.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11** — **thirty-third** session.
+- **THE §4.6.5 REWIRING ITEM** — unblocked since 10-10, **thirty-second**
+  session.
+- **MECHANISE the magnitude item** — created 10-03.
+- **MEASURE WHAT EACH DECLARATION COSTS** — item 14, **thirty-third** session.
+- **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** —
+  **thirty-third** session.
+- **THE SEVEN `UNADJUDICATED` CENSUS ROWS** — created 10-08.
+- **A WRITING ITEM HAS NOW BEEN AT THE TOP OF THE WRITING QUEUE FOR THREE
+  SESSIONS WITH NO WRITING DONE.** 11-12 said this plainly rather than
+  re-listing it; today repeats it, and the repetition is the finding. Chapter
+  7's contact-metal synthesis is in fact already drafted (§7.2 retracts the
+  2026-09-17 version and states what survives), so the item as *named* is
+  closed and what is actually outstanding is **Chapter 4's thermal discussion
+  inheriting the 13.2 % areal over-statement**, which is a different and much
+  smaller item. Three sessions of "no writing" were partly three sessions of
+  mis-naming the writing item.
+
+**Retired from the list this session:**
+
+- **RETIRED:** A CENSUS OF CITATIONS, NOT TOLERANCES — created 2026-11-11,
+  ranked first on 11-12, closed in one session. Found three defects, the first
+  of them in the instrument that commissioned it, and confirmed that the module
+  it was expected to convict has nothing wrong with its citations.
+- **RETIRED:** TEACH THE CENSUS THAT CENTRE AND WIDTH CAN HAVE DIFFERENT
+  WARRANTS — created 2026-11-12, ranked second, closed the same day as the
+  item above. It did *not* "un-break 8d": it made 8d's old form red for the
+  right reason, which is a better outcome than the item asked for and not the
+  one it predicted.
+- **RETIRED:** CHAPTER 7's CONTACT-METAL CONTRADICTION IS THE LARGEST
+  ACTIONABLE WRITING ITEM — carried since 2026-09-17 and retired **as
+  mis-named rather than as done**: §7.2.1 retracted the contradiction and
+  §7.2.2 replaced it with the structural statement, both already in the
+  chapter. The item outlived the work it described by several sessions because
+  nobody re-read the chapter it pointed at.
+
+**Predictions for the next session**, so this entry can be scored the way
+11-08 through 11-12 were. All three name populations that exist **today**,
+which is the repair for the X4 class in §8:
+
+1. **Fixing the CODATA credit will leave the tolerance census with zero
+   adjudicated rows in the whole tree.** Today the tree has exactly two
+   adjudicated rows: one `VACUOUS` (the 6.45 row) and one `MATCHED` (A2).
+   Repairing the first removes its publication cue entirely, so it leaves the
+   census's population as 12 rows of which one is adjudicated — and the
+   prediction is the sharper claim that the *defect* count goes to zero while
+   the *row* count stays at 13, because `LIT_NO_TEST` and `SIGFIG_TEST` rows do
+   not depend on the cue being a real citation.
+2. **Censusing the width warrants will find that A2's `2.8e-7` is `CITED` and
+   that no second split warrant exists to test it against.** The risky half is
+   the second: the item will come back with a working instrument and a
+   population of one, which makes it the fourth item in this thread whose
+   measured population is smaller than the item's framing assumed.
+3. **The unit-token repair of 8b will reclassify A3 and A4 but not A5.** A3's
+   `4` collides with the `4 μm` length and A4's `84` collides with nothing, so
+   a unit token should leave A4 exactly where it is — meaning the repair will
+   change one row in thirteen, and the prediction is that it changes **only**
+   A3. If it changes A4 or A5 as well, the unit cue is reading English again
+   and the repair is the mistake it was built to avoid.
+
+## 2026-11-14 — a duplicate session, because the "has today's work been done" check reads a repository that cannot see a push backlog; and what the duplicate found
+
+**Commits before this entry:** 2 — 6l's second clause corrected in place; the
+frozen populations in X3/X4.
+
+### 0. WHAT HAPPENED FIRST, BECAUSE IT GOVERNS EVERYTHING BELOW
+
+This session began by cloning both repositories fresh from GitHub, reading
+`AUTOMATION_LOG.md` for an entry dated today, finding none, and concluding
+that no work had been done. That conclusion was **right about today and wrong
+about the state of the work**: 2026-11-13's eight commits were never pushed —
+the write path is closed by an environment policy — so they exist only as
+bundles in `_to_push/`, and a clone from GitHub cannot see them.
+
+So the session re-derived 11-13's **ranked-first item in both repositories,
+from scratch, without knowing it existed.** It wrote its own
+`graphene_citation_census_audit.py` (32 checks, 6 mutants), found the `Sec. 5`
+misread, the CODATA/6.45 internal citation and the `1.0e4` respelling — the
+same three findings, independently — and re-anchored the sibling's `M4`.
+
+**The duplication is a defect in the daily procedure, not in either day's
+work.** The procedure's own step 2 is "check both repos for work already done
+today", and it reads `AUTOMATION_LOG.md` **in the clone**. A clone is the
+pushed state. With a push backlog the clone is stale by however many days the
+backlog is deep, and the staleness is invisible: a missing entry means
+"nothing was committed today" and "everything committed since the backlog
+began is not here" equally well. **An empty answer is indistinguishable from a
+clean one** — this tree's own words, from 11-12 §6, about a census that read
+zero files.
+
+The repair is mechanical and belongs in the procedure: **before concluding no
+work was done, look in `_to_push/`.** It is ranked first below.
+
+11-13's work is the better artifact in both repositories and is what ships.
+Its graphene citation census is 51 checks against today's 32, and it also
+closed 11-12's ranked-*second* item (the split warrant) and re-read
+arXiv:1005.2711 to confirm every transcription. Today's duplicate was
+discarded except for the two things below, which it has and 11-13's does not.
+
+### 1. The duplicate's first survivor: 6l's second clause is false, and the correction is exact
+
+11-13's check **6l** reads:
+
+> the printed geometry is EXACT (stated, not fitted), so the derivation
+> **inherits no uncertainty** — which is precisely why 2026-11-12's I1 could
+> show the paper's two numbers are one statement divided by a constant
+
+The first clause is right and does the work 6l wanted. **The second does not
+follow.** A *stated* value is still a *printed* value, and Dorgan prints
+`W = 7 um` and `L = 4 um` to **one significant figure each**. What the
+derivation does not inherit is *fitting* uncertainty. What it does inherit is
+each printed length's quoting interval:
+
+    spelled 2.8e-11 at 2 s.f.            +- 1/56    = +- 1.785714 %
+    printed 4 um x 7 um at 1 s.f. each    -3/16     = -18.750 %   = 21/2 x
+                                         +23/112    = +20.536 %   = 23/2 x
+
+**Exactly 10.5 and exactly 11.5**, asserted as rationals (6l2, 6l3). And the
+printed band is **asymmetric**, a shape no relative half-width can represent
+(6l4) — so the spelled token hides *three* things, not one: the width, the
+warrant (9l's class) and the shape. 6l5 records that 6l's **verdict** survives
+intact: the band brackets 2.8e-11, so `DERIVED` is about provenance and not
+correctness. The number is right and is cited as the wrong kind of thing.
+
+6l is **annotated in place with its numbers unchanged**, per standing
+practice. And 6l's condition is the literal `True`, so **it could not have
+caught its own second clause** — a check that cannot fail is not evidence,
+this repository's own words from the tolerance census's Section 5. The
+condition is left as it stands so the annotation has something to annotate;
+6l2–6l5 are the checks. Citation census **51 → 55**, 0 failing.
+
+### 2. The duplicate's second survivor: X3 was pinning a tree, not scoring a prediction
+
+The duplicate's module took this tree's `NO_QUOTE` population from 102 to 106,
+and `graphene_tolerance_census_audit` went **82/0 to 81/1**. X3 required
+
+    len(_own_no_quote) == 102
+
+among its conjuncts — this tree's count as it stood when the sibling's 11-11
+prediction was scored on 11-12. **Every word of X3's label stayed true.**
+
+A prediction is a claim about a comparison that **was made**. Re-deriving one
+side of it on every later run does not score it, it pins a tree, so the first
+module anyone adds afterwards breaks a correct verdict.
+`OWN_NO_QUOTE_1112 = 102` and `SIB_NO_QUOTE_1112 = 6` are now frozen with
+their date and reason; X3 keeps the substantive comparison live (the sibling's
+count against the frozen own count, and zero adjudicated rows, which is still
+a property of the sibling worth re-verifying) and drops the identity; X4's
+`len(_sib_rec) == 6` goes the same way, since the sibling grows too; new X3b
+reports the drift and requires only that it *be* growth. **83 passed, 0
+failed.**
+
+**And it would not have been found today without the accident.** 11-13's
+shipped module is excluded from its own census, so the count is still 102 on
+the tree that ships. The brittleness was real, latent, and waiting for
+whoever next added a module. A duplicate session is an expensive way to find
+that, and it is the only reason it was found.
+
+Same class as the sibling's 11-12 finding that mutant `M4`'s premise was a
+property of the tree rather than of the thing under test — this is that
+arriving from the prediction-scoring side. The sibling re-anchored that very
+mutant on 11-13, and the duplicate re-anchored it again today on a *set
+identity*, which is the one piece of today's sibling work that also survives.
+
+### 3. Count
+
+Citation census 51 → 55 with the 6l correction, 0 failing; tolerance census 82
+→ 83 after the freeze, 0 failing; `self_heating` 47/47 and `areal` 20/20
+unchanged. Two commits, both corrections to 11-13's own work, both found by a
+session that should not have happened. No source fetched.
+
+### 4. Scoring the 11-13 predictions
+
+Deliberately **not scored today.** The session that would have scored them did
+not know they existed, and scoring a prediction against work done in ignorance
+of it is not scoring. They carry to the next session unscored, with this entry
+as the reason.
+
+**Not yet covered (candidates for future runs):**
+
+- **READ `_to_push/` BEFORE CONCLUDING NO WORK WAS DONE** — created today,
+  **ranked first**, and it is a defect in the daily procedure rather than in
+  either repository. The step that asks "has today's work already been done"
+  reads `AUTOMATION_LOG.md` in a fresh clone, which is the *pushed* state; with
+  a push backlog that answer is stale and the staleness is invisible. Today
+  that cost a full duplicate session in both repositories. The fix is to read
+  `_to_push/README-HOW-TO-PUSH.md` and the bundles' own `git log` first, and to
+  treat a non-empty `_to_push/` as "the clone is not the state".
+- **THE PUSH BACKLOG IS NOW TWO DAYS DEEP** — created today. Nothing in either
+  repository can fix it; it needs a `git push` from a terminal on the
+  computer. Until then every session commits into a scratch clone that cannot
+  reach GitHub, and — worse than the lost contribution graph — **each session
+  starts from a stale view and may duplicate the last one.**
+- **LAND THE SECTIONING REJECTION IN `_QUOTE_RE` ITSELF** — the duplicate
+  wrote and validated a rejection rule (decline a number introduced by
+  `Sec.`/`Fig.`/`Table`/`Eq.`/`supp.`/…, leaving the row uncited rather than
+  wrongly cited), measured its whole-tree effect as the single set `{A1}`, and
+  gave it a positive control over eight sectioning forms. That code was
+  discarded with the duplicate. It is **cheap to rewrite and now has a known
+  answer**, which makes it the best-specified item on this list.
+- **A LEFTWARD EXTRACTOR IS NOT THE REPAIR, AND THE MEASUREMENT EXISTS** — the
+  duplicate measured that the first number before A1's cue is **300**, from
+  the `kappa_ox(300K)` in the check's own name, so a leftward search mis-cites
+  A1 too, just differently. Worth recording as a check next to the rejection
+  rule above so nobody proposes the relocation.
+- **A TEXT SEARCH CANNOT TELL A QUOTATION FROM A DENIAL OF ONE** — the
+  duplicate found that `1.2794`, which is not a published number at all, has
+  more quoted-line support in this tree than two genuine citations do, because
+  every hit is part of the 11-11 retraction. That is 9k's blindness one level
+  up: polarity instead of existence. Worth a stated limit wherever 11-13's
+  module reasons from text support.
+- **BARE INTEGERS ADMIT NO MECHANICAL QUOTATION SUPPORT** — `4`, `84`, `12`,
+  `20` and `5` cannot be searched for; a substring hit is not evidence. A
+  census that scored them "unsupported" would be reporting its own blind spot
+  as a finding.
+- **ADJUDICATE THE THREE TERM SHARES AGAINST THE PAPER** — carried from the
+  duplicate's list, and the first item in this thread that **requires a source
+  fetch**: A3/A4/A5 are 4 / 84 / 12 %, their whole warrant in this tree is one
+  comment, and no mechanical check can reach them.
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS** — carried from 11-12,
+  untouched by both of 11-13's and 11-14's sessions, mechanical, population 7
+  comparisons in 7 modules.
+- **AN AREAL BAND AT THE REPO'S OWN `t_ox`** and **THE 13.20 % BELONGS IN
+  CHAPTER 4** — both carried from 11-12, both untouched, and today's 6l3 makes
+  the second sharper: the chapter would be inheriting a number whose licensed
+  band is eleven times what its spelling suggests.
+- **A SPREADING-CORRECTED `R_ox`** — carried from 11-10.
+- **FIX `v_F`: FOUR NAMES MOVED TOGETHER** — carried from 10-25, mechanical,
+  blocked on nothing, untouched again.
+- **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN** — carried.
+- **DECIDE WHETHER A `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** —
+  carried, de-ranked 11-10 with its reason recorded.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried from 11-10, still a *joined* item.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`** — carried from 11-10.
+- **READ DORGAN FIG. 2b TO SETTLE THE PRODUCT-VS-SUM READING** — carried,
+  blocked on figure reading, explicitly low value (0.002 %).
+- **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE** and
+  **`INCIDENTAL` IS NOT ONE CLASS** — both carried from 11-09, cheap.
+- **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO MODULES** — carried from
+  10-01, mechanical.
+- **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL** — carried.
+- **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD** — carried from 10-24.
+- **FLIP THE DEFAULT TO `B_T`** — item 16, a decision, with item 22 (ii).
+- **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?** — carried from 10-20.
+- **A LOWER BOUND ON `ℓ`** and **A `Δ_c` FORM FOR THE CHEMISORBED METALS** —
+  both carried.
+- **PACK THE CENSUS PARTS BY COST** and **RE-DECIDE THE CENSUS EXCLUSIONS** —
+  both carried from 11-08.
+- **WHAT `n_puddle` ACTUALLY MEANS** and **WHETHER THE FLOOR BELONGS INSIDE
+  `C_q`'s ARGUMENT** — both carried.
+- **THE FOUR DEAD NAMES** — carried from 10-16.
+- **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES** — carried from
+  10-14.
+- **THE PRESENT/USED/REACHED TABLE AS A TEST, NOT A REPORT** — carried.
+- **§4.8.2's FORM OF ERROR IS NOT AUDITED FOR ELSEWHERE** — created 10-01.
+- **THE 2–3 ULP ANTISYMMETRY IN THE SHIPPED `dWF` SUBTRACTION** — carried,
+  cosmetic.
+- **THE CONTACT MODEL'S OWN APPROXIMATIONS** — carried from 10-13.
+- **A THIRD KNOB: THE ROUNDING FORM** — created 10-11.
+- **BUILD ITEM 17 AS A SWEEP** — four requirements, four worked instances,
+  still no sweep.
+- **CENSUS EVERY CRITERION AND CHECK THAT IS A RATIO** — created 10-06.
+- **THE `d|n|/dV` = 0 HALF OF ITEM 11**, **THE §4.6.5 REWIRING ITEM**,
+  **MECHANISE the magnitude item**, **MEASURE WHAT EACH DECLARATION COSTS**,
+  **THE HOLE-BRANCH SIGN OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** — all
+  carried.
+- **CHAPTERS 2 AND 3 ARE STILL UNDRAFTED** — carried, and still the largest
+  single block of pure writing in the repository: their computational results
+  have been complete for weeks. **Two consecutive sessions have now gone to
+  instrument work on the same item**, one of them by accident.
+- **CHAPTER 7's CONTRADICTION IS STILL UNSYNTHESISED** — carried. Chapter 4
+  favours high-work-function contact metals (Ni, Au, Pd) for low contact
+  resistance; Chapter 6 §6.7 finds those same metals worst for symmetric
+  two-terminal photoresponse.
+
+**Predictions for the next session, recorded so they can be scored:**
+
+1. **If `_to_push/` is still non-empty, the next session will duplicate work
+   again unless it reads it.** This is less a prediction than a statement of
+   the mechanism, so the content is the sharper claim: **the next session will
+   pick the same ranked-first item a third time**, because it will read this
+   entry's list from the pushed tree, which will not contain it.
+2. **Landing the sectioning rejection will change exactly one row and no
+   verdict.** The duplicate measured the whole-tree effect as `{A1}`, and A1 is
+   a significant-figure check whose verdict needs no width. If anything else
+   moves, that measurement was taken against a tree that has since changed.
+3. **The next `== <count>` pin found in either repository will be in a
+   prediction-scoring check rather than in a census.** Reason: a census's
+   counts get re-derived and noticed; a scoring check is written once, in the
+   past tense, and never looked at again.
+
+---
+
+## 2026-11-15 — a topic the repository had no coverage of at all, a unipolar sign convention that does not survive ambipolarity, and a threshold that refuted the prose written to introduce it
+
+### 0. The duplicate check, and the backlog
+
+`_to_push/README-HOW-TO-PUSH.md` was read **before** any conclusion about
+prior work, which is what the 11-14 entry ranked first. It now begins
+"NOTHING IS PENDING. The backlog was pushed on 2026-11-14" and records
+`69405cf..c60a180` (7 commits) here and `4425e9c..2bb17c6` (8 commits) in the
+sibling, pushed by hand as plain fast-forwards. A fresh clone's `HEAD` is
+`c60a180`, so the pushed state and the local state agree and the clone is once
+again a sound basis for the "has today's work been done" question. Neither
+repository had a 2026-11-15 entry or a commit since midnight UTC: a full
+session, not a duplicate.
+
+**But the 11-14 predicate is wrong, and today shows how.** `_to_push/` is
+still non-empty — it holds the October bundles, the superseded notice, the
+`_pushed-2026-11-14/` folder and the README itself — so a session testing
+"is `_to_push/` non-empty" would conclude there is a backlog when there is
+none. The sound test is the one used today: compare `origin/main` against the
+last `AUTOMATION_LOG.md` entry, which needs no folder convention at all.
+
+### 1. What was done
+
+Three commits, on a topic with **zero prior coverage** in this repository:
+`grep -ril` for `flicker`, `noise figure` and `NF_min` all returned nothing
+before today.
+
+1. `notes/2026-11-15-low-frequency-noise-in-gfets.md` — research notes from
+   two sources read today (Balandin arXiv:1307.4797; Mavredakis et al.
+   arXiv:1806.06589), both HTTP 200 on the first attempt.
+2. `graphene_low_frequency_noise_model.py` — CNF, CNF+CMF and Hooge noise on
+   this repository's **own, unchanged** `I_d(V_g)`.
+3. `low_frequency_noise_output.txt` + `low_frequency_noise_gate_dependence.png`
+   — the run and its three-panel figure. **PASS over 10 checks, 8 of them
+   against exactly known values.**
+
+Why the topic is device-relevant rather than decorative: 1/f noise
+up-converts to oscillator phase noise as `(1/f)^3`, its corner frequency
+(1–100 kHz for graphene, Balandin Sec. II) is a quoted figure of merit, and
+the review states outright that its level "is important for determining the
+competitiveness of graphene technology for cell phones, radars or other
+communication applications". It is also the one noise quantity that **cannot
+be averaged away**: for `gamma >= 1` the accuracy "cannot be improved by
+extending the measuring time".
+
+### 2. Finding 1 — a unipolar sign convention transcribed to an ambipolar device
+
+The CNF+CMF expression `(g_m/I_d + alpha_c mu C_ox)^2 S_Vfb` is written for a
+MOSFET, where `g_m > 0` at every usable bias; the sign of the correlated term
+is a convention the sources write `+-`. **Graphene is ambipolar.** On the hole
+branch `g_m/I_d` is negative, the sum passes through zero, and the form
+predicts a gate voltage at which a trap-limited device has **no 1/f noise from
+its dominant mechanism**:
+
+- `alpha_c mu C_ox = 6.90627e-2 1/V`, **bias-independent** — oxide and
+  mobility only;
+- `g_m/I_d` crosses `-6.906e-2 1/V` at `V_g = -2.90 V`;
+- the two forms differ there by **7.6e5x** (`6.17e-13` vs `4.72e-7 1/Hz`);
+- its mirror bias `V_g = +4.50 V` — same `|V_g - V_dirac|`, electron side — is
+  a noise **maximum**, so the verbatim form makes two mirror-image bias points
+  differ by **7.8e5x** with nothing physical distinguishing them;
+- in the measured total the Hooge floor hides most of it: a factor **8.4**.
+  Invisible by eye on a log plot; not to a fit.
+
+Repair: `(|g_m/I_d| + alpha_c mu C_ox)^2`. Coulomb scattering from a trapped
+charge raises the scattering rate on both branches, so the correlated term
+adds in magnitude. `s_cnf_cmf_signed()` is **kept**, so the artefact stays
+reproducible, and three checks pin it as algebra rather than prose: V7 (the
+signed form is *exactly* 0 at the notch), V7b (the corrected form is *exactly*
+`4(alpha_c mu C_ox)^2 S_Vfb` there), V8 (the correction is a *bitwise* no-op
+on all 117 electron-branch points).
+
+### 3. Finding 2 — the threshold refuted the prose written to introduce it, and Finding 1 is why the wrong prose was plausible
+
+Central dip depth `log10(min(max_left, max_right)/S(CNP))` discriminates the
+M-shape (dip at the charge-neutrality point) from the Lambda-shape (peak at
+it). Measured: **+0.517 decades at `N_T = 1.1e20`** (M), **0 at `N_T = 1e17`**
+(Lambda), threshold
+
+> **`N_T* = 7.474e17 1/(eV cm^3)` — INSIDE the conventional Si/SiO2 interval
+> `1e16..1e18`, at 75 % of its top end.**
+
+The module's draft prose asserted the opposite: that `N_T*` would sit far
+*above* that interval, and hence that an M-shape on a SiO2-gated GFET could
+not be homogeneous charge-number fluctuation. **The prose was corrected, in
+place, and the number was not reinterpreted.** The corrected claim is the
+stronger one: homogeneous CNF at an ordinary oxide trap density already
+produces the M-shape, so **the M-shape is not by itself evidence of the
+electron/hole-puddle inhomogeneity the Balandin review attributes it to.**
+
+Robustness: across the factor-23 span of `alpha_H` the source's own Table 1
+reports for other devices (`3e-4`..`7e-3`), `N_T*` moves only
+`1.725e17`..`4.024e18` — straddling the top of the conventional interval, two
+orders below the fitted `1.1e20` throughout.
+
+**The two findings are the same finding.** Recomputing `N_T*` on the verbatim
+signed total gives **`5.466e21`, a factor 7314 higher**, because dip depth
+takes the minimum of the two flank maxima and the notch suppresses the flank
+that decides. With the imported sign convention one would have concluded that
+the M-shape needs a trap density three orders above the conventional range —
+*exactly the claim the draft prose made*. A transcribed sign would have
+produced a plausible-looking, confidently-stated, wrong physical conclusion,
+and nothing in the shape of the plotted curves would have looked odd.
+
+Methodological note, carried in the transcript rather than in a comment:
+`dip_depth` is **identically zero** over the whole Lambda region, so the
+threshold is a region boundary and not a root. The first draft tried to
+sign-bracket it and raised `ValueError`; the committed version bisects on the
+predicate and prints the dip depth on both sides of the final bracket
+(`+4.06e-8` above, exactly `0` below) so the degeneracy stays visible.
+
+### 4. A list item that has been false since 2026-09-29 and was asserted again yesterday
+
+**"CHAPTERS 2 AND 3 ARE STILL UNDRAFTED"** appears in three entries —
+2026-10-17, 2026-10-18 and **2026-11-14**, where it is described as "still the
+largest single block of pure writing in the repository". It has been false
+since **2026-09-29**:
+
+- `thesis_draft/02-electronic-structure.md`, 459 lines, header "first drafted
+  2026-09-28";
+- `thesis_draft/03-transport-and-optical-properties.md`, 444 lines, header
+  "first drafted 2026-09-29";
+- and **the repository's own Chapter 1 status table says so**, row 3 reading
+  "**DRAFTED 2026-09-29**" in the same tree as the list that denies it.
+
+This is the sibling repository's twelve-session adjudication defect in this
+repository: a carried item is copied forward without being re-tested against
+the tree, and a *deliverable-naming* item is the easiest kind to test —
+`thesis_draft/0X-*.md` either exists with content or does not. The item is
+**struck** below rather than carried, and the general form is added as a
+mechanical candidate.
+
+Note the item's provenance, since it explains the persistence: it entered from
+*outside* the repository, in the standing task description, which was written
+2026-09-17 — before either chapter existed. The 2026-10-18 entry's own title
+records that class ("one of them came from outside the repository") and this
+is another instance of it.
+
+### 5. Environment
+
+The device VM's session filesystem was **100 % full** at the start of the
+session: `/sessions` 9.3 G used, **0 available**, of which this session owned
+29 MB. The standard clone location failed with "No space left on device".
+Work moved to a per-session directory on `/tmp` (different filesystem, 3.1 G
+free) and `scipy` — still not preinstalled — was installed with
+`pip --target /tmp/pylibs`, with `MPLCONFIGDIR` and `TMPDIR` redirected
+likewise. Both repositories then cloned and ran normally. Deleting other
+sessions' files is not possible (each session runs as its own uid), so this is
+a condition to work around rather than clear. The sibling logged a `TMPDIR`
+repair for the same condition on 2026-11-14; today is the same condition seen
+from the other side, and it is now **two consecutive days**, which makes it a
+standing environment property rather than an incident.
+
+### 6. Scoring the 2026-11-14 predictions
+
+1. **"If `_to_push/` is still non-empty, the next session will duplicate work
+   a third time unless it reads it … it will pick the same ranked-first item
+   again."** — **RED on its literal reading, and instructively so.**
+   `_to_push/` *is* still non-empty and this session did **not** duplicate:
+   the backlog had been pushed by hand and the README says so in its first
+   line. The prediction's predicate (folder non-empty) is not the condition it
+   names (work unpushed), which is precisely the fault it was written about,
+   one level up. Section 0 states the sound test.
+2. **"Landing the sectioning rejection will change exactly one row and no
+   verdict."** — **UNSCORED**, not attempted; carried.
+3. **"The next `== <count>` pin found in either repository will be in a
+   prediction-scoring check rather than in a census."** — **UNSCORED**, no
+   `== <count>` pin was encountered today; carried.
+
+**Not yet covered (candidates for future runs):**
+
+- **STRUCK, NOT CARRIED: "CHAPTERS 2 AND 3 ARE STILL UNDRAFTED."** False since
+  2026-09-29, contradicted by the repository's own Chapter 1 status table, and
+  asserted as recently as yesterday. See §4.
+- **TEST EVERY LIST ITEM THAT NAMES A FILE AGAINST THE TREE** — created today
+  by §4, **ranked first**, mechanical, and the cheapest audit on this list: an
+  item naming `thesis_draft/0X-*.md`, a `.py` module or a `notes/` file can be
+  checked for existence and non-triviality by `git ls-files` plus a line
+  count. One such item survived 46 days and three entries.
+- **AUDIT THE REPOSITORY FOR OTHER UNIPOLAR FORMS TRANSCRIBED TO AN AMBIPOLAR
+  DEVICE** — created today by §2, **ranked second**, and it is a class, not an
+  instance. Candidates: any imported expression carrying a bare `g_m` where
+  `|g_m|` is meant, a `V_gs - V_th` overdrive, or a `+-` the source left as a
+  convention. `rf_small_signal_model.py` and the Chapter 4 material first.
+- **A PUDDLE-FLUCTUATION MODEL** — created today, **ranked third**, and §3 is
+  what promoted it: the repository's only argument for *needing* one was the
+  M-shape, and that argument is now gone. `n_puddle` regularises the density;
+  it does not fluctuate.
+- **MEASURE THE 1/f CORNER FREQUENCY** — created today. It is the review's own
+  figure of merit and the number an RF designer asks for; it needs the thermal
+  + shot floor of the same device, which the repository does not have, and it
+  crosses `rf_small_signal_model.py`.
+- **PHASE-NOISE UP-CONVERSION (`(1/f)^3`)** and **AREA/OXIDE SCALING OF
+  `N_T*`** and **THE CONTACT-NOISE TERM** — all created today, all stated in
+  the new module's Section 5 as what it does not establish.
+- **LAND THE SECTIONING REJECTION IN `_QUOTE_RE` ITSELF** — carried from
+  11-14, still the best-specified instrument item, still with a known answer
+  (`{A1}`).
+- **A LEFTWARD EXTRACTOR IS NOT THE REPAIR**, **A TEXT SEARCH CANNOT TELL A
+  QUOTATION FROM A DENIAL OF ONE**, **BARE INTEGERS ADMIT NO MECHANICAL
+  QUOTATION SUPPORT** — all carried from 11-14.
+- **ADJUDICATE THE THREE TERM SHARES AGAINST THE PAPER** — carried; the first
+  item in that thread needing a source fetch, and today shows fetches are
+  working again (two for two, HTTP 200, no retry).
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS**, **AN AREAL BAND AT THE
+  REPO'S OWN `t_ox`**, **THE 13.20 % BELONGS IN CHAPTER 4**, **A
+  SPREADING-CORRECTED `R_ox`**, **FIX `v_F`: FOUR NAMES MOVED TOGETHER**,
+  **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN**, **DECIDE WHETHER A
+  `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM** — all carried
+  unchanged.
+- **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** — carried, and today gives it a second reason: the RF chapter is also
+  the first place to look for §2's class.
+- **A `v_sat` ADMISSIBILITY MAP OVER `V_g`**, **READ DORGAN FIG. 2b**, **SAY
+  WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN ANTI DATE**, **`INCIDENTAL`
+  IS NOT ONE CLASS**, **THE SAME MENTION/USE LOOPHOLE IN THE OTHER TWO
+  MODULES**, **GIVE EVERY VERDICT IN EVERY VOCABULARY A PLANTED CONTROL**,
+  **`gfet._thermal_rounding` IS A LEVER WITH NO GUARD**, **FLIP THE DEFAULT TO
+  `B_T`**, **IS THE ADMISSIBLE SHAPE BOX THE RIGHT ONE?**, **A LOWER BOUND ON
+  `l`**, **A `D_c` FORM FOR THE CHEMISORBED METALS**, **PACK THE CENSUS PARTS
+  BY COST**, **RE-DECIDE THE CENSUS EXCLUSIONS**, **WHAT `n_puddle` ACTUALLY
+  MEANS** (sharpened today by the puddle-fluctuation item), **WHETHER THE
+  FLOOR BELONGS INSIDE `C_q`'s ARGUMENT**, **THE FOUR DEAD NAMES**, **CONVERT
+  THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES**, **THE
+  PRESENT/USED/REACHED TABLE AS A TEST**, **§4.8.2's FORM OF ERROR**, **THE
+  2–3 ULP ANTISYMMETRY**, **THE CONTACT MODEL'S OWN APPROXIMATIONS**, **A
+  THIRD KNOB: THE ROUNDING FORM**, **BUILD ITEM 17 AS A SWEEP**, **CENSUS
+  EVERY CRITERION AND CHECK THAT IS A RATIO**, **THE `d|n|/dV` = 0 HALF OF
+  ITEM 11**, **THE §4.6.5 REWIRING ITEM**, **MECHANISE THE MAGNITUDE ITEM**,
+  **MEASURE WHAT EACH DECLARATION COSTS**, **THE HOLE-BRANCH SIGN OF CHAPTER
+  4's BRANCH-ASYMMETRIC RESULTS** (now with a worked instance in §2 — this is
+  the same question) — all carried.
+- **CHAPTER 7's CONTRADICTION IS STILL UNSYNTHESISED** — carried. Chapter 4
+  favours high-work-function contact metals (Ni, Au, Pd) for low contact
+  resistance; Chapter 6 §6.7 finds those same metals worst for symmetric
+  two-terminal photoresponse. Unlike the struck item above, this one was
+  re-tested today: Chapter 7 exists at 2357 lines, and the contradiction is
+  not in it.
+- **THE NEW MODULE IS NOT IN ANY CHAPTER** — created today. Nothing in
+  `thesis_draft/` cites the noise model; on this repository's own evidence
+  (09-28, 09-29) drafting is what falsifies a module's status, so this is a
+  prediction as much as a task.
+
+**Predictions for the next session, recorded so they can be scored:**
+
+1. **The `|g_m|` audit of §2 will find at least one more instance, and it will
+   be in a figure-of-merit expression rather than in a current model.** Reason:
+   current models in this repository take `abs(n)` early (`sheet_conductivity`
+   does), while figures of merit are transcribed from unipolar RF literature
+   where the sign never arises.
+2. **Drafting the noise material into a chapter will falsify something in
+   `graphene_low_frequency_noise_model.py`.** Reason: it has happened on both
+   occasions a chapter was drafted here (09-28 Chapter 2, 09-29 Chapter 3,
+   four defects in one module). The non-trivial half: it will be in the
+   Hooge term, not the CNF term, because the Balandin review's own warning
+   about applying a volume-noise figure of merit to a 2D material is recorded
+   in the notes and *not* acted on in the code.
+3. **The file-existence audit (ranked first) will strike at least one more
+   item.** Reason: this list is long, items are carried by copying, and
+   nothing has ever tested one against the tree.
+
+## 2026-11-16 — the symmetry was never lost at finite drain bias, its centre had moved by exactly Vds/2, and two expressions in the tree disagree about where it is
+
+### 0. The duplicate check
+
+`date -u +%F` on the device gave **2026-11-16**. Fresh clones of both
+repositories: neither `AUTOMATION_LOG.md` contained a 2026-11-16 entry and
+`git log --since=midnight --oneline` was empty in both. Both repositories'
+`HEAD` matched `origin/main` at the 2026-11-15 log commit, so the pushed
+state and the local state agree and the clone is a sound basis for the
+question — the sound test the 11-15 entry's §0 specified (compare
+`origin/main` against the last log entry), not the `_to_push/`-non-empty
+predicate it struck. A full session.
+
+### 1. What was done
+
+Three commits, on the 11-15 entry's **ranked-second** item ("audit the
+repository for other unipolar forms transcribed to an ambipolar device"),
+plus this entry.
+
+1. `notes/2026-11-16-the-mirror-centre-of-an-ambipolar-transfer-curve.md` —
+   research notes from two sources read today (Jiménez arXiv:1105.2734;
+   Lee, UCSD 2016), both HTTP 200 on the first attempt.
+2. `graphene_ambipolar_mirror_audit.py` +
+   `ambipolar_mirror_audit_output.txt` + `ambipolar_mirror_audit.png` —
+   the audit. **PASS over 11 checks, 6 of them against exactly known
+   values.**
+3. In-place annotations at both affected sites —
+   `rf_small_signal_model.gate_capacitance` and
+   `graphene_diffusion_current_model.py`'s `j_dirac` — **changing neither**,
+   so no committed output file moves.
+
+### 2. The finding — a reflection centre, not a missing `abs`
+
+`gfet.transfer_characteristic` averages the local channel resistance over
+`V_channel_profile = np.linspace(0, Vds, 50)`, and the local resistance
+depends on the local overdrive only through its magnitude. The profile is
+symmetric about `Vds/2`, so
+
+> **`I_d` is EXACTLY even about `V_MIRROR = V_dirac + Vds/2`, at every drain
+> bias — measured to `4.5e-16` relative over six drain biases spanning a
+> factor 500 (V1), while about `V_dirac` the same curve is asymmetric by
+> `1.05 %` at `Vds = 0.1 V` (V2).**
+
+`gfet.V_dirac = 0.8 V` is not wrong: it is a flat-band parameter and is
+exactly what its docstring says. What had never been written down is that
+the **curve's** centre is a different number, `0.85 V` at the RF bias.
+
+Then the instance the item was looking for. `rf_small_signal_model.`
+`gate_capacitance(Vg, Vch=0.0)` takes `Vg - Vch - V_dirac` through the even
+`quantum_capacitance`, so it is **bitwise** even about `V_dirac` (V3 — exact
+equality on floats, not agreement to 1e-16). So
+
+    f_T = |g_m| / (2 pi C_gs)
+
+divides a quantity centred at `V_dirac + Vds/2` by one centred at
+`V_dirac`, is even about neither, and the electron- and hole-branch peak
+`f_T` of a device whose `I_d` is **exactly** mirror-symmetric come out
+unequal: **20.27790 GHz against 20.27876 GHz, ratio 0.9999575857** (V7).
+With the capacitance averaged over the same channel profile the current is
+integrated over, the ratio is **1 to 2.2e-16** (V5).
+
+**Magnitude, stated as small because it is small.** The peak asymmetry is
+`4.24e-5`. At the peak `C_gs` is `C_ox`-dominated and flat, so there is
+almost nothing for the centre mismatch to act on, and **no committed
+Chapter 4 number is withdrawn or materially wrong.** Where it is not small
+is near neutrality, where `C_q` carries the bias dependence: the committed
+`C_gs` differs between the two branches by **2.85 % at 50 mV** from the
+centre and **1.74 % at 100 mV**. The defect is in the *shape* of `f_T` near
+the Dirac point, which — note the collision — is the region this
+repository's own diffusion module already says it cannot be asked about,
+for the unrelated reason that the puddle floor flattens it.
+
+### 3. Scoring prediction 1, and what it got right for the wrong reason
+
+> "The `|g_m|` audit of §2 will find at least one more instance, and it will
+> be in a figure-of-merit expression rather than in a current model.
+> Reason: current models in this repository take `abs(n)` early
+> (`sheet_conductivity` does), while figures of merit are transcribed from
+> unipolar RF literature where the sign never arises."
+
+**GREEN on both halves.** The instance is in `f_T`, a figure of merit, and
+not in a current model. And the stated reason is *also* confirmed in the
+specific form it names: the current models' early `abs` is exactly what
+makes `I_d` even at all, and `rf.gate_capacitance`'s evenness about the
+wrong centre is exactly a quantity whose reflection the unipolar literature
+never has to consider.
+
+But it is green on a form it did not anticipate. The prediction was written
+expecting a **missing `abs`** — a bare `g_m` where `|g_m|` is meant. There
+is no such instance: `rf.compute_fT_fmax`, `graphene_velocity_saturation_`
+`model.fT_fmax_saturated` and `graphene_diffusion_current_model` all already
+take `np.abs(gm)`, and `graphene_fmax_shortfall_decomposition` already takes
+`abs(db['gm'][j])` in the intrinsic-gain column. The repository had closed
+the sign half of this class before today. What it had not closed is the
+weaker and harder form: two individually-symmetric quantities, each even
+about its own centre, **divided by one another**. A grep for `abs` finds the
+first form and cannot find the second.
+
+### 4. A result in the tree is strengthened, not refuted
+
+`graphene_low_frequency_noise_model.py` (2026-11-15) states in its V2 that
+"at finite Vds the asymmetry is the drain bias itself", and gets its exact
+evenness check by evaluating a **separate `Vds -> 0` limit function**,
+`id_zero_vds_limit`. That reading is right and its check is sound. What it
+does not say is that **nothing is lost at finite `Vds`** — the exact
+evenness survives, displaced. A check that needed a limit can be taken at
+the operating bias instead. Its V2b convergence rate (asymmetry linear in
+`Vds`, measured *about* `V_dirac`) remains exactly right about the quantity
+it measures, and is in fact the same `Vds/2` seen as a magnitude. No number
+there is withdrawn.
+
+### 5. Three checks failed on their first draft, and all three were the check being wrong
+
+Recorded because the pattern is now the most productive thing in this
+repository, and because each wrong premise was *plausible*.
+
+1. **V6 asserted `O(Vds^2)`** "because the average is a midpoint rule", and
+   predicted a halving ratio near 4. Held at a fixed `V_g` it measured
+   3.494 / 2.394 / 2.159 — heading to 2. The premise confused two
+   comparisons: the average is compared against the **source-end** value,
+   not the exact channel integral, so
+   `C_avg - C(u) = -C'(u) * Vds/2 + O(Vds^2)` and the discrepancy is
+   **first** order with a known coefficient. V6b now checks that
+   coefficient against an independently differentiated `C'`, and needed the
+   Richardson pair taken down to `Vds = 0.00625 / 0.003125` before the
+   residual fell below `1e-3` — the first attempt at `0.05 / 0.025` left
+   1.3 %, which is the quadrature term, not a wrong coefficient.
+2. **V8 asserted a bitwise no-op at `Vds = 0`.** The profile collapses to
+   fifty copies of `0.0` and the mean of fifty **identical** floats is not
+   the identity: **8 ULP** measured, exactly equal on only 60 of 691
+   points. V8a now pins the bitwise claim where it is true
+   (`n_segments = 1`) and V8b states the textbook `(n-1) = 49` ULP
+   summation bound with the measured 8 printed beside it, so the gap —
+   numpy's pairwise summation — is visible rather than the bound being
+   tuned to the measurement.
+3. **V9 located the centre as an EXTREMUM** and measured `1.14e-6`, which
+   is the Brent minimiser's floor and not the law's accuracy. Reporting it
+   would have been reporting a tolerance as a result. Located instead as
+   the **root** of the odd function `I(c+h) - I(c-h)`, through this
+   repository's own `bracketed_bisect`, it is **`1.07e-14`** — eight orders
+   better, from the same model. Both numbers are printed side by side.
+
+All three wrong premises are kept in the module's source as comments.
+
+### 6. The j_dirac site, and why it was annotated rather than repaired
+
+`graphene_diffusion_current_model.py` line 693 has the repository's only
+site that equates the `I_d`-curve's neutrality bias with `gfet.V_dirac`:
+`j_dirac = int(np.argmin(np.abs(Vg - gfet.V_dirac)))`, used to report the
+diffusion share "at the nearest grid point to the Dirac point" and as the
+left-hand side of check G4a. On its own 240-point grid the two centres are
+**different grid points** and the share differs in **sign**:
+
+    nearest grid point to V_dirac       = +0.811715 V, share -0.006925 %
+    nearest grid point to V_dirac+Vds/2 = +0.861925 V, share +0.015818 %
+
+G4a's **verdict survives** — both shares are about three orders below the
+sweep maximum, so "the share COLLAPSES at charge neutrality instead of
+diverging there" is still true — so the line is annotated with both numbers
+and left unchanged, and `diffusion_current_output.txt` stays reproducible.
+What is false is the *wording*. Classified LATENT.
+
+### 7. Environment
+
+The device VM's session filesystem was **100 % full again** — `/sessions`
+9.3 G used, 0 available, of which this session owned 30 MB — for the
+**third consecutive day**. `mkdir $HOME/work` fails with "No space left on
+device". Work moved to `/tmp/ghwork` (on `/`, 2.8 G free) and `scipy`, still
+not preinstalled, was found **already present** at `/tmp/pylibs` from the
+11-15 session, so `PYTHONPATH=/tmp/pylibs MPLCONFIGDIR=/tmp/mpl` was enough
+and no install ran. Three days makes this a standing property: the
+`/tmp/pylibs` cache surviving between sessions is a useful consequence of
+it, and is worth relying on deliberately rather than rediscovering.
+
+### 8. Scoring the 2026-11-15 predictions
+
+1. **"The `|g_m|` audit will find at least one more instance, and it will be
+   in a figure-of-merit expression rather than in a current model."** —
+   **GREEN**, on both halves, in a form the prediction did not anticipate.
+   See §3.
+2. **"Drafting the noise material into a chapter will falsify something in
+   `graphene_low_frequency_noise_model.py`, and it will be in the Hooge term
+   rather than the CNF term."** — **UNSCORED**, not attempted; carried.
+   Note §4: the module's V2 was touched today and *not* falsified — it was
+   strengthened — so this prediction is still open on its own terms.
+3. **"The file-existence audit (ranked first) will strike at least one more
+   item."** — **UNSCORED**, not attempted. The ranked-first item was passed
+   over today in favour of the ranked-second one, deliberately: the
+   ranked-second item carried a scorable prediction and a physics question,
+   and the ranked-first one is mechanical and loses nothing by waiting. It
+   is re-ranked **first again** below.
+
+**Not yet covered (candidates for future runs):**
+
+- **TEST EVERY LIST ITEM THAT NAMES A FILE AGAINST THE TREE** — carried
+  from 11-15 and **still ranked first**, now with two sessions of
+  precedence behind it. `graphene_standing_list_audit.py` already exists
+  (2026-10-18) and is the right home; what it does not have is a
+  *mechanical* pass that extracts every `thesis_draft/0X-*.md`, `*.py` and
+  `notes/*.md` token from a "Not yet covered" list and checks existence
+  plus a line count. It has a known answer to validate against: run it on
+  the 2026-11-14 list and it must flag the Chapters 2/3 item; run it on the
+  2026-11-15 list, where that item is struck, and it must return nothing.
+- **DOES THE MIRROR CENTRE SURVIVE VELOCITY SATURATION AND DIFFUSION?** —
+  created today, **ranked second**. `graphene_velocity_saturation_model.py`
+  and `graphene_diffusion_current_model.py` integrate over the same
+  symmetric profile but with a velocity field that is **not** even in the
+  local overdrive, so `V_dirac + Vds/2` is not expected to survive
+  unchanged. Whatever replaces it is the centre their own `np.abs(gm)` and
+  their own `j_dirac` should be read against, and today's audit tests
+  neither module.
+- **A WARD-DUTTON `C_gs`** — created today, **ranked third**. Today's repair
+  is a midpoint average of a source-end formula, which is enough to restore
+  the shared centre and is explicitly *not* the non-reciprocal
+  channel-integrated `C_gs` of Jiménez arXiv:1105.2734. Building the latter
+  would also give `C_gd` and `C_sd` properly rather than through this
+  repository's `Cgd_over_Cgs` constant.
+- **THE CONTACT-DROP CORRECTION TO THE CENTRE** — created today. Jiménez's
+  `V_ds` is the *internal* drain-source voltage, after `I_ds(R_s + R_d)`;
+  this model's profile is built from the terminal `Vds` with `Rc_total`
+  added outside the integral. The exact law is exact for the model as
+  written; the two definitions differ by a contact drop this repository
+  already computes elsewhere.
+- **A `grep` FOR `abs` CANNOT FIND A CENTRE MISMATCH** — created today by
+  §3, and the general form of it: the sign half of the ambipolar class is
+  mechanically searchable and was already closed, the *centre* half is not
+  searchable at all. Any instrument for this class has to be a numerical
+  symmetry test, not a text search. This is the same mention/use boundary
+  the citation-census thread keeps running into, in a different vocabulary.
+- **ANNOTATE CHAPTER 4 WITH THE CENTRE** — created today. The annotation
+  landed in `rf_small_signal_model.py`'s docstring; `thesis_draft/`'s RF
+  material still presents `f_T(V_g)` with no statement of which bias is its
+  axis of symmetry.
+- **THE NEW MODULE IS NOT IN ANY CHAPTER** — carried from 11-15, and now
+  **two** modules deep: neither the noise model nor today's mirror audit is
+  cited anywhere in `thesis_draft/`.
+- **CHAPTER 7's CONTRADICTION IS STILL UNSYNTHESISED** — carried. Chapter 4
+  favours high-work-function contact metals (Ni, Au, Pd) for low contact
+  resistance; Chapter 6 §6.7 finds those same metals worst for symmetric
+  two-terminal photoresponse. Re-tested 11-15: Chapter 7 exists at 2357
+  lines and the contradiction is not in it. **Not re-tested today**, which
+  is itself the ranked-first item's point.
+- **A PUDDLE-FLUCTUATION MODEL**, **MEASURE THE 1/f CORNER FREQUENCY**,
+  **PHASE-NOISE UP-CONVERSION `(1/f)^3`**, **AREA/OXIDE SCALING OF `N_T*`**,
+  **THE CONTACT-NOISE TERM** — all carried from 11-15 unchanged.
+- **LAND THE SECTIONING REJECTION IN `_QUOTE_RE` ITSELF**, **A LEFTWARD
+  EXTRACTOR IS NOT THE REPAIR**, **A TEXT SEARCH CANNOT TELL A QUOTATION
+  FROM A DENIAL OF ONE**, **BARE INTEGERS ADMIT NO MECHANICAL QUOTATION
+  SUPPORT**, **ADJUDICATE THE THREE TERM SHARES AGAINST THE PAPER** — all
+  carried.
+- **RESOLVE NAME-BOUND TOLERANCES IN THE CENSUS**, **AN AREAL BAND AT THE
+  REPO'S OWN `t_ox`**, **THE 13.20 % BELONGS IN CHAPTER 4**, **A
+  SPREADING-CORRECTED `R_ox`**, **FIX `v_F`: FOUR NAMES MOVED TOGETHER**,
+  **TEST THE `V3` MAGNITUDE, NOT ONLY ITS SIGN**, **DECIDE WHETHER A
+  `SUBORDINATE` MENTION IS THE LIST CARRYING THE ITEM**,
+  **RE-CHARACTERISE THE RF CHAPTER AT A BIAS WHERE BOTH MISSING MECHANISMS
+  LIVE** (today adds a third reason: that chapter is where the centre
+  mismatch lives), **A `v_sat` ADMISSIBILITY MAP OVER `V_g`**, **READ
+  DORGAN FIG. 2b**, **SAY WHICH OF THE THREE REASONS A `grep` HIT IS NOT AN
+  ANTI DATE**, **`INCIDENTAL` IS NOT ONE CLASS**, **THE SAME MENTION/USE
+  LOOPHOLE IN THE OTHER TWO MODULES**, **GIVE EVERY VERDICT IN EVERY
+  VOCABULARY A PLANTED CONTROL**, **`gfet._thermal_rounding` IS A LEVER
+  WITH NO GUARD**, **FLIP THE DEFAULT TO `B_T`**, **IS THE ADMISSIBLE SHAPE
+  BOX THE RIGHT ONE?**, **A LOWER BOUND ON `l`**, **A `D_c` FORM FOR THE
+  CHEMISORBED METALS**, **PACK THE CENSUS PARTS BY COST**, **RE-DECIDE THE
+  CENSUS EXCLUSIONS**, **WHAT `n_puddle` ACTUALLY MEANS**, **WHETHER THE
+  FLOOR BELONGS INSIDE `C_q`'s ARGUMENT**, **THE FOUR DEAD NAMES**,
+  **CONVERT THE ELEVEN SURVIVING HAND-LISTED REBINDING SITES**, **THE
+  PRESENT/USED/REACHED TABLE AS A TEST**, **§4.8.2's FORM OF ERROR**, **THE
+  2–3 ULP ANTISYMMETRY**, **THE CONTACT MODEL'S OWN APPROXIMATIONS**, **A
+  THIRD KNOB: THE ROUNDING FORM**, **BUILD ITEM 17 AS A SWEEP**, **CENSUS
+  EVERY CRITERION AND CHECK THAT IS A RATIO**, **THE `d|n|/dV` = 0 HALF OF
+  ITEM 11**, **THE §4.6.5 REWIRING ITEM**, **MECHANISE THE MAGNITUDE
+  ITEM**, **MEASURE WHAT EACH DECLARATION COSTS**, **THE HOLE-BRANCH SIGN
+  OF CHAPTER 4's BRANCH-ASYMMETRIC RESULTS** — all carried unchanged.
+- **THE BRANCH-ASYMMETRIC CENTRE** — created today, and the sharpest form of
+  the item immediately above. `mu_e != mu_h` destroys today's premise on
+  purpose (`graphene_branch_asymmetric_mobility.py`). What, if anything,
+  replaces the reflection centre there is unknown, and `sigma_min`'s
+  geometric-mean closed form suggests the question has an answer.
+
+**Predictions for the next session, recorded so they can be scored:**
+
+1. **The velocity-saturation and diffusion modules do NOT share
+   `V_dirac + Vds/2` as their centre, and the departure will be larger in
+   the diffusion module than in the velocity-saturation one.** Reason: both
+   break the evenness of the local overdrive, but `vsat`'s saturation
+   factor depends on the local field magnitude while the diffusion term
+   carries `d|n|/dV`, which this repository has already measured to be
+   exactly zero at neutrality and therefore maximally sensitive to which
+   bias "neutrality" names.
+2. **The mechanical file-existence audit, when it is finally run, will
+   strike at least one item created on 2026-11-16.** The non-trivial half:
+   it will be a *notes* item rather than a chapter item, because today
+   created three items naming work in `thesis_draft/` and chapter files are
+   the ones the repository's own status table already tracks.
+3. **Annotating Chapter 4 with the centre will not change any number in the
+   chapter.** Reason, and why this is worth predicting rather than
+   assuming: today's measurement says the peak is where the mismatch
+   vanishes, and Chapter 4 quotes peaks. If a number *does* move, the
+   chapter is quoting something other than a peak and that is the more
+   interesting outcome.

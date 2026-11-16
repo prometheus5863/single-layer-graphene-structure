@@ -1,0 +1,139 @@
+==============================================================================
+KAPPA IS BOUNDED BY ZION'S OWN IMPURITY DENSITY, AND 2.4 IS
+EXCLUDED -- arXiv:1801.03565 full text, read 2026-11-03
+==============================================================================
+
+SECTION 1.  The full text carries NO mobility (the item's datum
+            does not exist), and Zion's own arithmetic reproduced
+  C_ox  = eps0*eps/t = 1.150500e-04 F/m^2   (Zion state 1.15e-04)
+  N_A^S = C_ox*V_NP/e = 1.436171e+16 m^-2   (Zion state 1.5e+16)
+  [PASS] D1 C_ox reproduces Zion's stated value AT THEIR PRECISION, from eps0, eps and t alone
+         computed 1.150500e-04 rounds to 0.000115 at 3 s.f.; Zion print 1.15e-04.
+         Their capacitance is internally consistent, which is what makes D2's
+         failure on the NEXT line attributable to the quoted density rather than to
+         a different oxide convention.
+  [PASS] D2 N_A^(S) does NOT reproduce: Zion's quoted 1.5e12 is 4-5 % above what their own C_ox and V_NP give
+         their formula and their inputs give 1.4362e12 cm^-2, a shortfall of 4.26 %
+         against the 1.5e12 they print, and 1.4362 does not round to 1.5 at any
+         precision. Both values are carried forward; the RECOMPUTED one is used
+         because by (B2) it is the LOOSER bound, so it cannot manufacture the
+         exclusion below.
+
+SECTION 2.  The bound, and its direction
+  KAPPA <= n_c/N_A^(S) = 2.0889        (recomputed N_A, conservative)
+  KAPPA <= n_c/1.5e16  = 2.0000        (Zion's rounded N_A)
+  KAPPA  = A_ref/C     = 2.4000        (ILC 11-02, by pairing)
+  [PASS] D3a the bound round-trips to within the 1 ulp that floating point guarantees -- NOT bitwise, and the first version of this check wrongly predicted bitwise and failed
+         returned 3.00000000000000040e+16 against n_c = 3.00000000000000000e+16,
+         ulp distance 1. (n_c/N_A)*N_A rounds twice, so exactness is not available
+         here and asserting it was an overclaim; it is corrected by splitting the
+         check, not by widening it.
+  [PASS] D3b where the round-trip IS exact -- N_A a power of two times n_c -- it is bitwise, and KAPPA comes out exactly 4.0
+         kappa = 4.00000000000000000e+00 (exactly 4.0: True), round-trip ulp 0.
+         Division and multiplication by a power of two are both exact, so this
+         isolates the double-rounding of D3a as the whole of its 1 ulp.
+  [PASS] D5 KAPPA is scale-invariant BITWISE under a factor-of-two scaling of both inputs
+         kappa(2n_c, 2N_A) = 2.08888739765319364e+00, kappa(n_c, N_A) =
+         2.08888739765319364e+00, ulp 0. A power of two is exactly representable
+         and commutes with rounding at every step, so this is a true bitwise
+         symmetry rather than a tolerance, and it says KAPPA has exactly one
+         dimensionless group.
+
+SECTION 4.  The verdict
+  2.4 exceeds the conservative bound by 14.89 % (and the rounded-N_A bound by 20.00 %)
+  [PASS] D4 the exclusion FIRES on KAPPA = 2.4 and does NOT fire on a planted control of 1.9
+         2.4 > 2.0889 so it is excluded; 1.9 < 2.0889 so it is not. The same code
+         path returns both answers, which is what distinguishes a test from an
+         assertion -- ILC's D11 made the same point about its own mutant.
+
+SECTION 5.  The mobility the paper never states, bounded anyway
+  mu_L,Zion = KAPPA*C/n_c <= 0.348148 m^2/Vs = 3481 cm^2/Vs
+  the repository paired gfet.mu = 0.400 m^2/Vs = 4000 cm^2/Vs
+  [PASS] D10 the mobility bound and the KAPPA bound are the SAME statement: both fall below the paired value by an identical factor
+         mu_bound/gfet.mu = 0.87036974902216402, kappa_bound/KAPPA_ILC =
+         0.87036974902216402, ulp distance 0. Section 5's algebra is thereby
+         checked rather than asserted: A = KAPPA*C and A = n_c*mu_L are one
+         relation, so the two ratios cannot differ.
+
+SECTION 6.  Overlap with 11-02, and what the correction cannot move
+  [PASS] D6 at kappa = KAPPA_ILC the corrected n_c differs from ILC's by EXACTLY 0.0 at all 401 densities -- zero, not small
+         0 of 401 samples have a nonzero difference. A correction parameterised by
+         kappa must contain the model it corrects as the value it corrects away
+         from, and that admits an exact test rather than a tolerance.
+  [PASS] D7 routed through ILC's OWN function with a_neutral = kappa*C, the agreement is bitwise over six decades
+         worst ulp distance 0 over 401 points spanning N_imp = 1e14..1e20 m^-2. D6
+         tests this module's arithmetic; D7 tests that it is the same function ILC
+         ships, which is the stronger of the two.
+  [PASS] D8 every RATIO is bitwise invariant under a 13 % change in kappa -- n_c ratios and margin ratios alike
+         n_c(4e16)/n_c(1e16) = 4.00000000000000000e+00 both before and after (ulp
+         0); the margin ratio likewise (ulp 0). ILC's D5 established that the
+         ratios do not carry the pairing; this is that result collected on a
+         correction it did not anticipate, and it is why Section 6 can say the
+         11-02 CONCLUSIONS survive while its absolute numbers move.
+
+SECTION 7.  What moves, in the device units
+  quantity                         11-02       corrected   change    
+  n_c at N_imp,ref (e12 cm^-2)     3.0000      2.6111      -12.96 %
+  dV_c, 10 nm HfO2 (V)             0.2171      0.1890      -12.96 %
+  M, HfO2 at 1 V, dirtiest case    1.0965      1.2598      +14.89 %
+  N_imp*, HfO2 at 1 V (e12 cm^-2)  5.7566      6.6140      +14.89 %
+  N_imp*, 90 nm SiO2 at 5 V (e12)  0.4989      0.5732      +14.89 %
+  [PASS] the 11-02 CONCLUSIONS all survive, and the one that was MARGINAL moves away from the margin
+         the thinnest 11-02 margin was 1.096x -- a top-gated device barely past its
+         own crossover at the dirty end of the HfO2 deposition range, close enough
+         to 1 that the verdict was fragile. It becomes 1.260x. No sign flips and no
+         verdict reverses; the correction moves the fragile one to safety, which is
+         the useful direction for a result to move when its weakest input is
+         replaced.
+  [PASS] the HfO2 deposition budget was THIN on 11-02 and is now comfortable -- the headroom roughly doubles
+         headroom over the paper's dirty end (4.00e12 cm^-2) goes from 12.7 % to
+         34.1 %. The 11-02 entry called this budget "REAL but thin"; the correction
+         is what makes it not thin, and it does so by replacing the weakest input
+         rather than by widening a tolerance.
+
+SECTION 8.  The new problem: n_c is a HOLE-branch number
+  [PASS] D9a at split = 0 the branch-split form reduces to DDM's single-n_c construction BITWISE
+         r(split=0) = 1.60300661470271083e-02, DDM's r = 1.60300661470271083e-02,
+         ulp 0. The split form is therefore a generalisation of (B1) and not a
+         second, different model -- which is the precondition for reading D9b as a
+         sensitivity rather than as a discrepancy between two codes.
+  [PASS] D9b THE EXACT IDENTITY (B4): at a branch split s = 2*r0 the asymmetry equals r0 at EVERY density -- no screening at all
+         worst deviation from the exactly known target r0 is 56 ulp (1.24e-14
+         relative) over 4 values of r0 and 401 densities spanning six decades;
+         worst at r0 = 0.02, n = 8.128e+19, r = 0.02000000000000019. The identity
+         is exact in real arithmetic -- the (1+x) factor cancels out of the ratio
+         -- so the residual is the computation path and is measured here rather
+         than tolerated.
+  |n|/n_c = 5.2912 at the top-gate operating point
+  branch split s             r            reading
+  0.000                      0.016030     the shipped answer: screened 6.24x
+  0.100                      0.057998     intermediate
+  0.200                      0.100000     = r0 exactly: NO screening
+  [PASS] D9c DDM's SCREENING CONCLUSION IS CONDITIONAL, and the condition is an unexamined symmetry of the neutral-defect channel
+         a 20 % split -- modest for a quantity never measured -- moves r at the
+         operating density by 524 %, and the s = 2*r0 endpoint is not a
+         perturbation of the shipped r = 0.0160 but its negation (r = r0 = 0.10,
+         density-independent). DDM derives r0 from a beyond-Born cross-section
+         ratio, which is a property of scattering off a potential; neutral defects
+         are also potentials, and no argument anywhere in this repository says the
+         asymmetry should vanish for vacancies while surviving for charged
+         impurities. It was assumed by writing a single n_c. THIS RANKS ABOVE
+         TODAY'S OWN CORRECTION: Sections 4-6 move absolute numbers by 13-15 %,
+         this decides whether a qualitative conclusion of Chapters 3 and 4 holds at
+         all.
+
+SECTION 9.  Mutation: flip the inequality
+  [PASS] D11 reading N_A^(S) as an UPPER bound on N_imp instead of a lower one REVERSES the verdict, so the verdict is using the argument of Section 2 (iii)
+         under the correct reading N_imp >= N_A^(S), so KAPPA <= 2.0889 and 2.4 is
+         excluded. Under the flipped reading the same arithmetic would make 2.0889
+         a LOWER bound and 2.4 merely unremarkable. The exclusion therefore rests
+         on the three reasons of Section 2 (net-not-count, unquantified N_t,
+         transfer residue) and not on the arithmetic, which is identical either
+         way.
+
+SECTION 10.  Figure
+  wrote kappa_impurity_bound.png
+
+==============================================================================
+16 checks, 16 passing, 0 failing
+==============================================================================

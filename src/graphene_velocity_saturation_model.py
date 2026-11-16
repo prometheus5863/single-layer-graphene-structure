@@ -219,18 +219,20 @@ def check(tag, ok, label, detail=""):
 # ---------------------------------------------------------------------------
 # The saturation model
 # ---------------------------------------------------------------------------
-def v_sat_of_n(n, omega_op=OMEGA_OP, prefactor=2.0 / np.pi):
+def v_sat_of_n(n, omega_op=None, prefactor=2.0 / np.pi):
     """Density-dependent saturation velocity, Eq. (6).
 
     v_sat = (2/pi) * Omega / sqrt(pi*n).  Diverges as n -> 0, which is
     physical (an empty channel imposes no velocity ceiling) and harmless
     downstream because n is floored at n_puddle by carrier_density().
     """
+    if omega_op is None:
+        omega_op = OMEGA_OP   # 2026-10-17: was a frozen default capture
     return prefactor * omega_op / np.sqrt(np.pi * np.asarray(n, dtype=float))
 
 
-def _channel_integrals(V_g, Vds_ch, n_quad=N_QUAD, v_sat_const=None,
-                       constant_n=False, omega_op=OMEGA_OP,
+def _channel_integrals(V_g, Vds_ch, n_quad=None, v_sat_const=None,
+                       constant_n=False, omega_op=None,
                        v_sat_prefactor=2.0 / np.pi):
     """Q = int n dV and S = int dV/v_sat over the intrinsic channel drop.
 
@@ -239,6 +241,10 @@ def _channel_integrals(V_g, Vds_ch, n_quad=N_QUAD, v_sat_const=None,
     v_sat_const, when given, overrides Eq. (6) with a fixed value (used by
     X3/X4 and by the beta-sensitivity bound).
     """
+    if n_quad is None:
+        n_quad = N_QUAD   # 2026-10-17: was a frozen default capture
+    if omega_op is None:
+        omega_op = OMEGA_OP   # 2026-10-17: was a frozen default capture
     V = np.linspace(0.0, Vds_ch, n_quad)
     if constant_n:
         n = np.full_like(V, float(gfet.carrier_density(V_g, 0.0)))
@@ -265,7 +271,7 @@ def _Id_given_Vds_ch(V_g, Vds_ch, **kw):
     return Id, Q, S, n, vs
 
 
-def transfer_characteristic_saturated(Vg_range, Vds=VDS_REF, saturate=True,
+def transfer_characteristic_saturated(Vg_range, Vds=None, saturate=True,
                                       Rc_total=None, tol=1e-15, max_iter=200,
                                       report_ceiling=False, **kw):
     """I_d(V_g) with velocity saturation, Eqs. (4)-(5).
@@ -278,6 +284,8 @@ def transfer_characteristic_saturated(Vg_range, Vds=VDS_REF, saturate=True,
     >= 1 means the channel CANNOT deliver the current and the model has no
     solution there; this is reported, never clipped.
     """
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Vg_range = np.atleast_1d(np.asarray(Vg_range, dtype=float))
     Rc = gfet.Rc_total if Rc_total is None else Rc_total
     Id_out = np.zeros_like(Vg_range)
@@ -317,15 +325,17 @@ def transfer_characteristic_saturated(Vg_range, Vds=VDS_REF, saturate=True,
     return Id_out
 
 
-def gds_saturated(Vg_range, Vds=VDS_REF, dVds=1e-3, **kw):
+def gds_saturated(Vg_range, Vds=None, dVds=1e-3, **kw):
     """d(I_d)/d(V_ds) by the SAME central difference rf.output_conductance
     uses, so the comparison is between models and not between estimators."""
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Ip = transfer_characteristic_saturated(Vg_range, Vds=Vds + dVds, **kw)
     Im = transfer_characteristic_saturated(Vg_range, Vds=Vds - dVds, **kw)
     return (Ip - Im) / (2.0 * dVds)
 
 
-def gds_at_bias(V_g, Vds=VDS_REF, dVds=1e-3, **kw):
+def gds_at_bias(V_g, Vds=None, dVds=1e-3, **kw):
     """g_ds at ONE gate bias, without going through np.gradient.
 
     fT_fmax_saturated() needs g_m and therefore needs >= 2 gate points;
@@ -334,20 +344,26 @@ def gds_at_bias(V_g, Vds=VDS_REF, dVds=1e-3, **kw):
     a crash in a reporting path, which 2026-10-04 recorded as a strictly
     weaker detection than an assertion.  This helper removes the need.
     """
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Vg1 = np.array([float(V_g)])
     Ip = transfer_characteristic_saturated(Vg1, Vds=Vds + dVds, **kw)[0]
     Im = transfer_characteristic_saturated(Vg1, Vds=Vds - dVds, **kw)[0]
     return (Ip - Im) / (2.0 * dVds)
 
 
-def gm_saturated(Vg_range, Vds=VDS_REF, **kw):
+def gm_saturated(Vg_range, Vds=None, **kw):
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     Id = transfer_characteristic_saturated(Vg_range, Vds=Vds, **kw)
     return np.gradient(Id, Vg_range), Id
 
 
-def fT_fmax_saturated(Vg_range, Vds=VDS_REF, N_fingers=1, **kw):
+def fT_fmax_saturated(Vg_range, Vds=None, N_fingers=1, **kw):
     """f_T and f_max from the saturated model, reusing rf's own C_gs, C_gd,
     R_g and R_s so that ONLY g_m and g_ds change between the two models."""
+    if Vds is None:
+        Vds = VDS_REF   # 2026-10-17: was a frozen default capture
     gm, Id = gm_saturated(Vg_range, Vds=Vds, **kw)
     gds = gds_saturated(Vg_range, Vds=Vds, **kw)
     Cgs = rf.gate_capacitance(Vg_range)
@@ -361,11 +377,26 @@ def fT_fmax_saturated(Vg_range, Vds=VDS_REF, N_fingers=1, **kw):
     return fT, fmax, gm, gds, Cgs
 
 
-def _at_literature_geometry(fn, W=rf.W_RF, N_fingers=rf.N_FINGERS_RF):
+def _at_literature_geometry(fn, W=None, N_fingers=None):
     """Run fn() with gfet.W / gfet.Rc_total temporarily set to the
-    literature-scale geometry, exactly as rf.compute_fT_fmax does.  Late
-    binding throughout -- no module-level name is captured as a default
-    (the 2026-10-03 frozen-default bug, and the 2026-10-04 repeat of it)."""
+    literature-scale geometry, exactly as rf.compute_fT_fmax does.
+
+    CORRECTED 2026-10-17.  The sentence that stood here until today --
+    "Late binding throughout -- no module-level name is captured as a
+    default (the 2026-10-03 frozen-default bug, and the 2026-10-04 repeat
+    of it)" -- was TRUE AS WRITTEN AND FALSE IN SUBSTANCE, and is kept
+    above in full rather than deleted.  No module-level NAME was captured;
+    what was captured was an ATTRIBUTE, `W=rf.W_RF, N_fingers=rf.N_FINGERS_RF`,
+    frozen at import by exactly the mechanism the sentence denies.  Every
+    census in this repository looks for the Name spelling and was blind to
+    it: see graphene_attribute_default_capture.py, Section 4, which measures
+    this function keeping W = 4e-05 while rf.W_RF reads 7e-06.  Late binding
+    is true of it NOW, by the None sentinels below, and the claim is no
+    longer audited by spelling."""
+    if W is None:
+        W = rf.W_RF   # 2026-10-17: was a frozen ATTRIBUTE default capture
+    if N_fingers is None:
+        N_fingers = rf.N_FINGERS_RF   # 2026-10-17: was a frozen ATTRIBUTE default capture
     W_saved, Rc_saved = gfet.W, gfet.Rc_total
     gfet.W = W
     gfet.Rc_total = 2 * (gfet.Rc_per_width_ohm_um * 1e-6) / W

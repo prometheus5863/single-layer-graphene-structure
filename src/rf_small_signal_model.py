@@ -220,7 +220,47 @@ def output_conductance(Vg_range, Vds=0.05, dVds=1e-3):
 def gate_capacitance(Vg_range, Vch=0.0):
     """C_gs(V_g): total series gate capacitance (C_ox in series with C_q),
     scaled from a per-area quantity (F/m^2) to a total device capacitance
-    (F) via the channel area W*L already defined in graphene_fet_model."""
+    (F) via the channel area W*L already defined in graphene_fet_model.
+
+    ANNOTATION 2026-11-16 -- THIS FUNCTION CARRIES THE WRONG REFLECTION
+    CENTRE, AND IS DELIBERATELY NOT CHANGED.  Its argument is literally
+    `Vg_range - Vch - gfet.V_dirac`, passed through the even
+    `quantum_capacitance`, so C_gs is BITWISE even about V_g = V_dirac.
+    `gfet.transfer_characteristic`, and therefore g_m, is exactly even/odd
+    about
+
+        V_MIRROR = gfet.V_dirac + Vds/2
+
+    instead -- 0.85 V rather than 0.80 V at the Vds = 0.1 V bias Chapter 4's
+    RF numbers are quoted at.  f_T = |g_m|/(2 pi C_gs) therefore divides two
+    quantities whose reflection centres differ by exactly Vds/2 and is even
+    about neither, which makes the electron- and hole-branch peak f_T of a
+    device with an exactly mirror-symmetric I_d come out unequal.  Measured:
+    20.27790 GHz against 20.27876 GHz, a ratio of 0.9999575857.
+
+    NO NUMBER IS WITHDRAWN.  The asymmetry at the PEAK is 4.24e-5, because
+    there C_gs is C_ox-dominated and flat; the committed Chapter 4 f_T and
+    f_max values are unaffected at the precision they are quoted to.  Near
+    neutrality it is not small: 2.85 % between the two branches at 50 mV
+    from the centre, 1.74 % at 100 mV.  So this is a defect in the SHAPE of
+    f_T near the Dirac point, not in its peak.
+
+    The function is left as it is so that every committed number stays
+    reproducible bit for bit.  The consistent object is
+    `graphene_ambipolar_mirror_audit.gate_capacitance_channel_averaged`,
+    which averages THIS function, unchanged, over the same 50-point channel
+    potential profile the drain current is integrated over, and which
+    reduces to this function bitwise at Vds = 0 with n_segments = 1.  Using
+    it makes the two branch peaks exactly equal (ratio 1, to 2.2e-16).
+
+    Direction of travel, for whoever replaces rather than wraps this:
+    Jimenez arXiv:1105.2734 obtains the GFET small-signal capacitances by
+    differentiating channel-INTEGRATED charges, Q_g = -W int_0^L Q_c(y) dy,
+    with Ward-Dutton partitioning.  The channel average above restores the
+    shared centre but is still a midpoint average of a source-end formula,
+    not that non-reciprocal C_gs.  See
+    notes/2026-11-16-the-mirror-centre-of-an-ambipolar-transfer-curve.md.
+    """
     dV = Vg_range - Vch - gfet.V_dirac
     Cq = gfet.quantum_capacitance(dV, T=gfet.T)
     C_total_per_area = 1.0 / (1.0 / Cq + 1.0 / gfet.C_ox)

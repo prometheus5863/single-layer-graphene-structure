@@ -1,0 +1,40 @@
+==============================================================================
+THE CAPTURE SURFACE AS A FIGURE, WITH ITS OWN PROVENANCE CHECKS
+==============================================================================
+
+    graphene_fet_model._thermal_rounding             EXPOSED    rep  +58.3421 %  unrep  +58.3421 %
+    graphene_quantum_capacitance_argument.A_FERMI    EXPOSED    rep  +58.3417 %  unrep  +58.3417 %
+    graphene_quantum_capacitance_argument.series_factor EXPOSED    rep  +26.1720 %  unrep  +26.1720 %
+    graphene_quantum_capacitance_argument._fixed_point EXPOSED    rep  +22.4740 %  unrep  +22.4740 %
+    graphene_contact_doping_model.C_interface        EXPOSED    rep  +18.1154 %  unrep  +18.1154 %
+    graphene_fet_model.T                             EXPOSED    rep   +0.0034 %  unrep   +0.0034 %
+    graphene_contact_doping_model.quantum_capacitance UNREACHED  rep   +0.0000 %  unrep   +0.0000 %
+    graphene_fet_model.C_ox                          PROTECTED  rep   +0.0000 %  unrep   +0.0000 %
+    graphene_fet_model.quantum_capacitance           PROTECTED  rep   +0.0000 %  unrep  +58.3421 %
+
+------------------------------------------------------------------------------
+PROVENANCE OF THE FIGURE ITSELF
+------------------------------------------------------------------------------
+
+    PASS F0a POSITIVE CONTROL: the checker flags a title with a hand-typed number   -- [('set_title', 'the two differ on exactly 1 of 9 names')]
+    PASS F0b NEGATIVE CONTROL: it does not flag a numberless title
+    PASS F0c and it does not flag the %-format shape this module uses, whose digits live in the ARGUMENTS and not in the literal   -- []
+    PASS F0d and it does not flag a NON-TEXT string argument: a colour inside arrowprops is not drawn as a glyph   -- []
+    PASS F0e and it does not flag the PRECISION inside a %-conversion specifier, while still flagging a hand-typed number beside one   -- [('text', 'row 3 of %+.4f %%')]
+    PASS F1  no literal digit appears in any title, label or annotation of THIS file -- every number is interpolated from the measurement   -- []
+    PASS F2  the legend is built from the artists, so it has one entry per drawn series and no entry for an undrawn one   -- 4 handles
+    PASS F3  the bars drawn equal the nonzero rows, and the exact zeros are a DIFFERENT artist (a zero-height bar is indistinguishable from a missing one)   -- 13 bars, 5 zero markers
+    PASS F4  every y tick label corresponds to a measured row, in order
+    PASS F5  the two exact zeros of the repaired replacement are the two the guard adjudicates PROTECTED/UNREACHED, and the unrepaired one has one fewer   -- 3 vs 2
+    PASS F7  NO TEXT IS CLIPPED: every drawn string lies inside the canvas. The first render of this figure cut off the end of its own title and of its x-axis label, and nothing checked it   -- []
+    PASS F9  THE LEGEND HIDES NO DATA: its box overlaps no drawn bar.  In the second render it sat on top of the quantum_capacitance row -- the single row the figure exists to show -- and F2 passed, because counting legend entries says nothing about where the box lands   -- []
+    PASS F10 NO VALUE LABEL RUNS PAST THE RIGHT SPINE: the two largest bars ended within a few pixels of it in the second render   -- []
+    PASS F8  A SMALL MOVE IS VISIBLY DISTINCT FROM AN EXACT ZERO: the smallest nonzero bar ends at least 40 px from the off-scale zero marker.  The linear first render put them on top of each other, and F3 passed anyway because it asked about artists and not about what a reader can see   -- 184.7 px for +0.0034 %
+    PASS F6  the figure file was written and is non-trivial   -- 168141 bytes
+
+    base contact C_q at V = 0.5 V: 0.06555495551420368 F/m^2 (0x1.0c835a6063492p-4)
+    written: capture_surface_leverage.png
+
+==============================================================================
+VALIDATION: 15/15
+==============================================================================
