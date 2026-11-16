@@ -252,9 +252,9 @@ def validations():
     #     have the same work function, nothing transfers, and n must be
     #     EXACTLY zero under both forms.  A solver that returns a small
     #     nonzero number here is wrong in a way no plausible-range check sees.
-    nA = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE))
+    nA = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER))
     with on_contact_consistent_argument():
-        nB = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE))
+        nB = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER))
     check('(a) EXACT: dWF = 0 gives n = 0 under both forms',
           nA == 0.0 and nB == 0.0, 'form A %r, form B_T %r' % (nA, nB))
 
@@ -286,17 +286,17 @@ def validations():
     worst_wf_A = 0.0
     worst_wf_B = 0.0
     for d in (0.05, 0.17, 0.3, 0.62, 1.15):
-        pa = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE + d))
-        ma = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE - d))
+        pa = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER + d))
+        ma = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER - d))
         worst_wf_A = max(worst_wf_A, ulps(pa, -ma))
     with on_contact_consistent_argument():
         for d in (0.05, 0.17, 0.3, 0.62, 1.15):
-            pb = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE + d))
-            mb = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE - d))
+            pb = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER + d))
+            mb = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER - d))
             worst_wf_B = max(worst_wf_B, ulps(pb, -mb))
-    check('(b2) the 3-ulp antisymmetry defect is the SHIPPED dWF subtraction, '
-          'not form B_T -- it is present under form A too',
-          worst_wf_A > 0.0 and abs(worst_wf_B - worst_wf_A) <= 2.0,
+    check('(b2) any antisymmetry defect is in the SHIPPED dWF subtraction, '
+          'not in form B_T -- forms A and B_T agree to 2 ulp',
+          abs(worst_wf_B - worst_wf_A) <= 2.0,  # was also `worst_wf_A > 0.0`: true at the 4.5 eV reference; at W0 = 5.4 eV (5.4 +- d) - 5.4 is exactly antisymmetric for these d, so 0 ulp (2026-11-16)
           'form A %.3g ulp, form B_T %.3g ulp, solver itself 0 ulp'
           % (worst_wf_A, worst_wf_B))
 
@@ -431,7 +431,7 @@ def per_metal_table():
     out = {}
     for m in METALS:
         wf = cd.METAL_WORK_FUNCTIONS[m]
-        dV = -(wf - cd.W_GRAPHENE)
+        dV = -(wf - cd.W_CROSSOVER)
         nA = float(cd.contact_edge_carrier_density(wf))
         with on_contact_consistent_argument():
             nB = float(cd.contact_edge_carrier_density(wf))
@@ -446,7 +446,7 @@ def per_metal_table():
         # sign n carries.
         ch = 100.0 * (abs(nB) - abs(nA)) / abs(nA)
         want = COMMITTED_2026_10_13[m]
-        agree = 'identical' if abs(ch - want) < 5e-4 else 'DIFFERS %.4f' % (ch - want)
+        agree = ('new: dWF was 0 at the 4.5 eV reference' if want is None else 'identical' if abs(ch - want) < 5e-4 else 'DIFFERS %.4f' % (ch - want))  # 2026-10-13 values used the 4.5 eV reference
         print('  %-5s %-8.2f %-9.3f %-15.6e %-15.6e %-10s %s'
               % (m, wf, dV, nA, nB, '%.4f%%' % ch, agree))
         out[m] = ch
@@ -464,7 +464,7 @@ def plot_contact_correction(per_metal):
 
     ms = [m for m in METALS if per_metal[m] is not None]
     vals = [abs(per_metal[m]) for m in ms]
-    cols = ['crimson' if cd.METAL_WORK_FUNCTIONS[m] > cd.W_GRAPHENE
+    cols = ['crimson' if cd.METAL_WORK_FUNCTIONS[m] > cd.W_CROSSOVER
             else 'steelblue' for m in ms]
     ax1.bar(ms, vals, color=cols, alpha=0.85, edgecolor='k', lw=0.6)
     ax1.axhline(1.0212, color='seagreen', ls='--', lw=1.8,
@@ -479,10 +479,10 @@ def plot_contact_correction(per_metal):
     dWF = np.linspace(-1.2, 1.2, 161)
     nA, nB = [], []
     for d in dWF:
-        nA.append(float(cd.contact_edge_carrier_density(cd.W_GRAPHENE + d)))
+        nA.append(float(cd.contact_edge_carrier_density(cd.W_CROSSOVER + d)))
     with on_contact_consistent_argument():
         for d in dWF:
-            nB.append(float(cd.contact_edge_carrier_density(cd.W_GRAPHENE + d)))
+            nB.append(float(cd.contact_edge_carrier_density(cd.W_CROSSOVER + d)))
     nA, nB = np.array(nA), np.array(nB)
     ax2.plot(dWF, nA / 1e16, color='grey', lw=2.2,
              label=r'form A (committed): $C_q$ at the full $\Delta W\!F$')

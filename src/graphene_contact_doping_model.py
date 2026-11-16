@@ -70,6 +70,31 @@ METAL_WORK_FUNCTIONS = {
 
 W_GRAPHENE = 4.5  # eV, intrinsic graphene work function (Khomyakov et al. 2010)
 
+# n/p crossover work function W0 (CORRECTED 2026-11-16, correction of record in
+# thesis Appendix A).  The sign and size of the contact doping are set by
+# W_metal - W0, not by W_metal - W_GRAPHENE: the short-range metal-graphene
+# interaction adds an interface potential step Delta_c ~ 0.9 eV on top of
+# vacuum-level alignment, so a physisorbed metal leaves graphene undoped at
+# W_metal = W_GRAPHENE + Delta_c ~ 5.4 eV (Giovannetti et al., PRL 101, 026803
+# (2008); Khomyakov et al., PRB 79, 195425 (2009)).  Until 2026-11-16 this
+# module used W_GRAPHENE here -- as Section 4.5's own text and Chapter 6's
+# models did not -- which p-doped Cu/Ni/Au/Pd against the n-type channel and
+# created spurious p-n junctions in Section 4.7's R_extra.
+W_CROSSOVER = 5.4  # eV, = W_GRAPHENE + 0.9; the same literal as Chapter 6's W_CROSS_CHEM
+
+# Where the work-function -> doping picture applies at all (Section 6.11/6.12's
+# stance): only to PHYSISORBED metals.  Ti, Ni and Pd chemisorb on graphene
+# (d_eq below the physisorbed separation), so their doping is not set by work
+# function and the model makes no claim about them; Cr is untabulated.
+PHYSISORBED_METALS = ("Cu", "Au", "Pt")
+OUTSIDE_MODEL_METALS = {"Ti": "chemisorbed", "Ni": "chemisorbed",
+                        "Pd": "chemisorbed", "Cr": "not tabulated by Khomyakov et al."}
+
+
+def in_model(metal):
+    """True only for metals whose contact doping this model describes."""
+    return metal in PHYSISORBED_METALS
+
 # Effective interface separation for a direct/weakly-bonded metal-graphene
 # contact (sub-nm, vs. the 90 nm SiO2 back-gate dielectric in
 # graphene_fet_model.py) -- physical vdW-type gap, ~3-4 Angstrom, consistent
@@ -95,10 +120,11 @@ def contact_edge_carrier_density(work_function_metal, T=300.0):
     "electrons flow from the lower-work-function material into the
     higher-work-function material."
     """
-    dWF = work_function_metal - W_GRAPHENE  # eV
-    # Sign convention: if the metal's work function is higher than graphene's,
+    dWF = work_function_metal - W_CROSSOVER  # eV, from the n/p crossover W0 (corrected 2026-11-16)
+    # Sign convention: if the metal's work function is above the crossover W0,
     # electrons flow from graphene to the metal, leaving graphene hole-doped
-    # (p-type, negative n). dWF > 0 -> p-type -> negative sign.
+    # (p-type, negative n). dWF > 0 -> p-type -> negative sign.  At W0 exactly
+    # the contact leaves graphene undoped: n_contact = 0.
     dV = -dWF  # effective "gate voltage" equivalent, in volts (1 eV/e = 1 V)
 
     n_electrostatic = C_interface * dV / e
@@ -316,15 +342,19 @@ def plot_rc_recalibration():
     width = 0.35
     ax.bar(x - width / 2, Rc_measured_vals, width,
            label='$R_c$, measured (literature, lumped total)', color='steelblue')
-    ax.bar(x + width / 2, R_extra_vals, width,
-           label='$R_{extra}$, computed (doping-junction only, this model)',
-           color='darkorange')
+    bars = ax.bar(x + width / 2, R_extra_vals, width,
+                  label='$R_{extra}$, computed (doping-junction only, this model)',
+                  color='darkorange')
+    for b, m in zip(bars, metals_sorted):
+        if not in_model(m):
+            b.set_hatch('//'); b.set_alpha(0.45)
     ax.axhline(0, color='black', linewidth=0.8)
     ax.set_xticks(x)
-    ax.set_xticklabels([f'{m}\n(W={wfs[i]:.2f} eV)' for i, m in enumerate(metals_sorted)])
+    ax.set_xticklabels([f'{m}\n(W={wfs[i]:.2f} eV)' + ('' if in_model(m) else '\noutside model')
+                        for i, m in enumerate(metals_sorted)])
     ax.set_ylabel(r'Contact resistance ($\Omega\cdot\mu$m)')
-    ax.set_title('Per-metal $R_c$ recalibration: literature-measured total vs.\n'
-                  'computed contact-doping-junction contribution')
+    ax.set_title('Per-metal $R_c$ recalibration (doping from $W - W_0$, $W_0$ = %.1f eV):\n'
+                  'literature-measured total vs. computed contact-doping contribution' % W_CROSSOVER)
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3, axis='y')
     plt.tight_layout()
@@ -339,43 +369,35 @@ def print_rc_recalibration():
           "doping-junction contribution)")
     print("=" * 78)
     print(f"{'Metal':6s} {'W (eV)':8s} {'Rc_measured':14s} {'R_extra (junction)':20s} "
-          f"{'Naive R_transmission':22s}")
+          f"{'Naive R_transmission':22s} {'regime':s}")
     for metal, (wf, Rc_measured, R_extra, R_trans) in sorted(
             results.items(), key=lambda kv: kv[1][0]):
-        print(f"{metal:6s} {wf:<8.2f} {Rc_measured:<14.1f} {R_extra:<20.2f} {R_trans:<22.2f}")
+        regime = "physisorbed" if in_model(metal) else "OUTSIDE MODEL (" + OUTSIDE_MODEL_METALS[metal] + ")"
+        print(f"{metal:6s} {wf:<8.2f} {Rc_measured:<14.1f} {R_extra:<20.2f} {R_trans:<22.2f} {regime:s}")
     print(f"\nAll values Ohm.um. 'Naive R_transmission' = Rc_measured - "
           f"R_extra, i.e. what would be left over if the measured Rc and "
           f"this model's junction integral were simply additive. See "
           f"METAL_LITERATURE_RC for individual citations/conditions.\n\n"
-          f"Result (genuine finding, not the outcome originally expected "
-          f"going into this recalibration): for 3 of 4 metals (Cu, Ni, "
-          f"Au) the computed R_extra alone EXCEEDS the entire measured "
-          f"literature Rc, giving a negative naive R_transmission -- i.e. "
-          f"an unphysical answer for a resistance that must be >= 0. Only "
-          f"Pd gives a plausible small positive residual (51 Ohm.um, "
-          f"~9% of the measured total). This means the additive "
-          f"decomposition Rc_measured = R_extra + R_transmission, as "
-          f"posed, is NOT valid as implemented, most plausibly because "
-          f"the two quantities are not independent: TLM (transfer length "
-          f"method), the standard technique behind all four literature "
-          f"Rc_measured values here, extracts a lumped Rc by fitting "
-          f"total resistance vs. contact-to-contact spacing back to zero "
-          f"spacing, and its fitted 'contact resistance' can already "
-          f"partially absorb any near-contact channel-doping gradient "
-          f"rather than cleanly separating it out -- so R_extra and "
-          f"Rc_measured likely double-count part of the same physical "
-          f"region rather than being additive components of one series "
-          f"resistance. A second, non-exclusive possibility is that "
-          f"lambda_decay=250 nm (Khomyakov et al. 2010, doped-graphene "
-          f"asymptotic regime) is itself too long for these specific "
-          f"literature devices' actual contact/channel geometry, "
-          f"over-integrating the extra-resistance contribution. "
-          f"Distinguishing between these (or other) explanations needs "
-          f"either the original devices' extracted transfer length "
-          f"L_T (not reported in the sources fetched this session) or a "
-          f"direct simulation of the TLM extraction procedure itself on "
-          f"top of this doping profile -- both flagged as open items in "
-          f"notes/2026-08-31-*.md rather than resolved here.")
+          f"Result, corrected 2026-11-16 (doping measured from the n/p "
+          f"crossover W0 = {W_CROSSOVER:.1f} eV, not from graphene's "
+          f"{W_GRAPHENE:.1f} eV): every tabulated metal here has W < W0, so "
+          f"each contact n-dopes graphene, in the same sense as the n-type "
+          f"on-state channel, and more strongly. There is no p-n junction, "
+          f"the near-contact region conducts better than the bulk channel, "
+          f"and R_extra is NEGATIVE. The naive R_transmission is therefore "
+          f"positive for every metal and LARGER than the measured Rc. The "
+          f"claim is restricted to the physisorbed metals {', '.join(m for m in PHYSISORBED_METALS if m in results)}; "
+          f"Ni and Pd are chemisorbed and outside the work-function model, "
+          f"and their rows are printed only for continuity with the "
+          f"superseded table. The negative residuals reported before "
+          f"2026-11-16 (Cu -787.5, Ni -360.5, Au -90.2 Ohm.um) were an "
+          f"artefact of measuring dWF from {W_GRAPHENE:.1f} eV, which "
+          f"p-doped these contacts against the n-type channel and created "
+          f"spurious p-n junctions. Caveat: the corrected model calls Au "
+          f"n-type at its tabulated polycrystalline W = 5.10 eV, while the "
+          f"DFT studies that place W0 at 5.4 eV find Au(111) p-type at their "
+          f"own W = 5.54 eV -- the W table and the crossover are not from "
+          f"the same source, and Au's sign is not established here.")
 
 
 def plot_doping_profiles_and_resistance():

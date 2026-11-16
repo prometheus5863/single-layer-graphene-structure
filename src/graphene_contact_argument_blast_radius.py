@@ -471,9 +471,9 @@ def main():
           'measured %+.6f %%  (committed -1.0212 %%)' % move)
 
     # (c) zero null, EXACT: dWF = 0 -> dV = 0 -> n = 0 exactly, both forms.
-    nA0 = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE))
+    nA0 = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER))
     with contact_on_consistent_argument():
-        nB0 = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE))
+        nB0 = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER))
     check('(c) zero null: n_contact(dWF = 0) == 0.0 EXACTLY, form A',
           nA0 == 0.0, 'got %r' % nA0)
     check('(c) zero null: n_contact(dWF = 0) == 0.0 EXACTLY, form B_T',
@@ -481,11 +481,11 @@ def main():
 
     # (d) antisymmetry, EXACT: n(W_G + d) == -n(W_G - d), bitwise, both forms.
     d = 0.37
-    aP = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE + d))
-    aM = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE - d))
+    aP = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER + d))
+    aM = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER - d))
     with contact_on_consistent_argument():
-        bP = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE + d))
-        bM = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE - d))
+        bP = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER + d))
+        bM = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER - d))
     check('(d) electron/hole antisymmetry bitwise, form A', aP == -aM,
           'ulp %.1f' % ulps(aP, -aM))
     check('(d) electron/hole antisymmetry bitwise, form B_T', bP == -bM,
@@ -532,8 +532,8 @@ def main():
           % (nan_at, cd.C_interface, eta_first))
 
     # (f) the solve's own residual at every metal.
-    res = max(float(residual(-(wf - cd.W_GRAPHENE), cd.C_interface))
-              for _, wf in metals if wf != cd.W_GRAPHENE)
+    res = max(float(residual(-(wf - cd.W_CROSSOVER), cd.C_interface))
+              for _, wf in metals if wf != cd.W_CROSSOVER)
     check('(f) fixed-point residual <= 1e-12 at all 7 work functions',
           res <= 1e-12, 'worst %.3e' % res)
 
@@ -573,7 +573,7 @@ def main():
           ('', 'WF(eV)', 'dV (V)', 'n_A (m^-2)', 'n_BT (m^-2)', 'change', 'E_F/e (V)'))
     rows = []
     for m, wf in metals:
-        dV = -(wf - cd.W_GRAPHENE)
+        dV = -(wf - cd.W_CROSSOVER)
         a, b = base_contact[m], bt_contact[m]
         ef = A_F * np.sqrt(abs(b)) if b != 0 else 0.0
         ch = pct(b, a) if a != 0 else float('nan')
@@ -707,17 +707,17 @@ def main():
 
     ax = axes[1]
     xs = np.linspace(0.01, 1.2, 300)
-    nA_s = np.array([float(cd.contact_edge_carrier_density(cd.W_GRAPHENE + v))
+    nA_s = np.array([float(cd.contact_edge_carrier_density(cd.W_CROSSOVER + v))
                      for v in xs])
     with contact_on_consistent_argument():
-        nB_s = np.array([float(cd.contact_edge_carrier_density(cd.W_GRAPHENE + v))
+        nB_s = np.array([float(cd.contact_edge_carrier_density(cd.W_CROSSOVER + v))
                          for v in xs])
     ax.plot(xs, np.abs(nA_s), label='form A: $C_q(\\Delta V)$', lw=1.8)
     ax.plot(xs, np.abs(nB_s), label='form B$_T$: $C_q(E_F/e)$', lw=1.8, ls='--')
     for m, wf in metals:
-        if wf != cd.W_GRAPHENE:
-            ax.axvline(abs(wf - cd.W_GRAPHENE), c='grey', lw=0.6, alpha=0.5)
-            ax.text(abs(wf - cd.W_GRAPHENE), ax.get_ylim()[1] * 0.02, m,
+        if wf != cd.W_CROSSOVER:
+            ax.axvline(abs(wf - cd.W_CROSSOVER), c='grey', lw=0.6, alpha=0.5)
+            ax.text(abs(wf - cd.W_CROSSOVER), ax.get_ylim()[1] * 0.02, m,
                     fontsize=7, rotation=90, va='bottom')
     ax.set_xlabel('$|\\Delta W_F|$ (eV)')
     ax.set_ylabel('$|n_{contact}|$ (m$^{-2}$)')

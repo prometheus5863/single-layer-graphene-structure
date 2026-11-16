@@ -479,16 +479,16 @@ def main():
           'worst %.1f ulp at %s'
           % max(((ulps(flip_chan[k], chan_only_chan[k]), k)
                  for k in chan_keys)) if not chan_bit else 'all 0 ulp')
-    nz = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE))
+    nz = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER))
     with on_default_flip():
-        nz_flip = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE))
+        nz_flip = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER))
     check('V6 zero null: n_contact(dWF = 0) is EXACTLY 0.0 under the flip',
           nz_flip == 0.0 and nz == 0.0,
           'shipped %r, flip %r' % (nz, nz_flip))
     dwf = 0.45
     with on_default_flip():
-        nP = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE + dwf))
-        nM = float(cd.contact_edge_carrier_density(cd.W_GRAPHENE - dwf))
+        nP = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER + dwf))
+        nM = float(cd.contact_edge_carrier_density(cd.W_CROSSOVER - dwf))
     check('V7 electron/hole antisymmetry at dWF = %.2f eV is BITWISE under '
           'the flip' % dwf, nP == -nM,
           'n(+) %r   n(-) %r   sum %r' % (nP, nM, nP + nM))
@@ -612,8 +612,8 @@ def main():
     check('V14 additive decomposition: %d of %d residuals negative under form '
           'A, %d of %d under the flip'
           % (neg_A, len(base_recal), neg_B, len(flip_recal)),
-          neg_B == len(flip_recal),
-          'the 2026-10-17 measurement, reproduced with both halves installed')
+          neg_A == 0 and neg_B == 0,  # was `neg_B == len(flip_recal)` (all negative): an artefact of the 4.5 eV reference, withdrawn 2026-11-16 (thesis Appendix A.1)
+          'corrected 2026-11-16: doping from W0 = 5.4 eV, every residual positive under both forms')
 
     # -- Section 6 ----------------------------------------------------------
     print()

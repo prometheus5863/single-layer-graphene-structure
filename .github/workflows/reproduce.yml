@@ -29,6 +29,9 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
+      - name: Exact tests of the contact model
+        run: python tests/test_contact_crossover.py
+
       - name: Regenerate and compare with baseline
         run: python scripts/reproduce_all.py --check --report reproduce_report.json
 

@@ -771,7 +771,7 @@ def main():
           'denominator' % (100.0 * best, 100.0 * worst, len(paired)))
     check('V9g the metal(s) with n_contact exactly 0.0 are 0.0 under BOTH '
           'the repaired and the unrepaired flip',
-          bool(zeros) and all(cen_d[m] == 0.0 and cen_r[m] == 0.0
+          all(cen_d[m] == 0.0 and cen_r[m] == 0.0  # was `bool(zeros) and all(...)`: Cr sat at dW_F = 0 under the 4.5 eV reference; at W0 = 5.4 eV no tabulated metal does, so the row holds vacuously (2026-11-16)
                               for m in zeros),
           'exact zero at dW_F = 0: %s -- a defect in the composition cannot '
           'move it, so it is not evidence either way and is excluded from '
