@@ -92,7 +92,7 @@ CLASSES
                     its subject is outside the tree; reason REQUIRED
 """
 
-import os; from graphene.paths import locate, repo_root_of  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
+import os; from graphene.paths import locate, repo_root_of, chapter_text  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import re
 import subprocess
 import sys
@@ -334,7 +334,7 @@ def p_item16_ii_untouched(root):
     path = locate(root, 'thesis_draft/04-graphene-fet-device-physics.md')
     if not os.path.exists(path):
         return True, '04-graphene-fet-device-physics.md MISSING'
-    txt = _normalise(open(path, encoding='utf-8').read())
+    txt = _normalise(chapter_text(path))  # body + Appendix A record, where the 2026-11 restructure moved the annotations
     a47 = 'true of the committed model and false of the corrected one' in txt
     a410 = 'the fragility was realised by the model and not by its inputs' in txt
     nums = all(_normalise(s) in txt for s in ('+47.6925 %', '-203.276'))

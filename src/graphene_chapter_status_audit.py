@@ -42,7 +42,7 @@ a detector that never fires and a classifier that calls everything drafted
 would each read as green.
 """
 
-import os; from graphene.paths import locate, repo_root_of  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
+import os; from graphene.paths import locate, repo_root_of, chapter_text  # noqa: E702 -- same line on purpose: no line numbers move (docs/INVENTORY.md §6)
 import re
 import sys
 import tempfile
@@ -121,7 +121,7 @@ def measure_text(text):
 
 def measure(path):
     with open(path, encoding='utf-8') as fh:
-        return measure_text(fh.read())
+        return measure_text(chapter_text(path))  # body + its verification record (graphene.paths.chapter_text)
 
 
 def classify(path):

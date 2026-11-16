@@ -21,6 +21,7 @@ The caller is identified from the calling frame's ``__file__``; pass
 ``caller=__file__`` explicitly to override.
 """
 import os
+import re
 import sys
 
 _PKG_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -106,3 +107,37 @@ def repo_root_of(src_dir):
     if os.path.basename(os.path.normpath(src_dir)) == "src" and os.path.isdir(os.path.join(src_dir, "graphene")):
         return os.path.dirname(os.path.normpath(src_dir))
     return src_dir
+
+
+_RECORD_A = "appendix-A-verification-record.md"
+_RECORD_B = "appendix-B-failure-taxonomy.md"
+
+
+def chapter_text(path):
+    """A thesis chapter as the audits that read its prose must see it: the body
+    plus that chapter's part of the verification record.
+
+    The 2026-11 restructure moved each chapter's audit annotations out of the
+    body into Appendix A (section A.<n+1> for chapter n) and Chapter 7's
+    Sections 7.5-7.7 into Appendix B. Nothing was deleted, so a check of "is
+    this claim in the chapter" must read both. A file with no NN- prefix, or a
+    directory without the appendices (a planted stub, a pre-reorg clone), reads
+    as the file alone."""
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
+    d, name = os.path.split(path)
+    m = re.match(r"(\d\d)-", name)
+    if not m:
+        return text
+    n = int(m.group(1))
+    rec = os.path.join(d, _RECORD_A)
+    if os.path.exists(rec):
+        with open(rec, encoding="utf-8") as fh:
+            sec = re.search(r"^## A\.%d .*?(?=^## A\.|\Z)" % (n + 1), fh.read(), re.M | re.S)
+        if sec:
+            text += "\n" + sec.group(0).split("\n", 1)[-1]
+    rec = os.path.join(d, _RECORD_B)
+    if n == 7 and os.path.exists(rec):
+        with open(rec, encoding="utf-8") as fh:
+            text += "\n" + fh.read().split("\n", 1)[-1]
+    return text
