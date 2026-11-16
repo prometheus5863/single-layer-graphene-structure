@@ -92,7 +92,8 @@ NOT_REGENERATED = {"audit_output.txt", "sensitivity_converged_output.txt",
 # Modules whose stdout is not deterministic by construction (they print the
 # current commit, working-tree state, or wall-clock timings). Their files are
 # still compared; their stdout is reported, not failed.
-NONDETERMINISTIC_STDOUT = {"graphene_pristine_transcript_audit.py"}
+NONDETERMINISTIC_STDOUT = {"graphene_pristine_transcript_audit.py",
+                           "graphene_census_split_equivalence.py"}  # times and re-measures the pristine audit
 
 
 def sha(b):
