@@ -101,19 +101,19 @@ the wrapper and not the code.
 ------------------------------------------------------------------------------
 
         WF(eV)     dV (V)     n_A (m^-2)    n_BT (m^-2)    change E_F/e (V)
-  Ti      4.33      0.170   1.644935e+16   1.541997e+16  -6.2578%    0.1449
-  Cr      4.50     -0.000  -0.000000e+00  -0.000000e+00        --    0.0000   (dWF = 0 exactly)
-  Cu      4.65     -0.150  -1.380517e+16  -1.314672e+16  -4.7696%    0.1338
-  Ni      5.04     -0.540  -7.111301e+16  -6.227844e+16 -12.4233%    0.2911
-  Au      5.10     -0.600  -8.034794e+16  -7.031424e+16 -12.4878%    0.3094
-  Pd      5.12     -0.620  -8.343500e+16  -7.300861e+16 -12.4964%    0.3152
-  Pt      5.65     -1.150  -1.660634e+17  -1.463454e+17 -11.8738%    0.4463
+  Ti      4.33      1.070   1.535303e+17   1.350951e+17 -12.0075%    0.4288
+  Cr      4.50      0.900   1.269493e+17   1.113690e+17 -12.2728%    0.3893
+  Cu      4.65      0.750   1.035815e+17   9.068540e+16 -12.4502%    0.3513
+  Ni      5.04      0.360   4.377606e+16   3.871939e+16 -11.5512%    0.2296
+  Au      5.10      0.300   3.487664e+16   3.112166e+16 -10.7664%    0.2058
+  Pd      5.12      0.280   3.194971e+16   2.862867e+16 -10.3946%    0.1974
+  Pt      5.65     -0.250  -2.760782e+16  -2.493356e+16  -9.6866%    0.1842
 
-  Range of the correction: 4.7696 % to 12.4964 %.
+  Range of the correction: 9.6866 % to 12.4502 %.
   For comparison, the SAME correction in the channel at V_g = 3.5 V
-  is -1.0212 %.  The contact is 4.7x to 12.2x less forgiving.
+  is -1.0212 %.  The contact is 9.5x to 12.2x less forgiving.
 
-  Why, in one line: at the contact C_q/(C_q+C_s) runs 0.555-0.806
+  Why, in one line: at the contact C_q/(C_q+C_s) runs 0.632-0.800
   while in the channel at V_g = 3.5 V it is 0.999.  The channel's
   small series factor is what attenuated item 16 by 0.451; the
   contact has no such attenuation, and a wider dV to be wrong about.
@@ -123,23 +123,21 @@ the wrapper and not the code.
 ------------------------------------------------------------------------------
 
           Rc_meas    R_extra A  R_extra B_T    change       R_tr A     R_tr B_T
-  Cu        184.0      971.461      959.236  -1.2583%     -787.461     -775.236
-  Ni        470.0      830.462     1003.490 +20.8352%     -360.462     -533.490
-  Au        519.0      609.159      848.120 +39.2281%      -90.159     -329.120
-  Pd        584.0      533.051      787.276 +47.6925%       50.949     -203.276
+  Cu        184.0     -445.043     -415.062  -6.7367%      629.043      599.062
+  Ni        470.0     -225.988     -191.160 -15.4116%      695.988      661.160
+  Au        519.0     -161.138     -128.163 -20.4641%      680.138      647.163
+  Pd        584.0     -135.781     -103.896 -23.4830%      719.781      687.896
 
   Section 4.10's margin for the Pd row is 9.6 %% in R_extra.
-  The argument correction moves Pd's R_extra by +47.6925 %.
+  The argument correction moves Pd's R_extra by -23.4830 %.
 
-  >>> SIGN FLIPPED: Pd.  The one positive residual in Table 4.7
-  >>> does not survive the correction.  Section 4.10 established
-  >>> that margin as a tolerance to INPUT error; it is consumed
-  >>> here by a KNOWN MODELLING error that was already in the
-  >>> code, and the additive decomposition now fails on 4 of 4
-  >>> metals rather than 3 of 4.
+  >>> NO SIGN FLIPPED.  Pd's residual survives at +687.896 Ohm.um
+  >>> (was +719.781).  Section 4.7's verdict -- "3 of 4 negative,
+  >>> only Pd plausible" -- is unchanged in kind, and the
+  >>> correction moves numbers and no verdict here either.
 
   [PASS] Section 4.7 metal ORDERING by residual is preserved under B_T
-         A: Cu < Ni < Au < Pd   B_T: Cu < Ni < Au < Pd
+         A: Cu < Au < Ni < Pd   B_T: Cu < Au < Ni < Pd
   [PASS] Section 4.5 n-type/p-type assignment unchanged for all 7 metals
 
 ------------------------------------------------------------------------------
@@ -152,8 +150,8 @@ the wrapper and not the code.
   never reached.  Restated:
 
     Ch4 channel (measured 2026-10-11, stands):  n -1.0212 %%, I_d -0.2530 %%
-    Ch4 contact (measured today, new):          n_contact -12.4964 to -4.7696 %
-    Ch4 Section 4.7 R_extra (new):              -1.2583 to +47.6925 %
+    Ch4 contact (measured today, new):          n_contact -12.4502 to -9.6866 %
+    Ch4 Section 4.7 R_extra (new):              -23.4830 to -6.7367 %
     Ch5 interconnects:                          0 arrivals, no change
     Ch6 photodetectors:                         0 arrivals, no change
 

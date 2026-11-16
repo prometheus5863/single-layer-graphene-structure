@@ -10,13 +10,13 @@ THE WRITE/READ RELATION AS A GUARD, NOT A CENSUS
     7 committed contact densities, bitwise, outside the probe and
     inside it (the flip is entered inside, so the comparison is
     against the flip's own committed census, not the shipped one):
-      Ti   shipped 0x1.d384c31aa7bcfp+53   under probe(repaired) 0x1.b643157d5d9ddp+53
-      Cr   shipped -0x0.0p+0   under probe(repaired) -0x0.0p+0
-      Cu   shipped -0x1.885dd9203b8a0p+53   under probe(repaired) -0x1.75a6f42bd055dp+53
-      Ni   shipped -0x1.f949ce25e6702p+55   under probe(repaired) -0x1.ba83d47917e5dp+55
-      Au   shipped -0x1.1d740576b4533p+56   under probe(repaired) -0x1.f39cdb30400e1p+55
-      Pd   shipped -0x1.286bb0879657ep+56   under probe(repaired) -0x1.0360f1c27d90fp+56
-      Pt   shipped -0x1.26fce4deb7c3dp+57   under probe(repaired) -0x1.03f62a0a24c5bp+57
+      Ti   shipped 0x1.10b97a59ca2b1p+57   under probe(repaired) 0x1.dff449760122bp+56
+      Cr   shipped 0x1.c303ae52905b8p+56   under probe(repaired) 0x1.8ba985b080844p+56
+      Cu   shipped 0x1.6ffecded90752p+56   under probe(repaired) 0x1.422de4a96c89fp+56
+      Ni   shipped 0x1.370c2e7cae347p+55   under probe(repaired) 0x1.131e2763590b6p+55
+      Au   shipped 0x1.efa0796f7c9a5p+54   under probe(repaired) 0x1.ba43f49bf6b08p+54
+      Pd   shipped 0x1.c6085c22b10c7p+54   under probe(repaired) 0x1.96d67ef24d5a2p+54
+      Pt   shipped -0x1.8854aa2fbd093p+54   under probe(repaired) -0x1.6253c56254f24p+54
     PASS V1  the probe terminates and returns a full 7-metal census
     PASS V2  the probe is deterministic -- census bitwise identical across two consecutive runs
     PASS V3  the observed edge set is deterministic too   -- 1 edges
@@ -26,10 +26,10 @@ THE WRITE/READ RELATION AS A GUARD, NOT A CENSUS
 ------------------------------------------------------------------------------
 
     repaired   (live_contact=False):   0 arrivals,   0 with C_ox substituted
-    unrepaired (live_contact=True ): 192 arrivals, 181 with C_ox substituted
+    unrepaired (live_contact=True ): 211 arrivals, 200 with C_ox substituted
     PASS V4  repaired flip gives EXACTLY ZERO channel arrivals
-    PASS V5  unrepaired flip reproduces 192 arrivals exactly
-    PASS V6  of which exactly 181 see C_ox already substituted
+    FAIL V5  unrepaired flip reproduces 192 arrivals exactly
+    FAIL V6  of which exactly 181 see C_ox already substituted
 
     These are the 2026-10-22 numbers, reproduced rather than cited.
     They are the EXACTLY KNOWN values this module is anchored to:
@@ -110,5 +110,7 @@ THE WRITE/READ RELATION AS A GUARD, NOT A CENSUS
     percentage table that a reader has to interpret.
 
 ==============================================================================
-VALIDATION: 21/21
+VALIDATION: 19/21
+   FAILED: V5  unrepaired flip reproduces 192 arrivals exactly   
+   FAILED: V6  of which exactly 181 see C_ox already substituted   
 ==============================================================================

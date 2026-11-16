@@ -24,6 +24,8 @@ BASELINE = os.path.join(ROOT, "docs", "baseline_hashes.txt")
 
 # module -> transcript it produces on stdout (the files once written with `| tee`)
 STDOUT_TRANSCRIPT = {
+    "graphene_contact_doping_model.py": "results/transcripts/ch4/contact_doping_model_output.txt",  # added 2026-11-16: §4.7 cites it
+    "graphene_sensitivity_audit.py": "results/transcripts/ch4/sensitivity_audit_output.txt",  # added 2026-11-16: §4.7 cites it
     "graphene_band_structure_audit.py": "results/transcripts/ch2/band_structure_audit_output.txt",
     "graphene_contact_consistent_argument.py": "results/transcripts/ch4/contact_consistent_argument_output.txt",
     "graphene_covariance_probe_audit.py": "results/transcripts/audits/default_scale_probe_audit_output.txt",

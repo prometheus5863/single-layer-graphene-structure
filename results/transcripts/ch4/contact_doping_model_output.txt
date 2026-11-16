@@ -1,0 +1,41 @@
+Generating contact-induced doping profile model...
+Effective interface capacitance C_interface = 2.530e-02 F/m^2 (65.9x C_ox)
+Bulk (gated) channel density used for comparison: 2.00e+12 cm^-2
+
+Metal  W (eV)   n_contact (cm^-2)    Type   R_extra (Ohm.um)  
+Ti     4.33     1.535e+13            n-type -523.7            
+Cr     4.50     1.269e+13            n-type -487.6            
+Cu     4.65     1.036e+13            n-type -445.0            
+Ni     5.04     4.378e+12            n-type -226.0            
+Au     5.10     3.488e+12            n-type -161.1            
+Pd     5.12     3.195e+12            n-type -135.8            
+Pt     5.65     -2.761e+12           p-type 1143.6            
+
+Caveat: Ti, Cr, Cu, Ni, Au, Pd show *negative* R_extra (i.e. the junction region integrates to lower resistance than the
+bulk channel alone). This is not a bug: when |n_contact| >> n_bulk
+(a very strongly doped contact against a lightly gated bulk channel),
+most of the 250 nm decay length is far better doped than the bulk
+channel, so it locally conducts *better* than bulk over most of its
+extent; only the narrow charge-neutrality crossing region is worse.
+With the crossing spike now finite (puddle-regularized, see
+_sheet_conductivity_puddle_regularized) rather than divergent, the
+low-resistance well-doped stretch can dominate the net integral. This
+is a real feature of the classical drift-sheet-conductance picture
+used here, not a claim that the true device gets *easier* to contact
+with such metals -- the model omits depletion-region/injection physics
+right at the crossing itself, which would add resistance back in a way
+this compact model cannot capture. See notes/2026-08-26-*.md, Section 4.
+
+Per-metal Rc recalibration (measured total vs. computed doping-junction contribution)
+==============================================================================
+Metal  W (eV)   Rc_measured    R_extra (junction)   Naive R_transmission   regime
+Cu     4.65     184.0          -445.04              629.04                 physisorbed
+Ni     5.04     470.0          -225.99              695.99                 OUTSIDE MODEL (chemisorbed)
+Au     5.10     519.0          -161.14              680.14                 physisorbed
+Pd     5.12     584.0          -135.78              719.78                 OUTSIDE MODEL (chemisorbed)
+
+All values Ohm.um. 'Naive R_transmission' = Rc_measured - R_extra, i.e. what would be left over if the measured Rc and this model's junction integral were simply additive. See METAL_LITERATURE_RC for individual citations/conditions.
+
+Result, corrected 2026-11-16 (doping measured from the n/p crossover W0 = 5.4 eV, not from graphene's 4.5 eV): every tabulated metal here has W < W0, so each contact n-dopes graphene, in the same sense as the n-type on-state channel, and more strongly. There is no p-n junction, the near-contact region conducts better than the bulk channel, and R_extra is NEGATIVE. The naive R_transmission is therefore positive for every metal and LARGER than the measured Rc. The claim is restricted to the physisorbed metals Cu, Au; Ni and Pd are chemisorbed and outside the work-function model, and their rows are printed only for continuity with the superseded table. The negative residuals reported before 2026-11-16 (Cu -787.5, Ni -360.5, Au -90.2 Ohm.um) were an artefact of measuring dWF from 4.5 eV, which p-doped these contacts against the n-type channel and created spurious p-n junctions. Caveat: the corrected model calls Au n-type at its tabulated polycrystalline W = 5.10 eV, while the DFT studies that place W0 at 5.4 eV find Au(111) p-type at their own W = 5.54 eV -- the W table and the crossover are not from the same source, and Au's sign is not established here.
+
+Done. Saved: contact_doping_profile.png, rc_recalibration.png

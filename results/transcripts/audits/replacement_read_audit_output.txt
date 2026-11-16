@@ -10,13 +10,13 @@ C_interface = 2.529768e-02 F/m^2   (ratio 65.9341)
 ------------------------------------------------------------------------------
 
     7 committed contact densities, bitwise, under each reader:
-      Ti   0x1.d384c31aa7bcfp+53  B same  C same
-      Cr   -0x0.0p+0  B same  C same
-      Cu   -0x1.885dd9203b8a0p+53  B same  C same
-      Ni   -0x1.f949ce25e6702p+55  B same  C same
-      Au   -0x1.1d740576b4533p+56  B same  C same
-      Pd   -0x1.286bb0879657ep+56  B same  C same
-      Pt   -0x1.26fce4deb7c3dp+57  B same  C same
+      Ti   0x1.10b97a59ca2b1p+57  B same  C same
+      Cr   0x1.c303ae52905b8p+56  B same  C same
+      Cu   0x1.6ffecded90752p+56  B same  C same
+      Ni   0x1.370c2e7cae347p+55  B same  C same
+      Au   0x1.efa0796f7c9a5p+54  B same  C same
+      Pd   0x1.c6085c22b10c7p+54  B same  C same
+      Pt   -0x1.8854aa2fbd093p+54  B same  C same
 
     PASS V1  reader B (sentinels) is bitwise neutral on all 7
     PASS V2  reader C (module type) is bitwise neutral on all 7
@@ -192,25 +192,25 @@ C_interface = 2.529768e-02 F/m^2   (ratio 65.9341)
 
     channel-replacement arrivals during the contact census:
         REPAIRED   flip (live_contact=False):   0  (inside the C_interface window: 0)
-        UNREPAIRED flip (live_contact=True) : 192  (inside the C_interface window: 181, outside: 11)
+        UNREPAIRED flip (live_contact=True) : 211  (inside the C_interface window: 200, outside: 11)
 
     2026-10-21 decomposed the unrepaired composition into (i) the
     channel solve being reached at all and (ii) that solve seeing
     C_ox substituted, and measured them as partially cancelling
     (+1.0204 to +2.2965 pp).  These counts say they are not two
-    defects: 181 of the 192 arrivals carry BOTH at once, so (ii)
+    defects: 200 of the 211 arrivals carry BOTH at once, so (ii)
     cannot occur without (i).  One cause, two consequences --
     which is why capturing the shipped object repairs both in one
     move, and why repairing the conspicuous half alone was
     measured there as a regression.
 
     PASS V9  the repaired flip reaches the channel replacement 0 times   -- exactly 0
-    PASS V9b the unrepaired flip reaches it, and mostly inside the window   -- 192 arrivals, 181 inside
+    PASS V9b the unrepaired flip reaches it, and mostly inside the window   -- 211 arrivals, 200 inside
     PASS V9c inside + outside == total (the probe partitions its own count)
-    PASS V9d recorded expectation: 0 / 192 / 181   -- got 0 / 192 / 181 -- if this moves, the composition moved
+    FAIL V9d recorded expectation: 0 / 192 / 181   -- got 0 / 211 / 200 -- if this moves, the composition moved
     PASS V9e the repaired flip reproduces the committed contact-only form B_T BITWISE on all 7 metals   -- the 10-21 claim, re-measured by a different instrument
-    PASS V9f and the unrepaired flip does not (positive control on V9e)   -- deviation 51.3850 % to 61.9143 % over the 6 metals with a non-zero denominator
-    PASS V9g the metal(s) with n_contact exactly 0.0 are 0.0 under BOTH the repaired and the unrepaired flip   -- exact zero at dW_F = 0: Cr -- a defect in the composition cannot move it, so it is not evidence either way and is excluded from the ratio above rather than quietly divided by
+    PASS V9f and the unrepaired flip does not (positive control on V9e)   -- deviation 56.2637 % to 61.8531 % over the 7 metals with a non-zero denominator
+    PASS V9g the metal(s) with n_contact exactly 0.0 are 0.0 under BOTH the repaired and the unrepaired flip   -- exact zero at dW_F = 0:  -- a defect in the composition cannot move it, so it is not evidence either way and is excluded from the ratio above rather than quietly divided by
 
 ------------------------------------------------------------------------------
 6.  THE READERS AGAINST EACH OTHER, AND THE PLANTED CONTROLS
@@ -292,5 +292,6 @@ C_interface = 2.529768e-02 F/m^2   (ratio 65.9341)
     figure -> replacement_read_audit.png
 
 ==============================================================================
-VALIDATIONS: 30/30 passed
+VALIDATIONS: 29/30 passed
+    FAILED: V9d recorded expectation: 0 / 192 / 181
 ==============================================================================

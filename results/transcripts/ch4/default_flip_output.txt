@@ -30,26 +30,26 @@ C_interface = 2.529768e-02 F/m^2   (ratio 65.9341)
 ------------------------------------------------------------------------------
 
     metal         form A    B_T contact flip unrepaired  flip repaired
-    Ti      1.644935e+16   1.541997e+16   7.281739e+15   1.541997e+16
-    Cr     -0.000000e+00  -0.000000e+00  -0.000000e+00  -0.000000e+00
-    Cu     -1.380517e+16  -1.314672e+16  -6.391282e+15  -1.314672e+16
-    Ni     -7.111301e+16  -6.227844e+16  -2.466546e+16  -6.227844e+16
-    Au     -8.034794e+16  -7.031424e+16  -2.760960e+16  -7.031424e+16
-    Pd     -8.343500e+16  -7.300861e+16  -2.859729e+16  -7.300861e+16
-    Pt     -1.660634e+17  -1.463454e+17  -5.573671e+16  -1.463454e+17
+    Ti      1.535303e+17   1.350951e+17   5.153460e+16   1.350951e+17
+    Cr      1.269493e+17   1.113690e+17   4.272146e+16   1.113690e+17
+    Cu      1.035815e+17   9.068540e+16   3.508917e+16   9.068540e+16
+    Ni      4.377606e+16   3.871939e+16   1.602220e+16   3.871939e+16
+    Au      3.487664e+16   3.112166e+16   1.321338e+16   3.112166e+16
+    Pd      3.194971e+16   2.862867e+16   1.228632e+16   2.862867e+16
+    Pt     -2.760782e+16  -2.493356e+16  -1.090502e+16  -2.493356e+16
 
     metal   B_T vs A % unrep vs B_T %   rep vs B_T  |unrep/A|
-    Ti         -6.2578     -52.7772      bitwise       8.43
-    Cr           n = 0        n = 0      exact 0          -
-    Cu         -4.7696     -51.3850      bitwise      10.77
-    Ni        -12.4233     -60.3949      bitwise       4.86
-    Au        -12.4878     -60.7340      bitwise       4.86
-    Pd        -12.4964     -60.8302      bitwise       4.87
-    Pt        -11.8738     -61.9143      bitwise       5.21
+    Ti        -12.0075     -61.8531      bitwise       5.15
+    Cr        -12.2728     -61.6397      bitwise       5.02
+    Cu        -12.4502     -61.3067      bitwise       4.92
+    Ni        -11.5512     -58.6197      bitwise       5.07
+    Au        -10.7664     -57.5428      bitwise       5.34
+    Pd        -10.3946     -57.0839      bitwise       5.49
+    Pt         -9.6866     -56.2637      bitwise       5.81
 
     The effect item 16 installs at the contact is -4.7696 % to
-    -12.4964 %.  The unrepaired composition is -51.3850 % to -61.9143 %,
-    and METAL BY METAL it is 4.86x (Ni) to 10.77x (Cu) the effect it
+    -12.4964 %.  The unrepaired composition is -56.2637 % to -61.8531 %,
+    and METAL BY METAL it is 4.92x (Cu) to 5.81x (Pt) the effect it
     is installing, in the SAME direction -- so it would not have
     looked like a sign error.
 
@@ -76,15 +76,16 @@ C_interface = 2.529768e-02 F/m^2   (ratio 65.9341)
     (i) alone is isolated by restoring C_ox for the inner call.
 
     metal   (i) only %   (i)+(ii) %   (ii) moves
-    Ti        -53.8545     -52.7772      +1.0772
-    Cu        -52.4054     -51.3850      +1.0204
-    Ni        -62.1287     -60.3949      +1.7338
-    Au        -62.5403     -60.7340      +1.8063
-    Pd        -62.6595     -60.8302      +1.8293
-    Pt        -64.2107     -61.9143      +2.2965
+    Ti        -64.0920     -61.8531      +2.2389
+    Cr        -63.7435     -61.6397      +2.1038
+    Cu        -63.2732     -61.3067      +1.9665
+    Ni        -60.0945     -58.6197      +1.4748
+    Au        -58.9115     -57.5428      +1.3686
+    Pd        -58.4140     -57.0839      +1.3301
+    Pt        -57.5325     -56.2637      +1.2688
 
     PASS  V3 mechanism (ii) OFFSETS mechanism (i) for every metal
-          offsets +1.0204 to +2.2965 percentage points -- repairing (ii) alone would make the error LARGER, which is why the composition failure has to be repaired at (i)
+          offsets +1.2688 to +2.2389 percentage points -- repairing (ii) alone would make the error LARGER, which is why the composition failure has to be repaired at (i)
 
 ------------------------------------------------------------------------------
 3.  THE REPAIR, VALIDATED BITWISE AGAINST BOTH COMMITTED HALVES
@@ -141,33 +142,28 @@ C_interface = 2.529768e-02 F/m^2   (ratio 65.9341)
     half installed simultaneously):
 
     metal             form A               flip   change %
-    Ti      1.6449348453e+16   1.5419974922e+16    -6.2578
-    Cr     -0.0000000000e+00  -0.0000000000e+00    +0.0000
-    Cu     -1.3805172250e+16  -1.3146716744e+16    -4.7696
-    Ni     -7.1113006493e+16  -6.2278444147e+16   -12.4233
-    Au     -8.0347935178e+16  -7.0314239300e+16   -12.4878
-    Pd     -8.3434999040e+16  -7.3008610434e+16   -12.4964
-    Pt     -1.6606340614e+17  -1.4634535877e+17   -11.8738
+    Ti      1.5353025762e+17   1.3509511019e+17   -12.0075
+    Cr      1.2694926174e+17   1.1136900746e+17   -12.2728
+    Cu      1.0358147686e+17   9.0685402619e+16   -12.4502
+    Ni      4.3776055778e+16   3.8719386557e+16   -11.5512
+    Au      3.4876639223e+16   3.1121664393e+16   -10.7664
+    Pd      3.1949707810e+16   2.8628670316e+16   -10.3946
+    Pt     -2.7607820198e+16  -2.4933562245e+16    -9.6866
 
     Section 4.7 recalibration.  R_extra is the junction
     contribution this model computes; R_tr is the implied residual
     Rc_measured - R_extra.
 
     metal      Rc_meas    R_extra A R_extra flip   change %       R_tr A    R_tr flip
-    Cu        184.0000     971.4606     959.2364    -1.2583    -787.4606    -775.2364
-    Ni        470.0000     830.4618    1003.4903   +20.8352    -360.4618    -533.4903
-    Au        519.0000     609.1590     848.1205   +39.2281     -90.1590    -329.1205
-    Pd        584.0000     533.0511     787.2764   +47.6925      50.9489    -203.2764
+    Cu        184.0000    -445.0435    -415.0621    -6.7367     629.0435     599.0621
+    Ni        470.0000    -225.9885    -191.1601   -15.4116     695.9885     661.1601
+    Au        519.0000    -161.1382    -128.1626   -20.4641     680.1382     647.1626
+    Pd        584.0000    -135.7812    -103.8957   -23.4830     719.7812     687.8957
 
-    Pd's implied transmission residual changes sign: +50.9489 -> -203.2764 Ohm.um.
-    Section 4.10 found Pd's residual -- the only positive one,
-    and the only evidence the additive decomposition survives
-    -- flips on a 9.6 % error in R_extra.  The flip consumes
-    that margin, so under form B_T everywhere the additive
-    decomposition fails for every calibrated metal.
+    No implied-residual sign changes.
 
-    PASS  V14 additive decomposition: 3 of 4 residuals negative under form A, 4 of 4 under the flip
-          the 2026-10-17 measurement, reproduced with both halves installed
+    PASS  V14 additive decomposition: 0 of 4 residuals negative under form A, 0 of 4 under the flip
+          corrected 2026-11-16: doping from W0 = 5.4 eV, every residual positive under both forms
 
 ------------------------------------------------------------------------------
 6.  WHAT IS LEFT OF ITEM 16

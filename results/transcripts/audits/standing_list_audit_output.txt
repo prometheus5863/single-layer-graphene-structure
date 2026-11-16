@@ -33,18 +33,18 @@ wording this list had already retired.
   [PASS] P5g end to end: the reworded plant classifies A1 REVIVED
          through the real row machinery, not just the regex
   [PASS] P9a the current rule CONTAINS the superseded one on the real log, so the repair can only add revivals and never drop one
-         superseded [], current ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
+         superseded ['2026-11-14', '2026-11-15'], current ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04', '2026-11-14', '2026-11-15']
   [PASS] P9a2 and the two rules read the SAME dates -- they differ in the verdict, not in what they parse
          trig lists equal=True, antitrig lists equal=True
-  rule comparison on this log: superseded 0 revivals, current 5  -- THEY DIVERGE HERE; see P9d
+  rule comparison on this log: superseded 2 revivals, current 7  -- THEY DIVERGE HERE; see P9d
   [PASS] P9b the superseded rule ERASES the planted revival when a later entry corrects the wording again
          old rule returns [] on a log whose 01-03 entry is a revival by inspection
   [PASS] P9c and the new rule keeps it, and only it
          new rule returns ['2026-01-03'] -- 01-01 is correctly NOT a revival, having no corrected entry before it
-  [PASS] P9d one future corrected entry would have erased all 5 recorded revivals under the superseded rule
-         old rule after appending: [] (was [])
+  [FAIL] P9d one future corrected entry would have erased all 7 recorded revivals under the superseded rule
+         old rule after appending: [] (was ['2026-11-14', '2026-11-15'])
   [PASS] P9e and under the new rule the record is unchanged -- the verdict is a property of the entry, not of the file end
-         new rule after appending: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
+         new rule after appending: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04', '2026-11-14', '2026-11-15']
   [PASS] P9f with no corrected entry anywhere, both rules return no revivals
          old [] new []
   [PASS] P10a strip_code_spans is the IDENTITY on backtick-free text, over every bullet of the real log
@@ -61,11 +61,11 @@ wording this list had already retired.
          a malformed span must not silently un-count an assertion
   [PASS] P10g a wrapped ASSERTION still counts -- the repair strips code spans, it does not abandon flattening
          bullets: ['**CHAPTERS 2 AND 3 ARE DRAFTED** - wrapped mid-phrase.']
-  [PASS] P10h the repair removes exactly {2026-11-08} from the anti-set and changes no revival
-         raw 9 dates, stripped 8, removed ['2026-11-08'], revivals ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
+  [FAIL] P10h the repair removes exactly {2026-11-08} from the anti-set and changes no revival
+         raw 10 dates, stripped 9, removed ['2026-11-08'], revivals ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04', '2026-11-14', '2026-11-15']
   [PASS] P10i the wiring: on the real 11-08 entry bullets() does NOT see the wording and bullets(raw=True) DOES
          one bullet, two readings, exactly one match
-  [PASS] P10j bullet_source_lines stays in step with bullets() over all 1361 bullets of the real log -- exact, not sampled
+  [PASS] P10j bullet_source_lines stays in step with bullets() over all 1579 bullets of the real log -- exact, not sampled
          mismatches: []
   [PASS] P6 VACUITY, rows LIVE: no list found -> every row ABSENT, none CONFIRMED
          bullets=0 classes=['ABSENT']
@@ -80,16 +80,16 @@ wording this list had already retired.
 ------------------------------------------------------------------------------
 2.  THE REAL STANDING LIST, AS OF THE LATEST ENTRY
 ------------------------------------------------------------------------------
-  latest entry: 2026-11-09
-  top-level bullets in its Not-yet-covered list: 33
+  latest entry: 2026-11-16
+  top-level bullets in its Not-yet-covered list: 12
   baseline assertions checked: 2
 
   id   class          item says tree says
   A1   RETIRED        True      False    
        retired 2026-10-18; the tree still contradicts the retired
-       wording, so the retirement stands; 02-electronic-structure.md 375
+       wording, so the retirement stands; 02-electronic-structure.md 314
        non-blank lines, 11 sections;
-       03-transport-and-optical-properties.md 359 non-blank lines, 9
+       03-transport-and-optical-properties.md 217 non-blank lines, 9
        sections
   A2   RETIRED        True      False    
        retired 2026-10-18; the tree still contradicts the retired
@@ -106,7 +106,7 @@ wording this list had already retired.
        re-verified before it ranks.
 
   [PASS] R1 the latest list parsed to at least 10 top-level bullets
-         got 33
+         got 12
   [PASS] R2 no baseline row is in a fault class ('CONTRADICTED', 'REVIVED', 'RETIREMENT-STALE', 'ABSENT')
          faults: []
   [PASS] R3 every retired row is still justified by the tree
@@ -117,39 +117,41 @@ wording this list had already retired.
 ------------------------------------------------------------------------------
 3.  A1 IS NOT A STALE ITEM.  IT IS A RETIRED WORDING REVIVED
 ------------------------------------------------------------------------------
-  entries asserting UNDRAFTED : 2026-09-17, 2026-09-18, 2026-09-19, 2026-09-20, 2026-09-21, 2026-09-22, 2026-09-22, 2026-09-23, 2026-09-24, 2026-09-25, 2026-09-26, 2026-09-27, 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28, 2026-11-04
-  entries asserting DRAFTED   : 2026-10-01, 2026-10-02, 2026-10-03, 2026-10-04, 2026-10-05, 2026-10-06, 2026-11-06, 2026-11-07
-  revived (undrafted AFTER a corrected entry) : 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28, 2026-11-04
+  entries asserting UNDRAFTED : 2026-09-17, 2026-09-18, 2026-09-19, 2026-09-20, 2026-09-21, 2026-09-22, 2026-09-22, 2026-09-23, 2026-09-24, 2026-09-25, 2026-09-26, 2026-09-27, 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28, 2026-11-04, 2026-11-14, 2026-11-15
+  entries asserting DRAFTED   : 2026-10-01, 2026-10-02, 2026-10-03, 2026-10-04, 2026-10-05, 2026-10-06, 2026-11-06, 2026-11-07, 2026-11-11
+  revived (undrafted AFTER a corrected entry) : 2026-10-17, 2026-10-26, 2026-10-27, 2026-10-28, 2026-11-04, 2026-11-14, 2026-11-15
       2026-10-17 revives the wording corrected on 2026-10-06
       2026-10-26 revives the wording corrected on 2026-10-06
       2026-10-27 revives the wording corrected on 2026-10-06
       2026-10-28 revives the wording corrected on 2026-10-06
       2026-11-04 revives the wording corrected on 2026-10-06
+      2026-11-14 revives the wording corrected on 2026-11-11
+      2026-11-15 revives the wording corrected on 2026-11-11
 
   entries between the last corrected one and the revival : 0
 
   Chapter 2 was drafted 2026-09-28 and Chapter 3 2026-09-29, so
   every UNDRAFTED entry up to 09-27 was true when written.  The
-  list then MENTIONED the drafting in 8 entries
+  list then MENTIONED the drafting in 9 entries
   (the 10-18 gloss read "tracked the drafting correctly", which
    Section 5 shows is true of exactly one of them -- annotated
    2026-11-09, number unchanged)
-  (2026-10-01..2026-11-07), carried nothing for 0, and the entry after those is
+  (2026-10-01..2026-11-11), carried nothing for 0, and the entry after those is
   the revival.  An item absent long enough stops being remembered
   as retired and starts being available to be re-derived.
   [PASS]   V1 the list did at one point carry the corrected wording
-         entries: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-11-06', '2026-11-07']
+         entries: ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-11-06', '2026-11-07', '2026-11-11']
   [PASS]   V2 at least one entry revived the retired wording
-         revived: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
+         revived: ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04', '2026-11-14', '2026-11-15']
   [PASS]   V3 every revival is strictly later than the corrected entry it revives against
-         pairs: 2026-10-17>2026-10-06, 2026-10-26>2026-10-06, 2026-10-27>2026-10-06, 2026-10-28>2026-10-06, 2026-11-04>2026-10-06
+         pairs: 2026-10-17>2026-10-06, 2026-10-26>2026-10-06, 2026-10-27>2026-10-06, 2026-10-28>2026-10-06, 2026-11-04>2026-10-06, 2026-11-14>2026-11-11, 2026-11-15>2026-11-11
 
   V3b the superseded global form, min(revival) > max(corrected),
       reads False on this log.  It is a REPORT, not a check: it is
       the replaced rule's own statement about where the file ends,
       and it goes False as soon as any entry after a revival words
       the item correctly -- which is a correct log entry, not a
-      fault.  min revival 2026-10-17, last corrected 2026-11-07.
+      fault.  min revival 2026-10-17, last corrected 2026-11-11.
       P9d is the measurement of what breaks it.
 
 ------------------------------------------------------------------------------
@@ -177,10 +179,11 @@ wording this list had already retired.
     2026-11-06  CARRIED      **CHAPTERS 2 AND 3 ARE DRAFTED** — 09-28 and 09-29, 3811 a
     2026-11-07  RETIRED      **RETIRED:** CHAPTERS 2 AND 3 ARE DRAFTED — the correct wo
     2026-11-08  QUOTED       **RE-RUN `graphene_standing_list_audit.py` AFTER THIS ENTR
+    2026-11-11  SUBORDINATE  **CHAPTERS 2 AND 3 ARE DRAFTED; CHAPTER 7's CONTACT-METAL 
 
     CARRIED      1  2026-11-06
     RETIRED      1  2026-11-07
-    SUBORDINATE  4  2026-10-01, 2026-10-02, 2026-10-03, 2026-10-04
+    SUBORDINATE  5  2026-10-01, 2026-10-02, 2026-10-03, 2026-10-04, 2026-11-11
     INCIDENTAL   2  2026-10-05, 2026-10-06
     QUOTED       1  2026-11-08
 
@@ -190,10 +193,10 @@ wording this list had already retired.
 
   Consequence for the revival record, by which classes count:
 
-    keep CARRIED                                anti=1  revivals=0
-    keep CARRIED+RETIRED                        anti=2  revivals=0
-    keep CARRIED+RETIRED+SUBORDINATE            anti=6  revivals=5
-    keep CARRIED+RETIRED+SUBORDINATE+INCIDENTAL+QUOTED anti=9  revivals=5
+    keep CARRIED                                anti=1  revivals=2
+    keep CARRIED+RETIRED                        anti=2  revivals=2
+    keep CARRIED+RETIRED+SUBORDINATE            anti=7  revivals=7
+    keep CARRIED+RETIRED+SUBORDINATE+INCIDENTAL+QUOTED anti=10  revivals=7
 
   THE WHOLE REVIVAL RECORD RESTS ON THE SUBORDINATE CLASS.  The
   five recorded revivals survive only because of the four 10-01..
@@ -219,26 +222,26 @@ wording this list had already retired.
          classes ['CARRIED', 'INCIDENTAL', 'QUOTED', 'RETIRED', 'SUBORDINATE']
   [PASS] S5b CARRIED has exactly one member through 2026-11-08
          got ['2026-11-06']
-  [PASS] S5c narrowing the anti-set to CARRIED (or CARRIED+RETIRED) EMPTIES the revival record -- all five lost
+  [FAIL] S5c narrowing the anti-set to CARRIED (or CARRIED+RETIRED) EMPTIES the revival record -- all five lost
          the measurement this section exists for; it is a finding, not a fault, and nothing is narrowed
-  [PASS] S5d and the five come back exactly when SUBORDINATE is admitted, so that class carries the entire record
-         got ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04']
+  [FAIL] S5d and the five come back exactly when SUBORDINATE is admitted, so that class carries the entire record
+         got ['2026-10-17', '2026-10-26', '2026-10-27', '2026-10-28', '2026-11-04', '2026-11-14', '2026-11-15']
   [PASS] S5e the anti-set the audit now reads is exactly "all classes but QUOTED" -- Section 1's repair, restated as a partition
-         audit reads ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-11-06', '2026-11-07']
+         audit reads ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-11-06', '2026-11-07', '2026-11-11']
   [PASS] S5g the full class -> dates partition through 2026-11-08 matches the membership read off the log by inspection
          got {'CARRIED': ['2026-11-06'], 'RETIRED': ['2026-11-07'], 'SUBORDINATE': ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04'], 'INCIDENTAL': ['2026-10-05', '2026-10-06'], 'QUOTED': ['2026-11-08']}
 
-  Entries after the gated window (2026-11-08): none
+  Entries after the gated window (2026-11-08): 2026-11-11=SUBORDINATE
   These are REPORTED and gated on nothing -- see
   HISTORICAL_PARTITION_THROUGH for why the exact partition stops
   at a closed window instead of growing with the file.
-  [PASS] S5h a future entry QUOTING the wording classifies QUOTED, is reported after the window, and leaves the gated partition intact
-         late [('2026-12-31', 'QUOTED')]
-  [PASS] S5i and a future entry ASSERTING it classifies CARRIED -- the window suspends the membership claim, not the reading
-         late [('2026-12-31', 'CARRIED')]
+  [FAIL] S5h a future entry QUOTING the wording classifies QUOTED, is reported after the window, and leaves the gated partition intact
+         late [('2026-11-11', 'SUBORDINATE'), ('2026-12-31', 'QUOTED')]
+  [FAIL] S5i and a future entry ASSERTING it classifies CARRIED -- the window suspends the membership claim, not the reading
+         late [('2026-11-11', 'SUBORDINATE'), ('2026-12-31', 'CARRIED')]
   [PASS] S5f every class is non-empty on the real log, so none of the five is a hypothetical the classifier invented
          empty: []
 
 ==============================================================================
-TOTAL: 52 passed, 0 failed
+TOTAL: 46 passed, 6 failed
 ==============================================================================

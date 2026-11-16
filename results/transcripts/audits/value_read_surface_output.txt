@@ -134,22 +134,22 @@ THE READ SURFACE'S NEGATIVES ARE NOT SOUND
 7.  REPOSITORY-WIDE EXTENT OF THE BLIND CLASS
 ------------------------------------------------------------------------------
 
-    module-level scalars in imported repo modules : 91
-    of those read BARE inside their own module    : 76  (84 %)
-    with this module's own planted constants out  : 75 of 90
+    module-level scalars in imported repo modules : 92
+    of those read BARE inside their own module    : 77  (84 %)
+    with this module's own planted constants out  : 76 of 91
 
       graphene_fet_model                                 13
       graphene_exact_charge_rederivation                 10
       graphene_quantum_capacitance_argument              10
       graphene_diffusion_current_model                    9
+      graphene_contact_doping_model                       7
       graphene_velocity_saturation_model                  7
-      graphene_contact_doping_model                       6
       rf_small_signal_model                               6
       graphene_fet_signed_carrier_model                   5
 
     PASS V10a all 8 distinct names behind the 18 added (holder, name) pairs are in the repository-wide blind class -- the per-holder walk and the module-table census agree exactly   -- []
     PASS V10d the census is not just reporting every scalar: gfet.t_ox and gfet.epsilon_0 are module-level scalars and are NOT in the blind class, because they are read only at IMPORT time to build C_ox and never inside a function body
-    PASS V10e so the blind class is a STRICT subset: 15 of 91 scalars are outside it
+    PASS V10e so the blind class is a STRICT subset: 15 of 92 scalars are outside it
     PASS V10b the census FINDS this module's own planted constant, so it is not blind to the pattern it censuses
     PASS V10c the apparatus exclusion is exactly the blind names the census found IN THIS MODULE -- checked against the census, not against itself   -- exclusion [('graphene_value_read_surface', '_PLANTED_BARE')] vs own [('graphene_value_read_surface', '_PLANTED_BARE')]
     PASS V10f and every excluded name BELONGS to this module, whose name comes from __file__ and not from the exclusion: the exclusion cannot reach a name in a model module, so it cannot be used to hide a finding   -- []

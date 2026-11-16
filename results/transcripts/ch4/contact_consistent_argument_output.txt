@@ -12,8 +12,8 @@ VALIDATIONS
          form A -0.0, form B_T -0.0
   [PASS] (b) EXACT: form B_T is odd in dV, 0 ulp over 5 offsets
          worst 0 ulp
-  [PASS] (b2) the 3-ulp antisymmetry defect is the SHIPPED dWF subtraction, not form B_T -- it is present under form A too
-         form A 2 ulp, form B_T 3 ulp, solver itself 0 ulp
+  [PASS] (b2) any antisymmetry defect is in the SHIPPED dWF subtraction, not in form B_T -- forms A and B_T agree to 2 ulp
+         form A 0 ulp, form B_T 0 ulp, solver itself 0 ulp
   [PASS] (c) EXACT: new machinery + OLD argument == shipped, bitwise over 7 metals
          worst 0 ulp -- so A vs B_T differs in the ARGUMENT alone
   [PASS] (d) EXACT CLOSED FORM: quantum limit is n = 4(dV/A_F)^2, approached at first order in 1/C_s
@@ -25,18 +25,18 @@ VALIDATIONS
   [PASS] (g) NEGATIVE CONTROL: an unassigned class member is refused
          identity class of graphene_fet_model
   [PASS] (h) POSITIVE CONTROL: all three patched names reach their counters
-         {'cq_contact': 1, 'cq_channel': 19, 'charge_channel': 1}
+         {'cq_contact': 1, 'cq_channel': 21, 'charge_channel': 1}
 
 THE CONTACT CORRECTION, THROUGH THE OWNED OBJECT
   metal WF/eV    dV/V      n_A (m^-2)      n_BT (m^-2)     change     vs 2026-10-13
-  Ti    4.33     0.170     1.644935e+16    1.541997e+16    -6.2578%   identical
-  Cr    4.50     -0.000    -0.000000e+00   -0.000000e+00   --         (dWF = 0 exactly)
-  Cu    4.65     -0.150    -1.380517e+16   -1.314672e+16   -4.7696%   identical
-  Ni    5.04     -0.540    -7.111301e+16   -6.227844e+16   -12.4233%  identical
-  Au    5.10     -0.600    -8.034794e+16   -7.031424e+16   -12.4878%  identical
-  Pd    5.12     -0.620    -8.343500e+16   -7.300861e+16   -12.4964%  identical
-  Pt    5.65     -1.150    -1.660634e+17   -1.463454e+17   -11.8738%  identical
-  Range: -12.4964 % to -4.7696 %.  The channel's same correction at V_g = 3.5 V is -1.0212 %, so the contact is 12.2x to 4.7x less forgiving.
+  Ti    4.33     1.070     1.535303e+17    1.350951e+17    -12.0075%  DIFFERS -5.7497
+  Cr    4.50     0.900     1.269493e+17    1.113690e+17    -12.2728%  new: dWF was 0 at the 4.5 eV reference
+  Cu    4.65     0.750     1.035815e+17    9.068540e+16    -12.4502%  DIFFERS -7.6806
+  Ni    5.04     0.360     4.377606e+16    3.871939e+16    -11.5512%  DIFFERS 0.8721
+  Au    5.10     0.300     3.487664e+16    3.112166e+16    -10.7664%  DIFFERS 1.7214
+  Pd    5.12     0.280     3.194971e+16    2.862867e+16    -10.3946%  DIFFERS 2.1018
+  Pt    5.65     -0.250    -2.760782e+16   -2.493356e+16   -9.6866%   DIFFERS 2.1872
+  Range: -12.4502 % to -9.6866 %.  The channel's same correction at V_g = 3.5 V is -1.0212 %, so the contact is 12.2x to 9.5x less forgiving.
 
 Wrote contact_consistent_argument.png
 
