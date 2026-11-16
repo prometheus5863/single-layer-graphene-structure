@@ -11,11 +11,11 @@ disagree, both are given. "Novelty" is my reading of the closest literature foun
 |---|---|---|---|---|---|
 | D | failure taxonomy of an AI-assisted computational pipeline | moderate — taxonomies exist (2025–26); a longitudinal, git-pinned single-project record does not | data exist, unanalysed | 5–6 wk | **go** (arXiv + workshop) |
 | A | signed two-contact photocarrier model, kernel as a predicted scan, per-metal crossover | low–moderate — asymmetric metallisation and opposite-polarity scans are known; closed-form parity/threshold are new | headline revised three times; no PTE; no data comparison | 8–10 wk | **conditional go** — only after a PTE check and one digitised dataset |
-| B | metal-specific R_c from a doping profile; additive decomposition fails | low — two-component contact models benchmarked on several metals exist (2015) | verdict changed under a known defect; 0.12 eV unresolved | 10–12 wk | **no-go now** |
+| B | metal-specific R_c from a doping profile (re-scored 2026-11-17) | very low — the corrected result agrees with existing two-component models (2015) | headline result withdrawn as an artefact; 0.12 eV unresolved | 10–12 wk | **drop** as a paper; keep in thesis |
 | C | liner-dependent graphene/Cu crossover | essentially known | model ready, inputs not sourced | 3 wk | **drop** as a paper; keep in thesis |
 | E | the package as a software paper | n/a | fails JOSS scope and testing bars today | 8+ wk | **no-go** |
 
-Ranking by novelty × readiness ÷ effort (each scored 1–5, effort in weeks): **D 1.6 > A 0.4 > C 0.3 > B 0.2 > E ≈0**.
+Ranking by novelty × readiness ÷ effort (each scored 1–5, effort in weeks): **D 1.6 > A 0.4 > C 0.3 > B 0.1 > E ≈0** (B re-scored 2026-11-17, below).
 
 ---
 
@@ -84,7 +84,22 @@ survives.
 
 ---
 
-## Candidate B — metal-specific contact resistance from a work-function doping profile; failure of the additive decomposition
+## Candidate B — metal-specific contact resistance from a work-function doping profile
+
+**Re-scored 2026-11-17, after the crossover correction (thesis §4.7, Appendix A.1).** The contact model had
+measured the doping from graphene's 4.5 eV, not the 5.4 eV n/p crossover. Corrected, the naive residual
+`R_c,measured − R_extra` is **positive** for both physisorbed metals with a measured `R_c`: Cu +629.04 and Au
++680.14 Ω·µm (`results/transcripts/ch4/contact_doping_model_output.txt`). It stays positive with the `C_q`
+correction installed (Cu 599.06, Au 647.16, `default_flip_output.txt`), and it is well-conditioned: Cu needs a
+141.3 % error in `R_extra` to flip sign (`sensitivity_audit_output.txt`). Ni and Pd are outside the model. **The
+negative result this candidate rested on was an artefact, and is withdrawn.** What remains, a sign-consistent
+decomposition, is the finding of reference 3 below. It is weaker than that reference, because for Cu it needs an
+interface term 3.4× the measured total. Novelty drops to 1 (the corrected result restates existing models) and
+readiness stays at 1. **Verdict: drop as a paper.** Keep §4.7 in the thesis as a worked example of a negative
+result that a reference-point error produced, and that a correction removed; Candidate D can cite it as one
+row of its taxonomy.
+
+*The 2026-10-16 assessment follows, as written. Its numbers are the superseded ones.*
 
 **Claim.** With the junction resistance `R_extra` computed from a spatially resolved work-function doping
 profile, `R_c,measured − R_extra` is negative for Cu, Ni and Au (−787.5, −360.5, −90.2 Ω·µm) and positive only
@@ -229,7 +244,7 @@ another group uses the contact or photodetector models.
 | D | 3 | 3 | 5.5 | **1.6** |
 | A | 2 | 2 | 9 | 0.4 |
 | C | 1 | 3 | 3 (as a note) | 0.3 — dropped on novelty |
-| B | 2 | 1 | 11 | 0.2 |
+| B | 1 | 1 | 11 | 0.1 — dropped (re-scored 2026-11-17; was 2 / 1 / 11 / 0.2) |
 | E | 1 | 1 | 8+ | ≈0 |
 
 Week 1 is the first week of the thesis-only semester (≈ January 2027 — confirm the date with the department).

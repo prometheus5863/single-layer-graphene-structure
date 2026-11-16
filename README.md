@@ -17,14 +17,22 @@ stated error bars.
 
 ## Headline results
 
-Each number is quoted as it stands in the cited section on 2026-10-16, including where a later section revised it.
+Each number is quoted as it stands in the cited section, including where a later section revised it: on
+2026-10-16, except the first bullet, which was corrected on 2026-11-16. Section numbers did not change when the
+thesis was restructured (2026-11). The audit sections they cite — §2.10, most of §4.6.x, §4.10, §6.13 and others —
+now sit in [Appendix A](thesis/appendix-A-verification-record.md) under their original numbers, and §7.5–7.7 in
+[Appendix B](thesis/appendix-B-failure-taxonomy.md).
 
-* **The additive contact-resistance decomposition `R_c = R_transmission + R_extra` fails.** Subtracting the
-  computed doping-junction resistance from measured `R_c` leaves a negative, unphysical residual for 3 of 4
-  metals (Cu −787.5, Ni −360.5, Au −90.2 Ω·µm; Pd +51.0) (§4.7). The failure is robust, not amplified input
-  error: Cu's sign would need an 81.1 % error in `R_extra` to flip, while Pd's survives only a 9.6 % one
-  (§4.10.4). With the known `C_q`-argument defect corrected (form B_T, not yet the default), Pd's residual
-  becomes −203.3 Ω·µm and the decomposition fails for 4 of 4 (§4.6.12(d)).
+* **The contact-resistance decomposition `R_c = R_transmission + R_extra` is sign-consistent, not refuted
+  (corrected 2026-11-16).** With the contact doping measured from the 5.4 eV n/p crossover, Cu and Au — the
+  physisorbed metals with a measured `R_c` — n-dope the contact, so `R_extra` is negative (Cu −445.04, Au −161.14
+  Ω·µm) and the naive residuals are positive (Cu +629.04, Au +680.14 Ω·µm). Ni and Pd chemisorb and are outside
+  the model (§4.7; `results/transcripts/ch4/contact_doping_model_output.txt`). The residuals are well-conditioned:
+  Cu's sign would need a 141.3 % error in `R_extra` to flip (`results/transcripts/ch4/sensitivity_audit_output.txt`).
+  The earlier headline here, negative residuals for 3 of 4 metals, was an artefact of measuring the doping from
+  graphene's 4.5 eV, and it is withdrawn (Appendix A.1). The corrected result is consistency, not confirmation:
+  for Cu the decomposition needs an interface term 3.4× the measured total, and Au's doping sign is not
+  established (§4.7).
 * **Whether graphene beats copper interconnects depends on the copper baseline, not only on graphene.** At
   realistic edge specularity (p = 0.15) the crossover is ≈130 nm against a liner-free Cu model, ≈123 nm with a
   0.3 nm Ru liner, ≈3 nm with a 1.0 nm Co liner, and absent against a 3 nm TaN/Co liner (§5.3). The
@@ -58,6 +66,8 @@ Each number is quoted as it stands in the cited section on 2026-10-16, including
 | 5 | Interconnects | in progress | `graphene_interconnect_model` | `ch5/interconnect_resistivity_vs_linewidth.png` |
 | 6 | Photodetectors | in progress | `graphene_photodetector_*_model`, `graphene_per_metal_crossover_model`, `graphene_differential_crossover_model` | `ch6/photodetector_signed_carrier_response.png`, `ch6/photodetector_nonuniform_illumination.png`, `ch6/per_metal_crossover.png` |
 | 7 | Discussion and outlook | drafted 2026-09-27, annotated since | — (synthesis) | `ch7/second_anchor_bound.png` |
+| 8 | Towards TBG–superconductor junctions | outline only | — | — |
+| A, B | Verification record; failure taxonomy | moved out of the chapter bodies 2026-11 | audits in `src/` | `audits/` |
 
 Every module, the chapter it feeds, the outputs it writes and the repository modules it imports are in
 [`docs/INVENTORY.md`](docs/INVENTORY.md).
@@ -81,11 +91,13 @@ The audit, mutation and census modules live beside the models in `src/` (classed
 `graphene_pristine_transcript_audit.py` re-runs registered suites in a clean clone of the committed state and
 compares their output with the committed transcripts.
 
-**Reproducibility as of this commit.** 23 of the 35 committed transcripts are reproduced byte-for-byte by the
-current code; 4 are stale, 5 differ in the last digits, and 3 are records or non-deterministic by design
-(docs/INVENTORY.md §3, §8). Five committed figures likewise differ from what the current code draws. Four audits
-exit 1 on their own FAIL verdicts, and the pristine-transcript audit reports 2 FAILs while exiting 0. These are
-listed in [`PUBLICATION_PLAN.md`](PUBLICATION_PLAN.md) and were deliberately not changed by the reorganisation.
+**Reproducibility as of this commit.** `python scripts/reproduce_all.py --check` regenerates every output and
+compares it with `docs/baseline_hashes.txt`. The baseline was taken on Windows (Python 3.13.5, pinned
+requirements) at `main` @ `e4fbc26`, and the 21 rows the 2026-11-16 crossover correction changed were then
+re-hashed. In that environment every row is reproduced byte-for-byte, except the two audits whose stdout
+contains timings by design (docs/INVENTORY.md §9.4). On Linux CI, PNG bytes differ because font rasterisation
+differs between platforms. Several audits exit 1 on their own recorded FAIL verdicts, as they did on `main`.
+`tests/test_contact_crossover.py` pins the contact model's exact zeros.
 
 ## Known limitations
 
