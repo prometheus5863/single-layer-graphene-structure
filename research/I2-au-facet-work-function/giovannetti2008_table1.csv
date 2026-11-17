@@ -1,0 +1,9 @@
+# Source: G. Giovannetti, P. A. Khomyakov, G. Brocks, V. M. Karpan, J. van den Brink, P. J. Kelly, "Doping graphene with metal contacts", Phys. Rev. Lett. 101, 026803 (2008), doi:10.1103/PhysRevLett.101.026803, arXiv:0802.2267, Table I (read from ar5iv HTML 2026-11-17).
+# W_M_111 = calculated clean (111) metal work function; W_covered = calculated work function of graphene-covered metal; d_eq in Angstrom; dE_bind in meV per C atom.
+# dEF_DFT = W_covered - W_G with W_G(calc) = 4.48 eV; negative = n-type (paper: Al, Ag, Cu n-type; Au, Pt p-type). Chemisorbed Ni, Co, Pd omitted (Dirac cone destroyed).
+metal,d_eq_A,dE_bind_meV,W_M_111_eV,W_covered_eV,dEF_DFT_eV
+Al,3.41,27,4.22,4.04,-0.44
+Ag,3.33,43,4.92,4.24,-0.24
+Cu,3.26,33,5.22,4.40,-0.08
+Au,3.31,30,5.54,4.74,0.26
+Pt,3.30,38,6.13,4.87,0.39
