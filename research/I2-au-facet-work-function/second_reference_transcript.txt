@@ -1,0 +1,17 @@
+VALIDATION dEF_model(W0=5.4 eV) = -0.000e+00 eV (exact: 0) -> PASS
+
+metal | W111calc | W_exp | dEF_model(calc W) | dEF_Khomyakov printed | proxy W_cov-W_G (11-17) | dEF_model(exp W) | sign calc/exp/DFT
+Al | 4.22 | 4.24 | -0.482 | -0.57 | -0.44 | -0.478 | n/n/n
+Ag | 4.92 | 4.74 | -0.290 | -0.32 | -0.24 | -0.349 | n/n/n
+Cu | 5.22 | 4.98 | -0.156 | -0.17 | -0.08 | -0.268 | n/n/n
+Au | 5.54 | 5.31 | +0.131 | +0.19 | +0.26 | -0.094 | p/n/p
+Pt | 6.13 | 6.14 | +0.370 | +0.33 | +0.39 | +0.373 | p/p/p
+
+signs model(calc W) vs Khomyakov printed: 5/5; RMS 0.053 eV
+yesterday's proxy vs printed: RMS 0.089 eV (proxy is not the Fermi shift: W_cov-W_G includes the interface dipole)
+model(calc W) vs proxy (yesterday's number): RMS 0.074 eV
+signs model(exp W, W0=5.4 calc) vs printed: 4/5; RMS 0.143 eV
+Au experiment (STS, Slawinska 2012): dEF in [+0.25, +0.55] eV, p-type
+  model calc W: +0.131 eV sign p -> sign AGREES; inside range: False
+  model exp  W: -0.094 eV sign n -> sign DISAGREES
+  Khomyakov DFT +0.19 inside range: False
