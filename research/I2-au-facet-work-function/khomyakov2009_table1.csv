@@ -1,0 +1,8 @@
+# Source: P. A. Khomyakov, G. Giovannetti, P. C. Rusu, G. Brocks, J. van den Brink, P. J. Kelly, "First-principles study of the interaction and charge transfer between graphene and metals", Phys. Rev. B 79, 195425 (2009), doi:10.1103/PhysRevB.79.195425, arXiv:0902.1203, Table I (read from ar5iv HTML 2026-11-18).
+# W_M_111_calc = calculated clean (111) work function; W_M_exp = experimental work function column of the same table (footnote letters not read); W_covered = calculated graphene-covered W; dEF_printed = printed Fermi-level shift (n-type < 0). Physisorbed metals only.
+metal,d_eq_A,W_M_111_calc_eV,W_M_exp_eV,W_covered_eV,dEF_printed_eV
+Al,3.41,4.22,4.24,4.04,-0.57
+Ag,3.33,4.92,4.74,4.24,-0.32
+Cu,3.26,5.22,4.98,4.40,-0.17
+Au,3.31,5.54,5.31,4.74,0.19
+Pt,3.30,6.13,6.14,4.87,0.33

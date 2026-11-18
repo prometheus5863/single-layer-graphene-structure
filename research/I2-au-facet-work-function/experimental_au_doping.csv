@@ -1,0 +1,4 @@
+# Source: J. Slawinska, I. Wlasny, P. Dabrowski, Z. Klusek, I. Zasada, "Domains of doping in graphene on polycrystalline gold: first-principles and scanning tunneling spectroscopy studies", Phys. Rev. B 85, 235430 (2012), doi:10.1103/PhysRevB.85.235430, arXiv:1201.5243.
+# Room-temperature UHV STM/STS of graphene on polycrystalline Au; E_D located 0.25-0.55 eV above E_F in domains with a resolved Dirac point (p-type); other domains show ~zero doping (no Dirac point resolved). Converted to dEF = E_D - E_F (p-type > 0).
+metal,method,dEF_min_eV,dEF_max_eV,sign
+Au,STS (poly Au; Au(111)-oriented and amorphous domains),0.25,0.55,p
