@@ -1,0 +1,19 @@
+VALIDATION n_c = n_bulk: R^2 = 1.000000000000 (exact 1) -> PASS
+Au calc (111) W = 5.54 eV: n_c = -1.252e+16 m^-2 (p-type); Passi's DFT surface value E_D-E_F = +0.14 eV vs model +0.13 eV (I2)
+
+n_bulk (m^-2) | window | R_c,TLM junction (Ohm.um) | R^2 | R^2 > 0.984? | implied R_int to match Passi (Dirac 1372 / -40V 519)
++2e+16 n, I1 baseline           | 1-10 um |  +1054.8 | 0.9783 | False | +nan
++2e+16 n, I1 baseline           | 2-20 um |  +1461.0 | 0.9997 | True | +nan
++2e+16 n, I1 baseline           | 0.5-5 um |   +530.2 | 0.9074 | False | +nan
++1e+14 Dirac (puddle-limited)   | 1-10 um |  -1096.0 | 0.9990 | True | +2468
++1e+14 Dirac (puddle-limited)   | 2-20 um |  -1381.0 | 0.9999 | True | +2753
++1e+14 Dirac (puddle-limited)   | 0.5-5 um |   -687.1 | 0.9949 | True | +2059
+-2e+16 p (-40 V, low)           | 1-10 um |   +158.5 | 0.9999 | True | +360
+-2e+16 p (-40 V, low)           | 2-20 um |   +195.7 | 1.0000 | True | +323
+-2e+16 p (-40 V, low)           | 0.5-5 um |   +124.4 | 0.9997 | True | +395
+-5e+16 p (-40 V, high)          | 1-10 um |   +248.4 | 0.9999 | True | +271
+-5e+16 p (-40 V, high)          | 2-20 um |   +250.9 | 1.0000 | True | +268
+-5e+16 p (-40 V, high)          | 0.5-5 um |   +287.5 | 0.9884 | True | +232
+
+Au, n-type channel (I1 baseline): curvature visible to R^2 in a linear fit: min R^2 = 0.9074
+Au, p-type channel (Passi -40 V): junction R_c,TLM in [124, 287] Ohm.um -> fraction of measured 519: [0.24, 0.55]
