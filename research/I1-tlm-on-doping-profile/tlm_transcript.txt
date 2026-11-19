@@ -1,0 +1,12 @@
+VALIDATION n_c = n_bulk: R_c,TLM = -1.41e-12 Ohm.um (exact 0), slope = 756.894152 vs R_sheet = 756.894152 Ohm/sq -> PASS
+n_bulk = 2.0e+16 m^-2, lambda = 250 nm, R_sheet = 756.9 Ohm/sq
+
+metal | W111 | n_c (m^-2) | R_extra src(L_j=1um) | R_extra(L_j=10um) | R_extra(L_j=100um) | R_c,TLM [1-10um] | [2-20] | [0.5-5] | ratio TLM[1-10]/R_extra(1um) | max fit resid [1-10]
+Al | 4.22 | +1.71e+17 |   -542.3 |  -2407.1 |  -5282.8 |   -261.6 |   -599.6 |    -96.8 |  0.48 | 238.72
+Ag | 4.92 | +6.19e+16 |   -320.6 |  -1001.8 |  -1837.9 |   -249.2 |   -434.6 |   -122.7 |  0.78 | 182.06
+Cu | 5.22 | +1.78e+16 |    +33.2 |    +74.8 |   +119.5 |    +37.4 |    +49.3 |    +26.6 |  1.13 | 14.43
+Au | 5.54 | -1.25e+16 |   +947.1 |  +1646.6 |  +2316.4 |  +1054.8 |  +1461.0 |   +530.2 |  1.11 | 873.01
+Pt | 6.13 | -1.00e+17 |   +173.4 |  +4439.0 |  +7024.4 |  -1572.4 |   +791.3 |  -1036.3 | -9.07 | 1910.84
+
+kill condition (R_c,TLM absorbs < 10% of R_extra for every physisorbed metal): NOT hit; metals with >= 10%: ['Al', 'Ag', 'Cu', 'Au', 'Pt']
+apparent sheet resistance from [1-10um] slope vs true R_sheet 756.9: Al 397.2, Ag 608.7, Cu 765.3, Au 922.6, Pt 2276.0
