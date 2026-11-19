@@ -1,0 +1,5 @@
+# Source: H. Passi, A. Gahoi, E. G. Marin, T. Cusati, A. Fortunelli, G. Iannaccone, G. Fiori, M. C. Lemme, "Ultra Low Specific Contact Resistivity in Metal-Graphene Junctions via Atomic Orbital Engineering", Adv. Mater. Interfaces (2018), doi:10.1002/admi.201801285, arXiv:1807.04772 (v1 PDF text read 2026-11-19; figure images and Supplementary Fig. S3 NOT accessible, so no R_tot(L) points were digitised).
+# Au surface (unpatterned) contacts, back-gated, ambient 21 C. Table 1 R_C; fit quality "R^2 > 0.984 for all TLM fits" (Results). Dirac voltage 37.8-38.2 V. DFT surface doping E_D - E_F = 0.14 eV (p-type) quoted in the text.
+condition,Vbg_V,Rc_ohm_um,tlm_R2_min,dEF_surface_DFT_eV
+dirac_point,38,1372,0.984,0.14
+hole_doped,-40,519,0.984,0.14
