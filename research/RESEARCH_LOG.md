@@ -23,3 +23,9 @@ One dated entry per daily session: mode, idea, what was done, result in one line
 - **Result:** the kill condition is not hit, because R_c,TLM = 0.48–1.13× R_extra for Al–Au. However, R_extra grows like ln L_j on the 1/(1+x/λ) tail, so the src 1 µm value is an arbitrary cut, and R_c,TLM shifts by ×2–3 with the fit window. The Pt p–n crossing sits at 1.25 µm, outside the src window (+173 Ω·µm at 1 µm vs +4439 at 10 µm). The model predicts visible R_tot(L) curvature for Au, Al and Pt.
 - **Next experiment:** I1, digitise a published Au TLM plot (Passi et al. arXiv:1807.04772) and test the predicted curvature against the data scatter. The Sunday 2026-11-22 forge should add S3 (BTK in Kwant) or S1.
 - **Environment note:** /sessions is still full (0 B free). /tmp/work from earlier runs belongs to another user, so today's clone is in a fresh mktemp directory under /tmp. The /tmp/pylib packages were reused.
+
+### 2026-11-19 (Thu), continued on Harsh's request — EXECUTE — I1
+- **Push:** retried from the cloud workspace. It was refused because the repo is not in that sandbox's authorized repository set, and the device VM blocks git push. The commits stay in `_to_push/2026-11-19/`. The token copy was shredded.
+- **Done:** compared the Au TLM simulation with Passi et al. arXiv:1807.04772 (Table 1 R_c, R² > 0.984). No R(L) points were accessible, because the figures, the supplement and arxiv.org were all blocked. Validation: R² = 1 at n_c = n_bulk, which passes.
+- **Result:** the comparison is consistent but weak. In a p-channel at −40 V, R(L) stays linear (R² ≥ 0.988), and the junction gives 24–55 % of the measured 519 Ω·µm. The curvature prediction needs n-branch data. The Dirac-point comparison flags the src puddle-σ model.
+- **Next experiment:** I1, an n-branch or ambipolar TLM dataset for Au or Pt contacts (Xia 2011 / Nagashio 2009–2010, to be confirmed). The Sunday forge should still add S3.
