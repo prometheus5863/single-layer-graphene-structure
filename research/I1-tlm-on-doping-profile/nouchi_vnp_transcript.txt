@@ -1,0 +1,11 @@
+VALIDATION n_c = 0: V_NP - V_0 at L = 0.4/1/2.5 um = +5.7e-14, +7.1e-14, +1.1e-13 V (exact 0) -> PASS
+C_ox = 11.510 nF/cm^2 ; 7.184e+10 cm^-2 per V ; lambda = 250 nm
+
+metal | W111 calc (eV) | n_c model (cm^-2) | model doping | dV_NP(0.4 um) vs 2.5 um, S_or (V) | [plain-sum rule, artefact] | model sign | Nouchi sign | agree
+Au | 5.54 | -1.25e+12 | p |  +73.55 | [-113.18] | pos | neg | NO
+Cu | 5.22 | +1.78e+12 | n | -102.07 | [+170.48] | neg | pos | NO
+Ag | 4.92 | +6.19e+12 | n | -257.07 | [+348.45] | neg | pos | NO
+
+INVERSE Au: n_c reproducing dV_NP(0.4 vs 2.5 um) = -28 V : n_c = +4.51e+11 cm^-2 (n-type), src-equivalent W = 5.33 eV (calc 111 W = 5.54 eV, model n_c = -1.25e+12 cm^-2)
+Au fitted-n_c shape dV_NP(L) [V]: 0.4um -28.0, 0.6um -14.9, 0.8um -9.4, 1.0um -6.3, 1.5um -2.7, 2.0um -1.0, 2.5um +0.0
+SIGN SCORE (model calc-111 W vs Nouchi 2011): 0/3
