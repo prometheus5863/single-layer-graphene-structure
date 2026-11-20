@@ -1,0 +1,9 @@
+# Source: R. Nouchi, T. Saito, K. Tanigaki, "Determination of Carrier Type Doped from Metal Contacts to Graphene by Channel-Length-Dependent Shift of Charge Neutrality Points", arXiv:1102.2954 (2011); published Appl. Phys. Express 4, 035101 (2011) per the arXiv listing (DOI not read from the fetched text, to be confirmed: 10.1143/APEX.4.035101).
+# Read 2026-11-20 from the arXiv PDF text only; figures 2-3 were images and could NOT be digitised. Only values stated in the text are recorded.
+# Device: exfoliated single-layer graphene, 300 nm SiO2 back gate, two-terminal, V_DS = 10 mV, vacuum-annealed 120 C 12 h. Au = <1 nm Cr / 45 nm Au (W=2.0 um); Cu = 50 nm Cu/200 nm Au (W=3.5 um); Ag = 50 nm Ag/200 nm Au (W=3.0 um).
+# sign_of_shift_as_L_shortens: "neg" = V_NP moves negative as L decreases (contact donates electrons); "pos" = hole doping.
+metal,L_um,V_NP_V,sign_of_shift_as_L_shortens,inferred_contact_doping,note
+Au,2.5,-43,neg,n,text endpoint
+Au,0.4,-71,neg,n,text endpoint
+Cu,,,pos,p,sign only (Fig. 3b image)
+Ag,,,pos,p,sign only (Fig. 3c image)
