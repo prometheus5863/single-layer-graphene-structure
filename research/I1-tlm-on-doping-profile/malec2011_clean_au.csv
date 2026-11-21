@@ -1,0 +1,15 @@
+# Source: C. E. Malec and D. Davidovic, "Electronic properties of clean Au-graphene contacts", Phys. Rev. B 84, 033407 (2011), doi:10.1103/PhysRevB.84.033407, arXiv:1108.3238.
+# Values read from the arXiv v1 TEXT on 2026-11-21 (figures are images and were not digitised). Device: exfoliated SLG on 300 nm SiO2/Si back gate; Au evaporated at ~460 C after a 12 h 250 C vacuum bake, forming isolated grains directly on graphene (no lithography/resist before Au, no adhesion layer under the grains); Cr/Au leads touch only the SiO2 side of the grains.
+# Not given in the text: the control (no-grain) sample's resistance-maximum gate voltage. Shifts below are therefore relative to V_g = 0, which assumes a near-neutral control.
+quantity,value,unit,where_in_paper,note
+doping_type,p,,abstract + text,"significant p-doping by Au grains"
+C_g,12.4,nF/cm^2,text,measured on a test sample from the same wafer batch
+gap_channel_length_L,35,nm,text,typical graphene channel between grains
+gap_channel_width_w,160,nm,text,typical
+grain_diameter,140,nm,text,used for the per-width R_c
+Vg_max_bulk_high_coverage,85,V,text (Fig. 2C),bulk four-probe resistance maximum at 4.2 K
+Vg_max_contact_resistance,120,V,text (Fig. 3B),"effective contact-resistance maximum, 'near 120 V', 30 V above the bulk maximum"
+n_added_at_120V,9.3e12,cm^-2,text,density the gate adds at 120 V (= hole density under the grains at V_g = 0)
+dEF_contact,0.35,eV,text,"from 9.3e12 cm^-2 with v = 1e6 m/s; theory quoted 0.19 eV at 3.3 A, 0.35 eV at ~4 A"
+Rc_width_0V,128,Ohm um,text,upper bound (includes spreading resistance)
+Rc_width_m100V,95,Ohm um,text,at V_g = -100 V
