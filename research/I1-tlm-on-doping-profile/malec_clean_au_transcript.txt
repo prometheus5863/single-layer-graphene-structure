@@ -1,0 +1,27 @@
+VALIDATION n_c = 0: V_NP(gap) at lambda = 5/50/250 nm = -1.4e-19, +2.2e-06, +1.1e-06 V (exact 0) -> PASS
+C_g = 12.40 nF/cm^2 (7.739e+10 cm^-2/V), gap L = 35 nm, src lambda = 250 nm, src v_F = 1.0e+06 m/s
+
+1) SIGN (clean Au)
+   model: W(111, calc) = 5.54 eV -> n_c = -1.25e+12 cm^-2 -> p-type ; Malec 2011: p-type -> MATCH
+
+2) SIZE of the contact doping
+   model dE_F = +0.131 eV ; Malec +0.35 eV (|n| = 9.3e+12 cm^-2) ; Khomyakov 2009 DFT +0.19 eV ; ratio model/Malec n = 0.13
+   src-equivalent W that gives Malec's density: 6.08 eV (vs 5.54 calc(111), 5.31 exp)
+
+3) TAIL LENGTH: can a pinned edge with lambda = 250 nm leave a 35 nm gap gate-tunable to neutrality at +85 V?
+   data gap/contact density ratio at V_g = 0: 85/120 = 0.71
+   lambda (nm) | S_or(L/2) | V_NP(gap), n_c = Malec (V) | V_NP(gap), n_c = model (V)
+        2 | 0.195 |      +33.0 |       +5.5
+        5 | 0.395 |      +84.9 |      +13.5
+       10 | 0.595 |     +187.1 |      +28.9
+       15 | 0.710 |     +309.5 |      +47.4
+       25 | 0.830 |     +615.4 |      +93.3
+       50 | 0.933 |    +1736.6 |     +261.6
+      100 | 0.978 |    +5507.8 |     +827.6
+      250 | 0.996 |   +29052.3 |    +4360.8
+   lambda matching the density ratio 0.71: 14.9 nm ; lambda putting V_NP(gap) at +85 V with Malec n_c: 5.0 nm
+   src lambda = 250 nm puts the gap neutrality at +29052 V (Malec n_c) -- 342x the measured +85 V
+
+4) CROSS-CHECK against 11-20 (Nouchi 2011, Au, dV_NP(0.4 vs 2.5 um) = -28 V on 300 nm SiO2, C_ox = 11.51 nF/cm^2)
+   lambda =   5.0 nm: n_c reproducing Nouchi -28 V = +4.39e+13 cm^-2 (|n_c|/|n_Malec| = 4.72)
+   lambda = 250.0 nm: n_c reproducing Nouchi -28 V = +4.51e+11 cm^-2 (|n_c|/|n_Malec| = 0.05)
