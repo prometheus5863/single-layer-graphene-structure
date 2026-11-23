@@ -1,0 +1,27 @@
+VALIDATION C_I -> 1e-12 F/m^2 (metal decoupled): max |n_c - n_g| over n_g = -5e12..+7e12 cm^-2 = 5.0e+02 cm^-2 (exact 0) -> PASS
+consistency (not a validation): n_g = 0, dV = -(5.54-5.40): exact series eq. n_c = -6.854e+11 cm^-2 vs src linearised -1.252e+12
+C_I = eps0/3.5 A = 2.530e-02 F/m^2 ; Malec C_g = 12.4 nF/cm^2 ; C_I/C_g = 204
+
+(A1) Malec clean Au: R_c maximum at V_g = +120 V  ->  n_c = 0 there  ->  dV = -e n_g*/C_I
+   d_I = 3.3 A: W_M - W0 = +0.555 eV -> n_c(V_g=0) = -4.94e+12 cm^-2, E_D - E_F = +0.259 eV
+   d_I = 3.5 A: W_M - W0 = +0.588 eV -> n_c(V_g=0) = -5.12e+12 cm^-2, E_D - E_F = +0.264 eV
+   d_I = 4.0 A: W_M - W0 = +0.672 eV -> n_c(V_g=0) = -5.51e+12 cm^-2, E_D - E_F = +0.274 eV
+   src model Au(111): W - W0 = +0.14 eV -> predicted R_c maximum at V_g = +29 V (measured +120 V)
+   Malec's own reading (gate fully reaches graphene under Au): 9.3e12 cm^-2, 0.35 eV; series-capacitor reading at d_I = 3.5 A: -5.12e+12 cm^-2, 0.26 eV
+
+(A2) 35 nm gap between grains, gate-tuned edge (dV from A1, d_I = 3.5 A): gap V_NP vs lambda (measured +85 V)
+   lambda =     2 nm: gap V_NP =   +16.4 V
+   lambda =     5 nm: gap V_NP =   +33.5 V
+   lambda =    10 nm: gap V_NP =   +53.3 V
+   lambda =    15 nm: gap V_NP =   +66.7 V
+   lambda =    25 nm: gap V_NP =   +83.1 V
+   lambda =    50 nm: gap V_NP =  +100.1 V
+   lambda =   100 nm: gap V_NP =  +109.8 V
+   lambda =   250 nm: gap V_NP =  +115.8 V
+   lambda fitting +85 V: 26.7 nm  (11-21, pinned edge: 5 nm; src: 250 nm)
+
+(B) Nouchi 2011 Au (Cr/Au leads, 300 nm SiO2): dV_NP(0.4 um) - dV_NP(2.5 um), measured -28 V (n-type)
+   lambda =  26.7 nm, |W - W0| = 0.588 eV (n-type): shift = -15.61 V
+   lambda = 250.0 nm, |W - W0| = 0.588 eV (n-type): shift = -57.49 V
+   lambda = 26.7 nm: -28 V needs |W - W0| = 0.99 eV (Malec: 0.59 eV)
+   gate-tuned edge, saturation: as |W - W0| -> large the shift tends to -130.76 V at lambda = 26.7 nm
