@@ -74,3 +74,15 @@ One dated entry per daily session: mode, idea, what was done, result in one line
 - **Result:** the sign matches Huard (electron side more resistive). The density dependence does not. The model falls 11.7× over 1.2–7×10¹² cm⁻² (slope −1.42) because the gate closes the Au p–n junction at 9.3×10¹², whereas Huard report a saturated R_odd there. Caveat: Huard's metal is Ti/Au, and the comparison uses text only. At 8×10¹² the diffusive ΔR reaches the ballistic sharp-junction bound (1.05×), which supports I6.
 - **Next experiment:** I6. Compute the ballistic (Klein-filtered, k_y-resolved) junction R on the same gate-tuned edge and test it for saturation over 1.2–7×10¹² cm⁻² (validation: flat profile gives T = 1, the Sharvin limit). I1 resumes once the Huard PDF is available for digitising.
 - **Environment note:** /sessions on the device VM is full (0 B free, used by other data). A device clone into /tmp ran at about 15 KB/s and timed out. The work was done in the cloud workspace, and the push goes through a small bundle applied to a blobless shallow clone on the device, as on 11-24.
+
+## 2026-11-26 (Thu) — EXECUTE — I6
+- **Mode decision:** it is Thursday (IST) and three ideas are live (I1, I5, I6), so today is EXECUTE. I1 is blocked: it needs the Huard 2008 PDF, which is proxy-blocked. Its own 11-25 entry named I6 as the next experiment, so I6 was picked. I5's first step is a prior-art read with 0 days of progress, so it waits.
+- **Done:** wrote a k_y-resolved Dirac transfer-matrix (Landauer) calculation through I1's gate-tuned Au contact edge (W − W0 = 0.59 eV; src unchanged, imported) at λ = 5, 15, 27 and 250 nm. Both branches were run over |n| = 0.5–8 ×10¹² cm⁻², alongside src's diffusive R_extra on the same tail. A first forward transfer-matrix version overflowed on the p–n branch and was replaced, before any number was used, by backward propagation of the transmitted state with log-norm renormalisation. Validation: a flat profile gives T = 1 and R = the Sharvin value (relative error 1e-13). PASS.
+- **Result:** the transport model matters.
+  - On the p–n (n-) branch, R_J/R_extra ranges from 1.4–10× at λ = 5 nm to 0.17–0.62× at 250 nm.
+  - On the p–p′ branch, ballistic R_J ≈ 0 while diffusive R_extra < 0, a sign Landauer cannot give.
+  - The ballistic p/n asymmetry falls with slope −0.4 to −0.6, against −1.5 diffusive. That is closer to Huard's "saturated" R_odd but not saturated.
+  - Neither junction model gives Passi's 519 Ω·µm at −40 V, which points to metal injection.
+  - The kill condition was not hit, and success-metric part 1 was met.
+- **Next experiment:** I6 day 2. Add R_mg(n_c) using the Chaves 2015 form, with one parameter fixed by Passi, to get a full ambipolar R_c(V_g). Compare it with Malec 2011 and Huard with one parameter set, and read Xia 2011 for prior art first.
+- **Environment note:** /sessions on the device VM is still full (0 B free, other data). A device clone into /tmp/hw-work worked quickly today, but the device has no scipy. The calculation ran in the cloud workspace on a fresh clone with src unchanged.
