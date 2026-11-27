@@ -86,3 +86,23 @@ One dated entry per daily session: mode, idea, what was done, result in one line
   - The kill condition was not hit, and success-metric part 1 was met.
 - **Next experiment:** I6 day 2. Add R_mg(n_c) using the Chaves 2015 form, with one parameter fixed by Passi, to get a full ambipolar R_c(V_g). Compare it with Malec 2011 and Huard with one parameter set, and read Xia 2011 for prior art first.
 - **Environment note:** /sessions on the device VM is still full (0 B free, other data). A device clone into /tmp/hw-work worked quickly today, but the device has no scipy. The calculation ran in the cloud workspace on a fresh clone with src unchanged.
+
+## 2026-11-27 (Fri) — EXECUTE — I6
+- **Mode decision:** it is Friday (IST) and three ideas are live (I1, I5, I6), so today is EXECUTE.
+  - I1 is still blocked on the Huard PDF.
+  - I6 has the most recent progress and an unblocked next step, so it was picked.
+  - I5 waits, at 0 days.
+- **Done:**
+  - Added metal injection R_mg as a transmission-line ladder (ρ_c with the src sheet resistance under the metal at n_c). Then R_c = R_mg + ballistic R_J on the gate-tuned Au edge.
+  - Fixed the one parameter ρ_c to Passi 2018 at −40 V (519 Ω·µm), then predicted Passi's Dirac-point R_c and Malec 2011's gate ratio with no refit.
+  - Read the Xia 2011 abstract.
+  - Validation: the uniform ladder equals √(ρ_c R_s)coth(L_c/L_T) to 2×10⁻⁸. PASS.
+- **Result:** with one parameter, the predictions split.
+  - Malec R_c(0)/R_c(−100 V) comes out at 1.51 at λ = 5 nm (1.76 at 15 nm, 1.93 at 27 nm) against the measured 1.35.
+  - Passi CNP/−40 V comes out at 1.80–2.09 against the measured 2.64.
+  - Passi's p-side R_c is all injection (R_J < 0.1 Ω·µm).
+  - ρ_c is degenerate with the unknown contact length (L_T > L_c).
+  - The Xia abstract is Pd only, so the kill condition is not hit.
+- **Next experiment:** I6 day 3. Run the diffusive head-to-head: the same fit with src R_extra in place of R_J, and both ratios ballistic vs diffusive at λ = 5/15/27 nm.
+- **Environment note:**
+  - /sessions on the device VM is full (0 B free, other sessions' data) and /tmp there is not writable, so the clone and calculation ran in the cloud workspace with src unchanged.
