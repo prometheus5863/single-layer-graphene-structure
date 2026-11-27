@@ -1,0 +1,51 @@
+VALIDATION uniform TLM ladder vs closed form sqrt(rho_c R_s) coth(L_c/L_T): 59.80465 vs 59.80465 Ohm.um (rel. err 2.0e-08; L_T = 179 nm) -> PASS
+
+Step 1: rho_c fixed so that R_c = R_mg + R_J = 519 Ohm.um (Passi 2018, Au, -40 V)
+  L_c =  0.5 um, n_g = -2e+12: rho_c = 2.401e-06 Ohm.cm^2, L_T = 1008 nm, n_c = -6.59e+12, R_s(n_c) = 236 Ohm/sq, R_mg = 518.9, R_J = 0.08 Ohm.um
+  L_c =  0.5 um, n_g = -5e+12: rho_c = 2.450e-06 Ohm.cm^2, L_T = 1179 nm, n_c = -8.84e+12, R_s(n_c) = 176 Ohm/sq, R_mg = 519.0, R_J = 0.02 Ohm.um
+  L_c =  1.0 um, n_g = -2e+12: rho_c = 4.429e-06 Ohm.cm^2, L_T = 1369 nm, n_c = -6.59e+12, R_s(n_c) = 236 Ohm/sq, R_mg = 518.9, R_J = 0.08 Ohm.um
+  L_c =  1.0 um, n_g = -5e+12: rho_c = 4.617e-06 Ohm.cm^2, L_T = 1618 nm, n_c = -8.84e+12, R_s(n_c) = 176 Ohm/sq, R_mg = 519.0, R_J = 0.02 Ohm.um
+  L_c = 10.0 um, n_g = -2e+12: rho_c = 1.140e-05 Ohm.cm^2, L_T = 2197 nm, n_c = -6.59e+12, R_s(n_c) = 236 Ohm/sq, R_mg = 518.9, R_J = 0.08 Ohm.um
+  L_c = 10.0 um, n_g = -5e+12: rho_c = 1.521e-05 Ohm.cm^2, L_T = 2938 nm, n_c = -8.84e+12, R_s(n_c) = 176 Ohm/sq, R_mg = 519.0, R_J = 0.02 Ohm.um
+
+Step 2 (prediction, no refit): Passi Dirac point R_c (measured 1372; ratio to -40 V = 2.64)
+  L_c =  0.5 um, rho_c from n_g = -2e+12: R_c(CNP, n_g = -/+ n_puddle) = 527 / 1344, mean 935 Ohm.um -> ratio 1.80 (measured 2.64)
+  L_c =  0.5 um, rho_c from n_g = -5e+12: R_c(CNP, n_g = -/+ n_puddle) = 537 / 1353, mean 945 Ohm.um -> ratio 1.82 (measured 2.64)
+  L_c =  1.0 um, rho_c from n_g = -2e+12: R_c(CNP, n_g = -/+ n_puddle) = 534 / 1357, mean 945 Ohm.um -> ratio 1.82 (measured 2.64)
+  L_c =  1.0 um, rho_c from n_g = -5e+12: R_c(CNP, n_g = -/+ n_puddle) = 553 / 1376, mean 964 Ohm.um -> ratio 1.86 (measured 2.64)
+  L_c = 10.0 um, rho_c from n_g = -2e+12: R_c(CNP, n_g = -/+ n_puddle) = 568 / 1419, mean 993 Ohm.um -> ratio 1.91 (measured 2.64)
+  L_c = 10.0 um, rho_c from n_g = -5e+12: R_c(CNP, n_g = -/+ n_puddle) = 657 / 1513, mean 1085 Ohm.um -> ratio 2.09 (measured 2.64)
+
+Step 3 (prediction): R_c(V_g) on Malec's gate (C_g = 12.4 nF/cm^2), L_c = 1 um, rho_c = 4.429e-06 Ohm.cm^2
+  V_g | n_g | n_c | R_mg | R_J | R_c (Ohm.um), for lambda = 5 / 15 / 27 nm
+   -100 | -7.74e+12 | -1.10e+13 |   489.3 |    0.0/   0.0/   0.0 |   489.3/  489.3/  489.3
+    -90 | -6.97e+12 | -1.04e+13 |   491.9 |    0.0/   0.0/   0.0 |   492.0/  491.9/  491.9
+    -80 | -6.19e+12 | -9.75e+12 |   494.9 |    0.0/   0.0/   0.0 |   494.9/  494.9/  494.9
+    -70 | -5.42e+12 | -9.16e+12 |   498.2 |    0.0/   0.0/   0.0 |   498.2/  498.2/  498.2
+    -60 | -4.64e+12 | -8.57e+12 |   501.9 |    0.0/   0.0/   0.0 |   501.9/  501.9/  501.9
+    -50 | -3.87e+12 | -7.98e+12 |   506.1 |    0.0/   0.0/   0.0 |   506.1/  506.1/  506.1
+    -40 | -3.10e+12 | -7.40e+12 |   510.9 |    0.0/   0.0/   0.0 |   510.9/  510.9/  510.9
+    -30 | -2.32e+12 | -6.83e+12 |   516.4 |    0.0/   0.0/   0.1 |   516.4/  516.4/  516.4
+    -20 | -1.55e+12 | -6.26e+12 |   522.8 |    0.1/   0.1/   0.1 |   522.8/  522.9/  522.9
+    -10 | -7.74e+11 | -5.69e+12 |   530.3 |    0.1/   0.2/   0.3 |   530.4/  530.6/  530.7
+      0 | +0.00e+00 | -5.14e+12 |   539.7 |  198.0/ 319.2/ 405.6 |   737.6/  858.9/  945.3
+     10 | +7.74e+11 | -4.59e+12 |   550.1 |  288.5/ 470.0/ 600.2 |   838.6/ 1020.1/ 1150.3
+     20 | +1.55e+12 | -4.06e+12 |   563.3 |  181.8/ 291.7/ 375.4 |   745.1/  855.1/  938.7
+     30 | +2.32e+12 | -3.53e+12 |   579.9 |  131.9/ 221.1/ 285.5 |   711.8/  801.0/  865.4
+     40 | +3.10e+12 | -3.02e+12 |   601.1 |  103.4/ 187.4/ 237.1 |   704.4/  788.4/  838.2
+     50 | +3.87e+12 | -2.52e+12 |   628.9 |   89.0/ 159.7/ 208.3 |   717.9/  788.6/  837.2
+     60 | +4.64e+12 | -2.04e+12 |   666.5 |   85.2/ 136.6/ 185.8 |   751.7/  803.1/  852.4
+     70 | +5.42e+12 | -1.58e+12 |   719.4 |   90.8/ 124.2/ 162.4 |   810.2/  843.7/  881.9
+     80 | +6.19e+12 | -1.15e+12 |   796.3 |  105.5/ 126.5/ 150.6 |   901.8/  922.8/  946.9
+     90 | +6.97e+12 | -7.52e+11 |   908.9 |  132.9/ 146.8/ 160.8 |  1041.9/ 1055.7/ 1069.7
+    100 | +7.74e+12 | -4.05e+11 |  1055.9 |  187.8/ 197.6/ 206.2 |  1243.8/ 1253.5/ 1262.1
+    110 | +8.51e+12 | -1.32e+11 |  1168.4 |  344.1/ 351.5/ 357.2 |  1512.6/ 1519.9/ 1525.7
+    120 | +9.29e+12 | -2.35e+08 |  1187.3 | 8667.4/8672.9/8676.9 |  9854.7/ 9860.2/ 9864.2
+    130 | +1.01e+13 | +1.17e+11 |  1172.5 |  341.1/ 337.0/ 334.3 |  1513.6/ 1509.5/ 1506.8
+
+  lambda =  5 nm: R_c(0)/R_c(-100) = 1.51 (Malec 128/95 = 1.35); peak at V_g = 120 V (Malec ~120 V); R_c(0) = 738 (Malec <= 128), R_c(-100) = 489 (Malec 95) Ohm.um
+  lambda = 15 nm: R_c(0)/R_c(-100) = 1.76 (Malec 128/95 = 1.35); peak at V_g = 120 V (Malec ~120 V); R_c(0) = 859 (Malec <= 128), R_c(-100) = 489 (Malec 95) Ohm.um
+  lambda = 27 nm: R_c(0)/R_c(-100) = 1.93 (Malec 128/95 = 1.35); peak at V_g = 120 V (Malec ~120 V); R_c(0) = 945 (Malec <= 128), R_c(-100) = 489 (Malec 95) Ohm.um
+  NB: rho_c is Passi's (different devices, Ti-free Au on SiO2 in ambient); Malec's grains are a different interface, so only ratios and the peak position are compared, not absolute values.
+
+Xia et al. Nat. Nanotechnol. 6, 179 (2011), doi:10.1038/nnano.2011.6, abstract read 2026-11-27 (full text not fetched): Pd only; R_c attributed to transport in graphene under the metal (coupling length vs mean free path), ~75 % transfer efficiency at low T, 110+/-20 Ohm.um at 6 K. Abstract names no physisorbed metal and no p-n junction term.
