@@ -106,3 +106,10 @@ One dated entry per daily session: mode, idea, what was done, result in one line
 - **Next experiment:** I6 day 3. Run the diffusive head-to-head: the same fit with src R_extra in place of R_J, and both ratios ballistic vs diffusive at λ = 5/15/27 nm.
 - **Environment note:**
   - /sessions on the device VM is full (0 B free, other sessions' data) and /tmp there is not writable, so the clone and calculation ran in the cloud workspace with src unchanged.
+
+## 2026-11-28 (Sat) — EXECUTE — I6
+- **Mode decision:** it is Saturday (IST) and three ideas are live (I1, I5, I6), so today is EXECUTE. I1 is still blocked on the Huard PDF; I6 has the most progress and an unblocked next step set on 11-27, so it was picked. I5 waits, at 0 days.
+- **Done:** ran the diffusive head-to-head (`run_diffusive_head_to_head.py`): the 11-27 one-parameter R_c = R_mg + junction term with the junction term either ballistic R_J or src-style diffusive R_extra, ρ_c refitted to Passi −40 V for each model and each λ = 5/15/27 nm, L_c = 0.5/1/10 µm. Validation: flat profile gives R_extra = 0 exactly and R_c = closed-form TLM (rel. err 6e-8). PASS.
+- **Result:** split verdict. Passi CNP/−40 V (2.64): ballistic 1.40–2.09 vs diffusive 0.92–1.36, ballistic closer. Malec 0/−100 V (1.35): ballistic 1.44–2.46 vs diffusive 0.90–1.43, diffusive closer. Success-metric part 2 not met; kill not hit (the models give opposite Dirac-point behaviour, driven by src's negative p-side R_extra, −282 to −1115 Ω·µm at the CNP).
+- **Next experiment:** I6 day 4. Find an accessible third clean-Au R_c(V_g) curve (e.g. Nouchi & Tanigaki) and digitise it as a tie-breaker on the n-side shape; if none is accessible, write up the split and decide whether to fold I6 into I1.
+- **Environment note:** /sessions on the device VM is full (0 B free, other data) and the device has no scipy; /tmp on the device was writable today and the clone there worked. The calculation ran in the cloud workspace on a fresh clone with src unchanged.
