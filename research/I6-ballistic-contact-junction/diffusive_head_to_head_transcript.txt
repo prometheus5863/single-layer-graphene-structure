@@ -1,0 +1,56 @@
+VALIDATION flat profile (n_c = n_b = -2e+12 cm^-2): diffusive R_extra = 0 Ohm.um (exact 0); R_c = 277.3697 vs closed-form TLM 277.3697 Ohm.um (rel. err 5.8e-08) -> PASS
+
+Junction terms (Ohm.um) at the fit and prediction densities; n_g(-100 V, Malec) = -7.74e+12 cm^-2
+  lambda =  5 nm | -40V/-2e12: bal     0.0 / dif   -45.4 | -5e12: bal     0.0 / dif    -7.2 | CNP p: bal     0.2 / dif  -282.2 | CNP n: bal   395.8 / dif   253.9 | Malec -100V: bal     0.0 / dif    -2.6
+  lambda = 15 nm | -40V/-2e12: bal     0.1 / dif  -109.4 | -5e12: bal     0.0 / dif   -17.8 | CNP p: bal     0.5 / dif  -666.5 | CNP n: bal   637.9 / dif   568.8 | Malec -100V: bal     0.0 / dif    -6.6
+  lambda = 27 nm | -40V/-2e12: bal     0.1 / dif  -184.3 | -5e12: bal     0.0 / dif   -30.2 | CNP p: bal     0.6 / dif -1115.3 | CNP n: bal   810.6 / dif   932.6 | Malec -100V: bal     0.0 / dif   -11.2
+
+model | lambda | L_c | n_g(fit) | rho_c (Ohm.cm^2) | Passi CNP/-40V (meas 2.64) | Malec 0/-100V (meas 1.35)
+  ballistic |  5 nm |  0.5 um | -2e+12 | 2.401e-06 |  1.40 |  1.44
+  ballistic |  5 nm |  0.5 um | -5e+12 | 2.450e-06 |  1.42 |  1.44
+  ballistic |  5 nm |  1.0 um | -2e+12 | 4.429e-06 |  1.42 |  1.51
+  ballistic |  5 nm |  1.0 um | -5e+12 | 4.617e-06 |  1.46 |  1.49
+  ballistic |  5 nm | 10.0 um | -2e+12 | 1.140e-05 |  1.51 |  1.95
+  ballistic |  5 nm | 10.0 um | -5e+12 | 1.521e-05 |  1.69 |  1.88
+  ballistic | 15 nm |  0.5 um | -2e+12 | 2.401e-06 |  1.64 |  1.69
+  ballistic | 15 nm |  0.5 um | -5e+12 | 2.450e-06 |  1.65 |  1.67
+  ballistic | 15 nm |  1.0 um | -2e+12 | 4.429e-06 |  1.65 |  1.76
+  ballistic | 15 nm |  1.0 um | -5e+12 | 4.617e-06 |  1.69 |  1.73
+  ballistic | 15 nm | 10.0 um | -2e+12 | 1.140e-05 |  1.75 |  2.25
+  ballistic | 15 nm | 10.0 um | -5e+12 | 1.521e-05 |  1.92 |  2.14
+  ballistic | 27 nm |  0.5 um | -2e+12 | 2.401e-06 |  1.80 |  1.86
+  ballistic | 27 nm |  0.5 um | -5e+12 | 2.450e-06 |  1.82 |  1.84
+  ballistic | 27 nm |  1.0 um | -2e+12 | 4.429e-06 |  1.82 |  1.93
+  ballistic | 27 nm |  1.0 um | -5e+12 | 4.617e-06 |  1.86 |  1.90
+  ballistic | 27 nm | 10.0 um | -2e+12 | 1.140e-05 |  1.91 |  2.46
+  ballistic | 27 nm | 10.0 um | -5e+12 | 1.521e-05 |  2.09 |  2.32
+  diffusive |  5 nm |  0.5 um | -2e+12 | 2.628e-06 |  1.08 |  1.03
+  diffusive |  5 nm |  0.5 um | -5e+12 | 2.486e-06 |  1.03 |  1.03
+  diffusive |  5 nm |  1.0 um | -2e+12 | 4.881e-06 |  1.10 |  1.07
+  diffusive |  5 nm |  1.0 um | -5e+12 | 4.689e-06 |  1.06 |  1.08
+  diffusive |  5 nm | 10.0 um | -2e+12 | 1.347e-05 |  1.20 |  1.43
+  diffusive |  5 nm | 10.0 um | -5e+12 | 1.564e-05 |  1.30 |  1.43
+  diffusive | 15 nm |  0.5 um | -2e+12 | 2.948e-06 |  1.14 |  0.97
+  diffusive | 15 nm |  0.5 um | -5e+12 | 2.539e-06 |  0.98 |  0.97
+  diffusive | 15 nm |  1.0 um | -2e+12 | 5.518e-06 |  1.16 |  1.01
+  diffusive | 15 nm |  1.0 um | -5e+12 | 4.794e-06 |  1.02 |  1.02
+  diffusive | 15 nm | 10.0 um | -2e+12 | 1.668e-05 |  1.28 |  1.37
+  diffusive | 15 nm | 10.0 um | -5e+12 | 1.626e-05 |  1.26 |  1.37
+  diffusive | 27 nm |  0.5 um | -2e+12 | 3.322e-06 |  1.20 |  0.92
+  diffusive | 27 nm |  0.5 um | -5e+12 | 2.601e-06 |  0.92 |  0.90
+  diffusive | 27 nm |  1.0 um | -2e+12 | 6.265e-06 |  1.22 |  0.96
+  diffusive | 27 nm |  1.0 um | -5e+12 | 4.918e-06 |  0.96 |  0.94
+  diffusive | 27 nm | 10.0 um | -2e+12 | 2.084e-05 |  1.36 |  1.31
+  diffusive | 27 nm | 10.0 um | -5e+12 | 1.701e-05 |  1.21 |  1.30
+
+Summary per model and lambda: range over L_c and fit density; error = |log(model/measured)| (geometric-mean of the two)
+  ballistic lambda =  5 nm: Passi ratio 1.40-1.69 (2.64), Malec ratio 1.44-1.95 (1.35), combined log-error 0.605
+  ballistic lambda = 15 nm: Passi ratio 1.64-1.92 (2.64), Malec ratio 1.67-2.25 (1.35), combined log-error 0.539
+  ballistic lambda = 27 nm: Passi ratio 1.80-2.09 (2.64), Malec ratio 1.84-2.46 (1.35), combined log-error 0.535
+  diffusive lambda =  5 nm: Passi ratio 1.03-1.30 (2.64), Malec ratio 1.03-1.43 (1.35), combined log-error 0.866
+  diffusive lambda = 15 nm: Passi ratio 0.98-1.28 (2.64), Malec ratio 0.97-1.37 (1.35), combined log-error 0.871
+  diffusive lambda = 27 nm: Passi ratio 0.92-1.36 (2.64), Malec ratio 0.90-1.31 (1.35), combined log-error 0.885
+
+  lambda =  5 nm: closer to data = BALLISTIC (log-error 0.605 vs 0.866)
+  lambda = 15 nm: closer to data = BALLISTIC (log-error 0.539 vs 0.871)
+  lambda = 27 nm: closer to data = BALLISTIC (log-error 0.535 vs 0.885)
